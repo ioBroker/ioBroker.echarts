@@ -48,6 +48,10 @@
             "charts",
             "diagram"
         ],
+		"adminTab": {
+            "singleton": true,
+            "name": "ECharts"
+        },
         "license": "MIT",
         "platform": "Javascript/Node.js",
         "main": "main.js",
@@ -56,17 +60,13 @@
         "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
         "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
         "loglevel": "info",
-        "restartAdapters": [
-            "vis"
-        ],
-        "localLink": "%web_protocol%://%ip%:%web_port%/vis/edit.html",
         "onlyWWW": true,
         "noConfig": true,
         "singleton": true,
         "type": "visualization",
         "mode": "once",
         "dependencies": [
-            "vis"
+            "web"
         ]
     },
     "native": {
