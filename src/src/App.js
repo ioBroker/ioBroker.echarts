@@ -112,19 +112,16 @@ class App extends Component {
             progress: 0,
             ready: false,
             updateScripts: 0,
-            scriptsHash: 0,
+
             instances: [],
             updating: false,
             resizing: false,
             selected: null,
-            logMessage: {},
-            editing: [],
             menuOpened: window.localStorage ? window.localStorage.getItem('App.menuOpened') !== 'false' : true,
             menuSelectId: '',
             errorText: '',
             expertMode: window.localStorage ? window.localStorage.getItem('App.expertMode') === 'true' : false,
             logHorzLayout: window.localStorage ? window.localStorage.getItem('App.logHorzLayout') === 'true' : false,
-            runningInstances: {},
             confirm: '',
             importFile: false,
             message: '',
@@ -159,10 +156,6 @@ class App extends Component {
             onObjectChange: (objects, scripts) => this.onObjectChange(objects, scripts),
             onError: err => {
                 console.error(err);
-            },
-            onLog: message => {
-                //this.logIndex++;
-                //this.setState({logMessage: {index: this.logIndex, message}})
             }
         });
     }
@@ -184,52 +177,10 @@ class App extends Component {
             }
         }
 
-        let scriptsHash = this.state.scriptsHash;
-        if (this.compareScripts(scripts)) {
-            scriptsHash++;
-        }
-        scripts.instances.sort();
-        this.scripts = nScripts;
-        newState.instances = scripts.instances;
-        newState.scriptsHash = scriptsHash;
-
         if (isReady !== undefined) {
             newState.ready = isReady;
         }
         this.setState(newState);
-    }
-
-    compareScripts(newScripts) {
-        const oldIds = Object.keys(this.scripts);
-        const newIds = Object.keys(newScripts);
-        if (oldIds.length !== newIds.length) {
-            this.scripts = this.newScripts;
-            return true;
-        }
-        if (JSON.stringify(oldIds) !== JSON.stringify(newIds)) {
-            this.scripts = this.newScripts;
-            return true;
-        }
-        for (let i = 0; i < oldIds.length; i++) {
-            let oldScript = this.scripts[oldIds[i]].common;
-            let newScript = newScripts[oldIds[i]].common;
-            if (oldScript.name !== newScript.name) {
-                this.scripts = this.newScripts;
-                return true;
-            }
-            if (oldScript.engine !== newScript.engine) {
-                this.scripts = this.newScripts;
-                return true;
-            }
-            if (oldScript.engineType !== newScript.engineType) {
-                this.scripts = this.newScripts;
-                return true;
-            }
-            if (oldScript.enabled !== newScript.enabled) {
-                this.scripts = this.newScripts;
-                return true;
-            }
-        }
     }
 
     onRename(oldId, newId, newName, newInstance) {
@@ -252,7 +203,7 @@ class App extends Component {
             .catch(err => err !== 'canceled' && this.showError(err));
     }
 
-    onUpdateScript(id, common) {
+    onUpdatePreset(id, common) {
         if (this.scripts[id] && this.scripts[id].type === 'script') {
             this.socket.updateScript(id, id, common)
                 .then(() => {})
@@ -494,7 +445,6 @@ class App extends Component {
                         connection={this.socket}
 
                         onLocate={menuSelectId => this.setState({menuSelectId})}
-                        runningInstances={this.state.runningInstances}
                         menuOpened={this.state.menuOpened}
                         searchText={this.state.searchText}
                         theme={this.state.themeType}
@@ -516,7 +466,10 @@ class App extends Component {
                         selected={this.state.selected && this.objects[this.state.selected] && this.objects[this.state.selected].type === 'script' ? this.state.selected : ''}
                         objects={this.objects}
                     />
-                    <SettingsEditor key="log" verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} editing={this.state.editing} connection={this.socket} selected={this.state.selected}/>
+                    <SettingsEditor 
+                        key="log"
+                        onChange={(id, common) => this.onUpdatePreset(id, common)}
+                        verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} connection={this.socket} selected={this.state.selected}/>
                 </SplitterLayout>
             </div>),
         ];
@@ -552,7 +505,6 @@ class App extends Component {
                                 key="sidemenu"
                                 scripts={this.scripts}
                                 objects={this.objects}
-                                scriptsHash={this.state.scriptsHash}
                                 instances={this.state.instances}
                                 update={this.state.updateScripts}
                                 onRename={this.onRename.bind(this)}
@@ -566,7 +518,6 @@ class App extends Component {
                                     window.localStorage && window.localStorage.setItem('App.theme', theme);
                                     this.setState({themeType: theme}, () => this.props.onThemeChange(theme))
                                 }}
-                                runningInstances={this.state.runningInstances}
                                 onExpertModeChange={this.onExpertModeChange.bind(this)}
                                 onDelete={this.onDelete.bind(this)}
                                 onAddNew={this.onAddNew.bind(this)}

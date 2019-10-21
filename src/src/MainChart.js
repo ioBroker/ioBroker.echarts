@@ -27,6 +27,7 @@ import {MdClearAll as IconCloseAll} from 'react-icons/md';
 import {MdBuild as IconDebugMenu} from 'react-icons/md';
 import {MdBugReport as IconDebug} from 'react-icons/md';
 import {MdPlaylistAddCheck as IconVerbose} from 'react-icons/md';
+import {TiAdjustContrast as IconContrast} from 'react-icons/ti'
 
 import ImgJS from './assets/js.png';
 import ImgBlockly from './assets/blockly.png';

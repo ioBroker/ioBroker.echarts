@@ -132,7 +132,6 @@ class SettingsEditor extends React.Component {
             lines: {},
             goBottom: true,
             selected: null,
-            editing: this.props.editing || []
         };
         this.lastIndex = null;
         this.messagesEnd = React.createRef();
@@ -152,7 +151,7 @@ class SettingsEditor extends React.Component {
     }
     logHandler(message) {
         let allLines = this.state.lines;
-        const selected = this.state.editing.find(id => message.message.indexOf(id) !== -1);
+        const selected = this.state.selected;
         if (!selected) return;
 
         let lines = allLines[selected] || [];
@@ -200,21 +199,6 @@ class SettingsEditor extends React.Component {
             changed = true;
         }
 
-        if (JSON.stringify(props.editing) !== JSON.stringify(state.editing)) {
-            const editing = JSON.parse(JSON.stringify(props.editing));
-            let allLines = state.lines;
-
-            for (const id in gText) {
-                if (gText.hasOwnProperty(id)) {
-                    if (editing.indexOf(id) === -1) {
-                        delete gText[id];
-                        delete allLines[id];
-                    }
-                }
-            }
-
-            newState.editing = editing;
-        }
         return changed ? newState : null;
     }
 
