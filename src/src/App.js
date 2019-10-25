@@ -152,6 +152,7 @@ class App extends Component {
                 I18n.setLanguage(this.socket.systemLang);
                 window.systemLang = this.socket.systemLang;
                 this.onObjectChange(objects, scripts, true);
+                this.getStorageAdapters();
             },
             onObjectChange: (objects, scripts) => this.onObjectChange(objects, scripts),
             onError: err => {
@@ -159,6 +160,24 @@ class App extends Component {
             }
         });
     }
+
+    // KRI
+    getStorageAdapters(){
+        this.getLiveHost(host => {
+            if (!host) {
+                this.showError(I18n.t('No active host found'));
+                return;
+            }
+
+            this.socket.socket.emit('sendToHost', host, {
+                key :'getAdapterInstances',
+                value : '*'
+            }, data => {
+                console.log('data : ' + JSON.stringify(data));
+            });
+        });
+    }
+    // KRI
 
     onObjectChange(objects, scripts, isReady) {
         this.objects = objects;
