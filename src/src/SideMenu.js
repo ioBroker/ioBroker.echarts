@@ -193,7 +193,7 @@ const getObjectName = (id, obj, lang) => {
     }
 };
 
-const prepareList = data => {
+const _prepareList = data => {
     const result = [];
     const ids = Object.keys(data);
     ids.sort((a, b) => {
@@ -287,6 +287,24 @@ const prepareList = data => {
     return result;
 };
 
+const prepareList = instances => {
+    const result = [];
+
+    // check if all parents exists
+    instances.forEach(item => {
+        result.push({
+            id:     item._id,
+            title:  item._id.replace(/^system\.adapter\./, ''),
+            depth:  0,
+            type:   'folder',
+            parent: null
+        });
+    });
+
+    return result;
+};
+
+
 class SideDrawer extends React.Component {
     constructor(props) {
         super(props);
@@ -301,7 +319,7 @@ class SideDrawer extends React.Component {
         this.inputRef = new React.createRef();
 
         this.state = {
-            listItems: prepareList(props.scripts || {}),
+            listItems: prepareList(props.instances || {}),
             expanded: expanded,
             problems: [],
             reorder: false,
@@ -337,85 +355,6 @@ class SideDrawer extends React.Component {
 
         // debounce search process
         this.filterTimer = null;
-
-        this.state.isAllZeroInstances = this.getIsAllZeroInstances();
-
-        this.problems = null; //cache
-        this.problemsTimer = null;
-        this.onProblemUpdatedBound = this.onProblemUpdated.bind(this);
-    }
-
-    readProblems(cb, tasks) {
-        if (!tasks) {
-            tasks = Object.keys(this.props.scripts);
-        }
-        if (!tasks || !tasks.length) {
-            cb && cb();
-        } else {
-            const id = tasks.shift();
-            if (this.props.scripts[id] &&
-                this.props.scripts[id].type === 'script' &&
-                this.props.scripts[id].common &&
-                this.props.scripts[id].common.enabled &&
-                !id.match(/^script\.js\.global\./)
-            ) {
-                const instance = this.props.scripts[id].common.engine.split('.').pop();
-                const that = this; // sometimes lambda does not work
-                const _id = 'javascript.' + instance + '.scriptProblem.' + id.substring('script.js.'.length);
-
-                this.props.connection.getState(_id, (err, state) => {
-                    that.onProblemUpdated(_id, state);
-                    setTimeout(() => that.readProblems(cb, tasks), 0);
-                });
-            } else {
-                setTimeout(() => this.readProblems(cb, tasks), 0);
-            }
-        }
-    }
-
-    componentDidMount() {
-        this.readProblems(() =>  {
-            this.props.instances.forEach(instance => {
-                this.props.connection.subscribeState('javascript.' + instance + '.scriptProblem.*', this.onProblemUpdatedBound);
-            });
-        });
-    }
-
-    componentWillUnmount() {
-        this.props.instances.forEach(instance => {
-            this.props.connection.unsubscribeState('javascript.' + instance + '.scriptProblem.*', this.onProblemUpdatedBound);
-        });
-    }
-
-    onProblemUpdated(id, state) {
-        if (!state || !id) return;
-        id = 'script.js.' + id.replace(/^javascript\.\d+\.scriptProblem\./, '');
-
-        if (!this.problems) {
-            this.problems = JSON.parse(JSON.stringify(this.state.problems));
-        }
-        let changed = false;
-
-        if (state.val) {
-            if (this.problems.indexOf(id) === -1) {
-                this.problems.push(id);
-                changed = true;
-            }
-        } else {
-            const pos = this.problems.indexOf(id);
-            if (pos !== -1) {
-                this.problems.splice(pos, 1);
-                changed = true;
-            }
-        }
-
-        if (changed && !this.problemsTimer) {
-            this.problemsTimer = setTimeout(() => {
-                this.problemsTimer = null;
-                this.setState({problems: this.problems});
-                this.problems = null;
-            }, 300);
-        }
     }
 
     static filterListStatic(isDisable, listItems, noUpdate, searchMode, searchText, objects) {
@@ -534,25 +473,11 @@ class SideDrawer extends React.Component {
             changed = true;
             newState.expertMode = props.expertMode;
         }
-        if (state.scriptsHash !== props.scriptsHash && props.scripts) {
-            const listItems = prepareList(props.scripts || {});
-            if (state.searchText) {
-                const nState = SideDrawer.filterListStatic(true, listItems, true, state.searchMode, state.searchText, props.objects);
-                if (nState) {
-                    Object.assign(newState, nState);
-                }
-            }
 
-            const isAllZeroInstances = SideDrawer.getIsAllZeroInstancesStatic(listItems, props.instances || []);
-
-            const newExp = SideDrawer.ensureSelectedIsVisibleStatic(state.selected, state.expanded, state.listItems);
-
-            newState.listItems = listItems;
-            newState.isAllZeroInstances = isAllZeroInstances;
-            if (newExp) {
-                newState.expanded = newExp;
-            }
+        const listItems = prepareList(props.instances || {});
+        if (JSON.stringify(listItems) !== JSON.stringify(state.listItems)) {
             changed = true;
+            newState.listItems = listItems;
         }
 
         if (state.width !== props.width) {
@@ -583,19 +508,6 @@ class SideDrawer extends React.Component {
         } else {
             return null;
         }
-    }
-
-    static getIsAllZeroInstancesStatic(listItems, instances) {
-        let isAllZeroInstances = !instances[0] && instances.length <= 1;
-
-        if (isAllZeroInstances) {
-            listItems.forEach(item => {
-                if (item.type !== 'folder' && item.instance !== 0) {
-                    isAllZeroInstances = false;
-                }
-            });
-        }
-        return isAllZeroInstances;
     }
 
     getIsAllZeroInstances(listItems, instances) {
@@ -845,11 +757,6 @@ class SideDrawer extends React.Component {
                     (<span key="third">{title.substring(pos + this.state.searchText.length)}</span>),
                 ];
             }
-        }
-
-        if (!this.state.isAllZeroInstances && item.type !== 'folder') {
-            title = [(<span key="instance" title={I18n.t('Instance')} className={this.props.classes.instances}>[{item.instance}] </span>), (
-                <span key="title">{title}</span>)];
         }
 
         const style = Object.assign({

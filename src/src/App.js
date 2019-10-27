@@ -32,7 +32,7 @@ const styles = theme => ({
             height: '100%',
         },
         '& .layout-splitter': {
-           background: Theme.type === 'dark' ? '#595858' : '#ccc;'
+            background: Theme.type === 'dark' ? '#595858' : '#ccc;'
         }
     },
     mainDiv: {
@@ -151,35 +151,22 @@ class App extends Component {
             onReady: (objects, scripts) => {
                 I18n.setLanguage(this.socket.systemLang);
                 window.systemLang = this.socket.systemLang;
-                this.onObjectChange(objects, scripts, true);
-                this.getStorageAdapters();
+                this.onObjectChange(objects, scripts, true, () => this.getStorageInstances());
             },
             onObjectChange: (objects, scripts) => this.onObjectChange(objects, scripts),
-            onError: err => {
-                console.error(err);
-            }
+            onError: err => console.error(err)
         });
     }
 
-    // KRI
-    getStorageAdapters(){
-        this.getLiveHost(host => {
-            if (!host) {
-                this.showError(I18n.t('No active host found'));
-                return;
-            }
-
-            this.socket.socket.emit('sendToHost', host, {
-                key :'getAdapterInstances',
-                value : '*'
-            }, data => {
-                console.log('data : ' + JSON.stringify(data));
+    getStorageInstances() {
+        this.socket.getAdapterInstances('')
+            .then(instances => {
+                instances = instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled);
+                this.setState({instances});
             });
-        });
     }
-    // KRI
 
-    onObjectChange(objects, scripts, isReady) {
+    onObjectChange(objects, scripts, isReady, cb) {
         this.objects = objects;
         // extract scripts and instances
         const nScripts = {};
@@ -199,7 +186,7 @@ class App extends Component {
         if (isReady !== undefined) {
             newState.ready = isReady;
         }
-        this.setState(newState);
+        this.setState(newState, cb && cb);
     }
 
     onRename(oldId, newId, newName, newInstance) {
@@ -254,10 +241,10 @@ class App extends Component {
 
     onDelete(id) {
         this.socket.delObject(id)
-        .then(() => {})
-        .catch(err => {
-            this.showError(err);
-        });
+            .then(() => {})
+            .catch(err => {
+                this.showError(err);
+            });
     }
 
     onEdit(id) {
@@ -485,7 +472,7 @@ class App extends Component {
                         selected={this.state.selected && this.objects[this.state.selected] && this.objects[this.state.selected].type === 'script' ? this.state.selected : ''}
                         objects={this.objects}
                     />
-                    <SettingsEditor 
+                    <SettingsEditor
                         key="log"
                         onChange={(id, common) => this.onUpdatePreset(id, common)}
                         verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} connection={this.socket} selected={this.state.selected}/>
@@ -503,53 +490,53 @@ class App extends Component {
         }
 
         return (
-                <div className={classes.root}>
-                    <SplitterLayout
-                        key="menuSplitter"
-                        vertical={false}
-                        primaryMinSize={300}
-                        primaryIndex={1}
-                        secondaryMinSize={300}
-                        secondaryInitialSize={this.menuSize}
-                        customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
-                        onDragStart={() => this.setState({resizing: true})}
-                        onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
-                        onDragEnd={() => {
-                            this.setState({resizing: false});
-                            window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
-                        }}
-                    >
-                        <div className={classes.mainDiv} key="menu">
-                            <SideMenu
-                                key="sidemenu"
-                                scripts={this.scripts}
-                                objects={this.objects}
-                                instances={this.state.instances}
-                                update={this.state.updateScripts}
-                                onRename={this.onRename.bind(this)}
-                                onSelect={this.onSelect.bind(this)}
-                                connection={this.socket}
-                                selectId={this.state.menuSelectId}
-                                onEdit={this.onEdit.bind(this)}
-                                expertMode={this.state.expertMode}
-                                theme={this.state.themeType}
-                                onThemeChange={theme => {
-                                    window.localStorage && window.localStorage.setItem('App.theme', theme);
-                                    this.setState({themeType: theme}, () => this.props.onThemeChange(theme))
-                                }}
-                                onExpertModeChange={this.onExpertModeChange.bind(this)}
-                                onDelete={this.onDelete.bind(this)}
-                                onAddNew={this.onAddNew.bind(this)}
-                                onEnableDisable={this.onEnableDisable.bind(this)}
-                                onExport={this.onExport.bind(this)}
-                                width={this.menuSize}
-                                onImport={() => this.setState({importFile: true})}
-                                onSearch={searchText => this.setState({searchText})}
-                            />
-                        </div>
-                        {this.renderMain()}
-                    </SplitterLayout>
-                </div>
+            <div className={classes.root}>
+                <SplitterLayout
+                    key="menuSplitter"
+                    vertical={false}
+                    primaryMinSize={300}
+                    primaryIndex={1}
+                    secondaryMinSize={300}
+                    secondaryInitialSize={this.menuSize}
+                    customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
+                    onDragStart={() => this.setState({resizing: true})}
+                    onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
+                    onDragEnd={() => {
+                        this.setState({resizing: false});
+                        window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
+                    }}
+                >
+                    <div className={classes.mainDiv} key="menu">
+                        <SideMenu
+                            key="sidemenu"
+                            scripts={this.scripts}
+                            objects={this.objects}
+                            instances={this.state.instances}
+                            update={this.state.updateScripts}
+                            onRename={this.onRename.bind(this)}
+                            onSelect={this.onSelect.bind(this)}
+                            connection={this.socket}
+                            selectId={this.state.menuSelectId}
+                            onEdit={this.onEdit.bind(this)}
+                            expertMode={this.state.expertMode}
+                            theme={this.state.themeType}
+                            onThemeChange={theme => {
+                                window.localStorage && window.localStorage.setItem('App.theme', theme);
+                                this.setState({themeType: theme}, () => this.props.onThemeChange(theme))
+                            }}
+                            onExpertModeChange={this.onExpertModeChange.bind(this)}
+                            onDelete={this.onDelete.bind(this)}
+                            onAddNew={this.onAddNew.bind(this)}
+                            onEnableDisable={this.onEnableDisable.bind(this)}
+                            onExport={this.onExport.bind(this)}
+                            width={this.menuSize}
+                            onImport={() => this.setState({importFile: true})}
+                            onSearch={searchText => this.setState({searchText})}
+                        />
+                    </div>
+                    {this.renderMain()}
+                </SplitterLayout>
+            </div>
         );
     }
 }
