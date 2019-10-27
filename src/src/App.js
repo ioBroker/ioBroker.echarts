@@ -159,7 +159,7 @@ class App extends Component {
     }
 
     getStorageInstances() {
-        this.socket.getAdapterInstances()
+        this.socket.getAdapterInstances('')
             .then(instances => {
                 instances = instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled);
                 this.setState({instances});
