@@ -41,7 +41,7 @@ import DialogConfirm from '@iobroker/adapter-react/Dialogs/Confirm';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 
 const images = {
-    'Blockly': ImgBlockly,
+    Blockly: ImgBlockly,
     'Javascript/js': ImgJS,
     def: ImgJS,
     'TypeScript/ts': ImgTypeScript,
@@ -777,78 +777,7 @@ class Editor extends React.Component {
     }
 
     getToolbar() {
-        const isInstanceRunning = this.state.selected && this.scripts[this.state.selected] && this.scripts[this.state.selected].engine && this.state.runningInstances[this.scripts[this.state.selected].engine];
-        const isScriptRunning = this.state.selected && this.scripts[this.state.selected] && this.scripts[this.state.selected].enabled;
-
-        if (this.state.selected) {
-            const changed = this.state.changed[this.state.selected];
-            return (
-                <Toolbar variant="dense" className={this.props.classes.toolbar} key="toolbar1">
-                    {this.state.menuOpened && this.props.onLocate && (<IconButton className={this.props.classes.toolbarButtons} key="locate" title={I18n.t('Locate file')} onClick={() => this.props.onLocate(this.state.selected)}><IconLocate/></IconButton>)}
-                    {!changed && isInstanceRunning && (<IconButton key="restart" variant="contained" className={this.props.classes.toolbarButtons} onClick={() => this.onRestart()} title={I18n.t('Restart')}><IconRestart /></IconButton>)}
-                    {!changed && !isScriptRunning && (<span className={this.props.classes.notRunning}>{I18n.t('Script is not running')}</span>)}
-                    {!changed && isScriptRunning && !isInstanceRunning && (<span className={this.props.classes.notRunning}>{I18n.t('Instance is disabled')}</span>)}
-                    {changed && (<Button key="save" variant="contained" color="secondary" className={this.props.classes.textButton} onClick={() => this.onSave()}>{I18n.t('Save')}<IconSave /></Button>)}
-                    {changed && (<Button key="cancel" variant="contained" className={this.props.classes.textButton} onClick={() => this.onCancel()}>{I18n.t('Cancel')}<IconCancel /></Button>)}
-                    <div style={{flex: 2}}/>
-
-                    {this.state.blockly && !this.state.showBlocklyCode &&
-                        (<IconButton key="export" aria-label="Export Blocks"
-                                     title={I18n.t('Export blocks')}
-                             className={this.props.classes.toolbarButtons}
-                             onClick={() => this.sendCommandToBlockly('export')}>
-                        <IconExport /></IconButton>)}
-
-                    {this.state.blockly && !this.state.showBlocklyCode &&
-                        (<IconButton key="import" aria-label="Import Blocks"
-                                     title={I18n.t('Import blocks')}
-                                     className={this.props.classes.toolbarButtons}
-                                     onClick={() => this.sendCommandToBlockly('import')}>
-                            <IconImport /></IconButton>)}
-
-                    {this.state.blockly && !this.state.showBlocklyCode &&
-                        (<IconButton key="check" aria-label="Check code"
-                                     title={I18n.t('Check blocks')}
-                                     className={this.props.classes.toolbarButtons}
-                                     onClick={() => this.sendCommandToBlockly('check')}>
-                            <IconCheck /></IconButton>)}
-
-                    {!this.state.blockly && !this.state.showBlocklyCode && (<IconButton key="select-cron" aria-label="create CRON"
-                                                                                        title={I18n.t('Create or edit CRON or time wizard')}
-                                                                                        className={this.props.classes.toolbarButtons}
-                                                                                        onClick={() => this.setState({showCron: true})}><IconCron/></IconButton>)}
-
-                    {!this.state.blockly && !this.state.showBlocklyCode && (<IconButton key="select-id" aria-label="select ID"
-                                                                                        title={I18n.t('Insert object ID')}
-                                                                                        className={this.props.classes.toolbarButtons}
-                                                                                        onClick={() => this.setState({showSelectId: true})}><IconSelectId/></IconButton>)}
-
-                    {this.state.blockly && this.state.showBlocklyCode && (<Button key="convert2js" aria-label="convert to javascript"
-                                                                                  title={I18n.t('Convert blockly to javascript for ever.')}
-                                                                                  onClick={() => this.onConvert2JS()}
-                    >Blockly=>JS</Button>)}
-
-                    {this.state.blockly && (<Button key="blockly-code" aria-label="blockly"
-                                                    title={I18n.t('Show javascript code')}
-                                                    className={this.props.classes.toolbarButtons}
-                                                    color={this.state.showBlocklyCode ? 'secondary' : 'inherit'}
-                                                    style={{padding: '0 5px'}}
-                                                    onClick={() => this.setState({showBlocklyCode: !this.state.showBlocklyCode})}>
-                        <img alt="blockly2js" src={ImgBlockly2Js} /></Button>)}
-
-                    {!this.state.showBlocklyCode && (<IconButton key="debug" aria-label="Debug menu"
-                                                                 title={I18n.t('Debug options')}
-                                                                 className={this.props.classes.toolbarButtons}
-                                                                 onClick={e => this.setState({showDebugMenu: true, menuDebugAnchorEl: e.currentTarget})}>
-                        <Badge className={this.props.classes.badgeMargin} badgeContent={this.getDebugBadge()}>
-                            <IconDebugMenu />
-                        </Badge>
-                    </IconButton>)}
-
-                </Toolbar>);
-        } else {
-            return null;
-        }
+        return null;
     }
 
     getChartFrame() {

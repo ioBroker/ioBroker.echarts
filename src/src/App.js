@@ -151,16 +151,22 @@ class App extends Component {
             onReady: (objects, scripts) => {
                 I18n.setLanguage(this.socket.systemLang);
                 window.systemLang = this.socket.systemLang;
-                this.onObjectChange(objects, scripts, true);
+                this.onObjectChange(objects, scripts, true, () => this.getStorageInstances());
             },
             onObjectChange: (objects, scripts) => this.onObjectChange(objects, scripts),
-            onError: err => {
-                console.error(err);
-            }
+            onError: err => console.error(err)
         });
     }
 
-    onObjectChange(objects, scripts, isReady) {
+    getStorageInstances() {
+        this.socket.getAdapterInstances()
+            .then(instances => {
+                instances = instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled);
+                this.setState({instances});
+            });
+    }
+
+    onObjectChange(objects, scripts, isReady, cb) {
         this.objects = objects;
         // extract scripts and instances
         const nScripts = {};
@@ -180,7 +186,7 @@ class App extends Component {
         if (isReady !== undefined) {
             newState.ready = isReady;
         }
-        this.setState(newState);
+        this.setState(newState, cb && cb);
     }
 
     onRename(oldId, newId, newName, newInstance) {
