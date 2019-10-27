@@ -474,6 +474,12 @@ class SideDrawer extends React.Component {
             newState.expertMode = props.expertMode;
         }
 
+        const listItems = prepareList(props.instances || {});
+        if (JSON.stringify(listItems) !== JSON.stringify(state.listItems)) {
+            changed = true;
+            newState.listItems = listItems;
+        }
+
         if (state.width !== props.width) {
             changed = true;
             newState.width = props.width;
