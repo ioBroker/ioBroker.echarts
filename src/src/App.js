@@ -158,12 +158,50 @@ class App extends Component {
         });
     }
 
+    getEnabledDPs(id, cb) {
+        let timer = setTimeout(() => {
+            timer = null;
+            cb && cb(null);
+            cb = null;
+        }, 500);
+
+        this.socket.sendTo(id, 'getEnabledDPs', {}, result => {
+            timer && clearTimeout(timer);
+            timer = null;
+            cb && cb(result);
+            cb = null;
+        });
+    }
+
     getStorageInstances() {
         this.socket.getAdapterInstances('')
+            .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
             .then(instances => {
-                instances = instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled);
-                this.setState({instances});
-            });
+                let cnt = 0;
+                instances.forEach(instObj => {
+                    let dbInstance = instObj._id.replace('system.adapter.', '');
+
+                    cnt++;
+                    this.getEnabledDPs(dbInstance, result => {
+                        instObj.enabledDP = result || {'no answer': {obj: {common: {name: I18n.t('No answer')}}}};
+
+                        Object.keys(instObj.enabledDP).forEach(id => {
+                            if (id === 'no answer') {
+                                return;
+                            }
+                            cnt++;
+                            this.socket.getObject(id)
+                                .then (res => {
+                                    instObj.enabledDP[id].obj = res;
+                                    !--cnt && this.setState({instances});
+                                });
+                        });
+
+                        !--cnt && this.setState({instances});
+                    });
+                });
+            })
+            .then(instances => instances && this.setState({instances}));
     }
 
     onObjectChange(objects, scripts, isReady, cb) {
@@ -409,23 +447,27 @@ class App extends Component {
         this.setState({logHorzLayout: !this.state.logHorzLayout});
     }
 
+    generateUniqueKey() {
+        return 'App' + (new Date()).getTime().toString(36) + Math.random().toString(36).slice(2);
+    }
+
     renderMain() {
         const {classes} = this.props;
-        const errorDialog = this.state.errorText ? (<DialogError key="dialogError" onClose={() => this.setState({errorText: ''})} text={this.state.errorText}/>) : null;
+        const errorDialog = this.state.errorText ? (<DialogError key={this.generateUniqueKey()} onClose={() => this.setState({errorText: ''})} text={this.state.errorText}/>) : null;
         return [
-            this.state.message ? (<DialogMessage key="dialogMessage" onClose={() => this.setState({message: ''})} text={this.state.message}/>) : null,
+            this.state.message ? (<DialogMessage key={this.generateUniqueKey()} onClose={() => this.setState({message: ''})} text={this.state.message}/>) : null,
             errorDialog,
-            this.state.importFile ? (<DialogImportFile key="dialogImportFile" onClose={data => this.onImport(data)} />) : null,
+            this.state.importFile ? (<DialogImportFile key={this.generateUniqueKey()} onClose={data => this.onImport(data)} />) : null,
             this.state.confirm ? (<DialogConfirm
-                key="dialogConfirm"
+                key={this.generateUniqueKey()}
                 onClose={result => {
                     this.state.confirm && this.setState({confirm: ''});
                     this.confirmCallback && this.confirmCallback(result);
                     this.confirmCallback = null;
                 }}
                 text={this.state.confirm}/>) : null,
-            (<div className={classes.content + ' iobVerticalSplitter'} key="main">
-                <div key="closeMenu" className={classes.menuOpenCloseButton} onClick={() => {
+            (<div className={classes.content + ' iobVerticalSplitter'} key={this.generateUniqueKey()}>
+                <div key={this.generateUniqueKey()} className={classes.menuOpenCloseButton} onClick={() => {
                     window.localStorage && window.localStorage.setItem('App.menuOpened', this.state.menuOpened ? 'false' : 'true');
                     this.setState({menuOpened: !this.state.menuOpened, resizing: true});
                     setTimeout(() => this.setState({resizing: false}), 300);
@@ -433,7 +475,7 @@ class App extends Component {
                     {this.state.menuOpened ? (<IconMenuOpened />) : (<IconMenuClosed />)}
                 </div>
                 <SplitterLayout
-                    key="splitterLayout"
+                    key="MainSplitter"
                     vertical={!this.state.logHorzLayout}
                     primaryMinSize={100}
                     secondaryInitialSize={this.logSize}
@@ -446,7 +488,7 @@ class App extends Component {
                     }}
                 >
                     <MainChart
-                        key="editor"
+                        key="Main"
                         visible={!this.state.resizing}
                         connection={this.socket}
 
@@ -473,7 +515,7 @@ class App extends Component {
                         objects={this.objects}
                     />
                     <SettingsEditor
-                        key="log"
+                        key="Editor"
                         onChange={(id, common) => this.onUpdatePreset(id, common)}
                         verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} connection={this.socket} selected={this.state.selected}/>
                 </SplitterLayout>
@@ -492,7 +534,7 @@ class App extends Component {
         return (
             <div className={classes.root}>
                 <SplitterLayout
-                    key="menuSplitter"
+                    key={this.generateUniqueKey()}
                     vertical={false}
                     primaryMinSize={300}
                     primaryIndex={1}
@@ -506,7 +548,7 @@ class App extends Component {
                         window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
                     }}
                 >
-                    <div className={classes.mainDiv} key="menu">
+                    <div className={classes.mainDiv} key={this.generateUniqueKey()}>
                         <SideMenu
                             key="sidemenu"
                             scripts={this.scripts}
@@ -531,7 +573,6 @@ class App extends Component {
                             onExport={this.onExport.bind(this)}
                             width={this.menuSize}
                             onImport={() => this.setState({importFile: true})}
-                            onSearch={searchText => this.setState({searchText})}
                         />
                     </div>
                     {this.renderMain()}
