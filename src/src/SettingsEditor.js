@@ -220,7 +220,7 @@ class SettingsEditor extends React.Component {
     render() {
         const lines = this.state.selected && this.state.lines[this.state.selected];
         return (
-            <div className={this.props.classes.logBox}>
+            <div className={this.props.classes.logBox}> key="logbox"
                 <div className={this.props.classes.toolbox} key="toolbox">
                     <IconButton className={this.props.classes.iconButtons} onClick={() => this.setState({goBottom: !this.state.goBottom})} color={this.state.goBottom ? 'secondary' : ''}><IconBottom/></IconButton>
                     {lines && lines.length ? (<IconButton className={this.props.classes.iconButtons} onClick={() => this.clearLog()}><IconDelete/></IconButton>) : null}

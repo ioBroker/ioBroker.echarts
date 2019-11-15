@@ -447,27 +447,23 @@ class App extends Component {
         this.setState({logHorzLayout: !this.state.logHorzLayout});
     }
 
-    generateUniqueKey() {
-        return 'App' + (new Date()).getTime().toString(36) + Math.random().toString(36).slice(2);
-    }
-
     renderMain() {
         const {classes} = this.props;
-        const errorDialog = this.state.errorText ? (<DialogError key={this.generateUniqueKey()} onClose={() => this.setState({errorText: ''})} text={this.state.errorText}/>) : null;
+        const errorDialog = this.state.errorText ? (<DialogError key="dialogerror" onClose={() => this.setState({errorText: ''})} text={this.state.errorText}/>) : null;
         return [
-            this.state.message ? (<DialogMessage key={this.generateUniqueKey()} onClose={() => this.setState({message: ''})} text={this.state.message}/>) : null,
+            this.state.message ? (<DialogMessage key="dialogmessage" onClose={() => this.setState({message: ''})} text={this.state.message}/>) : null,
             errorDialog,
-            this.state.importFile ? (<DialogImportFile key={this.generateUniqueKey()} onClose={data => this.onImport(data)} />) : null,
+            this.state.importFile ? (<DialogImportFile key="dialogimportfile" onClose={data => this.onImport(data)} />) : null,
             this.state.confirm ? (<DialogConfirm
-                key={this.generateUniqueKey()}
+                key="confirmdialog"
                 onClose={result => {
                     this.state.confirm && this.setState({confirm: ''});
                     this.confirmCallback && this.confirmCallback(result);
                     this.confirmCallback = null;
                 }}
                 text={this.state.confirm}/>) : null,
-            (<div className={classes.content + ' iobVerticalSplitter'} key={this.generateUniqueKey()}>
-                <div key={this.generateUniqueKey()} className={classes.menuOpenCloseButton} onClick={() => {
+            (<div className={classes.content + ' iobVerticalSplitter'} key="confirmdialog">
+                <div key="confirmdiv" className={classes.menuOpenCloseButton} onClick={() => {
                     window.localStorage && window.localStorage.setItem('App.menuOpened', this.state.menuOpened ? 'false' : 'true');
                     this.setState({menuOpened: !this.state.menuOpened, resizing: true});
                     setTimeout(() => this.setState({resizing: false}), 300);
@@ -488,10 +484,9 @@ class App extends Component {
                     }}
                 >
                     <MainChart
-                        key="Main"
+                        key="MainChart"
                         visible={!this.state.resizing}
                         connection={this.socket}
-
                         onLocate={menuSelectId => this.setState({menuSelectId})}
                         menuOpened={this.state.menuOpened}
                         searchText={this.state.searchText}
@@ -532,9 +527,9 @@ class App extends Component {
         }
 
         return (
-            <div className={classes.root}>
+            <div className={classes.root} key="divside">
                 <SplitterLayout
-                    key={this.generateUniqueKey()}
+                    key="sidemenuwidth"
                     vertical={false}
                     primaryMinSize={300}
                     primaryIndex={1}
@@ -548,7 +543,7 @@ class App extends Component {
                         window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
                     }}
                 >
-                    <div className={classes.mainDiv} key={this.generateUniqueKey()}>
+                    <div className={classes.mainDiv} key="mainmenudiv">
                         <SideMenu
                             key="sidemenu"
                             scripts={this.scripts}

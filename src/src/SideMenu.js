@@ -6,37 +6,20 @@ import DialogError from "./Dialogs/Error";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import Collapse from '@material-ui/core/Collapse';
-
 
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 
-import {FaFolder as IconFolder} from 'react-icons/fa';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
 import {MdClose as IconClear} from 'react-icons/md';
 import {MdFormatClear as IconClose} from 'react-icons/md';
 import {MdMoreVert as IconMore} from 'react-icons/md';
-import {MdAdd as IconAdd} from 'react-icons/md';
-import {MdCreateNewFolder as IconAddFolder} from 'react-icons/md';
 import {MdSearch as IconFind} from 'react-icons/md';
-import {MdSwapVert as IconReorder} from 'react-icons/md';
-import {MdEdit as IconEdit} from 'react-icons/md';
-import {MdContentCopy as IconCopy} from 'react-icons/md';
-import {MdDelete as IconDelete} from 'react-icons/md';
-import {MdPersonPin as IconExpert} from 'react-icons/md';
-import {FaFileExport as IconExport} from 'react-icons/fa';
-import {FaFileImport as IconImport} from 'react-icons/fa';
 import {MdPalette as IconDark} from 'react-icons/md';
-import {MdDragHandle as IconGrip} from 'react-icons/md';
 import {MdExpandMore as IconCollapse} from 'react-icons/md';
 import {MdKeyboardArrowRight as IconExpand} from 'react-icons/md';
 import {DiDatabase as IconDatabase} from "react-icons/di";
 import {TiChartLine as IconChart} from "react-icons/ti";
 
-import ImgBlockly from "./assets/blockly.png";
-import ImgJS from "./assets/js.png";
-import ImgTypeScript from "./assets/typescript.png";
 import List from "@material-ui/core/List";
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
@@ -46,7 +29,6 @@ import I18n from "@iobroker/adapter-react/i18n";
 import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import {IconBase} from "react-icons";
 
 const MENU_ITEM_HEIGHT = 48;
 
@@ -158,13 +140,6 @@ const styles = theme => ({
         paddingLeft: theme.spacing(4),
     }
 });
-
-const images = {
-    'Blockly': ImgBlockly,
-    'Javascript/js': ImgJS,
-    def: ImgJS,
-    'TypeScript/ts': ImgTypeScript,
-};
 
 const getItemStyle = (isDragging, draggableStyle) => ({
     userSelect: 'none',
@@ -299,6 +274,7 @@ class SideDrawer extends React.Component {
                     if ((dbItem.enabledDP[id].obj.common.name).toLowerCase().includes(searchText.toLowerCase())) {
                         ret[id] = JSON.parse(JSON.stringify(dbItem.enabledDP[id]));
                     }
+                    return null;
                 });
                 const newItem = JSON.parse(JSON.stringify(dbItem));
                 newItem.enabledDP = ret;
@@ -360,14 +336,14 @@ class SideDrawer extends React.Component {
             const next = item.enabledDP || {};
             return (
                 <List component="div" key={item.id}>
-                    <ListItem component="div" button key={item.id}
+                    <ListItem component="div" button key="item{item.id}"
                               onClick={() => this.state.expanded.includes(item.id) ? this.onCollapse(item.id) : this.onExpand(item.id)}>
                         {this.renderExpandCollapse(this.state.expanded.includes(item.id))}
                         <ListItemIcon><IconDatabase/></ListItemIcon>
                         <ListItemText primary={item.title}/>
                     </ListItem>
                     <Collapse in={this.state.expanded.includes(item.id)} unmountOnExit>
-                        <List component="div" disablePadding>
+                        <List component="div" disablePadding key={item.id}>
                             {Object.keys(next).map(id =>
                                 (<ListItem component="div" button key={id} className={classes.subItem}>
                                         <ListItemIcon><IconChart/></ListItemIcon>
@@ -593,7 +569,7 @@ class SideDrawer extends React.Component {
                 anchor='left'
                 onClick={() => this.onClick({id: ''})}
             >
-                <div className={classes.toolbar}>
+                <div className={classes.toolbar} key="toolbar">
                     {this.getToolbarButtons()}
                 </div>
                 <Divider/>
