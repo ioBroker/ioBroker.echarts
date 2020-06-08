@@ -1,0 +1,78 @@
+{
+    "common": {
+        "name": "echarts",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "E-Charts",
+        "titleLang": {
+            "en": "E-Charts",
+            "de": "E-Charts",
+            "ru": "E-диаграмма",
+            "pt": "E-Charts",
+            "nl": "E-Grafieken",
+            "fr": "E-Charts",
+            "it": "E-Charts",
+            "es": "E-Charts",
+            "pl": "Wykresy elektroniczne",
+            "zh-cn": "电子图"
+        },
+        "desc": {
+            "en": "Build useful charts in ioBroker",
+            "de": "Erstellen Sie nützliche Diagramme in ioBroker",
+            "ru": "Создавайте полезные графики в ioBroker",
+            "pt": "Crie gráficos úteis no ioBroker",
+            "nl": "Bouw handige grafieken in ioBroker",
+            "fr": "Construire des graphiques utiles dans ioBroker",
+            "it": "Crea grafici utili in ioBroker",
+            "es": "Cree gráficos útiles en ioBroker",
+            "pl": "Twórz przydatne wykresy w ioBroker",
+            "zh-cn": "在ioBroker中建立有用的图表"
+        },
+        "authors": [
+            "bluefox <dogafox@gmail.com>"
+        ],
+        "keywords": [
+            "charts",
+            "diagram"
+        ],
+		"adminTab": {
+            "singleton": true,
+            "name": "ECharts"
+        },
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "echarts.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
+        "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
+        "loglevel": "info",
+        "onlyWWW": true,
+        "noConfig": true,
+        "singleton": true,
+        "type": "visualization",
+        "mode": "once",
+        "dependencies": [
+            "web"
+        ]
+    },
+    "native": {
+        "option1": true,
+        "option2": "42"
+    },
+    "objects": [],
+    "instanceObjects": []
+}
