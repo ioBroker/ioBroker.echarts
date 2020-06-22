@@ -19,6 +19,7 @@ import MainChart from './MainChart';
 import Theme from './Theme';
 import DialogError from './Dialogs/Error';
 import DialogImportFile from './Dialogs/ImportFile';
+import getUrlQuery from './utils/getUrlQuery';
 
 const styles = theme => ({
     root: Theme.root,
@@ -135,7 +136,11 @@ class App extends Component {
         this.hosts = [];
         this.importFile = null;
 
+        const query = getUrlQuery();
+
         this.socket = new Connection({
+            host: query.host ? query.host : 'localhost',
+            port: 8081,
             autoSubscribes: ['script.*', 'system.adapter.javascript.*'],
             autoSubscribeLog: true,
             //port: 8082, // debug port
