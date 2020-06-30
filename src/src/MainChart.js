@@ -784,9 +784,9 @@ class Editor extends React.Component {
     getChartFrame() {
         const query = getUrlQuery();
         const host = query.host ? query.host : 'localhost'
-        return (<ChartFrame
+        return (<div style={{display: this.state.visible ? "inline" : "none"}}><ChartFrame
             src={"http://" + host + ":8082/flot/index.html?l%5B0%5D%5Bid%5D=system.adapter.admin.0.memHeapTotal&l%5B0%5D%5Boffset%5D=0&l%5B0%5D%5Baggregate%5D=minmax&l%5B0%5D%5Bcolor%5D=%23FF0000&l%5B0%5D%5Bthickness%5D=3&l%5B0%5D%5Bshadowsize%5D=3&l%5B1%5D%5Bid%5D=system.adapter.admin.0.memHeapUsed&l%5B1%5D%5Boffset%5D=0&l%5B1%5D%5Baggregate%5D=minmax&l%5B1%5D%5Bcolor%5D=%2300FF00&l%5B1%5D%5Bthickness%5D=3&l%5B1%5D%5Bshadowsize%5D=3&timeType=relative&relativeEnd=now&range=10&aggregateType=count&aggregateSpan=300&hoverDetail=false&useComma=false&zoom=true&noedit=false&animation=0"}
-        />);
+        /></div>);
     }
 
     getConfirmDialog() {
