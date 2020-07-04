@@ -7,7 +7,7 @@ import {MdArrowBack as IconMenuOpened} from 'react-icons/md';
 import 'react-splitter-layout/lib/index.css';
 
 import Connection from '@iobroker/adapter-react/Connection';
-import {PROGRESS} from '@iobroker/adapter-react/Connection';
+//import {PROGRESS} from '@iobroker/adapter-react/Connection';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogMessage from '@iobroker/adapter-react/Dialogs/Message';
@@ -141,9 +141,10 @@ class App extends Component {
         this.socket = new Connection({
             host: query.host ? query.host : 'localhost',
             port: 8081,
-            autoSubscribes: ['script.*', 'system.adapter.javascript.*'],
-            autoSubscribeLog: true,
+            //autoSubscribes: ['script.*', 'system.adapter.javascript.*'],
+            //autoSubscribeLog: true,
             //port: 8082, // debug port
+            /*
             onProgress: progress => {
                 if (progress === PROGRESS.CONNECTING) {
                     this.setState({connected: false});
@@ -153,14 +154,33 @@ class App extends Component {
                     this.setState({connected: true, progress: Math.round(PROGRESS.READY / progress * 100)});
                 }
             },
+            */
             onReady: (objects, scripts) => {
                 I18n.setLanguage(this.socket.systemLang);
                 window.systemLang = this.socket.systemLang;
                 this.onObjectChange(objects, scripts, true, () => this.getStorageInstances());
+                this.loadPresets();
             },
-            onObjectChange: (objects, scripts) => this.onObjectChange(objects, scripts),
-            onError: err => console.error(err)
+            //onObjectChange: (objects, scripts) => this.onObjectChange(objects, scripts),
+            //onError: err => console.error(err)
         });
+        this.socket.socket.off('error');
+        this.socket.socket.on('error', function (err) {
+            window.location.reload();
+        });
+}
+
+    loadPresets() {
+        this.socket.socket.emit('getObjectView', 'chart', 'chart', {
+            startkey: 'flot.',
+            endkey: 'flot.\u9999'
+        }, function (err, res) {
+            if (!err && res) {
+                console.log(res)
+            } else {
+                console.log(err)
+            }
+        })
     }
 
     getEnabledDPs(id, cb) {
@@ -179,6 +199,7 @@ class App extends Component {
     }
 
     getStorageInstances() {
+        return;
         this.socket.getAdapterInstances('')
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
             .then(instances => {
@@ -496,7 +517,6 @@ class App extends Component {
                         menuOpened={this.state.menuOpened}
                         searchText={this.state.searchText}
                         theme={this.state.themeType}
-                        onChange={(id, common) => this.onUpdateScript(id, common)}
                         onSelectedChange={(id, editing) => {
                             const newState = {};
                             let changed = false;
@@ -510,9 +530,12 @@ class App extends Component {
                             }
                             changed && this.setState(newState);
                         }}
-                        onRestart={id => this.socket.extendObject(id, {})}
                         selected={this.state.selected && this.objects[this.state.selected] && this.objects[this.state.selected].type === 'script' ? this.state.selected : ''}
                         objects={this.objects}
+                        /*
+                            onRestart={id => this.socket.extendObject(id, {})}
+                            onChange={(id, common) => this.onUpdateScript(id, common)}
+                        */
                     />
                     <SettingsEditor
                         key="Editor"
@@ -554,25 +577,27 @@ class App extends Component {
                             scripts={this.scripts}
                             objects={this.objects}
                             instances={this.state.instances}
+                            /*
                             update={this.state.updateScripts}
                             onRename={this.onRename.bind(this)}
                             onSelect={this.onSelect.bind(this)}
-                            connection={this.socket}
-                            selectId={this.state.menuSelectId}
                             onEdit={this.onEdit.bind(this)}
-                            expertMode={this.state.expertMode}
-                            theme={this.state.themeType}
-                            onThemeChange={theme => {
-                                window.localStorage && window.localStorage.setItem('App.theme', theme);
-                                this.setState({themeType: theme}, () => this.props.onThemeChange(theme))
-                            }}
                             onExpertModeChange={this.onExpertModeChange.bind(this)}
                             onDelete={this.onDelete.bind(this)}
                             onAddNew={this.onAddNew.bind(this)}
                             onEnableDisable={this.onEnableDisable.bind(this)}
                             onExport={this.onExport.bind(this)}
-                            width={this.menuSize}
                             onImport={() => this.setState({importFile: true})}
+                            onThemeChange={theme => {
+                                window.localStorage && window.localStorage.setItem('App.theme', theme);
+                                this.setState({themeType: theme}, () => this.props.onThemeChange(theme))
+                            }}
+                            */
+                            connection={this.socket}
+                            selectId={this.state.menuSelectId}
+                            expertMode={this.state.expertMode}
+                            theme={this.state.themeType}
+                            width={this.menuSize}
                         />
                     </div>
                     {this.renderMain()}

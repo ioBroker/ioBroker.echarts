@@ -13,7 +13,9 @@ export function IOSelect(props) {
     return <div>
         <FormControl>
             <InputLabel shrink={true}>{ I18n.t(props.label) }</InputLabel>
-            <Select {...props}>
+            <Select label={props.label} onChange={(e) => {
+                props.updateValue(props.name, e.target.value)
+            }} value={props.formData[props.name]}>
             </Select>
         </FormControl>
     </div>
@@ -22,21 +24,33 @@ export function IOSelect(props) {
 export function IOCheckbox(props) {
     return <div>
         <FormControlLabel style={{paddingTop: 10}} label={I18n.t(props.label)} control={
-            <Checkbox {...props}/>
+            <Checkbox onChange={(e) => {
+                props.updateValue(props.name, e.target.checked)
+            }} value={props.formData[props.name]}/>
         }/>
     </div>
 }
 
 export function IOTextField(props) {
     return <div>
-        <TextField InputLabelProps={{shrink: true}} {...props} />
+        <TextField label={props.label} InputLabelProps={{shrink: true}} onChange={(e) => {
+            props.updateValue(props.name, e.target.value)
+        }} value={props.formData[props.name]}/>
     </div>    
 }
 
 export function IOColorPicker(props) {
     return <div>
-        <ColorPicker inputProps={{
-           style: {backgroundColor: props.value}
-        }} InputLabelProps={{shrink: true}} {...props} />
+        <ColorPicker 
+            label={props.label}
+            inputProps={{
+                style: {backgroundColor: props.formData[props.name]}
+            }} 
+            onChange={(color) => {
+                props.updateValue(props.name, color)
+            }} 
+            InputLabelProps={{shrink: true}}
+            value={props.formData[props.name]}
+        />
     </div>
 }
