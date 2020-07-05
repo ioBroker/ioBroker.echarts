@@ -142,7 +142,11 @@ const styles = theme => ({
 
 class App extends GenericApp {
     constructor(props) {
-        super(props);
+        let settings = {socket: {}}
+        const query = getUrlQuery();
+        settings.socket.port = query.port || (parseInt(window.location.port) >= 3000 && parseInt(window.location.port) <= 3020 ? 8081 : window.location.port);
+        settings.socket.host = query.host || window.location.hostname;
+        super(props, settings);
         this.objects = {};
 
         // init translations
