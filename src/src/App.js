@@ -404,8 +404,7 @@ class App extends GenericApp {
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
             .then(instances => this.getAllCustoms(instances))
             .then(instances => instances && this.setState({instances}))
-            .then(() => this.loadPresets())
-            .then(() => this.syncSubscribes());
+            //.then(() => this.syncSubscribes());
     }
 
     onObjectChange = (id, obj, oldObj) => {
