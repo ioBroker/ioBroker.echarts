@@ -6,6 +6,7 @@ import DialogError from "./Dialogs/Error";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import Toolbar from '@material-ui/core/Toolbar';
 import Collapse from '@material-ui/core/Collapse';
 
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
@@ -569,9 +570,9 @@ class SideDrawer extends React.Component {
                 anchor='left'
                 onClick={() => this.onClick({id: ''})}
             >
-                <div className={classes.toolbar} key="toolbar">
+                <Toolbar className={classes.toolbar} variant="dense">
                     {this.getToolbarButtons()}
-                </div>
+                </Toolbar>
                 <Divider/>
                 <DragDropContext
                     onDragStart={e => this.onDragStart(e)}

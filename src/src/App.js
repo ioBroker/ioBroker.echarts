@@ -5,13 +5,14 @@ import {MdMenu as IconMenuClosed} from 'react-icons/md';
 import {MdArrowBack as IconMenuOpened} from 'react-icons/md';
 
 import 'react-splitter-layout/lib/index.css';
+import clsx from 'clsx';
 
-import Connection from '@iobroker/adapter-react/Connection';
-//import {PROGRESS} from '@iobroker/adapter-react/Connection';
-import Loader from '@iobroker/adapter-react/Components/Loader'
-import I18n from '@iobroker/adapter-react/i18n';
 import DialogMessage from '@iobroker/adapter-react/Dialogs/Message';
 import DialogConfirm from '@iobroker/adapter-react/Dialogs/Confirm';
+import Utils from '@iobroker/adapter-react/Components/Utils';
+import GenericApp from '@iobroker/adapter-react/GenericApp';
+import Loader from '@iobroker/adapter-react/Components/Loader'
+import I18n from '@iobroker/adapter-react/i18n';
 
 import SideMenu from './SideMenu';
 import SettingsEditor from './SettingsEditor';
@@ -89,7 +90,7 @@ const styles = theme => ({
     }
 });
 
-class App extends Component {
+class App extends GenericApp {
     constructor(props) {
         super(props);
         this.objects = {};
@@ -127,131 +128,142 @@ class App extends Component {
             importFile: false,
             message: '',
             searchText: '',
-            themeType: window.localStorage ? window.localStorage.getItem('App.theme') || 'light' : 'light',
         };
+
         // this.logIndex = 0;
-        this.logSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.logSize')) || 150 : 150;
+        this.logSize  = window.localStorage ? parseFloat(window.localStorage.getItem('App.logSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
         this.scripts = {};
         this.hosts = [];
         this.importFile = null;
 
-        const query = getUrlQuery();
+        this.subscribes = [];
+    }
 
-        this.socket = new Connection({
-            host: query.host ? query.host : 'localhost',
-            port: 8081,
-            //autoSubscribes: ['script.*', 'system.adapter.javascript.*'],
-            //autoSubscribeLog: true,
-            //port: 8082, // debug port
-            /*
-            onProgress: progress => {
-                if (progress === PROGRESS.CONNECTING) {
-                    this.setState({connected: false});
-                } else if (progress === PROGRESS.READY) {
-                    this.setState({connected: true, progress: 100});
-                } else {
-                    this.setState({connected: true, progress: Math.round(PROGRESS.READY / progress * 100)});
-                }
-            },
-            */
-            onReady: (objects, scripts) => {
-                I18n.setLanguage(this.socket.systemLang);
-                window.systemLang = this.socket.systemLang;
-                this.onObjectChange(objects, scripts, true, () => this.getStorageInstances());
-                this.loadPresets();
-            },
-            //onObjectChange: (objects, scripts) => this.onObjectChange(objects, scripts),
-            //onError: err => console.error(err)
+    onConnectionReady() {
+        this.socket.getSystemConfig()
+            .then(systemConfig =>
+                this.getAllData()
+                    .then(() => this.setState({ready: true, systemConfig})))
+            .catch(e => this.showError(e));
+    }
+
+    processTasks(tasks, cb) {
+        if (!tasks || !tasks.length) {
+            cb && cb();
+        } else {
+            const task = tasks.shift();
+            if (task.name === 'subscribe') {
+                console.log('Subscribe on object change: ' + task.id);
+                this.socket.subscribeObject(task.id, this.onObjectChange);
+            } else if (task.name === 'unsubscribe') {
+                console.log('UNSubscribe on object change: ' + task.id);
+                this.socket.unsubscribeObject(task.id, this.onObjectChange);
+            } else {
+                console.log('Unknown task: ' + JSON.stringify(task));
+            }
+            setTimeout(() => this.processTasks(tasks, cb), 50);
+        }
+    }
+
+    syncSubscribes() {
+        const subscribed = [];
+        const tasks = [];
+        Object.values(this.state.instances)
+            .forEach(instance =>
+                Object.keys(instance.enabledDP).forEach(id => {
+                    subscribed.push(id);
+                    if (!this.subscribes.includes(id)) {
+                        tasks.push({name: 'subscribe', id});
+                    }
+                }));
+
+        this.state.instances.forEach(id => {
+            if (!subscribed.includes(id)) {
+                tasks.push({name: 'unsubscribe', id});
+            }
         });
-        this.socket.socket.off('error');
-        this.socket.socket.on('error', function (err) {
-            window.location.reload();
-        });
-}
+
+        this.processTasks(tasks);
+    }
 
     loadPresets() {
-        this.socket.socket.emit('getObjectView', 'chart', 'chart', {
-            startkey: 'flot.',
-            endkey: 'flot.\u9999'
-        }, function (err, res) {
-            if (!err && res) {
-                console.log(res)
-            } else {
-                console.log(err)
-            }
-        })
+        return new Promise(resolve =>
+            this.socket._socket.emit('getObjectView', 'chart', 'chart', {
+                startkey: this.adapterName + '.',
+                endkey: this.adapterName + '.\u9999'
+            }, (err, objs) => {
+                if (!err && objs) {
+                    const instances = JSON.parse(JSON.stringify(this.state.instances));
+                    instances.presets.enabledDP = objs;
+                    this.setState({instances});
+                    console.log('Presets: ' + JSON.stringify(objs));
+                }
+                resolve();
+            }));
     }
 
-    getEnabledDPs(id, cb) {
-        let timer = setTimeout(() => {
-            timer = null;
-            cb && cb(null);
-            cb = null;
-        }, 500);
+    getObjects(ids, cb, result) {
+        result = result || {};
+        if (!ids || !ids.length) {
+            cb(result);
+        } else {
+            const id = ids.shift();
+            this.socket.getObject(id)
+                .catch(e => {
+                    console.error('Cannot read ' + id + ': ' + e);
+                    return null;
+                })
+                .then(obj => {
+                    if (obj) {
+                        result[id] = obj;
+                    }
+                    setTimeout(() => this.getObjects(ids, cb, result), 0);
+                });
+        }
+    }
 
-        this.socket.sendTo(id, 'getEnabledDPs', {}, result => {
-            timer && clearTimeout(timer);
-            timer = null;
-            cb && cb(result);
-            cb = null;
+    getAllCustoms(instances) {
+        return this.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
+            const ids = objs.rows.map(item => item.id);
+            this.getObjects(ids, objs => {
+                const ids = instances.map(obj => obj._id.substring('system.adapter.'.length));
+                const _instances = {};
+                _instances.presets = {_id: 'presets', common: {name: I18n.t('Presets')}, enabledDP: {}}
+                Object.values(objs).forEach(obj => {
+                    const id = obj && obj.common && obj.common.custom && ids.find(id => Object.keys(obj.common.custom).includes(id));
+                    if (id) {
+                        _instances[id] = _instances[id] || {_id: 'system.adapter.' + id, enabledDP: {}};
+                        _instances[id].enabledDP[obj._id] = obj;
+                    }
+                });
+
+                const insts = Object.values(_instances).map(obj => {
+                    const enabledDP = {};
+                    Object.keys(obj.enabledDP).sort().forEach(id => enabledDP[id] = obj.enabledDP[id]);
+                    obj.enabledDP = enabledDP;
+                    return obj;
+                });
+
+                this.setState({instances: insts});
+
+                console.log(JSON.stringify(insts));
+            });
         });
     }
 
-    getStorageInstances() {
-        return;
-        this.socket.getAdapterInstances('')
+    getAllData() {
+        return this.socket.getAdapterInstances('')
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
-            .then(instances => {
-                let cnt = 0;
-                instances.forEach(instObj => {
-                    let dbInstance = instObj._id.replace('system.adapter.', '');
-
-                    cnt++;
-                    this.getEnabledDPs(dbInstance, result => {
-                        instObj.enabledDP = result || {'no answer': {obj: {common: {name: I18n.t('No answer')}}}};
-
-                        Object.keys(instObj.enabledDP).forEach(id => {
-                            if (id === 'no answer') {
-                                return;
-                            }
-                            cnt++;
-                            this.socket.getObject(id)
-                                .then (res => {
-                                    instObj.enabledDP[id].obj = res;
-                                    !--cnt && this.setState({instances});
-                                });
-                        });
-
-                        !--cnt && this.setState({instances});
-                    });
-                });
-            })
-            .then(instances => instances && this.setState({instances}));
+            .then(instances => this.getAllCustoms(instances))
+            .then(instances => instances && this.setState({instances}))
+            .then(() => this.loadPresets())
+            .then(() => this.syncSubscribes());
     }
 
-    onObjectChange(objects, scripts, isReady, cb) {
-        this.objects = objects;
-        // extract scripts and instances
-        const nScripts = {};
-        const newState = {};
-
-        scripts.list.forEach(id => nScripts[id] = objects[id]);
-        scripts.groups.forEach(id => nScripts[id] = objects[id]);
-        this.hosts = scripts.hosts;
-
-        if (window.localStorage && window.localStorage.getItem('App.expertMode') !== 'true' && window.localStorage.getItem('App.expertMode') !== 'false') {
-            // detect if some global scripts exists
-            if (scripts.list.find(id => id.startsWith('script.js.global.'))) {
-                newState.expertMode = true;
-            }
-        }
-
-        if (isReady !== undefined) {
-            newState.ready = isReady;
-        }
-        this.setState(newState, cb && cb);
-    }
+    onObjectChange = (id, obj, oldObj) => {
+        console.log('Changed ' + id);
+    };
 
     onRename(oldId, newId, newName, newInstance) {
         console.log(`Rename ${oldId} => ${newId}`);
@@ -473,22 +485,36 @@ class App extends Component {
         this.setState({logHorzLayout: !this.state.logHorzLayout});
     }
 
+    renderConfirmDialog() {
+        return this.state.confirm ? (<DialogConfirm
+            key="confirmdialog"
+            onClose={result => {
+                this.state.confirm && this.setState({confirm: ''});
+                this.confirmCallback && this.confirmCallback(result);
+                this.confirmCallback = null;
+            }}
+            text={this.state.confirm}/>) : null;
+    }
+
+
+    renderMessageDialog() {
+        return this.state.message ? (<DialogMessage key="dialogmessage" onClose={() => this.setState({message: ''})} text={this.state.message}/>) : null;
+    }
+    renderErrorDialog() {
+        return this.state.errorText ? (<DialogError key="dialogerror" onClose={() => this.setState({errorText: ''})} text={this.state.errorText}/>) : null;
+    }
+    renderImportDialog() {
+        return this.state.importFile ? (<DialogImportFile key="dialogimportfile" onClose={data => this.onImport(data)} />) : null;
+    }
+
     renderMain() {
         const {classes} = this.props;
-        const errorDialog = this.state.errorText ? (<DialogError key="dialogerror" onClose={() => this.setState({errorText: ''})} text={this.state.errorText}/>) : null;
         return [
-            this.state.message ? (<DialogMessage key="dialogmessage" onClose={() => this.setState({message: ''})} text={this.state.message}/>) : null,
-            errorDialog,
-            this.state.importFile ? (<DialogImportFile key="dialogimportfile" onClose={data => this.onImport(data)} />) : null,
-            this.state.confirm ? (<DialogConfirm
-                key="confirmdialog"
-                onClose={result => {
-                    this.state.confirm && this.setState({confirm: ''});
-                    this.confirmCallback && this.confirmCallback(result);
-                    this.confirmCallback = null;
-                }}
-                text={this.state.confirm}/>) : null,
-            (<div className={classes.content + ' iobVerticalSplitter'} key="confirmdialog">
+            this.renderMessageDialog(),
+            this.renderErrorDialog(),
+            this.renderConfirmDialog(),
+            this.renderImportDialog(),
+            <div className={clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
                 <div key="confirmdiv" className={classes.menuOpenCloseButton} onClick={() => {
                     window.localStorage && window.localStorage.setItem('App.menuOpened', this.state.menuOpened ? 'false' : 'true');
                     this.setState({menuOpened: !this.state.menuOpened, resizing: true});
@@ -496,6 +522,7 @@ class App extends Component {
                 }}>
                     {this.state.menuOpened ? (<IconMenuOpened />) : (<IconMenuClosed />)}
                 </div>
+
                 <SplitterLayout
                     key="MainSplitter"
                     vertical={!this.state.logHorzLayout}
@@ -537,12 +564,13 @@ class App extends Component {
                             onChange={(id, common) => this.onUpdateScript(id, common)}
                         */
                     />
+
                     <SettingsEditor
                         key="Editor"
                         onChange={(id, common) => this.onUpdatePreset(id, common)}
                         verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} connection={this.socket} selected={this.state.selected}/>
                 </SplitterLayout>
-            </div>),
+            </div>
         ];
     }
 
@@ -550,7 +578,6 @@ class App extends Component {
         const {classes} = this.props;
 
         if (!this.state.ready) {
-            // return (<CircularProgress className={classes.progress} size={50} />);
             return (<Loader theme={this.state.themeType}/>);
         }
 

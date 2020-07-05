@@ -29,11 +29,6 @@ import {MdBugReport as IconDebug} from 'react-icons/md';
 import {MdPlaylistAddCheck as IconVerbose} from 'react-icons/md';
 import {TiAdjustContrast as IconContrast} from 'react-icons/ti'
 
-import ImgJS from './assets/js.png';
-import ImgBlockly from './assets/blockly.png';
-import ImgTypeScript from './assets/typescript.png';
-import ImgBlockly2Js from './assets/blockly2js.png'
-
 import I18n from '@iobroker/adapter-react/i18n';
 import Theme from './Theme';
 import ChartFrame from './Components/ChartFrame';
@@ -41,12 +36,6 @@ import DialogConfirm from '@iobroker/adapter-react/Dialogs/Confirm';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 import getUrlQuery from './utils/getUrlQuery';
 
-const images = {
-    Blockly: ImgBlockly,
-    'Javascript/js': ImgJS,
-    def: ImgJS,
-    'TypeScript/ts': ImgTypeScript,
-};
 
 const MENU_ITEM_HEIGHT = 48;
 const COLOR_DEBUG = '#02a102';
@@ -677,7 +666,7 @@ class Editor extends React.Component {
                             }
                             const changed = this.props.objects[id].common && this.scripts[id] && this.props.objects[id].common.source !== this.scripts[id].source;
                             const label = [
-                                (<img key="icon" alt={""} src={images[this.props.objects[id].common.engineType] || images.def} className={this.props.classes.tabIcon}/>),
+                                /*(<img key="icon" alt={""} src={images[this.props.objects[id].common.engineType] || images.def} className={this.props.classes.tabIcon}/>),*/
                                 (<div key="text" className={this.props.classes.tabText + ' ' + (this.isScriptChanged(id) ? this.props.classes.tabChanged : '')}>{text}</div>),
                                 changed ? (<span key="changedSign" className={this.props.classes.tabChangedIcon}>▣</span>) : null,
                                 (<span key="icon2" className={this.props.classes.closeButton}><IconClose key="close" onClick={e => this.onTabClose(id, e)} fontSize="small"/></span>)];
