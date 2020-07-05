@@ -878,6 +878,7 @@ class Editor extends React.Component {
         return [
             this.getTabs(),
             this.getToolbar(),
+            <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>,
             this.getChartFrame(),
             this.getConfirmDialog(),
             this.getSelectIdDialog(),

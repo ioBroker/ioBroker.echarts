@@ -15,6 +15,7 @@ import Marks from './Mark';
 class PresetTabs extends React.Component {
     state = {
                 "lines":[
+                /*
                   {
                     "id":"system.adapter.admin.0.cpu",
                     "offset":"0",
@@ -60,8 +61,10 @@ class PresetTabs extends React.Component {
                     "xaxe":"off",
                     "min":"-0.1"
                   }
+                */
                 ],
                 "marks":[
+                /*
                   {
                     "lineId":"0",
                     "upperValueOrId":"20",
@@ -76,7 +79,9 @@ class PresetTabs extends React.Component {
                     "textSize":"2",
                     "lowerValueOrId":"20"
                   }
+                */
                 ],
+                /*
                 "timeType":"relative",
                 "relativeEnd":"10minutes",
                 "range":"120",
@@ -113,13 +118,24 @@ class PresetTabs extends React.Component {
                 "legBgOpacity":"2",
                 "legBg":"#002222",
                 "timeFormat":"%H:%M:%S %d.%m.%y",
+                */
         selectedTab: "4"
     };
+
+    componentDidMount() {
+        this.setState(this.props.presetData);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState(nextProps.presetData);
+    }
 
     updateField = (name, value)=>{
         let update = {};
         update[name] = value;
-        this.setState(update);
+        this.setState(update, () => {
+            this.props.onChange(this.state);
+        });
     }
 
     render() {
