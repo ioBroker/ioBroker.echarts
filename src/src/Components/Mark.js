@@ -68,7 +68,9 @@ class Mark extends React.Component {
                     <IconDelete/>
                 </IconButton>
             </div>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="lineId" label="Line ID"/>
+            <IOSelect formData={this.state} updateValue={this.updateField} name="lineId" label="Line ID" options={{
+                
+            }}/>
             <IOTextField formData={this.state} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" />
             <IOTextField formData={this.state} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" />
             <IOColorPicker formData={this.state} updateValue={this.updateField} name="color" label="Color" />
@@ -76,7 +78,10 @@ class Mark extends React.Component {
             <IOTextField formData={this.state} updateValue={this.updateField} name="ol" label="ØL"/>
             <IOTextField formData={this.state} updateValue={this.updateField} name="os" label="ØS"/>
             <IOTextField formData={this.state} updateValue={this.updateField} name="text" label="Text"/>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="textPosition" label="Text position"/>
+            <IOSelect formData={this.state} updateValue={this.updateField} name="textPosition" label="Text position" options={{
+                'l': 'Left',
+                'r': 'Right',
+            }}/>
             <IOTextField formData={this.state} updateValue={this.updateField} name="textOffset" label="Text offset"/>
             <IOTextField formData={this.state} updateValue={this.updateField} name="textSize" label="Text size"/>
             <IOColorPicker formData={this.state} updateValue={this.updateField} name="textColor" label="Text color" />

@@ -97,7 +97,7 @@ class SettingsEditor extends React.Component {
                     {this.props.onLayoutChange ? (<IconButton className={this.props.classes.iconButtons} onClick={() => this.props.onLayoutChange()} title={I18n.t('Change layout')}><img className={this.props.classes.layoutIcon} alt="split" src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit} /></IconButton>) : null}
                 </div>
                 <div className={this.props.classes.logBoxInner} key="logList">
-                    <PresetTabs presetData={this.props.presetData} onChange={this.props.onChange}/>
+                    <PresetTabs socket={this.props.socket} presetData={this.props.presetData} onChange={this.props.onChange}/>
                 </div>
             </div>
         );

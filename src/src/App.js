@@ -862,6 +862,7 @@ class App extends GenericApp {
                         */
                     />
                     <SettingsEditor
+                        socket={this.socket}
                         key="Editor"
                         onChange={this.onUpdatePreset}
                         presetData={this.state.presetData}

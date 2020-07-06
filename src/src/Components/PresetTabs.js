@@ -7,7 +7,7 @@ import TabPanel from '@material-ui/lab/TabPanel';
 import TabContext from '@material-ui/lab/TabContext';
 import AppBar from '@material-ui/core/AppBar';
 
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect} from './Fields';
+import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField} from './Fields';
 
 import Line from './Line';
 import Marks from './Mark';
@@ -155,7 +155,7 @@ class PresetTabs extends React.Component {
                 <TabPanel value="0">
                     Data
                     {
-                        this.state.lines.map((line, key) => <Line key={key}/>)
+                        this.state.lines.map((line, key) => <Line key={key} socket={this.props.socket}/>)
                     }
                 </TabPanel>
                 <TabPanel value="1">
@@ -164,28 +164,90 @@ class PresetTabs extends React.Component {
                 </TabPanel>
                 <TabPanel value="2">
                     Time
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="timeType" label="Type"/>
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="aggregateType" label="Step type"/>
+                    <IOSelect formData={this.state} updateValue={this.updateField} name="timeType" label="Type" options={{
+                        'relative': 'relative',
+                        'static': 'static',
+                    }}/>
+                    <IOSelect formData={this.state} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
+                        'count': 'counts',
+                        'step': 'seconds',
+                    }}/>
                     <IOTextField formData={this.state} updateValue={this.updateField} name="aggregateSpan" label="Counts" />
                     <IOTextField formData={this.state} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                 </TabPanel>
                 <TabPanel value="3">
                     Options
-                    <IOSelect formData={this.state} updateValue={this.updateField} label="Show legend" name="legend" />
+                    <IOSelect formData={this.state} updateValue={this.updateField} label="Show legend" name="legend" options={{
+                        '': 'none',
+                        'nw': 'Top, left',
+                        'ne': 'Top, right',
+                        'sw': 'Bottom, left',
+                        'se': 'Bottom, right',
+                    }}/>
                     <IOTextField formData={this.state} updateValue={this.updateField} label="Legend columns" name="legColumns" />
                     <IOTextField formData={this.state} updateValue={this.updateField} label="Legend opacity" name="legBgOpacity" />
                     <IOColorPicker formData={this.state} updateValue={this.updateField} label="Legend background" name="legBg" />
                     <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Hover details'} name="hoverDetail" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} label="Time format" name="timeFormat" />
+                    <IOSelect formData={this.state} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
+                        '': 'Default',
+                        '%H:%M %d.%m': 'HH:MM dd.mm',
+                        '%H:%M %d.%m.': 'HH:MM dd.mm.',
+                        '%H:%M <br> %d.%m': 'HH:MM / dd.mm',
+                        '%H:%M <br> %d.%m.': 'HH:MM / dd.mm.',
+                        '%H:%M <br> %d.%m.%y': 'HH:MM / dd.mm.yy',
+                        '%H:%M:%S %d.%m.%y': 'HH:MM:SS dd.mm.yy',
+                        '%H:%M %d.%m.%y': 'HH:MM dd.mm.yy',
+                        '%I:%M:%S %x %p': 'HH:MM:SS mm/dd/yy am (US)',
+                        '%H:%M:%S %d/%m/%y': 'HH:MM:SS dd/mm/yy (UK)',
+                        '%H:%M:%S %m.%d.%y': 'HH:MM:SS mm.dd.yy',
+                        '%H:%M %a': 'HH:MM dow',
+                        '%H:%M:%S %a': 'HH:MM:SS dow',
+                        '%H:%M %m.%d': 'HH:MM mm.dd',
+                        '%H:%M:%S': 'HH:MM:SS',
+                        '%H:%M': 'HH:MM',
+                        '%d.%m': 'dd.mm',
+                        '%d.%m.': 'dd.mm.',
+                        '%m/%d': 'mm/dd',
+                        '%d': 'dd',
+                        '%m': 'mm',
+                        '%y': 'y',
+                        '%H': 'HH',
+                        '%M': 'MM',
+                        '%a': 'dow',
+                        '%d.%m.%y': 'dd.mm.yy',
+                    }}/>
                     <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Use comma'} name="useComma" />
                     <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />
                     <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} label="Animation" name="animation" />
+                    <IOSelect formData={this.state} updateValue={this.updateField} label="Animation" name="animation" options={{
+                        '0': 'no',
+                        '300': '300ms',
+                        '500': '500ms',
+                        '1000': '1 second',
+                        '2000': '2 seconds',
+                        '3000': '3 seconds',
+                        '5000': '5 seconds',
+                        '10000': '10 seconds',
+                    }}/>
                 </TabPanel>
                 <TabPanel value="4">
                     Title
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="title" label="Title" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="titlePos" label="Title position"/>
+                    <IOObjectField formData={this.state} updateValue={this.updateField} name="title" label="Title" socket={this.props.socket}/>
+                    <IOSelect formData={this.state} updateValue={this.updateField} name="titlePos" label="Title position" options={{
+                        '': 'none',
+                        'top:35;left:65': 'Top, left, inside',
+                        'top:35;right:5': 'Top, right, inside',
+                        'top:35;left:50': 'Top, center, inside',
+                        'top:50;left:65': 'Middle, left, inside',
+                        'top:50;right:5': 'Middle, right, inside',
+                        'bottom:5;left:65': 'Bottom, left, inside',
+                        'bottom:5;right:5': 'Bottom, right, inside',
+                        'bottom:5;left:50': 'Bottom, center, inside',
+                        'top:5;right:-5': 'Top, right, outside',
+                        'top:50;right:-5': 'Middle, right, outside',
+                        'bottom:5;right:-5': 'Bottom, right, outside',
+                        'bottom:-5;left:50': 'Bottom, center, outside',
+                    }}/>
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="titleColor" label="Title size" />
                     <IOTextField formData={this.state} updateValue={this.updateField} name="titleSize" label="Title size" />
                 </TabPanel>
@@ -193,18 +255,39 @@ class PresetTabs extends React.Component {
                     Appearance
                     <IOTextField formData={this.state} updateValue={this.updateField} name="width" label="Width" />
                     <IOTextField formData={this.state} updateValue={this.updateField} name="options_height" label="Height" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_noborder" label="No border"/>
+                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_noborder" label="No border" options={{
+                        '': '',
+                        'noborder': 'yes',
+                    }}/>
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_window_bg" label="Window background" />
                     <IOCheckbox formData={this.state} updateValue={this.updateField} name="options_bg_custom" label={'Custom chart background'}/>
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_bg" label="Chart background"/>
+                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_bg" label="Chart background" options={{
+                        '': 'default',
+                        '0': 'Portrait',
+                        '1': 'Instagram',
+                        '2': 'ServQuick',
+                        '3': 'Metallic Toad',
+                        '4': 'Clouds',
+                        '5': 'Mirage',
+                        '6': 'Steel Gray',
+                        '7': 'Horizon',
+                        '8': 'Koko Caramel',
+                        '9': 'Turquoise flow',
+                    }}/>
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_x_labels_color" label="X labels color" />
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_y_labels_color" label="Y labels color" />
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_border_color" label="Border color" />
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_grid_color" label="Grid color" />
                     <IOTextField formData={this.state} updateValue={this.updateField} name="options_border_width" label="Border width" />
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="barColor" label="Fill color" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_barLabels" label="Show labels"/>
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="options_barWidth" label="Bars width" />
+                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_barLabels" label="Show labels" options={{
+                        '': 'none',
+                        'topover': 'top over',
+                        'topunder': 'top under',
+                        'bottom': 'bottom',
+                        'middle': 'middle',
+                    }}/>
+                    <IOTextField formData={this.state} updateValue={this.updateField} name="options_barWidth" label="Bars width"/>
                     <IOTextField formData={this.state} updateValue={this.updateField} name="options_barFontSize" label="Label font size" />
                     <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_barFontColor" label="Label color" />
                 </TabPanel>
