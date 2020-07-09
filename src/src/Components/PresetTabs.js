@@ -1,4 +1,5 @@
 import React from 'react';
+import update from 'immutability-helper';
 
 import Tabs from '@material-ui/core/Tabs';
 import TabList from '@material-ui/lab/TabList';
@@ -6,6 +7,8 @@ import Tab from '@material-ui/core/Tab';
 import TabPanel from '@material-ui/lab/TabPanel';
 import TabContext from '@material-ui/lab/TabContext';
 import AppBar from '@material-ui/core/AppBar';
+import {MdAdd as IconAdd} from 'react-icons/md';
+import IconButton from '@material-ui/core/IconButton';
 
 import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField} from './Fields';
 
@@ -138,8 +141,33 @@ class PresetTabs extends React.Component {
         });
     }
 
+    setStateWithParent(newState) {
+        this.setState(newState, () => {
+            this.props.onChange(this.state);
+        });
+    }
+
+    addMark = () => {
+        let newState = update(this.state, {marks: {$push: [{}]}})        
+        this.setStateWithParent(newState);
+    }
+
+    deleteMark = (index) => {
+        let newState = update(this.state, {marks: {$unset: [index]}})        
+        this.setStateWithParent(newState);
+    }
+
+    addLine = () => {
+        let newState = update(this.state, {lines: {$push: [{}]}})        
+        this.setStateWithParent(newState);
+    }
+
+    deleteLine = (index) => {
+        let newState = update(this.state, {lines: {$unset: [index]}})        
+        this.setStateWithParent(newState);
+    }
+
     render() {
-        console.log(this.state.marks);
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static">
                 <TabList aria-label="simple tabs example" onChange={(event, newValue)=>{this.setState({selectedTab: newValue})}}>
@@ -151,19 +179,26 @@ class PresetTabs extends React.Component {
                     <Tab label="Appearance" value="5"/>
                 </TabList>
             </AppBar>
-            <div style={{columnWidth: "200px", columnCount: 4, marginTop: "20px"}}>
+            <div>
                 <TabPanel value="0">
-                    Data
+                    <div>
+                        <IconButton onClick={this.addLine}>
+                            <IconAdd/>
+                        </IconButton>
+                    </div>
                     {
-                        this.state.lines.map((line, key) => <Line key={key} socket={this.props.socket}/>)
+                        this.state.lines.map((line, key) => <Line deleteLine={this.deleteLine} index={key} key={key} socket={this.props.socket}/>)
                     }
                 </TabPanel>
                 <TabPanel value="1">
-                    Markings
-                    <Marks name="marks" marks={this.state.marks} updateField={this.updateField}/>
+                    <div>
+                        <IconButton onClick={this.addMark}>
+                            <IconAdd/>
+                        </IconButton>
+                    </div>
+                    <Marks name="marks" deleteMark={this.deleteMark} marks={this.state.marks} updateField={this.updateField}/>
                 </TabPanel>
                 <TabPanel value="2">
-                    Time
                     <IOSelect formData={this.state} updateValue={this.updateField} name="timeType" label="Type" options={{
                         'relative': 'relative',
                         'static': 'static',
@@ -176,7 +211,6 @@ class PresetTabs extends React.Component {
                     <IOTextField formData={this.state} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                 </TabPanel>
                 <TabPanel value="3">
-                    Options
                     <IOSelect formData={this.state} updateValue={this.updateField} label="Show legend" name="legend" options={{
                         '': 'none',
                         'nw': 'Top, left',
@@ -231,7 +265,6 @@ class PresetTabs extends React.Component {
                     }}/>
                 </TabPanel>
                 <TabPanel value="4">
-                    Title
                     <IOObjectField formData={this.state} updateValue={this.updateField} name="title" label="Title" socket={this.props.socket}/>
                     <IOSelect formData={this.state} updateValue={this.updateField} name="titlePos" label="Title position" options={{
                         '': 'none',
@@ -252,7 +285,6 @@ class PresetTabs extends React.Component {
                     <IOTextField formData={this.state} updateValue={this.updateField} name="titleSize" label="Title size" />
                 </TabPanel>
                 <TabPanel value="5">
-                    Appearance
                     <IOTextField formData={this.state} updateValue={this.updateField} name="width" label="Width" />
                     <IOTextField formData={this.state} updateValue={this.updateField} name="options_height" label="Height" />
                     <IOSelect formData={this.state} updateValue={this.updateField} name="options_noborder" label="No border" options={{

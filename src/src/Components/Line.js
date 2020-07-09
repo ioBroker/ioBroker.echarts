@@ -47,7 +47,10 @@ class Line extends React.Component {
                 <IconButton title={ I18n.t('Edit') }><IconEdit/></IconButton>
                 <IconButton
                     size="small"
-                    style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}>
+                    style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
+                    onClick={()=>{
+                        this.props.deleteLine(this.props.index);
+                    }}>
                     <IconDelete/>
                 </IconButton>
             </div>

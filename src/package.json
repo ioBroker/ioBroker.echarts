@@ -5,13 +5,15 @@
   "dependencies": {
     "@iobroker/adapter-react": "^1.0.11",
     "@material-ui/core": "^4.11.0",
-    "@material-ui/lab": "^4.0.0-alpha.56",
     "@material-ui/icons": "^4.9.1",
-    "classnames": "^2.2.6",
-    "eslint": "^6.6.0",
-    "material-ui-color-picker": "^3.5.0",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "@sentry/browser": "^5.18.1",
     "@sentry/integrations": "^5.18.1",
+    "classnames": "^2.2.6",
+    "clsx": "^1.1.1",
+    "eslint": "^6.6.0",
+    "immutability-helper": "^3.1.1",
+    "material-ui-color-picker": "^3.5.0",
     "react": "^16.13.1",
     "react-beautiful-dnd": "^13.0.0",
     "react-dom": "^16.13.1",
@@ -19,8 +21,7 @@
     "react-i18next": "^11.7.0",
     "react-icons": "^3.10.0",
     "react-scripts": "^3.4.1",
-    "react-splitter-layout": "^4.0.0",
-    "clsx": "^1.1.1"
+    "react-splitter-layout": "^4.0.0"
   },
   "homepage": ".",
   "scripts": {

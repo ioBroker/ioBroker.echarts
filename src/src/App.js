@@ -140,6 +140,15 @@ const styles = theme => ({
     }
 });
 
+function getFolderList(folder) {
+    let result = [];
+    result.push(folder);
+    Object.values(folder.subFolders).forEach(subFolder =>
+        result = result.concat(getFolderList(subFolder)));
+
+    return result;
+}
+
 class App extends GenericApp {
     constructor(props) {
         let settings = {socket: {}}
@@ -192,6 +201,10 @@ class App extends GenericApp {
             selectedPresetData: null,
             exportDialog: false,
             importDialog: false,
+            presetData: {
+                lines: [],
+                marks: [],
+            },
 
             connected: false,
             progress: 0,
@@ -417,6 +430,7 @@ class App extends GenericApp {
 
     showError(err) {
         this.setState({errorText: err});
+        alert(err);
     }
 
     showMessage(message) {
@@ -517,7 +531,7 @@ class App extends GenericApp {
     addPresetToFolderPrefix = (preset, folderPrefix, noRefresh) => {
         let oldId = preset._id;
         let presetId = preset._id.split('.').pop();
-        preset._id = 'preset.0.' + folderPrefix + (folderPrefix ? '.' : '') + presetId;
+        preset._id = 'flot.0.' + folderPrefix + (folderPrefix ? '.' : '') + presetId;
 
         return this.socket.delObject(oldId)
             .then(() => {
@@ -563,6 +577,50 @@ class App extends GenericApp {
             });
     }
 
+    getNewPresetId() {
+        let newId = 0;
+
+        for (const id in this.state.presets) {
+            let shortId = id.split('.').pop();
+            let matches = shortId.match(/^preset([0-9]+)$/);
+            if (matches && parseInt(matches[1], 10) >= newId) {
+                newId = parseInt(matches[1]) + 1;
+            }
+        }
+
+        return 'preset' + newId;
+    };
+
+    createPreset(name, parentId) {
+        let template = {
+            common: {
+                name: '',
+            },
+            data: this.state.presetData,
+            native: {
+                url: {},
+            },
+            type: 'chart'
+        };
+
+        template.common.name = name;
+        let id = 'flot.0.' + (parentId ? parentId + '.' : '') + template.common.name;
+
+        this.setState({changingScene: id}, () =>
+            this.socket.setObject(id, template)
+                .then(() => this.refreshData(id))
+                .catch(e => this.showError(e))
+        );
+    };
+
+    deletePreset = (id) => {
+        return this.socket.delObject(id)
+            .then(() => {
+                return this.refreshData(id);
+            })
+            .catch(e => this.showError(e));
+    };
+
     renderTreePreset = (item, level) => {
         const preset = this.state.presets[item._id];
         if (!preset || (this.state.search && !item.common.name.includes(this.state.search))) {
@@ -576,9 +634,7 @@ class App extends GenericApp {
         return <ListItem
             style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
             key={ item._id }
-            selected={ this.state.selectedPresetId ? this.state.selectedPresetId === preset._id : false }
             button
-            className={ clsx(changed && this.props.classes.changed, !preset.common.enabled && this.props.classes.disabled) }
             onClick={ () =>
                 this.loadPreset(preset._id) }>
             <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
@@ -591,11 +647,15 @@ class App extends GenericApp {
                 {this.state.changingPreset === preset._id ?
                     <CircularProgress size={ 24 }/>
                     :
-                    <IconButton onClick={()=>{
-                        this.savePreset(item._id);
-                    }}>
-                        <IconSave/>
-                    </IconButton>
+                    <>
+                        <IconButton onClick={(e)=>{
+                            e.stopPropagation();
+                            this.savePreset(item._id);
+                        }}>
+                            <IconSave/>
+                        </IconButton>
+                        <IconButton aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deleteDialog: preset._id}) }><IconDelete/></IconButton>
+                    </>
                 }
             </ListItemSecondaryAction>
         </ListItem>;
@@ -705,7 +765,7 @@ class App extends GenericApp {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
         preset.data = JSON.parse(JSON.stringify(this.state.presetData));
         this.socket.setObject(id, preset)
-            .then(() => this.refreshData(this.state.selectedSceneId))
+            .then(() => this.refreshData())
             .catch(e => this.showError(e));
     }
 
@@ -795,6 +855,80 @@ class App extends GenericApp {
                 >
                     <IconCheck className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Apply') }
+                </Button>
+            </DialogActions>
+        </Dialog> : null;
+    }
+
+    renderMoveDialog() {
+        if (!this.state.moveDialog) {
+            return null;
+        }
+
+        const newFolder = this.state.newFolder === '__root__' ? '' : this.state.newFolder;
+        const sceneId = this.state.selectedSceneId.split('.').pop();
+        const newId = 'scene.0.' + newFolder + (newFolder ? '.' : '') + sceneId;
+
+        const isIdUnique = !Object.keys(this.state.scenes).find(id => id === newId);
+
+        return <Dialog
+            open={ true }
+            key="moveDialog"
+            onClose={ () => this.setState({moveDialog: null}) }
+        >
+            <DialogTitle>{ I18n.t('Move to folder') }</DialogTitle>
+            <DialogContent>
+                <FormControl classes={ {root: this.props.classes.width100} }>
+                    <InputLabel shrink={ true }>{ I18n.t('Folder') }</InputLabel>
+                    <Select
+                        className={ this.props.classes.width100 }
+                        value={ this.state.newFolder || '__root__' }
+                        onChange={e => this.setState({newFolder: e.target.value}) }>
+                        { getFolderList(this.state.folders).map(folder =>
+                            <MenuItem
+                                key={ folder.prefix }
+                                value={ folder.prefix || '__root__' }
+                            >
+                                { folder.prefix ? folder.prefix.replace('.', ' > ') : I18n.t('Root') }
+                            </MenuItem>)
+                        }
+                    </Select>
+                </FormControl>
+            </DialogContent>
+            <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
+                <Button variant="contained" onClick={ () => this.setState({moveDialog: null}) }>
+                    { I18n.t('Cancel') }
+                </Button>
+                <Button
+                    variant="contained"
+                    disabled={ !isIdUnique }
+                    color="primary" onClick={ e =>
+                        this.setState({moveDialog: null}, () =>
+                            this.addSceneToFolderPrefix(this.state.scenes[this.state.selectedSceneId], this.state.newFolder === '__root__' ? '' : this.state.newFolder))
+                    }
+                >
+                    { I18n.t('Move to folder') }
+                </Button>
+            </DialogActions>
+        </Dialog>;
+    }
+
+    renderDeleteDialog() {
+        return this.state.deleteDialog ? <Dialog
+            open={ true }
+            key="deleteDialog"
+            onClose={ () => this.setState({deleteDialog: false}) }
+        >
+            <DialogTitle>{ I18n.t('Are you sure for delete this preset?') }</DialogTitle>
+            <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
+                <Button variant="contained" onClick={ () => this.setState({deleteDialog: false}) }>
+                    {I18n.t('Cancel')}
+                </Button>
+                <Button variant="contained" color="secondary" onClick={e => {
+                    this.deletePreset(this.state.deleteDialog);
+                    this.setState({deleteDialog: false});
+                }}>
+                    { I18n.t('Delete') }
                 </Button>
             </DialogActions>
         </Dialog> : null;
@@ -909,6 +1043,9 @@ class App extends GenericApp {
                     </SplitterLayout>
                 </div>
                 { this.renderAddFolderDialog() }
+                { this.renderEditFolderDialog() }
+                { this.renderDeleteDialog() }
+                { this.renderMoveDialog() }
             </>
         );
     }
