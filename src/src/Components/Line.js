@@ -1,4 +1,5 @@
 import React from 'react';
+import update from 'immutability-helper';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
@@ -9,36 +10,9 @@ import {MdModeEdit as IconEdit} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 
 class Line extends React.Component {
-    state = {
-        "id":"system.adapter.admin.0.cpu",
-        "offset":"0",
-        "aggregate":"minmax",
-        "color":"#FF0000",
-        "thickness":"3",
-        "shadowsize":"3",
-        "name":"Line 1",
-        "xaxe":"off",
-        "ignoreNull":"false",
-        "afterComma":"2",
-        "dashes":"true",
-        "dashLength":"10",
-        "spaceLength":"10",
-        "min":"-0.1",
-        "max":"1",
-        "points":"true",
-        "fill":"4",
-        "unit":"2",
-        "yaxe":"left",
-        "yOffset":"1",
-        "xticks":"2",
-        "yticks":"3",
-        "smoothing":"4"
-      };
-
     updateField = (name, value)=>{
-        let update = {};
-        update[name] = value;
-        this.setState(update);
+        let newLine = update(this.props.line, {[name]: {$set: value}});
+        this.props.updateLine(this.props.index, newLine);
     }
     
     render() {
@@ -54,9 +28,9 @@ class Line extends React.Component {
                     <IconDelete/>
                 </IconButton>
             </div>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="instance" label="Instance"/>
-            <IOObjectField formData={this.state} updateValue={this.updateField} name="id" label="ID" socket={this.props.socket}/>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="aggregate" label="Type" options={{
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance"/>
+            <IOObjectField formData={this.props.line} updateValue={this.updateField} name="id" label="ID" socket={this.props.socket}/>
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
                 minmax: 'minmax',
                 average: 'average',
                 min: 'min',
@@ -64,20 +38,20 @@ class Line extends React.Component {
                 total: 'total',
                 onchange: 'on change',
             }}/>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="chartType" label="Chart type" options={{
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
                 line: 'Line',
                 bar: 'Bar',
                 scatterplot: 'Scatter plot',
                 steps: 'Steps',
                 spline: 'Spline',
             }}/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="fill" label="Fill" />
-            <IOCheckbox formData={this.state} updateValue={this.updateField} name="points" label="Points"/>
-            <IOColorPicker formData={this.state} updateValue={this.updateField} name="aggregateType" label="Color" />
-            <IOTextField formData={this.state} updateValue={this.updateField} name="min" label="Min" />
-            <IOTextField formData={this.state} updateValue={this.updateField} name="max" label="Max" />
-            <IOTextField formData={this.state} updateValue={this.updateField} name="unit" label="Unit" />
-            <IOSelect formData={this.state} updateValue={this.updateField} name="yaxe" label="Y Axis" options={{
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill" />
+            <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Points"/>
+            <IOColorPicker formData={this.props.line} updateValue={this.updateField} name="aggregateType" label="Color" />
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" />
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" />
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis" options={{
                 '': '',
                 off: 'off',
                 left: 'left',
@@ -85,7 +59,7 @@ class Line extends React.Component {
                 leftColor: 'left colored',
                 rightColor: 'right colored',
             }}/>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="xaxe" label="X Axis" options={{
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis" options={{
                 '': '',
                 off: 'off',
                 left: 'left',
@@ -93,8 +67,8 @@ class Line extends React.Component {
                 topColor: 'top colored',
                 bottomColor: 'bottom colored',
             }}/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="name" label="Name"/>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="offset" label="X-Offset" options={{
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="offset" label="X-Offset" options={{
                 '0': '0 seconds',
                 '10': '10 seconds',
                 '30': '30 seconds',
@@ -124,12 +98,12 @@ class Line extends React.Component {
                 '1y': '1 year',
                 '2y': '2 years',
             }}/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="yOffset" label="Y-Offset"/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="xticks" label="X-Axis ticks"/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="yticks" label="Y-Axis ticks"/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="thickness" label="ØL"/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="shadowsize" label="ØS"/>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" options={{
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS"/>
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" options={{
                 '': 'default',
                 '1': '1',
                 '2': '2',
@@ -137,16 +111,16 @@ class Line extends React.Component {
                 '4': '4',
                 '5': '5',
             }}/>
-            <IOSelect formData={this.state} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
+            <IOSelect formData={this.props.line} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
                 'false': 'default',
                 'true': 'ignore null values',
                 '0': 'use 0 instead of null values',
             }}/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="smoothing" label="Smoothing"/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="afterComma" label="After comma"/>
-            <IOCheckbox formData={this.state} updateValue={this.updateField} name="dashes" label="Dashes"/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="dashLength" label="Dashes length"/>
-            <IOTextField formData={this.state} updateValue={this.updateField} name="spaceLength" label="Space length"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="After comma"/>
+            <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length"/>
+            <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length"/>
         </>
     }
 }

@@ -13,158 +13,168 @@ import IconButton from '@material-ui/core/IconButton';
 import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField} from './Fields';
 
 import Line from './Line';
-import Marks from './Mark';
+import Mark from './Mark';
 
 class PresetTabs extends React.Component {
     state = {
-                "lines":[
-                /*
-                  {
-                    "id":"system.adapter.admin.0.cpu",
-                    "offset":"0",
-                    "aggregate":"minmax",
-                    "color":"#FF0000",
-                    "thickness":"3",
-                    "shadowsize":"3",
-                    "name":"Line 1",
-                    "xaxe":"off",
-                    "ignoreNull":"false",
-                    "afterComma":"2",
-                    "dashes":"true",
-                    "dashLength":"10",
-                    "spaceLength":"10",
-                    "min":"-0.1",
-                    "max":"1",
-                    "points":"true",
-                    "fill":"4",
-                    "unit":"2",
-                    "yaxe":"left",
-                    "yOffset":"1",
-                    "xticks":"2",
-                    "yticks":"3",
-                    "smoothing":"4"
-                  },
-                  {
-                    "id":"system.adapter.admin.0.memHeapTotal",
-                    "offset":"0",
-                    "aggregate":"minmax",
-                    "color":"#00FF00",
-                    "thickness":"3",
-                    "shadowsize":"3",
-                    "min":"-0.1",
-                    "points":"false"
-                  },
-                {
-                    "id":"system.adapter.admin.0.memRss",
-                    "offset":"0",
-                    "aggregate":"minmax",
-                    "color":"#0000FF",
-                    "thickness":"3",
-                    "shadowsize":"3",
-                    "xaxe":"off",
-                    "min":"-0.1"
-                  }
-                */
-                ],
-                "marks":[
-                /*
-                  {
-                    "lineId":"0",
-                    "upperValueOrId":"20",
-                    "fill":"1",
-                    "color":"#FF0000",
-                    "ol":"1",
-                    "os":"0",
-                    "text":"11",
-                    "textPosition":"l",
-                    "textOffset":"2",
-                    "textColor":"#FF0000",
-                    "textSize":"2",
-                    "lowerValueOrId":"20"
-                  }
-                */
-                ],
-                /*
-                "timeType":"relative",
-                "relativeEnd":"10minutes",
-                "range":"120",
-                "aggregateType":"count",
-                "aggregateSpan":"300",
-                "legend":"ne",
-                "hoverDetail":"true",
-                "useComma":"true",
-                "zoom":"true",
-                "noedit":"true",
-                "animation":"2000",
-                "live":"15",
-                "ticks":"22",
-                "width":"1",
-                "height":"0",
-                "noBorder":"noborder",
-                "window_bg":"#000000",
-                "bg":"0",
-                "x_labels_color":"#000000",
-                "y_labels_color":"#010303",
-                "border_color":"#000000",
-                "grid_color":"#000000",
-                "border_width":"11",
-                "barColor":"#002222",
-                "barLabels":"topover",
-                "barWidth":"22",
-                "barFontSize":"22",
-                "barFontColor":"#002222",
-                "title":"11",
-                "titlePos":"top:35;left:50",
-                "titleColor":"#002222",
-                "titleSize":"22",
-                "legColumns":"2",
-                "legBgOpacity":"2",
-                "legBg":"#002222",
-                "timeFormat":"%H:%M:%S %d.%m.%y",
-                */
-        selectedTab: "4"
+                presetData: {
+                    "lines":[
+                    /*
+                    {
+                        "id":"system.adapter.admin.0.cpu",
+                        "offset":"0",
+                        "aggregate":"minmax",
+                        "color":"#FF0000",
+                        "thickness":"3",
+                        "shadowsize":"3",
+                        "name":"Line 1",
+                        "xaxe":"off",
+                        "ignoreNull":"false",
+                        "afterComma":"2",
+                        "dashes":"true",
+                        "dashLength":"10",
+                        "spaceLength":"10",
+                        "min":"-0.1",
+                        "max":"1",
+                        "points":"true",
+                        "fill":"4",
+                        "unit":"2",
+                        "yaxe":"left",
+                        "yOffset":"1",
+                        "xticks":"2",
+                        "yticks":"3",
+                        "smoothing":"4"
+                    },
+                    {
+                        "id":"system.adapter.admin.0.memHeapTotal",
+                        "offset":"0",
+                        "aggregate":"minmax",
+                        "color":"#00FF00",
+                        "thickness":"3",
+                        "shadowsize":"3",
+                        "min":"-0.1",
+                        "points":"false"
+                    },
+                    {
+                        "id":"system.adapter.admin.0.memRss",
+                        "offset":"0",
+                        "aggregate":"minmax",
+                        "color":"#0000FF",
+                        "thickness":"3",
+                        "shadowsize":"3",
+                        "xaxe":"off",
+                        "min":"-0.1"
+                    }
+                    */
+                    ],
+                    "marks":[
+                    /*
+                    {
+                        "lineId":"0",
+                        "upperValueOrId":"20",
+                        "fill":"1",
+                        "color":"#FF0000",
+                        "ol":"1",
+                        "os":"0",
+                        "text":"11",
+                        "textPosition":"l",
+                        "textOffset":"2",
+                        "textColor":"#FF0000",
+                        "textSize":"2",
+                        "lowerValueOrId":"20"
+                    }
+                    */
+                    ],
+                    /*
+                    "timeType":"relative",
+                    "relativeEnd":"10minutes",
+                    "range":"120",
+                    "aggregateType":"count",
+                    "aggregateSpan":"300",
+                    "legend":"ne",
+                    "hoverDetail":"true",
+                    "useComma":"true",
+                    "zoom":"true",
+                    "noedit":"true",
+                    "animation":"2000",
+                    "live":"15",
+                    "ticks":"22",
+                    "width":"1",
+                    "height":"0",
+                    "noBorder":"noborder",
+                    "window_bg":"#000000",
+                    "bg":"0",
+                    "x_labels_color":"#000000",
+                    "y_labels_color":"#010303",
+                    "border_color":"#000000",
+                    "grid_color":"#000000",
+                    "border_width":"11",
+                    "barColor":"#002222",
+                    "barLabels":"topover",
+                    "barWidth":"22",
+                    "barFontSize":"22",
+                    "barFontColor":"#002222",
+                    "title":"11",
+                    "titlePos":"top:35;left:50",
+                    "titleColor":"#002222",
+                    "titleSize":"22",
+                    "legColumns":"2",
+                    "legBgOpacity":"2",
+                    "legBg":"#002222",
+                    "timeFormat":"%H:%M:%S %d.%m.%y",
+                    */
+        },
+        selectedTab: "0"
     };
 
-    componentDidMount() {
-        this.setState(this.props.presetData);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState(nextProps.presetData);
-    }
-
     updateField = (name, value)=>{
-        let update = {};
-        update[name] = value;
-        this.setState(update, () => {
-            this.props.onChange(this.state);
-        });
+        this.props.onChange(update(this.props.presetData, {[name]: {$set: value}}));
     }
 
-    setStateWithParent(newState) {
-        this.setState(newState, () => {
-            this.props.onChange(this.state);
-        });
+    updateMark = (index, markData) => {
+        let newMarks = update(this.props.presetData.marks, {[index]: {$set: markData}});
+        this.updateField('marks', newMarks);
     }
 
+    updateLine = (index, lineData) => {
+        let newLines = update(this.props.presetData.lines, {[index]: {$set: lineData}});
+        this.updateField('lines', newLines);
+    }
+    
     addMark = () => {
-        let newState = update(this.state, {marks: {$push: [{}]}})        
-        this.setStateWithParent(newState);
+        let newPresetData = update(this.props.presetData, {
+            marks: {
+                $push: [{}]
+            }
+        })        
+        this.props.onChange(newPresetData);
     }
 
     deleteMark = (index) => {
-        let newState = update(this.state, {marks: {$unset: [index]}})        
-        this.setStateWithParent(newState);
+        let newPresetData = update(this.props.presetData, {
+            marks: {
+                $splice: [[index, 1]]
+            }
+        })        
+        this.props.onChange(newPresetData);
     }
 
     addLine = () => {
-        let newState = update(this.state, {lines: {$push: [{}]}})        
-        this.setStateWithParent(newState);
+        let newPresetData = update(this.props.presetData, {
+            lines: {
+                $push: [{}]
+            }
+        })
+        this.props.onChange(newPresetData);
     }
 
     deleteLine = (index) => {
-        let newState = update(this.state, {lines: {$unset: [index]}})        
-        this.setStateWithParent(newState);
+        let newPresetData = update(this.props.presetData, {
+            lines: {
+                $splice: [[index, 1]]
+            }
+        })        
+        this.props.onChange(newPresetData);
     }
 
     render() {
@@ -187,7 +197,7 @@ class PresetTabs extends React.Component {
                         </IconButton>
                     </div>
                     {
-                        this.state.lines.map((line, key) => <Line deleteLine={this.deleteLine} index={key} key={key} socket={this.props.socket}/>)
+                        this.props.presetData.lines.map((line, key) => <Line line={line} updateLine={this.updateLine} deleteLine={this.deleteLine} index={key} key={key} socket={this.props.socket}/>)
                     }
                 </TabPanel>
                 <TabPanel value="1">
@@ -196,33 +206,35 @@ class PresetTabs extends React.Component {
                             <IconAdd/>
                         </IconButton>
                     </div>
-                    <Marks name="marks" deleteMark={this.deleteMark} marks={this.state.marks} updateField={this.updateField}/>
+                    {
+                        this.props.presetData.marks.map((mark, key) => <Mark mark={mark} updateMark={this.updateMark} deleteMark={this.deleteMark} index={key} key={key} socket={this.props.socket}/>)
+                    }
                 </TabPanel>
                 <TabPanel value="2">
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="timeType" label="Type" options={{
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
                         'relative': 'relative',
                         'static': 'static',
                     }}/>
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
                         'count': 'counts',
                         'step': 'seconds',
                     }}/>
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="aggregateSpan" label="Counts" />
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan" label="Counts" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                 </TabPanel>
                 <TabPanel value="3">
-                    <IOSelect formData={this.state} updateValue={this.updateField} label="Show legend" name="legend" options={{
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Show legend" name="legend" options={{
                         '': 'none',
                         'nw': 'Top, left',
                         'ne': 'Top, right',
                         'sw': 'Bottom, left',
                         'se': 'Bottom, right',
                     }}/>
-                    <IOTextField formData={this.state} updateValue={this.updateField} label="Legend columns" name="legColumns" />
-                    <IOTextField formData={this.state} updateValue={this.updateField} label="Legend opacity" name="legBgOpacity" />
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} label="Legend background" name="legBg" />
-                    <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Hover details'} name="hoverDetail" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity" name="legBgOpacity" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} label="Legend background" name="legBg" />
+                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hover details'} name="hoverDetail" />
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
                         '': 'Default',
                         '%H:%M %d.%m': 'HH:MM dd.mm',
                         '%H:%M %d.%m.': 'HH:MM dd.mm.',
@@ -250,10 +262,10 @@ class PresetTabs extends React.Component {
                         '%a': 'dow',
                         '%d.%m.%y': 'dd.mm.yy',
                     }}/>
-                    <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Use comma'} name="useComma" />
-                    <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />
-                    <IOCheckbox formData={this.state} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} label="Animation" name="animation" options={{
+                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Use comma'} name="useComma" />
+                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />
+                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Animation" name="animation" options={{
                         '0': 'no',
                         '300': '300ms',
                         '500': '500ms',
@@ -265,8 +277,8 @@ class PresetTabs extends React.Component {
                     }}/>
                 </TabPanel>
                 <TabPanel value="4">
-                    <IOObjectField formData={this.state} updateValue={this.updateField} name="title" label="Title" socket={this.props.socket}/>
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="titlePos" label="Title position" options={{
+                    <IOObjectField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title" socket={this.props.socket}/>
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="titlePos" label="Title position" options={{
                         '': 'none',
                         'top:35;left:65': 'Top, left, inside',
                         'top:35;right:5': 'Top, right, inside',
@@ -281,19 +293,19 @@ class PresetTabs extends React.Component {
                         'bottom:5;right:-5': 'Bottom, right, outside',
                         'bottom:-5;left:50': 'Bottom, center, outside',
                     }}/>
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="titleColor" label="Title size" />
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="titleSize" label="Title size" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="titleColor" label="Title size" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" />
                 </TabPanel>
                 <TabPanel value="5">
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="width" label="Width" />
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="options_height" label="Height" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_noborder" label="No border" options={{
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" />
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_noborder" label="No border" options={{
                         '': '',
                         'noborder': 'yes',
                     }}/>
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_window_bg" label="Window background" />
-                    <IOCheckbox formData={this.state} updateValue={this.updateField} name="options_bg_custom" label={'Custom chart background'}/>
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_bg" label="Chart background" options={{
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_window_bg" label="Window background" />
+                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="options_bg_custom" label={'Custom chart background'}/>
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_bg" label="Chart background" options={{
                         '': 'default',
                         '0': 'Portrait',
                         '1': 'Instagram',
@@ -306,22 +318,22 @@ class PresetTabs extends React.Component {
                         '8': 'Koko Caramel',
                         '9': 'Turquoise flow',
                     }}/>
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_x_labels_color" label="X labels color" />
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_y_labels_color" label="Y labels color" />
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_border_color" label="Border color" />
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_grid_color" label="Grid color" />
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="options_border_width" label="Border width" />
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="barColor" label="Fill color" />
-                    <IOSelect formData={this.state} updateValue={this.updateField} name="options_barLabels" label="Show labels" options={{
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_x_labels_color" label="X labels color" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_y_labels_color" label="Y labels color" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_border_color" label="Border color" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_grid_color" label="Grid color" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_border_width" label="Border width" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="barColor" label="Fill color" />
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_barLabels" label="Show labels" options={{
                         '': 'none',
                         'topover': 'top over',
                         'topunder': 'top under',
                         'bottom': 'bottom',
                         'middle': 'middle',
                     }}/>
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="options_barWidth" label="Bars width"/>
-                    <IOTextField formData={this.state} updateValue={this.updateField} name="options_barFontSize" label="Label font size" />
-                    <IOColorPicker formData={this.state} updateValue={this.updateField} name="options_barFontColor" label="Label color" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_barWidth" label="Bars width"/>
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_barFontSize" label="Label font size" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_barFontColor" label="Label color" />
                 </TabPanel>
             </div>
         </TabContext>
