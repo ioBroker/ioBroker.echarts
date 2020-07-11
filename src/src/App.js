@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
 import clsx from 'clsx';
 import SplitterLayout from 'react-splitter-layout';
@@ -198,6 +199,8 @@ class App extends GenericApp {
             opened,
             presets: {},
             folders: null,
+            presetMode: true,
+            chartFolders: {},
             search: null,
             addFolderDialog: null,
             addFolderDialogTitle: null,
@@ -206,6 +209,7 @@ class App extends GenericApp {
             changingPreset: '',
             showSearch: null,
             instances: [],
+            selectedChartId: null,
             selectedPresetChanged: false,
             deleteDialog: null,
             moveDialog: null,
@@ -254,6 +258,7 @@ class App extends GenericApp {
             })
             .then(() => this.refreshData())
             .catch(e => this.showError(e));
+        this.getAllData();
     }
 
     processTasks(tasks, cb) {
@@ -403,7 +408,6 @@ class App extends GenericApp {
                 this.getObjects(ids, objs => {
                     const ids = instances.map(obj => obj._id.substring('system.adapter.'.length));
                     const _instances = {};
-                    _instances.presets = {_id: 'presets', common: {name: I18n.t('Presets')}, enabledDP: {}};
                     Object.values(objs).forEach(obj => {
                         const id = obj && obj.common && obj.common.custom && ids.find(id => Object.keys(obj.common.custom).includes(id));
                         if (id) {
@@ -412,16 +416,19 @@ class App extends GenericApp {
                         }
                     });
 
+                    let chartFolders = {};
+
                     const insts = Object.values(_instances).map(obj => {
                         const enabledDP = {};
                         Object.keys(obj.enabledDP).sort().forEach(id => enabledDP[id] = obj.enabledDP[id]);
                         obj.enabledDP = enabledDP;
+                        chartFolders[obj._id] = true;
                         return obj;
                     });
 
-                    this.setState({instances: insts});
+                    this.setState({instances: insts, chartFolders: chartFolders});
 
-                    console.log(JSON.stringify(insts));
+                    console.log(insts);
                     resolve();
                 });
             });
@@ -432,8 +439,6 @@ class App extends GenericApp {
         return this.socket.getAdapterInstances('')
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
             .then(instances => this.getAllCustoms(instances))
-            .then(instances => instances && this.setState({instances}))
-            //.then(() => this.syncSubscribes());
     }
 
     onObjectChange = (id, obj, oldObj) => {
@@ -608,7 +613,7 @@ class App extends GenericApp {
                 name: '',
             },
             native: {
-                url: {},
+                url: "",
                 data: this.state.presetData,
             },
             type: 'chart'
@@ -632,6 +637,65 @@ class App extends GenericApp {
             .catch(e => this.showError(e));
     };
 
+    toggleChartFolder = (id) => {
+        this.setState(update(this.state, {
+            chartFolders: {
+                [id]: {
+                    $set : !(this.state.chartFolders[id])
+                }
+            }
+        }));
+    }
+
+    renderCharts() {
+        return <List className={ this.props.classes.scroll }>
+            {
+                this.state.instances.map((group, key) =>
+                    {
+                        let opened = this.state.chartFolders[group._id];
+                        return <>
+                            <ListItem
+                                classes={ {gutters: this.props.classes.noGutters} }
+                                className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
+                            >
+                                <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>{ opened ?
+                                    <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
+                                    <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
+                                }</ListItemIcon>
+                                <ListItemText>{ group._id }</ListItemText>
+                                <ListItemSecondaryAction>
+                                    <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
+                                        { opened ? <IconCollapse/> : <IconExpand/> }
+                                    </IconButton>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                            {
+                                opened ? Object.values(group.enabledDP).map((chart, key)=>
+                                    <ListItem 
+                                        key={key} 
+                                        button 
+                                        style={{paddingLeft: LEVEL_PADDING + this.props.theme.spacing(1)}} 
+                                        selected={this.state.selectedChartId == chart._id}
+                                        onClick={
+                                        () => {
+                                            this.state.presetMode ? 
+                                            this.setState({loadChartDialog: chart._id, loadChartDialogInstance: group._id}) :
+                                            this.loadChart(chart._id, group._id)
+                                        }
+                                    }>
+                                        <ListItemText
+                                            classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
+                                            primary={ chart._id }
+                                        />
+                                    </ListItem>
+                                ) : null
+                            }
+                        </>
+                    }
+                )}
+            </List>
+    }
+
     renderTreePreset = (item, level) => {
         const preset = this.state.presets[item._id];
         if (!preset || (this.state.search && !item.common.name.includes(this.state.search))) {
@@ -647,7 +711,10 @@ class App extends GenericApp {
             key={ item._id }
             button
             onClick={ () =>
-                this.setState({loadPresetDialog: preset._id}) }>
+                this.state.presetMode ? 
+                this.setState({loadPresetDialog: preset._id}) :
+                this.loadPreset(preset._id)
+            }>
             <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
             <ListItemText
                 classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
@@ -796,7 +863,48 @@ class App extends GenericApp {
 
     loadPreset(id) {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
-        this.setState({presetData: preset.native.data});
+        this.setState({presetData: preset.native.data, presetMode: true, selectedChartId: null});
+    }
+
+    loadChart(id, instance) {
+        let presetData = {
+            marks: [],
+            lines: [{
+                id: id,
+                offset: 0,
+                aggregate: 'minmax',
+                color: '#1868a8',
+                thickness: 1,
+                shadowsize: 1,
+                smoothing: 0,
+                afterComma: 0,
+                ignoreNull: false,
+            }],
+            range: 1440,
+            zoom: true,
+            axeX: 'lines',
+            axeY: 'inside',
+            hoverDetail: true,
+            aggregate: 'onchange',
+            chartType: 'step',
+            live: '30',
+            instance: instance,
+            aggregateType: 'step',
+            aggregateSpan: 300,
+            relativeEnd: 'now',
+            timeType: 'relative',
+            noBorder: 'noborder',
+            bg: '#00000000',
+            timeFormat: '%H:%M',
+            useComma: undefined,
+            noedit: false,
+            animation: 0
+        }
+        this.setState({presetData: presetData, presetMode: false, selectedChartId: id});
+    }
+
+    enablePresetMode = () => {
+        this.setState({presetMode: true, selectedChartId: null});
     }
 
     renderListToolbar() {
@@ -998,6 +1106,29 @@ class App extends GenericApp {
         </Dialog> : null;
     }
 
+    renderLoadChartDialog() {
+        const that = this;
+        return this.state.loadChartDialog ? <Dialog
+            open={ true }
+            key="loadChartDialog"
+            onClose={ () => this.setState({loadChartDialog: ''}) }>
+                <DialogTitle>{ I18n.t('Are you sure for load chart and cancel unsaved changes?') }</DialogTitle>
+                <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
+                    <Button variant="contained" onClick={() => {
+                        this.setState({loadChartDialog: ''});
+                    }}>
+                        <IconCancel/> { I18n.t('Cancel') }
+                    </Button>
+                    <Button variant="contained" color="secondary" onClick={e => {
+                        this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
+                        this.setState({loadChartDialog: ''});
+                    }}>
+                        <IconSave/> { I18n.t('Load chart') }
+                    </Button>
+                </DialogActions>
+            </Dialog> : null;
+    };
+
     renderLoadPresetDialog() {
         const that = this;
         return this.state.loadPresetDialog ? <Dialog
@@ -1025,7 +1156,7 @@ class App extends GenericApp {
         const that = this;
         return this.state.savePresetDialog ? <Dialog
             open={ true }
-            key="loadPresetDialog"
+            key="savePresetDialog"
             onClose={ () => this.setState({savePresetDialog: ''}) }>
                 <DialogTitle>{ I18n.t('Are you sure for rewrite preset and lost previous settings?') }</DialogTitle>
                 <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
@@ -1085,6 +1216,8 @@ class App extends GenericApp {
                         searchText={this.state.searchText}
                         theme={this.state.themeType}
                         presetData={this.state.presetData}
+                        enablePresetMode={this.enablePresetMode}
+                        presetMode={this.state.presetMode}
                         onSelectedChange={(id, editing) => {
                             const newState = {};
                             let changed = false;
@@ -1105,12 +1238,14 @@ class App extends GenericApp {
                             onChange={(id, common) => this.onUpdateScript(id, common)}
                         */
                     />
-                    <SettingsEditor
-                        socket={this.socket}
-                        key="Editor"
-                        onChange={this.onUpdatePreset}
-                        presetData={this.state.presetData}
-                        verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} connection={this.socket} selected={this.state.selected}/>
+                    {
+                        this.state.presetMode ? <SettingsEditor
+                            socket={this.socket}
+                            key="Editor"
+                            onChange={this.onUpdatePreset}
+                            presetData={this.state.presetData}
+                            verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} connection={this.socket} selected={this.state.selected}/> : null
+                    }
                 </SplitterLayout>
             </div>
         ];
@@ -1144,6 +1279,7 @@ class App extends GenericApp {
                         <div className={classes.mainDiv} key="mainmenudiv">
                             {this.renderListToolbar()}
                             <div key="list" className={ this.props.classes.heightMinusToolbar }>
+                                { this.renderCharts() }
                                 <List className={ this.props.classes.scroll }>
                                     { this.renderTree(this.state.folders) }
                                 </List>
@@ -1157,6 +1293,7 @@ class App extends GenericApp {
                 { this.renderDeleteDialog() }
                 { this.renderMoveDialog() }
                 { this.renderRenameDialog() }
+                { this.renderLoadChartDialog() }
                 { this.renderLoadPresetDialog() }
                 { this.renderSavePresetDialog() }
             </>

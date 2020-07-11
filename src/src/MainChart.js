@@ -632,90 +632,9 @@ class Editor extends React.Component {
     }
 
     getTabs() {
-        if (this.state.editing.length) {
-            return [(<Tabs
-                    component={'div'}
-                    key="tabs1"
-                    value={this.state.selected}
-                    onChange={(event, value) => this.onTabChange(event, value)}
-                    indicatorColor="primary"
-                    style={{position: 'relative', width: this.state.editing.length > 1 ? 'calc(100% - 50px)' : '100%', display: 'inline-block'}}
-                    textColor="primary"
-                    variant="scrollable"
-                    scrollButtons="auto"
-                >
-                    {this.state.editing.map(id => {
-                        if (!this.props.objects[id]) {
-                            const label = [
-                                (<div key="text" className={this.props.classes.tabText + ' ' + (this.isScriptChanged(id) ? this.props.classes.tabChanged : '')}>{id.split('.').pop()}</div>),
-                                (<span key="icon" className={this.props.classes.closeButton}><IconClose key="close" onClick={e => this.onTabClose(id, e)} fontSize="small"/></span>)];
-                            return (<Tab
-                                component={'div'}
-                                href={'#' + id}
-                                key={id}
-                                label={label}
-                                value={id}
-                                classes={{wrapper: this.props.classes.tabButtonWrapper}}
-                            />);
-                        } else {
-                            let text = this.props.objects[id].common.name;
-                            let title = '';
-                            if (text.length > 18) {
-                                title = text;
-                                text = text.substring(0, 15) + '...';
-                            }
-                            const changed = this.props.objects[id].common && this.scripts[id] && this.props.objects[id].common.source !== this.scripts[id].source;
-                            const label = [
-                                /*(<img key="icon" alt={""} src={images[this.props.objects[id].common.engineType] || images.def} className={this.props.classes.tabIcon}/>),*/
-                                (<div key="text" className={this.props.classes.tabText + ' ' + (this.isScriptChanged(id) ? this.props.classes.tabChanged : '')}>{text}</div>),
-                                changed ? (<span key="changedSign" className={this.props.classes.tabChangedIcon}>▣</span>) : null,
-                                (<span key="icon2" className={this.props.classes.closeButton}><IconClose key="close" onClick={e => this.onTabClose(id, e)} fontSize="small"/></span>)];
-
-                            return (<Tab
-                                component={'div'}
-                                href={'#' + id}
-                                key={id}
-                                label={label}
-                                className={this.props.classes.tabButton}
-                                value={id}
-                                title={title}
-                                classes={{wrapper: this.props.classes.tabButtonWrapper}}
-                            />);
-                        }
-                    })}
-                </Tabs>),
-                this.state.editing.length > 1 ? (<IconButton
-                    key="menuButton"
-                    href="#"
-                    aria-label="Close all but current"
-                    className={this.props.classes.tabMenuButton}
-                    title={I18n.t('Close all but current')}
-                    aria-haspopup="false"
-                    onClick={_event => {
-                        const editing = [this.state.selected];
-                        // Do not close not saved tabs
-                        Object.keys(this.scripts).forEach(id =>
-                            id !== this.state.selected &&
-                            JSON.stringify(this.scripts[id]) !== JSON.stringify(this.props.objects[id].common) &&
-                            editing.push(id)
-                        );
-
-                        window.localStorage && window.localStorage.setItem('Editor.editing', JSON.stringify(editing));
-                        this.setState({menuTabsOpened: false, menuTabsAnchorEl: null, editing: editing});
-                    }}
-                >
-                    <IconCloseAll />
-                </IconButton>) : null
-            ];
-        } else {
-            return (<div key="tabs2" className={this.props.classes.toolbar}>
-                <Button key="select1" disabled={true} className={this.props.classes.hintButton} href="">
-                    <span key="select2">{I18n.t('Click on this icon')}</span>
-                    <IconDoEdit key="select3" className={this.props.classes.hintIcon}/>
-                    <span key="select4">{I18n.t('for edit or create script')}</span>
-                </Button>
-            </div>);
-        }
+        return this.props.presetMode ? null : <Button className={this.props.classes.hintButton} onClick={this.props.enablePresetMode}>
+            {I18n.t('Edit mode')}
+        </Button>
     }
 
     getDebugMenu() {
@@ -770,11 +689,45 @@ class Editor extends React.Component {
         return null;
     }
 
+    getUrl() {
+        let translate = {
+            "lines": "l",
+            "marks": "m"
+        }
+        let translateObject = {
+            "lines": {},
+            "marks": {},
+        }
+        let url = '';
+        for (let k in this.props.presetData) {
+            let v = this.props.presetData[k];
+            let translateCurrentObject = translateObject[k];
+            if (translate[k]) {
+                k = translate[k];
+            }
+            if (Array.isArray(v)) {
+                v.forEach((arrayObject, index) => {
+                    for (let k2 in arrayObject) {
+                        let v2 = arrayObject[k2];
+                        if (translateCurrentObject[k2]) {
+                            k2 = translateCurrentObject[k2];
+                        }
+                        url += encodeURIComponent(k+'['+index+']['+k2+']') + '=' + encodeURIComponent(v2) + '&';
+                    }
+                });
+            } else {
+                url += encodeURIComponent(k) + '=' + encodeURIComponent(v) + '&';
+            }
+        }
+        
+        return url;
+    }
+
     getChartFrame() {
         const query = getUrlQuery();
         const host = query.host ? query.host : 'localhost'
         return (<div style={{display: this.state.visible ? "inline" : "none"}}><ChartFrame
-            src={"http://" + host + ":8082/flot/index.html?l%5B0%5D%5Bid%5D=system.adapter.admin.0.memHeapTotal&l%5B0%5D%5Boffset%5D=0&l%5B0%5D%5Baggregate%5D=minmax&l%5B0%5D%5Bcolor%5D=%23FF0000&l%5B0%5D%5Bthickness%5D=3&l%5B0%5D%5Bshadowsize%5D=3&l%5B1%5D%5Bid%5D=system.adapter.admin.0.memHeapUsed&l%5B1%5D%5Boffset%5D=0&l%5B1%5D%5Baggregate%5D=minmax&l%5B1%5D%5Bcolor%5D=%2300FF00&l%5B1%5D%5Bthickness%5D=3&l%5B1%5D%5Bshadowsize%5D=3&timeType=relative&relativeEnd=now&range=10&aggregateType=count&aggregateSpan=300&hoverDetail=false&useComma=false&zoom=true&noedit=false&animation=0"}
+            src={"http://" + host + ":8082/flot/index.html?" + this.getUrl()}
         /></div>);
     }
 
@@ -868,6 +821,7 @@ class Editor extends React.Component {
             this.getTabs(),
             this.getToolbar(),
             <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>,
+            <pre>{this.getUrl()}</pre>,
             this.getChartFrame(),
             this.getConfirmDialog(),
             this.getSelectIdDialog(),
