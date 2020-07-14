@@ -10,6 +10,15 @@ import {MdModeEdit as IconEdit} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import {withStyles} from '@material-ui/core/styles';
+
+let styles = {
+    card: {
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: 'lightgrey',
+    }
+};
 
 class Line extends React.Component {
     updateField = (name, value)=>{
@@ -18,7 +27,7 @@ class Line extends React.Component {
     }
     
     render() {
-        return <Card><CardContent>
+        return <Card className={this.props.classes.card}><CardContent>
             <h4>
                 {this.props.line.name}
                 <IconButton title={ I18n.t('Edit') }
@@ -140,4 +149,4 @@ class Line extends React.Component {
     }
 }
 
-export default Line;
+export default withStyles(styles)(Line);

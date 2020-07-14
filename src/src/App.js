@@ -47,6 +47,7 @@ import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
 import {FaClone as IconClone} from 'react-icons/fa';
 import {FaBars as IconMenu} from 'react-icons/fa';
 import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
+import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
@@ -681,7 +682,7 @@ class App extends GenericApp {
                                     <ListItem 
                                         key={key} 
                                         button 
-                                        style={{paddingLeft: LEVEL_PADDING + this.props.theme.spacing(1)}} 
+                                        style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}} 
                                         selected={this.state.selectedChartId == chart._id}
                                         onClick={
                                         () => {
@@ -690,6 +691,7 @@ class App extends GenericApp {
                                             this.loadChart(chart._id, group._id)
                                         }
                                     }>
+                                        <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} }><IconChart className={ this.props.classes.itemIcon }/></ListItemIcon>
                                         <ListItemText
                                             classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
                                             primary={ chart._id }

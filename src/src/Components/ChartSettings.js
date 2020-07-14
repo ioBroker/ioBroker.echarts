@@ -6,8 +6,9 @@ import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField} from './Fi
 
 let styles = {
     fieldsContainer: {
-        '& div': {
-            display: "inline-block"
+        '& > div': {
+            display: "inline-block",
+            paddingLeft: "20px",
         }
     }
 };

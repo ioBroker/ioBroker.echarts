@@ -8,6 +8,17 @@ import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fie
 import {MdDelete as IconDelete} from 'react-icons/md';
 import {MdModeEdit as IconEdit} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import {withStyles} from '@material-ui/core/styles';
+
+let styles = {
+    card: {
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: 'lightgrey',
+    }
+};
 
 class Mark extends React.Component {
     state = {
@@ -37,7 +48,7 @@ class Mark extends React.Component {
         this.props.presetData.lines.forEach((line, index) => {
             lines[index] = index + " - " + line.id;
         });
-        return <>
+        return <Card className={this.props.classes.card}><CardContent>
             <div>
                 <IconButton title={ I18n.t('Edit') }><IconEdit/></IconButton>
                 <IconButton
@@ -64,8 +75,8 @@ class Mark extends React.Component {
             <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/>
             <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/>
             <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" />
-        </>
+            </CardContent></Card>
     }
 }
 
-export default Mark;
+export default withStyles(styles)(Mark);

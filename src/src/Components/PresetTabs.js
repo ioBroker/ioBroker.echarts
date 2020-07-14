@@ -7,6 +7,7 @@ import Tab from '@material-ui/core/Tab';
 import TabPanel from '@material-ui/lab/TabPanel';
 import TabContext from '@material-ui/lab/TabContext';
 import AppBar from '@material-ui/core/AppBar';
+import Grid from '@material-ui/core/Grid';
 import {MdAdd as IconAdd} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 
@@ -404,43 +405,51 @@ class PresetTabs extends React.Component {
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" />
                 </TabPanel>
                 <TabPanel value="5">
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" type="number" />
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" type="number" />
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_noborder" label="No border" options={{
-                        '': '',
-                        'noborder': 'yes',
-                    }}/>
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_window_bg" label="Window background" />
-                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="options_bg_custom" label={'Custom chart background'}/>
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_bg" label="Chart background" options={{
-                        '': 'default',
-                        '0': 'Portrait',
-                        '1': 'Instagram',
-                        '2': 'ServQuick',
-                        '3': 'Metallic Toad',
-                        '4': 'Clouds',
-                        '5': 'Mirage',
-                        '6': 'Steel Gray',
-                        '7': 'Horizon',
-                        '8': 'Koko Caramel',
-                        '9': 'Turquoise flow',
-                    }}/>
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_x_labels_color" label="X labels color" />
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_y_labels_color" label="Y labels color" />
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_border_color" label="Border color" />
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_grid_color" label="Grid color" />
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_border_width" label="Border width" />
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="barColor" label="Fill color" />
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_barLabels" label="Show labels" options={{
-                        '': 'none',
-                        'topover': 'top over',
-                        'topunder': 'top under',
-                        'bottom': 'bottom',
-                        'middle': 'middle',
-                    }}/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_barWidth" label="Bars width"/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_barFontSize" label="Label font size" />
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_barFontColor" label="Label color" />
+                    <Grid container>
+                        <Grid item sm={6} xs={12}>
+                            <h4>Appearance</h4>
+                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" type="number" />
+                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" type="number" />
+                            <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_noborder" label="No border" options={{
+                                '': '',
+                                'noborder': 'yes',
+                            }}/>
+                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_window_bg" label="Window background" />
+                            <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="options_bg_custom" label={'Custom chart background'}/>
+                            <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_bg" label="Chart background" options={{
+                                '': 'default',
+                                '0': 'Portrait',
+                                '1': 'Instagram',
+                                '2': 'ServQuick',
+                                '3': 'Metallic Toad',
+                                '4': 'Clouds',
+                                '5': 'Mirage',
+                                '6': 'Steel Gray',
+                                '7': 'Horizon',
+                                '8': 'Koko Caramel',
+                                '9': 'Turquoise flow',
+                            }}/>
+                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_x_labels_color" label="X labels color" />
+                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_y_labels_color" label="Y labels color" />
+                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_border_color" label="Border color" />
+                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_grid_color" label="Grid color" />
+                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_border_width" label="Border width" />
+                        </Grid>
+                        <Grid item sm={6} xs={12}>
+                            <h4>Bar settings</h4>
+                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="barColor" label="Fill color" />
+                            <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_barLabels" label="Show labels" options={{
+                                '': 'none',
+                                'topover': 'top over',
+                                'topunder': 'top under',
+                                'bottom': 'bottom',
+                                'middle': 'middle',
+                            }}/>
+                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_barWidth" label="Bars width"/>
+                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_barFontSize" label="Label font size" />
+                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_barFontColor" label="Label color" />
+                        </Grid>
+                    </Grid>
                 </TabPanel>
             </div>
         </TabContext>

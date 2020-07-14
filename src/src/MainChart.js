@@ -47,7 +47,8 @@ const styles = theme => ({
     },
     hintButton: {
         marginTop: 8,
-        marginLeft: 20
+        marginRight: 20,
+        float: "right"
     },
     tabMenuButton: {
         position: 'absolute',
@@ -97,15 +98,15 @@ const styles = theme => ({
 class Editor extends React.Component {
 
     getTabs() {
-        return this.props.presetMode ? null : <>
+        return this.props.presetMode ? null : <div>
+            <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.enablePresetMode}>
+                {I18n.t('Edit mode')}
+            </Button>
             <ChartSettings
                 onChange={this.props.onChange}
                 presetData={this.props.presetData}
             />
-            <Button className={this.props.classes.hintButton} onClick={this.props.enablePresetMode}>
-                {I18n.t('Edit mode')}
-            </Button>
-        </>
+        </div>
     }
 
     getUrl() {
@@ -158,18 +159,20 @@ class Editor extends React.Component {
     getChartFrame() {
         const query = getUrlQuery();
         const host = query.host ? query.host : 'localhost'
-        return (<div style={{display: this.props.visible ? "inline" : "none"}}><ChartFrame
+        return (<div style={{flex: 1, display: this.props.visible ? 'block' : 'none'}}><ChartFrame
             src={"http://" + host + ":8082/flot/index.html?" + this.getUrl()}
         /></div>);
     }
 
     render() {
-        return [
-            this.getTabs(),
-            <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>,
-            <pre>{this.getUrl()}</pre>,
-            this.getChartFrame(),
-        ];
+        return <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+            {this.getTabs()}
+            {this.getChartFrame()}
+            <div style={{height: '200px', overflow: 'auto'}}>
+                <pre>{this.getUrl()}</pre>
+                <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
+            </div>
+        </div>
     }
 }
 
