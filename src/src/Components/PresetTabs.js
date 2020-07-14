@@ -140,7 +140,7 @@ class PresetTabs extends React.Component {
 
     markOpenToggle = (index) => {
         let opened = typeof this.state.marksOpened[index] === 'undefined' || this.state.marksOpened[index] === true;
-        this.setState(update(this.state, {marksOpened: {[index]: {$set: opened}}}))
+        this.setState(update(this.state, {marksOpened: {[index]: {$set: !opened}}}))
     }
 
     updateField = (name, value, time)=>{
@@ -249,6 +249,8 @@ class PresetTabs extends React.Component {
                             index={key} 
                             key={key} 
                             socket={this.props.socket}
+                            opened={typeof this.state.marksOpened[key] === 'undefined' || this.state.marksOpened[key] === true}
+                            markOpenToggle={this.markOpenToggle}
                         />)
                     }
                 </TabPanel>

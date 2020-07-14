@@ -52,7 +52,11 @@ class Mark extends React.Component {
         return <Card className={this.props.classes.card}><CardContent>
             <div>
                 {I18n.t('Mark')} {this.props.index} - {this.props.mark.text}
-                <IconButton title={ I18n.t('Edit') }><IconEdit/></IconButton>
+                <IconButton title={ I18n.t('Edit') }
+                    onClick={()=>{
+                        this.props.markOpenToggle(this.props.index);
+                    }
+                }><IconEdit/></IconButton>
                 <IconButton
                     size="small"
                     style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
@@ -62,22 +66,24 @@ class Mark extends React.Component {
                     <IconDelete/>
                 </IconButton>
             </div>
-            <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={lines}/>
-            <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
-            <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
-            <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
-            <IOCheckbox formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill"/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL" type="number"/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS" type="number"/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
-            <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
-                'l': 'Left',
-                'r': 'Right',
-            }}/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/>
-            <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" />
-            </CardContent></Card>
+            { this.props.opened ? <>
+                <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={lines}/>
+                <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
+                <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
+                <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
+                <IOCheckbox formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill"/>
+                <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL" type="number"/>
+                <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS" type="number"/>
+                <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
+                <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
+                    'l': 'Left',
+                    'r': 'Right',
+                }}/>
+                <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/>
+                <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/>
+                <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" />
+            </> : null}
+        </CardContent></Card>
     }
 }
 
@@ -88,6 +94,7 @@ Mark.propTypes = {
     index: PropTypes.number,
     opened: PropTypes.bool,
     instances: PropTypes.array,
+    markOpenToggle: PropTypes.func,
 };
 
 export default withStyles(styles)(Mark);

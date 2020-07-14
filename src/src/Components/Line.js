@@ -166,6 +166,7 @@ Line.propTypes = {
     index: PropTypes.number,
     opened: PropTypes.bool,
     instances: PropTypes.array,
+    lineOpenToggle: PropTypes.func,
 };
 
 export default withStyles(styles)(Line);
