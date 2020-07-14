@@ -8,6 +8,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import MenuItem from '@material-ui/core/MenuItem';
+import IconButton from '@material-ui/core/IconButton';
+import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
+
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 
@@ -15,9 +18,14 @@ export function IOSelect(props) {
     return <div>
         <FormControl>
             <InputLabel shrink={true}>{ I18n.t(props.label) }</InputLabel>
-            <Select label={props.label} onChange={(e) => {
-                props.updateValue(props.name, e.target.value)
-            }} value={props.formData[props.name] || ""}>
+            <Select 
+                label={props.label} 
+                onChange={(e) => {
+                    props.updateValue(props.name, e.target.value)
+                }} 
+                value={props.formData[props.name] || ""}
+                displayEmpty
+            >
                 {
                     props.options ? 
                     Object.keys(props.options).map((key) =>{
@@ -42,9 +50,24 @@ export function IOCheckbox(props) {
 
 export function IOTextField(props) {
     return <div>
-        <TextField label={props.label} InputLabelProps={{shrink: true}} onChange={(e) => {
-            props.updateValue(props.name, e.target.value)
-        }} value={props.formData[props.name] || ""}/>
+        <TextField 
+            label={props.label} 
+            InputLabelProps={{shrink: true}} 
+            onChange={(e) => {
+                props.updateValue(props.name, e.target.value)
+            }} 
+            value={props.formData[props.name] || ""}
+            type={props.type}
+        />
+    </div> 
+}
+
+export function IODateTimeField(props) {
+    return <div>
+        <TextField type="datetime-local" label={props.label} InputLabelProps={{shrink: true}} onChange={(e) => {
+            let date = e.target.value.split('T');
+            props.updateValue(props.name, date[0], date[1]);
+        }} value={props.formData[props.name] ? props.formData[props.name] + "T" + props.formData[props.name + '_time'] : ''}/>
     </div> 
 }
 
@@ -52,7 +75,17 @@ export function IOObjectField(props) {
     let [state, setState] = useState({});
 
     return <div>
-        <TextField label={props.label} onClick={()=>{setState({showDialog: true})}} InputLabelProps={{shrink: true}} value={props.formData[props.name] || ""}/>
+        <TextField 
+            label={props.label} 
+            InputLabelProps={{shrink: true}} 
+            value={props.formData[props.name] || ""}
+            onChange={(e) => {
+                props.updateValue(props.name, e.target.value)
+            }}
+        />
+        <IconButton size="small" onClick={()=>{setState({showDialog: true})}} style={{verticalAlign: "bottom"}}>
+            <IconFolderOpened/>
+        </IconButton>
         {state.showDialog ? <DialogSelectID
                 key="selectDialog"
                 socket={ props.socket }

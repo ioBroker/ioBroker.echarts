@@ -3,7 +3,7 @@ import update from 'immutability-helper';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect} from './Fields';
+import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fields';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
 import {MdModeEdit as IconEdit} from 'react-icons/md';
@@ -33,6 +33,10 @@ class Mark extends React.Component {
     }
     
     render() {
+        let lines = {};
+        this.props.presetData.lines.forEach((line, index) => {
+            lines[index] = index + " - " + line.id;
+        });
         return <>
             <div>
                 <IconButton title={ I18n.t('Edit') }><IconEdit/></IconButton>
@@ -45,22 +49,20 @@ class Mark extends React.Component {
                     <IconDelete/>
                 </IconButton>
             </div>
-            <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={{
-                
-            }}/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" />
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" />
+            <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={lines}/>
+            <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
+            <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
             <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
             <IOCheckbox formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill"/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL"/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS"/>
+            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL" type="number"/>
+            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS" type="number"/>
             <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
             <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
                 'l': 'Left',
                 'r': 'Right',
             }}/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset"/>
-            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size"/>
+            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/>
+            <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/>
             <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" />
         </>
     }

@@ -199,7 +199,7 @@ class App extends GenericApp {
             opened,
             presets: {},
             folders: null,
-            presetMode: true,
+            presetMode: false,
             chartFolders: {},
             search: null,
             addFolderDialog: null,
@@ -404,6 +404,7 @@ class App extends GenericApp {
     getAllCustoms(instances) {
         return new Promise(resolve => {
             return this.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
+                console.log(objs);
                 const ids = objs.rows.map(item => item.id);
                 this.getObjects(ids, objs => {
                     const ids = instances.map(obj => obj._id.substring('system.adapter.'.length));
@@ -420,13 +421,19 @@ class App extends GenericApp {
 
                     const insts = Object.values(_instances).map(obj => {
                         const enabledDP = {};
-                        Object.keys(obj.enabledDP).sort().forEach(id => enabledDP[id] = obj.enabledDP[id]);
+                        Object.keys(obj.enabledDP).sort().forEach(id => {enabledDP[id] = obj.enabledDP[id]; enabledDP[id].group = obj._id});
                         obj.enabledDP = enabledDP;
                         chartFolders[obj._id] = true;
                         return obj;
                     });
 
-                    this.setState({instances: insts, chartFolders: chartFolders});
+                    let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
+
+                    this.setState({instances: insts, chartFolders: chartFolders}, () => {
+                        if (selectedChartId) {
+                            this.loadChart(selectedChartId, insts[0]._id);
+                        }
+                    });
 
                     console.log(insts);
                     resolve();
@@ -871,6 +878,7 @@ class App extends GenericApp {
             marks: [],
             lines: [{
                 id: id,
+                instance: instance,
                 offset: 0,
                 aggregate: 'minmax',
                 color: '#1868a8',
@@ -888,7 +896,6 @@ class App extends GenericApp {
             aggregate: 'onchange',
             chartType: 'step',
             live: '30',
-            instance: instance,
             aggregateType: 'step',
             aggregateSpan: 300,
             relativeEnd: 'now',
@@ -1215,6 +1222,7 @@ class App extends GenericApp {
                         menuOpened={this.state.menuOpened}
                         searchText={this.state.searchText}
                         theme={this.state.themeType}
+                        onChange={this.onUpdatePreset}
                         presetData={this.state.presetData}
                         enablePresetMode={this.enablePresetMode}
                         presetMode={this.state.presetMode}
@@ -1244,7 +1252,12 @@ class App extends GenericApp {
                             key="Editor"
                             onChange={this.onUpdatePreset}
                             presetData={this.state.presetData}
-                            verticalLayout={!this.state.logHorzLayout} onLayoutChange={() => this.toggleLogLayout()} connection={this.socket} selected={this.state.selected}/> : null
+                            verticalLayout={!this.state.logHorzLayout} 
+                            onLayoutChange={() => this.toggleLogLayout()} 
+                            connection={this.socket} 
+                            selected={this.state.selected}
+                            instances={this.state.instances}
+                        /> : null
                     }
                 </SplitterLayout>
             </div>

@@ -10,7 +10,7 @@ import AppBar from '@material-ui/core/AppBar';
 import {MdAdd as IconAdd} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField} from './Fields';
+import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField,IODateTimeField} from './Fields';
 
 import Line from './Line';
 import Mark from './Mark';
@@ -124,11 +124,27 @@ class PresetTabs extends React.Component {
                     "timeFormat":"%H:%M:%S %d.%m.%y",
                     */
         },
-        selectedTab: "0"
+        selectedTab: "0",
+        linesOpened: {},
+        marksOpened: {},
     };
 
-    updateField = (name, value)=>{
-        this.props.onChange(update(this.props.presetData, {[name]: {$set: value}}));
+    lineOpenToggle = (index) => {
+        let opened = typeof this.state.linesOpened[index] === "undefined" || this.state.linesOpened[index] === true;
+        this.setState(update(this.state, {linesOpened: {[index]: {$set: !opened}}}))
+    }
+
+    markOpenToggle = (index) => {
+        let opened = typeof this.state.marksOpened[index] === "undefined" || this.state.marksOpened[index] === true;
+        this.setState(update(this.state, {marksOpened: {[index]: {$set: opened}}}))
+    }
+
+    updateField = (name, value, time)=>{
+        let updateObject = {[name]: {$set: value}};
+        if (time) {
+            updateObject[name + '_time'] = {$set: time};
+        }
+        this.props.onChange(update(this.props.presetData, updateObject));
     }
 
     updateMark = (index, markData) => {
@@ -180,7 +196,11 @@ class PresetTabs extends React.Component {
     render() {
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static">
-                <TabList aria-label="simple tabs example" onChange={(event, newValue)=>{this.setState({selectedTab: newValue})}}>
+                <TabList 
+                    onChange={(event, newValue)=>{this.setState({selectedTab: newValue})}}
+                    variant="scrollable"
+                    scrollButtons="on"
+                >
                     <Tab label="Data" value="0"/>
                     <Tab label="Markings" value="1"/>
                     <Tab label="Time" value="2"/>
@@ -197,7 +217,17 @@ class PresetTabs extends React.Component {
                         </IconButton>
                     </div>
                     {
-                        this.props.presetData.lines.map((line, key) => <Line line={line} updateLine={this.updateLine} deleteLine={this.deleteLine} index={key} key={key} socket={this.props.socket}/>)
+                        this.props.presetData.lines.map((line, key) => <Line 
+                            instances={this.props.instances} 
+                            line={line} 
+                            updateLine={this.updateLine} 
+                            deleteLine={this.deleteLine} 
+                            index={key} 
+                            key={key} 
+                            socket={this.props.socket}
+                            opened={typeof this.state.linesOpened[key] === "undefined" || this.state.linesOpened[key] === true}
+                            lineOpenToggle={this.lineOpenToggle}
+                        />)
                     }
                 </TabPanel>
                 <TabPanel value="1">
@@ -207,7 +237,15 @@ class PresetTabs extends React.Component {
                         </IconButton>
                     </div>
                     {
-                        this.props.presetData.marks.map((mark, key) => <Mark mark={mark} updateMark={this.updateMark} deleteMark={this.deleteMark} index={key} key={key} socket={this.props.socket}/>)
+                        this.props.presetData.marks.map((mark, key) => <Mark 
+                            mark={mark} 
+                            presetData={this.props.presetData}
+                            updateMark={this.updateMark} 
+                            deleteMark={this.deleteMark} 
+                            index={key} 
+                            key={key} 
+                            socket={this.props.socket}
+                        />)
                     }
                 </TabPanel>
                 <TabPanel value="2">
@@ -215,11 +253,80 @@ class PresetTabs extends React.Component {
                         'relative': 'relative',
                         'static': 'static',
                     }}/>
+                    { this.props.presetData.timeType == 'static' ?
+                    <>
+                        <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
+                        <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
+                    </> : <>
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={{
+                            'now': 'now',
+                            '1minute': 'end of minute',
+                            '5minutes': 'end of 5 minutes',
+                            '10minutes': 'end of 10 minutes',
+                            '30minutes': 'end of 30 minutes',
+                            '1hour': 'end of hour',
+                            '2hours': 'end of 2 hours',
+                            '3hours': 'end of 3 hours',
+                            '4hours': 'end of 4 hours',
+                            '6hours': 'end of 6 hours',
+                            '8hours': 'end of 8 hours',
+                            '12hours': 'end of 12 hours',
+                            'today': 'end of day',
+                            'weekEurope': 'end of sunday',
+                            'weekUsa': 'end of saturday',
+                            'month': 'this month',
+                            'year': 'this year',
+                        }}/>
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={{
+                            '10': '10 minutes',
+                            '30': '30 minutes',
+                            '60': '1 hour',
+                            '120': '2 hours',
+                            '180': '3 hours',
+                            '360': '6 hours',
+                            '720': '12 hours',
+                            '1440': '1 day',
+                            '2880': '2 days',
+                            '4320': '3 days',
+                            '10080': '7 days',
+                            '20160': '14 days',
+                            '1m': '1 month',
+                            '2m': '2 months',
+                            '3m': '3 months',
+                            '6m': '6 months',
+                            '1y': '1 year',
+                            '2y': '2 years',
+                        }}/>
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="live" label="Live update every" options={{
+                            '': 'none',
+                            '5': '5 seconds',
+                            '10': '10 seconds',
+                            '15': '15 seconds',
+                            '20': '20 seconds',
+                            '30': '30 seconds',
+                            '60': '1 minute',
+                            '120': '2 minutes',
+                            '300': '5 minutes',
+                            '600': '10 minutes',
+                            '900': '15 minutes',
+                            '1200': '20 minutes',
+                            '1800': '30 minutes',
+                            '3600': '1 hour',
+                            '7200': '2 hours',
+                            '10800': '3 hours',
+                            '21600': '6 hours',
+                            '43200': '12 hours',
+                            '86400': '1 day',
+                        }}/>
+                    </>
+                    }
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
                         'count': 'counts',
                         'step': 'seconds',
                     }}/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan" label="Counts" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
+                        label={this.props.presetData.aggregateType == "step" ? "Seconds" : "Counts"}
+                    />
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                 </TabPanel>
                 <TabPanel value="3">
@@ -230,7 +337,7 @@ class PresetTabs extends React.Component {
                         'sw': 'Bottom, left',
                         'se': 'Bottom, right',
                     }}/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" type="number" />
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity" name="legBgOpacity" />
                     <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} label="Legend background" name="legBg" />
                     <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hover details'} name="hoverDetail" />
@@ -277,7 +384,7 @@ class PresetTabs extends React.Component {
                     }}/>
                 </TabPanel>
                 <TabPanel value="4">
-                    <IOObjectField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title" socket={this.props.socket}/>
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title"/>
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="titlePos" label="Title position" options={{
                         '': 'none',
                         'top:35;left:65': 'Top, left, inside',
@@ -297,8 +404,8 @@ class PresetTabs extends React.Component {
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" />
                 </TabPanel>
                 <TabPanel value="5">
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" />
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" type="number" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" type="number" />
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_noborder" label="No border" options={{
                         '': '',
                         'noborder': 'yes',
