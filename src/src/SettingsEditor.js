@@ -29,33 +29,6 @@ const styles = theme => ({
         overflow: 'auto',
         position: 'relative'
     },
-    info: {
-        background: theme.palette.type === 'dark' ? 'darkgrey' : 'lightgrey',
-        color: theme.palette.type === 'dark' ?  'black' : 'black'
-    },
-    error: {
-        background: '#FF0000',
-        color: theme.palette.type === 'dark' ?  'black' : 'white'
-    },
-    warn: {
-        background: '#FF8000',
-        color: theme.palette.type === 'dark' ?  'black' : 'white'
-    },
-    debug: {
-        background: 'gray',
-        opacity: 0.8,
-        color: theme.palette.type === 'dark' ?  'black' : 'white'
-    },
-    silly: {
-        background: 'gray',
-        opacity: 0.6,
-        color: theme.palette.type === 'dark' ? 'black' : 'white'
-    },
-    table: {
-        fontFamily: 'monospace',
-        width: '100%',
-
-    },
     toolbox: {
         position: 'absolute',
         top: 0,
@@ -64,13 +37,6 @@ const styles = theme => ({
         width: TOOLBOX_WIDTH,
         height: '100%',
         boxShadow: '2px 0px 4px -1px rgba(0, 0, 0, 0.2), 4px 0px 5px 0px rgba(0, 0, 0, 0.14), 1px 0px 10px 0px rgba(0, 0, 0, 0.12)'
-    },
-    trTime: {
-        width: 90
-    },
-    trSeverity: {
-        width: 40,
-        fontWeight: 'bold'
     },
     iconButtons: {
         width: 32,
@@ -94,7 +60,18 @@ class SettingsEditor extends React.Component {
         return (
             <div className={this.props.classes.logBox}>
                  <div className={this.props.classes.toolbox} key="toolbox">
-                    {this.props.onLayoutChange ? (<IconButton className={this.props.classes.iconButtons} onClick={() => this.props.onLayoutChange()} title={I18n.t('Change layout')}><img className={this.props.classes.layoutIcon} alt="split" src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit} /></IconButton>) : null}
+                    {this.props.onLayoutChange ? 
+                        (<IconButton 
+                            className={this.props.classes.iconButtons} 
+                            onClick={() => this.props.onLayoutChange()} 
+                            title={I18n.t('Change layout')}
+                        >
+                            <img 
+                                className={this.props.classes.layoutIcon} 
+                                alt="split" 
+                                src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit} 
+                            />
+                        </IconButton>) : null}
                 </div>
                 <div className={this.props.classes.logBoxInner} key="logList">
                     <PresetTabs 
@@ -110,8 +87,11 @@ class SettingsEditor extends React.Component {
 }
 
 SettingsEditor.propTypes = {
-    selected: PropTypes.string,
+    socket: PropTypes.object,
+    presetData: PropTypes.object,
+    instances: PropTypes.array,
     onLayoutChange: PropTypes.func,
+    onChange: PropTypes.func,
     verticalLayout: PropTypes.bool
 };
 

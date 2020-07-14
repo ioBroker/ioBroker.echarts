@@ -5,10 +5,6 @@ import clsx from 'clsx';
 import SplitterLayout from 'react-splitter-layout';
 import {MdMenu as IconMenuClosed} from 'react-icons/md';
 import {MdArrowBack as IconMenuOpened} from 'react-icons/md';
-import Grid from '@material-ui/core/Grid';
-import Switch from '@material-ui/core/Switch';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
 import IconButton from '@material-ui/core/IconButton';
 import ListItemText from '@material-ui/core/ListItemText';
 import SearchIcon from '@material-ui/icons/Search';
@@ -27,7 +23,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Drawer from '@material-ui/core/Drawer';
 
 import { withTheme } from '@material-ui/core/styles';
-import withWidth from "@material-ui/core/withWidth";
+import withWidth from '@material-ui/core/withWidth';
 
 // icons
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
@@ -39,19 +35,16 @@ import {MdClose as IconCancel} from 'react-icons/md';
 import {MdCheck as IconCheck} from 'react-icons/md';
 import {MdSave as IconSave} from 'react-icons/md';
 import {MdDelete as IconDelete} from 'react-icons/md';
-import {MdFileDownload as IconExport} from 'react-icons/md';
 import {FaScroll as IconScript} from 'react-icons/all';
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
 // import {MdFileUpload as IconImport} from 'react-icons/md';
-import {FaClone as IconClone} from 'react-icons/fa';
-import {FaBars as IconMenu} from 'react-icons/fa';
 import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
 import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import 'react-splitter-layout/lib/index.css';
 
@@ -59,25 +52,19 @@ import GenericApp from '@iobroker/adapter-react/GenericApp';
 import Utils from '@iobroker/adapter-react/Components/Utils';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
-import DialogMessage from '@iobroker/adapter-react/Dialogs/Message';
-import DialogConfirm from '@iobroker/adapter-react/Dialogs/Confirm';
 
-import SideMenu from './SideMenu';
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
 import Theme from './Theme';
-import DialogError from './Dialogs/Error';
-import DialogImportFile from './Dialogs/ImportFile';
 import getUrlQuery from './utils/getUrlQuery';
 
 const LEVEL_PADDING = 16;
-const MARGIN_MEMBERS = 20;
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
 
 const styles = theme => ({
     root: Theme.root,
     leftMenuItem: {
-        width: "100%",
+        width: '100%',
     },
     menuDiv: {
         overflow: 'hidden',
@@ -97,23 +84,11 @@ const styles = theme => ({
         height: '100%',
         overflow: 'hidden',
     },
-    /*appBarWithMenu: {
-        width: `calc(100% - ${Theme.menu.width}px)`,
-        marginLeft: Theme.menu.width,
-    },
-    appBarWithoutMenu: {
-        width: `100%`,
-        marginLeft: 0,
-    },*/
     content: {
         width: '100%',
         height: '100%',
         backgroundColor: theme.palette.background.default,
         position: 'relative'
-    },
-    splitterDivWithMenu: {
-        width: `calc(100% - ${Theme.menu.width}px)`,
-        height: '100%'
     },
     menuDivWithoutMenu: {
         '&>div:first-child': {
@@ -216,39 +191,26 @@ class App extends GenericApp {
             moveDialog: null,
             newFolder: '',
             selectedPresetData: null,
-            exportDialog: false,
-            importDialog: false,
             presetData: {
                 lines: [],
                 marks: [],
             },
 
-            connected: false,
             progress: 0,
-            updateScripts: 0,
 
-            updating: false,
             resizing: false,
             selected: null,
             menuOpened: window.localStorage ? window.localStorage.getItem('App.menuOpened') !== 'false' : true,
             menuSelectId: '',
             errorText: '',
-            expertMode: window.localStorage ? window.localStorage.getItem('App.expertMode') === 'true' : false,
             logHorzLayout: window.localStorage ? window.localStorage.getItem('App.logHorzLayout') === 'true' : false,
             confirm: '',
-            importFile: false,
-            message: '',
             searchText: '',
             themeType: window.localStorage ? window.localStorage.getItem('App.theme') || 'light' : 'light',
         };
-        // this.logIndex = 0;
         this.logSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.logSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
-        this.scripts = {};
-        this.hosts = [];
-        this.importFile = null;
 
-        this.subscribes = [];
     }
 
     onConnectionReady() {
@@ -260,45 +222,6 @@ class App extends GenericApp {
             .then(() => this.refreshData())
             .catch(e => this.showError(e));
         this.getAllData();
-    }
-
-    processTasks(tasks, cb) {
-        if (!tasks || !tasks.length) {
-            cb && cb();
-        } else {
-            const task = tasks.shift();
-            if (task.name === 'subscribe') {
-                console.log('Subscribe on object change: ' + task.id);
-                this.socket.subscribeObject(task.id, this.onObjectChange);
-            } else if (task.name === 'unsubscribe') {
-                console.log('UNSubscribe on object change: ' + task.id);
-                this.socket.unsubscribeObject(task.id, this.onObjectChange);
-            } else {
-                console.log('Unknown task: ' + JSON.stringify(task));
-            }
-            setTimeout(() => this.processTasks(tasks, cb), 50);
-        }
-    }
-
-    syncSubscribes() {
-        const subscribed = [];
-        const tasks = [];
-        Object.values(this.state.instances)
-            .forEach(instance =>
-                Object.keys(instance.enabledDP).forEach(id => {
-                    subscribed.push(id);
-                    if (!this.subscribes.includes(id)) {
-                        tasks.push({name: 'subscribe', id});
-                    }
-                }));
-
-        this.state.instances.forEach(id => {
-            if (!subscribed.includes(id)) {
-                tasks.push({name: 'unsubscribe', id});
-            }
-        });
-
-        this.processTasks(tasks);
     }
 
     getData() {
@@ -341,30 +264,6 @@ class App extends GenericApp {
                     const presetObj = newState.presets[id];
                     presetObj.common = presetObj.common || {};
                     presetObj.native = presetObj.native || {};
-
-                    /*
-                    // rename attribute
-                    if (presetObj.native.burstIntervall !== undefined) {
-                        presetObj.native.burstInterval = presetObj.native.burstIntervall;
-                        delete presetObj.native.burstIntervall;
-                    }
-
-                    presetObj.native.burstInterval = parseInt(presetObj.native.burstInterval || 0, 10);
-                    presetObj.native.onFalse = presetObj.native.onFalse || {};
-                    presetObj.native.onTrue  = presetObj.native.onTrue  || {};
-                    presetObj.native.onFalse.trigger = presetObj.native.onFalse.trigger || {condition: '=='};
-                    presetObj.native.onTrue.trigger  = presetObj.native.onTrue.trigger  || {condition: '=='};
-                    presetObj.native.members = presetObj.native.members || [];
-
-                    const members = presetObj.native.members;
-                    delete presetObj.native.members;
-                    presetObj.native.members = members; // place it on the last place
-
-                    delete presetObj.from;
-                    delete presetObj.user;
-                    delete presetObj.ts;
-                    delete presetObj.acl;
-                    */
                 });
 
                 if (!newState.presets[this.state.selectedPresetId]) {
@@ -458,34 +357,9 @@ class App extends GenericApp {
         alert(err);
     }
 
-    showMessage(message) {
-        this.setState({message});
-    }
-
     toggleLogLayout() {
         window.localStorage && window.localStorage.setItem('App.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
         this.setState({logHorzLayout: !this.state.logHorzLayout});
-    }
-
-    renderConfirmDialog() {
-        return this.state.confirm ? (<DialogConfirm
-            key="confirmdialog"
-            onClose={result => {
-                this.state.confirm && this.setState({confirm: ''});
-                this.confirmCallback && this.confirmCallback(result);
-                this.confirmCallback = null;
-            }}
-            text={this.state.confirm}/>) : null;
-    }
-
-    renderMessageDialog() {
-        return this.state.message ? (<DialogMessage key="dialogmessage" onClose={() => this.setState({message: ''})} text={this.state.message}/>) : null;
-    }
-    renderErrorDialog() {
-        return this.state.errorText ? (<DialogError key="dialogerror" onClose={() => this.setState({errorText: ''})} text={this.state.errorText}/>) : null;
-    }
-    renderImportDialog() {
-        return this.state.importFile ? (<DialogImportFile key="dialogimportfile" onClose={data => this.onImport(data)} />) : null;
     }
 
     buildTree(presets) {
@@ -621,7 +495,7 @@ class App extends GenericApp {
                 name: '',
             },
             native: {
-                url: "",
+                url: '',
                 data: this.state.presetData,
             },
             type: 'chart'
@@ -712,8 +586,6 @@ class App extends GenericApp {
         }
 
         level = level || 0;
-
-        const changed = this.state.selectedPresetId && this.state.selectedPresetId === preset._id && this.state.selectedPresetChanged;
 
         return <ListItem
             style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
@@ -1151,7 +1023,7 @@ class App extends GenericApp {
                     }}>
                         <IconCancel/> { I18n.t('Cancel') }
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={e => {
+                    <Button variant="contained" color="secondary" onClick={() => {
                         this.loadPreset(this.state.loadPresetDialog);
                         this.setState({loadPresetDialog: ''});
                     }}>
@@ -1174,7 +1046,7 @@ class App extends GenericApp {
                     }}>
                         <IconCancel/> { I18n.t('Cancel') }
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={e => {
+                    <Button variant="contained" color="secondary" onClick={() => {
                         this.savePreset(this.state.savePresetDialog)
                         this.setState({savePresetDialog: ''});
                     }}>
@@ -1191,10 +1063,6 @@ class App extends GenericApp {
     renderMain() {
         const {classes} = this.props;
         return [
-            this.renderMessageDialog(),
-            this.renderErrorDialog(),
-            this.renderConfirmDialog(),
-            this.renderImportDialog(),
             <div className={clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
                 <div key="confirmdiv" className={classes.menuOpenCloseButton} onClick={() => {
                     window.localStorage && window.localStorage.setItem('App.menuOpened', this.state.menuOpened ? 'false' : 'true');
@@ -1219,34 +1087,12 @@ class App extends GenericApp {
                     <MainChart
                         key="MainChart"
                         visible={!this.state.resizing}
-                        connection={this.socket}
-                        onLocate={menuSelectId => this.setState({menuSelectId})}
-                        menuOpened={this.state.menuOpened}
-                        searchText={this.state.searchText}
                         theme={this.state.themeType}
                         onChange={this.onUpdatePreset}
                         presetData={this.state.presetData}
                         enablePresetMode={this.enablePresetMode}
                         presetMode={this.state.presetMode}
-                        onSelectedChange={(id, editing) => {
-                            const newState = {};
-                            let changed = false;
-                            if (id !== this.state.selected) {
-                                changed = true;
-                                newState.selected = id;
-                            }
-                            if (JSON.stringify(editing) !== JSON.stringify(this.state.editing)) {
-                                changed = true;
-                                newState.editing = JSON.parse(JSON.stringify(editing));
-                            }
-                            changed && this.setState(newState);
-                        }}
-                        selected={this.state.selected && this.objects[this.state.selected] && this.objects[this.state.selected].type === 'script' ? this.state.selected : ''}
-                        objects={this.objects}
-                        /*
-                            onRestart={id => this.socket.extendObject(id, {})}
-                            onChange={(id, common) => this.onUpdateScript(id, common)}
-                        */
+                        socket={this.socket}
                     />
                     {
                         this.state.presetMode ? <SettingsEditor
@@ -1292,9 +1138,11 @@ class App extends GenericApp {
                         }}
                     >
                         <div className={classes.mainDiv} key="mainmenudiv">
-                            {this.renderListToolbar()}
                             <div key="list" className={ this.props.classes.heightMinusToolbar }>
                                 { this.renderCharts() }
+                            </div>
+                            {this.renderListToolbar()}
+                            <div key="list2" className={ this.props.classes.heightMinusToolbar }>
                                 <List className={ this.props.classes.scroll }>
                                     { this.renderTree(this.state.folders) }
                                 </List>

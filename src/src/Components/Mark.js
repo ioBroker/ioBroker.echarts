@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 
 import I18n from '@iobroker/adapter-react/i18n';
@@ -23,18 +24,18 @@ let styles = {
 class Mark extends React.Component {
     state = {
         /*
-            "lineId":"0",
-            "upperValueOrId":"20",
-            "fill":"1",
-            "color":"#FF0000",
-            "ol":"1",
-            "os":"0",
-            "text":"11",
-            "textPosition":"l",
-            "textOffset":"2",
-            "textColor":"#FF0000",
-            "textSize":"2",
-            "lowerValueOrId":"20"
+            'lineId':'0',
+            'upperValueOrId':'20',
+            'fill':'1',
+            'color':'#FF0000',
+            'ol':'1',
+            'os':'0',
+            'text':'11',
+            'textPosition':'l',
+            'textOffset':'2',
+            'textColor':'#FF0000',
+            'textSize':'2',
+            'lowerValueOrId':'20'
         */
       };
 
@@ -50,6 +51,7 @@ class Mark extends React.Component {
         });
         return <Card className={this.props.classes.card}><CardContent>
             <div>
+                {I18n.t('Mark')} {this.props.index} - {this.props.mark.text}
                 <IconButton title={ I18n.t('Edit') }><IconEdit/></IconButton>
                 <IconButton
                     size="small"
@@ -78,5 +80,14 @@ class Mark extends React.Component {
             </CardContent></Card>
     }
 }
+
+Mark.propTypes = {
+    mark: PropTypes.object,
+    socket: PropTypes.object,
+    updateMark: PropTypes.func,
+    index: PropTypes.number,
+    opened: PropTypes.bool,
+    instances: PropTypes.array,
+};
 
 export default withStyles(styles)(Mark);

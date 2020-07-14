@@ -1,5 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import update from 'immutability-helper';
+
+import I18n from '@iobroker/adapter-react/i18n';
 
 import Tabs from '@material-ui/core/Tabs';
 import TabList from '@material-ui/lab/TabList';
@@ -19,124 +22,124 @@ import Mark from './Mark';
 class PresetTabs extends React.Component {
     state = {
                 presetData: {
-                    "lines":[
+                    'lines':[
                     /*
                     {
-                        "id":"system.adapter.admin.0.cpu",
-                        "offset":"0",
-                        "aggregate":"minmax",
-                        "color":"#FF0000",
-                        "thickness":"3",
-                        "shadowsize":"3",
-                        "name":"Line 1",
-                        "xaxe":"off",
-                        "ignoreNull":"false",
-                        "afterComma":"2",
-                        "dashes":"true",
-                        "dashLength":"10",
-                        "spaceLength":"10",
-                        "min":"-0.1",
-                        "max":"1",
-                        "points":"true",
-                        "fill":"4",
-                        "unit":"2",
-                        "yaxe":"left",
-                        "yOffset":"1",
-                        "xticks":"2",
-                        "yticks":"3",
-                        "smoothing":"4"
+                        'id':'system.adapter.admin.0.cpu',
+                        'offset':'0',
+                        'aggregate':'minmax',
+                        'color':'#FF0000',
+                        'thickness':'3',
+                        'shadowsize':'3',
+                        'name':'Line 1',
+                        'xaxe':'off',
+                        'ignoreNull':'false',
+                        'afterComma':'2',
+                        'dashes':'true',
+                        'dashLength':'10',
+                        'spaceLength':'10',
+                        'min':'-0.1',
+                        'max':'1',
+                        'points':'true',
+                        'fill':'4',
+                        'unit':'2',
+                        'yaxe':'left',
+                        'yOffset':'1',
+                        'xticks':'2',
+                        'yticks':'3',
+                        'smoothing':'4'
                     },
                     {
-                        "id":"system.adapter.admin.0.memHeapTotal",
-                        "offset":"0",
-                        "aggregate":"minmax",
-                        "color":"#00FF00",
-                        "thickness":"3",
-                        "shadowsize":"3",
-                        "min":"-0.1",
-                        "points":"false"
+                        'id':'system.adapter.admin.0.memHeapTotal',
+                        'offset':'0',
+                        'aggregate':'minmax',
+                        'color':'#00FF00',
+                        'thickness':'3',
+                        'shadowsize':'3',
+                        'min':'-0.1',
+                        'points':'false'
                     },
                     {
-                        "id":"system.adapter.admin.0.memRss",
-                        "offset":"0",
-                        "aggregate":"minmax",
-                        "color":"#0000FF",
-                        "thickness":"3",
-                        "shadowsize":"3",
-                        "xaxe":"off",
-                        "min":"-0.1"
+                        'id':'system.adapter.admin.0.memRss',
+                        'offset':'0',
+                        'aggregate':'minmax',
+                        'color':'#0000FF',
+                        'thickness':'3',
+                        'shadowsize':'3',
+                        'xaxe':'off',
+                        'min':'-0.1'
                     }
                     */
                     ],
-                    "marks":[
+                    'marks':[
                     /*
                     {
-                        "lineId":"0",
-                        "upperValueOrId":"20",
-                        "fill":"1",
-                        "color":"#FF0000",
-                        "ol":"1",
-                        "os":"0",
-                        "text":"11",
-                        "textPosition":"l",
-                        "textOffset":"2",
-                        "textColor":"#FF0000",
-                        "textSize":"2",
-                        "lowerValueOrId":"20"
+                        'lineId':'0',
+                        'upperValueOrId':'20',
+                        'fill':'1',
+                        'color':'#FF0000',
+                        'ol':'1',
+                        'os':'0',
+                        'text':'11',
+                        'textPosition':'l',
+                        'textOffset':'2',
+                        'textColor':'#FF0000',
+                        'textSize':'2',
+                        'lowerValueOrId':'20'
                     }
                     */
                     ],
                     /*
-                    "timeType":"relative",
-                    "relativeEnd":"10minutes",
-                    "range":"120",
-                    "aggregateType":"count",
-                    "aggregateSpan":"300",
-                    "legend":"ne",
-                    "hoverDetail":"true",
-                    "useComma":"true",
-                    "zoom":"true",
-                    "noedit":"true",
-                    "animation":"2000",
-                    "live":"15",
-                    "ticks":"22",
-                    "width":"1",
-                    "height":"0",
-                    "noBorder":"noborder",
-                    "window_bg":"#000000",
-                    "bg":"0",
-                    "x_labels_color":"#000000",
-                    "y_labels_color":"#010303",
-                    "border_color":"#000000",
-                    "grid_color":"#000000",
-                    "border_width":"11",
-                    "barColor":"#002222",
-                    "barLabels":"topover",
-                    "barWidth":"22",
-                    "barFontSize":"22",
-                    "barFontColor":"#002222",
-                    "title":"11",
-                    "titlePos":"top:35;left:50",
-                    "titleColor":"#002222",
-                    "titleSize":"22",
-                    "legColumns":"2",
-                    "legBgOpacity":"2",
-                    "legBg":"#002222",
-                    "timeFormat":"%H:%M:%S %d.%m.%y",
+                    'timeType':'relative',
+                    'relativeEnd':'10minutes',
+                    'range':'120',
+                    'aggregateType':'count',
+                    'aggregateSpan':'300',
+                    'legend':'ne',
+                    'hoverDetail':'true',
+                    'useComma':'true',
+                    'zoom':'true',
+                    'noedit':'true',
+                    'animation':'2000',
+                    'live':'15',
+                    'ticks':'22',
+                    'width':'1',
+                    'height':'0',
+                    'noBorder':'noborder',
+                    'window_bg':'#000000',
+                    'bg':'0',
+                    'x_labels_color':'#000000',
+                    'y_labels_color':'#010303',
+                    'border_color':'#000000',
+                    'grid_color':'#000000',
+                    'border_width':'11',
+                    'barColor':'#002222',
+                    'barLabels':'topover',
+                    'barWidth':'22',
+                    'barFontSize':'22',
+                    'barFontColor':'#002222',
+                    'title':'11',
+                    'titlePos':'top:35;left:50',
+                    'titleColor':'#002222',
+                    'titleSize':'22',
+                    'legColumns':'2',
+                    'legBgOpacity':'2',
+                    'legBg':'#002222',
+                    'timeFormat':'%H:%M:%S %d.%m.%y',
                     */
         },
-        selectedTab: "0",
+        selectedTab: '0',
         linesOpened: {},
         marksOpened: {},
     };
 
     lineOpenToggle = (index) => {
-        let opened = typeof this.state.linesOpened[index] === "undefined" || this.state.linesOpened[index] === true;
+        let opened = typeof this.state.linesOpened[index] === 'undefined' || this.state.linesOpened[index] === true;
         this.setState(update(this.state, {linesOpened: {[index]: {$set: !opened}}}))
     }
 
     markOpenToggle = (index) => {
-        let opened = typeof this.state.marksOpened[index] === "undefined" || this.state.marksOpened[index] === true;
+        let opened = typeof this.state.marksOpened[index] === 'undefined' || this.state.marksOpened[index] === true;
         this.setState(update(this.state, {marksOpened: {[index]: {$set: opened}}}))
     }
 
@@ -226,7 +229,7 @@ class PresetTabs extends React.Component {
                             index={key} 
                             key={key} 
                             socket={this.props.socket}
-                            opened={typeof this.state.linesOpened[key] === "undefined" || this.state.linesOpened[key] === true}
+                            opened={typeof this.state.linesOpened[key] === 'undefined' || this.state.linesOpened[key] === true}
                             lineOpenToggle={this.lineOpenToggle}
                         />)
                     }
@@ -250,85 +253,93 @@ class PresetTabs extends React.Component {
                     }
                 </TabPanel>
                 <TabPanel value="2">
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
-                        'relative': 'relative',
-                        'static': 'static',
-                    }}/>
-                    { this.props.presetData.timeType == 'static' ?
-                    <>
-                        <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
-                        <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
-                    </> : <>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={{
-                            'now': 'now',
-                            '1minute': 'end of minute',
-                            '5minutes': 'end of 5 minutes',
-                            '10minutes': 'end of 10 minutes',
-                            '30minutes': 'end of 30 minutes',
-                            '1hour': 'end of hour',
-                            '2hours': 'end of 2 hours',
-                            '3hours': 'end of 3 hours',
-                            '4hours': 'end of 4 hours',
-                            '6hours': 'end of 6 hours',
-                            '8hours': 'end of 8 hours',
-                            '12hours': 'end of 12 hours',
-                            'today': 'end of day',
-                            'weekEurope': 'end of sunday',
-                            'weekUsa': 'end of saturday',
-                            'month': 'this month',
-                            'year': 'this year',
+                <Grid container>
+                    <Grid item xs={6}>
+                        <h4>{I18n.t('Time Span')}</h4>
+                            <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
+                                'relative': 'relative',
+                                'static': 'static',
+                            }}/>
+                            { this.props.presetData.timeType == 'static' ?
+                            <>
+                                <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
+                                <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
+                            </> : <>
+                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={{
+                                    'now': 'now',
+                                    '1minute': 'end of minute',
+                                    '5minutes': 'end of 5 minutes',
+                                    '10minutes': 'end of 10 minutes',
+                                    '30minutes': 'end of 30 minutes',
+                                    '1hour': 'end of hour',
+                                    '2hours': 'end of 2 hours',
+                                    '3hours': 'end of 3 hours',
+                                    '4hours': 'end of 4 hours',
+                                    '6hours': 'end of 6 hours',
+                                    '8hours': 'end of 8 hours',
+                                    '12hours': 'end of 12 hours',
+                                    'today': 'end of day',
+                                    'weekEurope': 'end of sunday',
+                                    'weekUsa': 'end of saturday',
+                                    'month': 'this month',
+                                    'year': 'this year',
+                                }}/>
+                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={{
+                                    '10': '10 minutes',
+                                    '30': '30 minutes',
+                                    '60': '1 hour',
+                                    '120': '2 hours',
+                                    '180': '3 hours',
+                                    '360': '6 hours',
+                                    '720': '12 hours',
+                                    '1440': '1 day',
+                                    '2880': '2 days',
+                                    '4320': '3 days',
+                                    '10080': '7 days',
+                                    '20160': '14 days',
+                                    '1m': '1 month',
+                                    '2m': '2 months',
+                                    '3m': '3 months',
+                                    '6m': '6 months',
+                                    '1y': '1 year',
+                                    '2y': '2 years',
+                                }}/>
+                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="live" label="Live update every" options={{
+                                    '': 'none',
+                                    '5': '5 seconds',
+                                    '10': '10 seconds',
+                                    '15': '15 seconds',
+                                    '20': '20 seconds',
+                                    '30': '30 seconds',
+                                    '60': '1 minute',
+                                    '120': '2 minutes',
+                                    '300': '5 minutes',
+                                    '600': '10 minutes',
+                                    '900': '15 minutes',
+                                    '1200': '20 minutes',
+                                    '1800': '30 minutes',
+                                    '3600': '1 hour',
+                                    '7200': '2 hours',
+                                    '10800': '3 hours',
+                                    '21600': '6 hours',
+                                    '43200': '12 hours',
+                                    '86400': '1 day',
+                                }}/>
+                            </>
+                        }
+                    </Grid>
+                    <Grid item xs={6}>
+                        <h4>{I18n.t('Aggregate')}</h4>
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
+                            'count': 'counts',
+                            'step': 'seconds',
                         }}/>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={{
-                            '10': '10 minutes',
-                            '30': '30 minutes',
-                            '60': '1 hour',
-                            '120': '2 hours',
-                            '180': '3 hours',
-                            '360': '6 hours',
-                            '720': '12 hours',
-                            '1440': '1 day',
-                            '2880': '2 days',
-                            '4320': '3 days',
-                            '10080': '7 days',
-                            '20160': '14 days',
-                            '1m': '1 month',
-                            '2m': '2 months',
-                            '3m': '3 months',
-                            '6m': '6 months',
-                            '1y': '1 year',
-                            '2y': '2 years',
-                        }}/>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="live" label="Live update every" options={{
-                            '': 'none',
-                            '5': '5 seconds',
-                            '10': '10 seconds',
-                            '15': '15 seconds',
-                            '20': '20 seconds',
-                            '30': '30 seconds',
-                            '60': '1 minute',
-                            '120': '2 minutes',
-                            '300': '5 minutes',
-                            '600': '10 minutes',
-                            '900': '15 minutes',
-                            '1200': '20 minutes',
-                            '1800': '30 minutes',
-                            '3600': '1 hour',
-                            '7200': '2 hours',
-                            '10800': '3 hours',
-                            '21600': '6 hours',
-                            '43200': '12 hours',
-                            '86400': '1 day',
-                        }}/>
-                    </>
-                    }
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
-                        'count': 'counts',
-                        'step': 'seconds',
-                    }}/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
-                        label={this.props.presetData.aggregateType == "step" ? "Seconds" : "Counts"}
-                    />
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
+                            label={this.props.presetData.aggregateType == "step" ? "Seconds" : "Counts"}
+                        />
+                        <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
+                        </Grid>
+                    </Grid>
                 </TabPanel>
                 <TabPanel value="3">
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Show legend" name="legend" options={{
@@ -407,7 +418,7 @@ class PresetTabs extends React.Component {
                 <TabPanel value="5">
                     <Grid container>
                         <Grid item sm={6} xs={12}>
-                            <h4>Appearance</h4>
+                            <h4>{I18n.t('Appearance')}</h4>
                             <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" type="number" />
                             <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" type="number" />
                             <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_noborder" label="No border" options={{
@@ -436,7 +447,7 @@ class PresetTabs extends React.Component {
                             <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_border_width" label="Border width" />
                         </Grid>
                         <Grid item sm={6} xs={12}>
-                            <h4>Bar settings</h4>
+                            <h4>{I18n.t('Bar settings')}</h4>
                             <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="barColor" label="Fill color" />
                             <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_barLabels" label="Show labels" options={{
                                 '': 'none',
@@ -455,5 +466,12 @@ class PresetTabs extends React.Component {
         </TabContext>
     }
 }
+
+PresetTabs.propTypes = {
+    onChange: PropTypes.func,
+    presetData: PropTypes.object,
+    socket: PropTypes.object,
+    instances: PropTypes.array,
+};
 
 export default PresetTabs

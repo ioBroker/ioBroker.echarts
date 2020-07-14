@@ -45,11 +45,6 @@ const styles = theme => ({
     hintText: {
         //fontSize: 18
     },
-    hintButton: {
-        marginTop: 8,
-        marginRight: 20,
-        float: "right"
-    },
     tabMenuButton: {
         position: 'absolute',
         top: 0,
@@ -93,42 +88,47 @@ const styles = theme => ({
         borderRadius: 2,
         marginRight: 5
     },
+    container: {
+        display: 'flex', 
+        flexDirection: 'column', 
+        height: '100%', 
+        paddingLeft: '40px'
+    }
 });
 
 class Editor extends React.Component {
 
     getTabs() {
         return this.props.presetMode ? null : <div>
-            <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.enablePresetMode}>
-                {I18n.t('Edit mode')}
-            </Button>
             <ChartSettings
                 onChange={this.props.onChange}
+                enablePresetMode={this.props.enablePresetMode}
                 presetData={this.props.presetData}
+                socket={this.props.socket}
             />
         </div>
     }
 
     getUrl() {
         let translate = {
-            "lines": "l",
-            "marks": "m"
+            'lines': 'l',
+            'marks': 'm'
         }
         let translateObject = {
-            "lines": {},
-            "marks": {
-                "lineId": "l",
-                "upperValueOrId": "v",
-                "lowerValueOrId": "vl",
-                "color": "c",
-                "fill": "f",
-                "ol": "t",
-                "os": "s",
-                "text": "d",
-                "textPosition": "p",
-                "textOffset": "py",
-                "textColor": "fc",
-                "textSize": "fs",
+            'lines': {},
+            'marks': {
+                'lineId': 'l',
+                'upperValueOrId': 'v',
+                'lowerValueOrId': 'vl',
+                'color': 'c',
+                'fill': 'f',
+                'ol': 't',
+                'os': 's',
+                'text': 'd',
+                'textPosition': 'p',
+                'textOffset': 'py',
+                'textColor': 'fc',
+                'textSize': 'fs',
             },
         }
         let url = '';
@@ -160,34 +160,30 @@ class Editor extends React.Component {
         const query = getUrlQuery();
         const host = query.host ? query.host : 'localhost'
         return (<div style={{flex: 1, display: this.props.visible ? 'block' : 'none'}}><ChartFrame
-            src={"http://" + host + ":8082/flot/index.html?" + this.getUrl()}
+            src={'http://' + host + ':8082/flot/index.html?' + this.getUrl()}
         /></div>);
     }
 
     render() {
-        return <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+        return <div className={this.props.classes.container}>
             {this.getTabs()}
             {this.getChartFrame()}
-            <div style={{height: '200px', overflow: 'auto'}}>
+            {/* <div style={{height: '200px', overflow: 'auto'}}>
                 <pre>{this.getUrl()}</pre>
                 <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
-            </div>
+            </div> */}
         </div>
     }
 }
 
 Editor.propTypes = {
-    objects: PropTypes.object.isRequired,
-    selected: PropTypes.string.isRequired,
-    onSelectedChange: PropTypes.func.isRequired,
-    onRestart: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     visible: PropTypes.bool,
-    menuOpened: PropTypes.bool,
-    onLocate: PropTypes.func,
     runningInstances: PropTypes.object,
-    connection: PropTypes.object,
-    searchText: PropTypes.string,
+    socket: PropTypes.object,
+    presetData: PropTypes.object,
+    presetMode: PropTypes.bool,
+    enablePresetMode: PropTypes.func,
     theme: PropTypes.string
 };
 
