@@ -31,9 +31,9 @@ function build() {
 }
 
 // if not local development
-if (window.location.host !== 'localhost:3000' && false) {
+if (window.location.host !== 'localhost:3000') {
     Sentry.init({
-        //dsn: 'https://needToGetTheNumber@sentry.iobroker.net/86',
+        dsn: 'https://709f116e1de34029921e4f2696d6740f@sentry.iobroker.net/88',
         release: 'iobroker.' + window.adapterName + '@' + version,
         integrations: [new SentryIntegrations.Dedupe()],
     });

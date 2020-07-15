@@ -5,7 +5,7 @@ import {withStyles} from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField, IODateTimeField} from './Fields';
+import {IOTextField, IOSelect, IOObjectField, IODateTimeField} from './Fields';
 import I18n from '@iobroker/adapter-react/i18n';
 
 let styles = {
@@ -23,10 +23,11 @@ let styles = {
 };
 
 class ChartSettings extends React.Component {
-    
-    updateField = (name, value)=>{
+
+    updateField = (name, value) => {
         this.props.onChange(update(this.props.presetData, {[name]: {$set: value}}));
-    }
+    };
+
     render() {
         return <>
             <div>
@@ -37,7 +38,7 @@ class ChartSettings extends React.Component {
                             'relative': 'relative',
                             'static': 'static',
                         }}/>
-                        { this.props.presetData.timeType == 'static' ?
+                        { this.props.presetData.timeType === 'static' ?
                             <>
                                 <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
                                 <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
@@ -114,8 +115,8 @@ class ChartSettings extends React.Component {
                             'count': 'counts',
                             'step': 'seconds',
                         }}/>
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan" 
-                            label={this.props.presetData.aggregateType == 'step' ? 'Seconds' : 'Counts'}  
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
+                            label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                         />
                         <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                     </Grid>

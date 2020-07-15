@@ -2,9 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 
-import I18n from '@iobroker/adapter-react/i18n';
-
-import Tabs from '@material-ui/core/Tabs';
 import TabList from '@material-ui/lab/TabList';
 import Tab from '@material-ui/core/Tab';
 import TabPanel from '@material-ui/lab/TabPanel';
@@ -14,8 +11,9 @@ import Grid from '@material-ui/core/Grid';
 import {MdAdd as IconAdd} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField,IODateTimeField} from './Fields';
+import I18n from '@iobroker/adapter-react/i18n';
 
+import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField,IODateTimeField} from './Fields';
 import Line from './Line';
 import Mark from './Mark';
 
@@ -160,13 +158,13 @@ class PresetTabs extends React.Component {
         let newLines = update(this.props.presetData.lines, {[index]: {$set: lineData}});
         this.updateField('lines', newLines);
     }
-    
+
     addMark = () => {
         let newPresetData = update(this.props.presetData, {
             marks: {
                 $push: [{}]
             }
-        })        
+        })
         this.props.onChange(newPresetData);
     }
 
@@ -175,7 +173,7 @@ class PresetTabs extends React.Component {
             marks: {
                 $splice: [[index, 1]]
             }
-        })        
+        })
         this.props.onChange(newPresetData);
     }
 
@@ -193,14 +191,14 @@ class PresetTabs extends React.Component {
             lines: {
                 $splice: [[index, 1]]
             }
-        })        
+        })
         this.props.onChange(newPresetData);
     }
 
     render() {
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static">
-                <TabList 
+                <TabList
                     onChange={(event, newValue)=>{this.setState({selectedTab: newValue})}}
                     variant="scrollable"
                     scrollButtons="on"
@@ -221,13 +219,13 @@ class PresetTabs extends React.Component {
                         </IconButton>
                     </div>
                     {
-                        this.props.presetData.lines.map((line, key) => <Line 
-                            instances={this.props.instances} 
-                            line={line} 
-                            updateLine={this.updateLine} 
-                            deleteLine={this.deleteLine} 
-                            index={key} 
-                            key={key} 
+                        this.props.presetData.lines.map((line, key) => <Line
+                            instances={this.props.instances}
+                            line={line}
+                            updateLine={this.updateLine}
+                            deleteLine={this.deleteLine}
+                            index={key}
+                            key={key}
                             socket={this.props.socket}
                             opened={typeof this.state.linesOpened[key] === 'undefined' || this.state.linesOpened[key] === true}
                             lineOpenToggle={this.lineOpenToggle}
@@ -241,13 +239,13 @@ class PresetTabs extends React.Component {
                         </IconButton>
                     </div>
                     {
-                        this.props.presetData.marks.map((mark, key) => <Mark 
-                            mark={mark} 
+                        this.props.presetData.marks.map((mark, key) => <Mark
+                            mark={mark}
                             presetData={this.props.presetData}
-                            updateMark={this.updateMark} 
-                            deleteMark={this.deleteMark} 
-                            index={key} 
-                            key={key} 
+                            updateMark={this.updateMark}
+                            deleteMark={this.deleteMark}
+                            index={key}
+                            key={key}
                             socket={this.props.socket}
                             opened={typeof this.state.marksOpened[key] === 'undefined' || this.state.marksOpened[key] === true}
                             markOpenToggle={this.markOpenToggle}
@@ -262,7 +260,7 @@ class PresetTabs extends React.Component {
                                 'relative': 'relative',
                                 'static': 'static',
                             }}/>
-                            { this.props.presetData.timeType == 'static' ?
+                            { this.props.presetData.timeType === 'static' ?
                             <>
                                 <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
                                 <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
@@ -337,7 +335,7 @@ class PresetTabs extends React.Component {
                             'step': 'seconds',
                         }}/>
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
-                            label={this.props.presetData.aggregateType == "step" ? "Seconds" : "Counts"}
+                            label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                         />
                         <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                         </Grid>

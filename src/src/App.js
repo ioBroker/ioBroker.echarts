@@ -1,13 +1,14 @@
-import React, {Component} from 'react';
+import React from 'react';
 import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
+import withWidth from '@material-ui/core/withWidth';
 import clsx from 'clsx';
 import SplitterLayout from 'react-splitter-layout';
-import {MdMenu as IconMenuClosed} from 'react-icons/md';
-import {MdArrowBack as IconMenuOpened} from 'react-icons/md';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+
 import IconButton from '@material-ui/core/IconButton';
 import ListItemText from '@material-ui/core/ListItemText';
-import SearchIcon from '@material-ui/icons/Search';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
@@ -20,10 +21,10 @@ import Toolbar from '@material-ui/core/Toolbar';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Drawer from '@material-ui/core/Drawer';
-
-import { withTheme } from '@material-ui/core/styles';
-import withWidth from '@material-ui/core/withWidth';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 // icons
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
@@ -38,13 +39,12 @@ import {MdDelete as IconDelete} from 'react-icons/md';
 import {FaScroll as IconScript} from 'react-icons/all';
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
+import {MdMenu as IconMenuClosed} from 'react-icons/md';
+import {MdArrowBack as IconMenuOpened} from 'react-icons/md';
+import SearchIcon from '@material-ui/icons/Search';
 // import {MdFileUpload as IconImport} from 'react-icons/md';
 import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
 import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 
 import 'react-splitter-layout/lib/index.css';
 
@@ -55,14 +55,18 @@ import I18n from '@iobroker/adapter-react/i18n';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
-import Theme from './Theme';
 import getUrlQuery from './utils/getUrlQuery';
 
 const LEVEL_PADDING = 16;
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
 
 const styles = theme => ({
-    root: Theme.root,
+    root: {
+        flexGrow: 1,
+        display: 'flex',
+        width: '100%',
+        height: '100%'
+    },
     leftMenuItem: {
         width: '100%',
     },
@@ -76,7 +80,7 @@ const styles = theme => ({
             height: '100%',
         },
         '& .layout-splitter': {
-            background: Theme.type === 'dark' ? '#595858' : '#ccc;'
+            background: theme.type === 'dark' ? '#595858' : '#ccc;'
         }
     },
     mainDiv: {
@@ -111,8 +115,8 @@ const styles = theme => ({
         zIndex: 1,
         height: 25,
         width: 20,
-        background: Theme.colors.secondary,
-        color: Theme.colors.primary,
+        background: theme.palette.secondary.main,
+        color: theme.palette.primary.main,
         paddingLeft: 3,
         '&:hover': {
             color: 'white'
@@ -140,7 +144,7 @@ function getFolderList(folder) {
 
 class App extends GenericApp {
     constructor(props) {
-        let settings = {socket: {}}
+        let settings = {socket: {}};
         const query = getUrlQuery();
         settings.socket.port = query.port || (parseInt(window.location.port) >= 3000 && parseInt(window.location.port) <= 3020 ? 8081 : window.location.port);
         settings.socket.host = query.host || window.location.hostname;
@@ -160,7 +164,9 @@ class App extends GenericApp {
             'ru': require('./i18n/ru'),
             'zh-cn': require('./i18n/zh-cn'),
         });
+    }
 
+    onConnectionReady() {
         let opened;
         try {
             opened = JSON.parse(window.localStorage.getItem('Presets.opened')) || [];
@@ -168,7 +174,7 @@ class App extends GenericApp {
             opened = [];
         }
 
-        this.state = {
+        const newState = {
             lang: this.socket.systemLang,
             ready: false,
             selectedPresetId: window.localStorage.getItem('Presets.selectedPresetId') || '',
@@ -202,7 +208,6 @@ class App extends GenericApp {
             selected: null,
             menuOpened: window.localStorage ? window.localStorage.getItem('App.menuOpened') !== 'false' : true,
             menuSelectId: '',
-            errorText: '',
             logHorzLayout: window.localStorage ? window.localStorage.getItem('App.logHorzLayout') === 'true' : false,
             confirm: '',
             searchText: '',
@@ -211,37 +216,28 @@ class App extends GenericApp {
         this.logSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.logSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
 
-    }
-
-    onConnectionReady() {
         this.socket.getSystemConfig()
             .then(systemConfig => {
+                newState.systemConfig = systemConfig;
                 this.setState({systemConfig});
                 return Promise.resolve();
             })
+            .then(() => this.getAllData())
             .then(() => this.refreshData())
             .catch(e => this.showError(e));
-        this.getAllData();
     }
 
     getData() {
         let presets = {};
         let th = this;
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) =>
             this.socket._socket.emit('getObjectView', 'chart', 'chart', {
                 startkey: 'flot.',
                 endkey: 'flot.\u9999'
-            }, function (err, res) {
-                if (!err && res) {
-                    res.rows.forEach((preset)=>{
-                        presets[preset.value._id] = preset.value;
-                    });
-                    resolve({presets, folders: th.buildTree(presets)});
-                } else {
-                    reject(err)
-                }
-            })
-        });
+            }, (err, res) => {
+                res && res.rows && res.rows.forEach(preset => presets[preset.value._id] = preset.value);
+                resolve({presets, folders: th.buildTree(presets)});
+            }));
     }
 
     refreshData(changingPreset) {
@@ -302,10 +298,10 @@ class App extends GenericApp {
     }
 
     getAllCustoms(instances) {
-        return new Promise(resolve => {
-            return this.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
+        return new Promise(resolve =>
+            this.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
                 console.log(objs);
-                const ids = objs.rows.map(item => item.id);
+                const ids = ((objs && objs.rows) || []).map(item => item.id);
                 this.getObjects(ids, objs => {
                     const ids = instances.map(obj => obj._id.substring('system.adapter.'.length));
                     const _instances = {};
@@ -338,8 +334,7 @@ class App extends GenericApp {
                     console.log(insts);
                     resolve();
                 });
-            });
-        });
+            }));
     }
 
     getAllData() {
@@ -352,10 +347,6 @@ class App extends GenericApp {
         console.log('Changed ' + id);
     };
 
-    showError(err) {
-        this.setState({errorText: err});
-        alert(err);
-    }
 
     toggleLogLayout() {
         window.localStorage && window.localStorage.setItem('App.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
@@ -553,14 +544,14 @@ class App extends GenericApp {
                             </ListItem>
                             {
                                 opened ? Object.values(group.enabledDP).map((chart, key)=>
-                                    <ListItem 
-                                        key={key} 
-                                        button 
-                                        style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}} 
-                                        selected={this.state.selectedChartId == chart._id}
+                                    <ListItem
+                                        key={key}
+                                        button
+                                        style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
+                                        selected={this.state.selectedChartId === chart._id}
                                         onClick={
                                         () => {
-                                            this.state.presetMode ? 
+                                            this.state.presetMode ?
                                             this.setState({loadChartDialog: chart._id, loadChartDialogInstance: group._id}) :
                                             this.loadChart(chart._id, group._id)
                                         }
@@ -592,7 +583,7 @@ class App extends GenericApp {
             key={ item._id }
             button
             onClick={ () =>
-                this.state.presetMode ? 
+                this.state.presetMode ?
                 this.setState({loadPresetDialog: preset._id}) :
                 this.loadPreset(preset._id)
             }>
@@ -953,7 +944,7 @@ class App extends GenericApp {
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={ this.state.presets[presetId].name == this.state.renamePresetDialogTitle }
+                    disabled={ this.state.presets[presetId].name === this.state.renamePresetDialogTitle }
                     color="primary" onClick={ e =>
                         this.setState({renameDialog: null}, () =>
                             this.renamePreset(presetId, this.state.renamePresetDialogTitle)
@@ -988,7 +979,6 @@ class App extends GenericApp {
     }
 
     renderLoadChartDialog() {
-        const that = this;
         return this.state.loadChartDialog ? <Dialog
             open={ true }
             key="loadChartDialog"
@@ -1011,7 +1001,6 @@ class App extends GenericApp {
     };
 
     renderLoadPresetDialog() {
-        const that = this;
         return this.state.loadPresetDialog ? <Dialog
             open={ true }
             key="loadPresetDialog"
@@ -1034,7 +1023,6 @@ class App extends GenericApp {
     };
 
     renderSavePresetDialog() {
-        const that = this;
         return this.state.savePresetDialog ? <Dialog
             open={ true }
             key="savePresetDialog"
@@ -1047,7 +1035,7 @@ class App extends GenericApp {
                         <IconCancel/> { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
-                        this.savePreset(this.state.savePresetDialog)
+                        this.savePreset(this.state.savePresetDialog);
                         this.setState({savePresetDialog: ''});
                     }}>
                         <IconSave/> { I18n.t('Save preset') }
@@ -1100,9 +1088,9 @@ class App extends GenericApp {
                             key="Editor"
                             onChange={this.onUpdatePreset}
                             presetData={this.state.presetData}
-                            verticalLayout={!this.state.logHorzLayout} 
-                            onLayoutChange={() => this.toggleLogLayout()} 
-                            connection={this.socket} 
+                            verticalLayout={!this.state.logHorzLayout}
+                            onLayoutChange={() => this.toggleLogLayout()}
+                            connection={this.socket}
                             selected={this.state.selected}
                             instances={this.state.instances}
                         /> : null
@@ -1116,50 +1104,56 @@ class App extends GenericApp {
         const {classes} = this.props;
 
         if (!this.state.ready) {
-            return (<Loader theme={this.state.themeType}/>);
+            return <MuiThemeProvider theme={this.state.theme}>
+                <Loader theme={this.state.themeType}/>
+            </MuiThemeProvider>;
         }
 
         return (
-            <>
-                <div className={classes.root} key="divside">
-                    <SplitterLayout
-                        key="sidemenuwidth"
-                        vertical={false}
-                        primaryMinSize={300}
-                        primaryIndex={1}
-                        secondaryMinSize={300}
-                        secondaryInitialSize={this.menuSize}
-                        customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
-                        onDragStart={() => this.setState({resizing: true})}
-                        onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
-                        onDragEnd={() => {
-                            this.setState({resizing: false});
-                            window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
-                        }}
-                    >
-                        <div className={classes.mainDiv} key="mainmenudiv">
-                            <div key="list" className={ this.props.classes.heightMinusToolbar }>
-                                { this.renderCharts() }
+            <MuiThemeProvider theme={this.state.theme}>
+                <React.Fragment>
+                    <div className={classes.root} key="divside">
+                        <SplitterLayout
+                            key="sidemenuwidth"
+                            vertical={false}
+                            primaryMinSize={300}
+                            primaryIndex={1}
+                            secondaryMinSize={300}
+                            secondaryInitialSize={this.menuSize}
+                            customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
+                            onDragStart={() => this.setState({resizing: true})}
+                            onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
+                            onDragEnd={() => {
+                                this.setState({resizing: false});
+                                window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
+                            }}
+                        >
+                            <div className={classes.mainDiv} key="mainmenudiv">
+                                <div key="list" className={ this.props.classes.heightMinusToolbar }>
+                                    { this.renderCharts() }
+                                </div>
+                                {this.renderListToolbar()}
+                                <div key="list2" className={ this.props.classes.heightMinusToolbar }>
+                                    <List className={ this.props.classes.scroll }>
+                                        { this.renderTree(this.state.folders) }
+                                    </List>
+                                </div>
                             </div>
-                            {this.renderListToolbar()}
-                            <div key="list2" className={ this.props.classes.heightMinusToolbar }>
-                                <List className={ this.props.classes.scroll }>
-                                    { this.renderTree(this.state.folders) }
-                                </List>
-                            </div>
-                        </div>
-                        {this.renderMain()}
-                    </SplitterLayout>
-                </div>
-                { this.renderAddFolderDialog() }
-                { this.renderEditFolderDialog() }
-                { this.renderDeleteDialog() }
-                { this.renderMoveDialog() }
-                { this.renderRenameDialog() }
-                { this.renderLoadChartDialog() }
-                { this.renderLoadPresetDialog() }
-                { this.renderSavePresetDialog() }
-            </>
+                            {this.renderMain()}
+                        </SplitterLayout>
+                    </div>
+                    { this.renderAddFolderDialog() }
+                    { this.renderEditFolderDialog() }
+                    { this.renderDeleteDialog() }
+                    { this.renderMoveDialog() }
+                    { this.renderRenameDialog() }
+                    { this.renderLoadChartDialog() }
+                    { this.renderLoadPresetDialog() }
+                    { this.renderError() }
+                    { this.renderToast() }
+                    { this.renderSavePresetDialog() }
+                </React.Fragment>
+            </MuiThemeProvider>
         );
     }
 }

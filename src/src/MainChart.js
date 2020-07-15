@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
 
-import I18n from '@iobroker/adapter-react/i18n';
-import Theme from './Theme';
 import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
 import getUrlQuery from './utils/getUrlQuery';
@@ -12,7 +9,8 @@ import getUrlQuery from './utils/getUrlQuery';
 const styles = theme => ({
 
     toolbar: {
-        minHeight: 38,//Theme.toolbar.height,
+        //a: console.log(JSON.stringify(theme)),
+        minHeight: theme.mixins.toolbar.minHeight,
         boxShadow: '0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12)'
     },
     toolbarButtons: {
@@ -20,7 +18,7 @@ const styles = theme => ({
         marginLeft: 4
     },
     editorDiv: {
-        height: `calc(100% - ${Theme.toolbar.height + 38/*Theme.toolbar.height */ + 1}px)`,
+        height: `calc(100% - ${theme.mixins.toolbar.minHeight + 38 + 1}px)`,
         width: '100%',
         overflow: 'hidden',
         position: 'relative'
@@ -89,9 +87,9 @@ const styles = theme => ({
         marginRight: 5
     },
     container: {
-        display: 'flex', 
-        flexDirection: 'column', 
-        height: '100%', 
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
         paddingLeft: '40px'
     }
 });
@@ -113,7 +111,7 @@ class Editor extends React.Component {
         let translate = {
             'lines': 'l',
             'marks': 'm'
-        }
+        };
         let translateObject = {
             'lines': {},
             'marks': {
@@ -130,7 +128,7 @@ class Editor extends React.Component {
                 'textColor': 'fc',
                 'textSize': 'fs',
             },
-        }
+        };
         let url = '';
         for (let k in this.props.presetData) {
             let v = this.props.presetData[k];
@@ -139,26 +137,27 @@ class Editor extends React.Component {
                 k = translate[k];
             }
             if (Array.isArray(v)) {
-                v.forEach((arrayObject, index) => {
+                for (let i = 0; i < v.length; i++) {
+                    const arrayObject = v[i];
                     for (let k2 in arrayObject) {
                         let v2 = arrayObject[k2];
                         if (translateCurrentObject[k2]) {
                             k2 = translateCurrentObject[k2];
                         }
-                        url += encodeURIComponent(k+'['+index+']['+k2+']') + '=' + encodeURIComponent(v2) + '&';
+                        url += encodeURIComponent(k + '[' + i + '][' + k2 + ']') + '=' + encodeURIComponent(v2) + '&';
                     }
-                });
+                }
             } else {
                 url += encodeURIComponent(k) + '=' + encodeURIComponent(v) + '&';
             }
         }
-        
+
         return url;
     }
 
     getChartFrame() {
         const query = getUrlQuery();
-        const host = query.host ? query.host : 'localhost'
+        const host = query.host ? query.host : 'localhost';
         return (<div style={{flex: 1, display: this.props.visible ? 'block' : 'none'}}><ChartFrame
             src={'http://' + host + ':8082/flot/index.html?' + this.getUrl()}
         /></div>);
