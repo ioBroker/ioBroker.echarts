@@ -65,7 +65,9 @@ const styles = theme => ({
         flexGrow: 1,
         display: 'flex',
         width: '100%',
-        height: '100%'
+        height: '100%',
+        background: theme.palette.background.default,
+        color: theme.palette.text.primary
     },
     leftMenuItem: {
         width: '100%',
