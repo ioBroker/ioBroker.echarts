@@ -108,7 +108,7 @@ class ChartSettings extends React.Component {
                     </Grid>
                     <Grid item xs={6} className={this.props.classes.fieldsContainer}>
                         <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.enablePresetMode}>
-                            {I18n.t('Edit mode')}
+                            {I18n.t('Create preset')}
                         </Button>
                         <h4>{I18n.t('Aggregate')}</h4>
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{

@@ -586,6 +586,7 @@ class App extends GenericApp {
         return <ListItem
             style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
             key={ item._id }
+            selected={item._id == this.state.selectedPresetId}
             button
             onClick={ () =>
                 this.state.presetMode ?
@@ -740,7 +741,7 @@ class App extends GenericApp {
 
     loadPreset(id) {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
-        this.setState({presetData: preset.native.data, presetMode: true, selectedChartId: null});
+        this.setState({presetData: preset.native.data, presetMode: true, selectedChartId: null, selectedPresetId: id});
     }
 
     loadChart(id, instance) {
@@ -797,7 +798,10 @@ class App extends GenericApp {
                 ><IconFolderAdd/></IconButton>
 
                 <span className={this.props.classes.right}>
-                                            <IconButton onClick={() => this.setState({showSearch: !this.state.showSearch}) }>
+                                            <IconButton 
+                                                onClick={() => 
+                                                    this.setState({showSearch: !this.state.showSearch, search: ''}) 
+                                                }>
                                                 <SearchIcon/>
                                             </IconButton>
                                         </span>
@@ -1107,6 +1111,7 @@ class App extends GenericApp {
                             connection={this.socket}
                             selected={this.state.selected}
                             instances={this.state.instances}
+                            systemConfig={this.state.systemConfig}
                         /> : null
                     }
                 </SplitterLayout>

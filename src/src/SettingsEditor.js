@@ -76,6 +76,7 @@ class SettingsEditor extends React.Component {
                     presetData={this.props.presetData}
                     onChange={this.props.onChange}
                     instances={this.props.instances}
+                    systemConfig={this.props.systemConfig}
                 />
             </div>
         </div>;

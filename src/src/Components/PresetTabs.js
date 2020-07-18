@@ -188,7 +188,7 @@ class PresetTabs extends React.Component {
     addLine = () => {
         let newPresetData = update(this.props.presetData, {
             lines: {
-                $push: [{}]
+                $push: [{instance: 'system.adapter.' + this.props.systemConfig.common.defaultHistory}]
             }
         })
         this.props.onChange(newPresetData);
