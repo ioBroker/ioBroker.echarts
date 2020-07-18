@@ -26,8 +26,10 @@ const styles = theme => ({
         width: `calc(100% - ${TOOLBOX_WIDTH}px)`,
         height: '100%',
         marginLeft: TOOLBOX_WIDTH,
-        overflow: 'auto',
-        position: 'relative'
+        overflow: 'none',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column'
     },
     toolbox: {
         position: 'absolute',

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
+import {withStyles} from '@material-ui/core/styles';
 
 import TabList from '@material-ui/lab/TabList';
 import Tab from '@material-ui/core/Tab';
@@ -16,6 +17,13 @@ import I18n from '@iobroker/adapter-react/i18n';
 import {IOTextField,IOCheckbox,IOColorPicker,IOSelect, IOObjectField,IODateTimeField} from './Fields';
 import Line from './Line';
 import Mark from './Mark';
+
+const styles = {
+    tabsBody: {
+        overflowY: 'auto',
+        flex: 1
+    }
+};
 
 class PresetTabs extends React.Component {
     state = {
@@ -211,7 +219,7 @@ class PresetTabs extends React.Component {
                     <Tab label="Appearance" value="5"/>
                 </TabList>
             </AppBar>
-            <div>
+            <div className={this.props.classes.tabsBody}>
                 <TabPanel value="0">
                     <div>
                         <IconButton onClick={this.addLine}>
@@ -474,4 +482,4 @@ PresetTabs.propTypes = {
     instances: PropTypes.array,
 };
 
-export default PresetTabs
+export default withStyles(styles)(PresetTabs)

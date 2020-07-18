@@ -45,6 +45,7 @@ import SearchIcon from '@material-ui/icons/Search';
 // import {MdFileUpload as IconImport} from 'react-icons/md';
 import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
 import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
+import ClearIcon from '@material-ui/icons/Close';
 
 import 'react-splitter-layout/lib/index.css';
 
@@ -88,7 +89,7 @@ const styles = theme => ({
     mainDiv: {
         width: '100%',
         height: '100%',
-        overflow: 'hidden',
+        overflow: 'auto',
     },
     content: {
         width: '100%',
@@ -537,7 +538,7 @@ class App extends GenericApp {
                                     <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
                                     <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
                                 }</ListItemIcon>
-                                <ListItemText>{ group._id }</ListItemText>
+                                <ListItemText>{ group._id.replace('system.adapter.', '') }</ListItemText>
                                 <ListItemSecondaryAction>
                                     <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
                                         { opened ? <IconCollapse/> : <IconExpand/> }
@@ -545,8 +546,11 @@ class App extends GenericApp {
                                 </ListItemSecondaryAction>
                             </ListItem>
                             {
-                                opened ? Object.values(group.enabledDP).map((chart, key)=>
-                                    <ListItem
+                                opened ? Object.values(group.enabledDP).map((chart, key)=> {
+                                    if ((this.state.search && !chart._id.includes(this.state.search))) {
+                                        return null;
+                                    }
+                                    return <ListItem
                                         key={key}
                                         button
                                         style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
@@ -561,10 +565,10 @@ class App extends GenericApp {
                                         <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} }><IconChart className={ this.props.classes.itemIcon }/></ListItemIcon>
                                         <ListItemText
                                             classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
-                                            primary={ chart._id }
+                                            primary={ chart._id.replace('system.adapter.', '') }
                                         />
                                     </ListItem>
-                                ) : null
+                                }) : null
                             }
                         </>
                     }
@@ -802,7 +806,16 @@ class App extends GenericApp {
                     <TextField
                         value={ this.state.search }
                         className={ this.props.classes.textInput }
-                        onChange={ e => this.setState({search: e.target.value}) }/> : null
+                        onChange={ e => this.setState({search: e.target.value}) }
+                        InputProps={{
+                            endAdornment: this.state.search ? (
+                                <IconButton
+                                    onClick={() => this.setState({ search: '' })}>
+                                    <ClearIcon />
+                                </IconButton>
+                            ) : undefined,
+                        }}
+                    /> : null
                 }
             </Toolbar>;
     }
