@@ -125,7 +125,10 @@ const styles = theme => ({
         '&:hover': {
             color: 'white'
         }
-    }
+    },
+    mainToolbar: {
+        background: theme.palette.primary.main,
+    },
 });
 
 function getFolderPrefix(presetId) {

@@ -90,7 +90,6 @@ const styles = theme => ({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        paddingLeft: '40px'
     }
 });
 

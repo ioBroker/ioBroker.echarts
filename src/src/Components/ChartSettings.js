@@ -8,11 +8,14 @@ import Button from '@material-ui/core/Button';
 import {IOTextField, IOSelect, IOObjectField, IODateTimeField} from './Fields';
 import I18n from '@iobroker/adapter-react/i18n';
 
-let styles = {
+let styles = theme => ({
+    mainDiv: {
+        paddingLeft: 40,
+    },
     fieldsContainer: {
         '& > div': {
-            display: "inline-block",
-            paddingRight: "20px",
+            display: 'inline-block',
+            paddingRight: 20,
         }
     },
     hintButton: {
@@ -20,17 +23,15 @@ let styles = {
         marginRight: 20,
         float: 'right'
     }
-};
+});
 
 class ChartSettings extends React.Component {
-
     updateField = (name, value) => {
         this.props.onChange(update(this.props.presetData, {[name]: {$set: value}}));
     };
 
     render() {
-        return <>
-            <div>
+        return <div className={this.props.classes.mainDiv}>
                 <Grid container>
                     <Grid item xs={6} className={this.props.classes.fieldsContainer}>
                         <h4>{I18n.t('Time Span')}</h4>
@@ -122,7 +123,6 @@ class ChartSettings extends React.Component {
                     </Grid>
                 </Grid>
             </div>
-        </>
     }
 }
 
