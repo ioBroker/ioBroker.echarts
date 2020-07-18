@@ -125,7 +125,10 @@ const styles = theme => ({
         '&:hover': {
             color: 'white'
         }
-    }
+    },
+    mainToolbar: {
+        background: theme.palette.primary.main,
+    },
 });
 
 function getFolderPrefix(presetId) {
@@ -797,10 +800,10 @@ class App extends GenericApp {
                 ><IconFolderAdd/></IconButton>
 
                 <span className={this.props.classes.right}>
-                                            <IconButton onClick={() => this.setState({showSearch: !this.state.showSearch}) }>
-                                                <SearchIcon/>
-                                            </IconButton>
-                                        </span>
+                    <IconButton onClick={() => this.setState({showSearch: !this.state.showSearch}) }>
+                        <SearchIcon/>
+                    </IconButton>
+                </span>
                 {this.state.showSearch ?
                     <TextField
                         value={ this.state.search }
