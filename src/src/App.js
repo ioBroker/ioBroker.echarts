@@ -208,20 +208,20 @@ class App extends GenericApp {
 
             resizing: false,
             selected: null,
-            menuOpened: window.localStorage ? window.localStorage.getItem('App.menuOpened') !== 'false' : true,
+            menuOpened: window.localStorage.getItem('App.menuOpened') !== 'false',
             menuSelectId: '',
-            logHorzLayout: window.localStorage ? window.localStorage.getItem('App.logHorzLayout') === 'true' : false,
+            logHorzLayout: window.localStorage.getItem('App.logHorzLayout') === 'true',
             confirm: '',
             searchText: '',
-            themeType: window.localStorage ? window.localStorage.getItem('App.theme') || 'light' : 'light',
+            themeType: window.localStorage.getItem('App.theme') || 'light',
         };
-        this.logSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.logSize')) || 150 : 150;
+        this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.settingsSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
 
         this.socket.getSystemConfig()
             .then(systemConfig => {
                 newState.systemConfig = systemConfig;
-                this.setState({systemConfig});
+                this.setState(newState);
                 return Promise.resolve();
             })
             .then(() => this.getAllData())
@@ -773,13 +773,13 @@ class App extends GenericApp {
             useComma: undefined,
             noedit: false,
             animation: 0
-        }
+        };
         this.setState({presetData: presetData, presetMode: false, selectedChartId: id});
     }
 
     enablePresetMode = () => {
         this.setState({presetMode: true, selectedChartId: null});
-    }
+    };
 
     renderListToolbar() {
         return <Toolbar key="toolbar" variant="dense" className={ this.props.classes.mainToolbar }>
@@ -1046,8 +1046,8 @@ class App extends GenericApp {
             </Dialog> : null;
     };
 
-    onUpdatePreset = (presetData) => {
-        this.setState({presetData: presetData})
+    onUpdatePreset = presetData => {
+        this.setState({presetData})
     };
 
     renderMain() {
@@ -1065,13 +1065,13 @@ class App extends GenericApp {
                     key="MainSplitter"
                     vertical={!this.state.logHorzLayout}
                     primaryMinSize={100}
-                    secondaryInitialSize={this.logSize}
+                    secondaryInitialSize={this.settingsSize}
                     //customClassName={classes.menuDiv + ' ' + classes.splitterDivWithoutMenu}
                     onDragStart={() => this.setState({resizing: true})}
-                    onSecondaryPaneSizeChange={size => this.logSize = parseFloat(size)}
+                    onSecondaryPaneSizeChange={size => this.settingsSize = parseFloat(size)}
                     onDragEnd={() => {
                         this.setState({resizing: false});
-                        window.localStorage && window.localStorage.setItem('App.logSize', this.logSize.toString());
+                        window.localStorage && window.localStorage.setItem('App.settingsSize', this.settingsSize.toString());
                     }}
                 >
                     <MainChart
@@ -1131,14 +1131,14 @@ class App extends GenericApp {
                             }}
                         >
                             <div className={classes.mainDiv} key="mainmenudiv">
-                                <div key="list" className={ this.props.classes.heightMinusToolbar }>
-                                    { this.renderCharts() }
-                                </div>
                                 {this.renderListToolbar()}
                                 <div key="list2" className={ this.props.classes.heightMinusToolbar }>
                                     <List className={ this.props.classes.scroll }>
                                         { this.renderTree(this.state.folders) }
                                     </List>
+                                </div>
+                                <div key="list" className={ this.props.classes.heightMinusToolbar }>
+                                    { this.renderCharts() }
                                 </div>
                             </div>
                             {this.renderMain()}

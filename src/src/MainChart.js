@@ -94,7 +94,7 @@ const styles = theme => ({
     }
 });
 
-class Editor extends React.Component {
+class MainChart extends React.Component {
 
     getTabs() {
         return this.props.presetMode ? null : <div>
@@ -175,7 +175,7 @@ class Editor extends React.Component {
     }
 }
 
-Editor.propTypes = {
+MainChart.propTypes = {
     onChange: PropTypes.func.isRequired,
     visible: PropTypes.bool,
     runningInstances: PropTypes.object,
@@ -186,4 +186,4 @@ Editor.propTypes = {
     theme: PropTypes.string
 };
 
-export default withStyles(styles)(Editor);
+export default withStyles(styles)(MainChart);
