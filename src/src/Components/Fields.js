@@ -16,11 +16,12 @@ import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 
 const IOSelect = function (props) {
+    const label = I18n.t(props.label);
     return <div>
         <FormControl style={{minWidth: '200px'}}>
-            <InputLabel shrink={true}>{ I18n.t(props.label) }</InputLabel>
+            <InputLabel shrink={true}>{ label }</InputLabel>
             <Select 
-                label={props.label} 
+                label={label}
                 onChange={(e) => {
                     props.updateValue(props.name, e.target.value)
                 }} 
@@ -29,15 +30,14 @@ const IOSelect = function (props) {
             >
                 {
                     props.options ? 
-                    Object.keys(props.options).map((key) =>{
-                        return <MenuItem key={key} value={key}>{I18n.t(props.options[key])}</MenuItem>
-                    })
+                    Object.keys(props.options).map((key) =>
+                        <MenuItem key={key} value={key}>{I18n.t(props.options[key])}</MenuItem>)
                      : null
                 }
             </Select>
         </FormControl>
     </div>
-}
+};
 IOSelect.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
@@ -55,7 +55,7 @@ const IOCheckbox = function (props) {
             }} value={props.formData[props.name] || false}/>
         }/>
     </div>
-}
+};
 IOCheckbox.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
@@ -67,7 +67,7 @@ export {IOCheckbox};
 const IOTextField = function (props) {
     return <div>
         <TextField 
-            label={props.label} 
+            label={I18n.t(props.label)}
             InputLabelProps={{shrink: true}} 
             onChange={(e) => {
                 props.updateValue(props.name, e.target.value)
@@ -76,7 +76,7 @@ const IOTextField = function (props) {
             type={props.type}
         />
     </div> 
-}
+};
 IOTextField.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
@@ -88,12 +88,12 @@ export {IOTextField};
 
 const IODateTimeField = function (props) {
     return <div>
-        <TextField type="datetime-local" label={props.label} InputLabelProps={{shrink: true}} onChange={(e) => {
+        <TextField type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{shrink: true}} onChange={(e) => {
             let date = e.target.value.split('T');
             props.updateValue(props.name, date[0], date[1]);
         }} value={props.formData[props.name] ? props.formData[props.name] + 'T' + props.formData[props.name + '_time'] : ''}/>
     </div> 
-}
+};
 IODateTimeField.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
@@ -107,7 +107,7 @@ const IOObjectField = function (props) {
 
     return <div>
         <TextField 
-            label={props.label} 
+            label={I18n.t(props.label)}
             InputLabelProps={{shrink: true}} 
             value={props.formData[props.name] || ''}
             onChange={(e) => {
@@ -121,6 +121,7 @@ const IOObjectField = function (props) {
                 key="selectDialog"
                 socket={ props.socket }
                 dialogName={props.name}
+                customFilter={props.customFilter}
                 title={ I18n.t('Select for ') + props.label}
                 selected={ props.formData[props.name] }
                 onOk={ (e) => {props.updateValue(props.name, e); setState({showDialog: false});} }
@@ -128,20 +129,21 @@ const IOObjectField = function (props) {
             /> : null
         }
     </div>    
-}
+};
 IOObjectField.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
     value: PropTypes.any,
     formData: PropTypes.object,
     socket: PropTypes.object,
+    customFilter: PropTypes.object,
 };
 export {IOObjectField};
 
 const IOColorPicker = function (props) {
     return <div>
         <ColorPicker 
-            label={props.label}
+            label={I18n.t(props.label)}
             inputProps={{
                 style: {backgroundColor: props.formData[props.name]}
             }} 
@@ -152,7 +154,7 @@ const IOColorPicker = function (props) {
             value={props.formData[props.name] || ''}
         />
     </div>
-}
+};
 IOColorPicker.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,

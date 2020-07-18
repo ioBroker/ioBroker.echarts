@@ -12,7 +12,7 @@ import PresetTabs from './Components/PresetTabs';
 const IconVerticalSplit   = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAACFJREFUeAFjAIJRwP////8PYIKWHCigNQdKj/pn1D+jAABTG16wVQqVpQAAAABJRU5ErkJggg==';
 const IconHorizontalSplit = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAABtJREFUeAFjAIJRwP8fCj7QkENn/4z6Z5QzCgBjbWaoyx1PqQAAAABJRU5ErkJggg==';
 
-const TOOLBOX_WIDTH = 34;
+const TOOLBOX_WIDTH = 0;//34;
 
 const styles = theme => ({
     logBox: {
@@ -55,32 +55,30 @@ const styles = theme => ({
 
 class SettingsEditor extends React.Component {
     render() {
-        return (
-            <div className={this.props.classes.logBox}>
-                 <div className={this.props.classes.toolbox} key="toolbox">
-                    {this.props.onLayoutChange ?
-                        (<IconButton
-                            className={this.props.classes.iconButtons}
-                            onClick={() => this.props.onLayoutChange()}
-                            title={I18n.t('Change layout')}
-                        >
-                            <img
-                                className={this.props.classes.layoutIcon}
-                                alt="split"
-                                src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit}
-                            />
-                        </IconButton>) : null}
-                </div>
-                <div className={this.props.classes.logBoxInner} key="logList">
-                    <PresetTabs
-                        socket={this.props.socket}
-                        presetData={this.props.presetData}
-                        onChange={this.props.onChange}
-                        instances={this.props.instances}
-                    />
-                </div>
+        return <div className={this.props.classes.logBox}>
+            {false ? <div className={this.props.classes.toolbox} key="toolbox">
+                {this.props.onLayoutChange ?
+                    (<IconButton
+                        className={this.props.classes.iconButtons}
+                        onClick={() => this.props.onLayoutChange()}
+                        title={I18n.t('Change layout')}
+                    >
+                        <img
+                            className={this.props.classes.layoutIcon}
+                            alt="split"
+                            src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit}
+                        />
+                    </IconButton>) : null}
+            </div> : null }
+            <div className={this.props.classes.logBoxInner} key="logList">
+                <PresetTabs
+                    socket={this.props.socket}
+                    presetData={this.props.presetData}
+                    onChange={this.props.onChange}
+                    instances={this.props.instances}
+                />
             </div>
-        );
+        </div>;
     }
 }
 

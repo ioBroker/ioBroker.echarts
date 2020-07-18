@@ -23,10 +23,10 @@ let styles = {
 };
 
 class Line extends React.Component {
-    updateField = (name, value)=>{
+    updateField = (name, value) => {
         let newLine = update(this.props.line, {[name]: {$set: value}});
         this.props.updateLine(this.props.index, newLine);
-    }
+    };
     
     render() {
         return <Card className={this.props.classes.card}><CardContent>
@@ -56,7 +56,7 @@ class Line extends React.Component {
                                 return result;
                             })()
                         }/>
-                        <IOObjectField formData={this.props.line} updateValue={this.updateField} name="id" label="ID" socket={this.props.socket}/>
+                        <IOObjectField formData={this.props.line} updateValue={this.updateField} name="id" label="ID" customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}} socket={this.props.socket}/>
                         <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
                             minmax: 'minmax',
                             average: 'average',

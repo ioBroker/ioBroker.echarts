@@ -53,6 +53,7 @@ import GenericApp from '@iobroker/adapter-react/GenericApp';
 import Utils from '@iobroker/adapter-react/Components/Utils';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
+import '@iobroker/adapter-react/index.css';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
@@ -151,11 +152,7 @@ class App extends GenericApp {
         const query = getUrlQuery();
         settings.socket.port = query.port || (parseInt(window.location.port) >= 3000 && parseInt(window.location.port) <= 3020 ? 8081 : window.location.port);
         settings.socket.host = query.host || window.location.hostname;
-        super(props, settings);
-        this.objects = {};
-
-        // init translations
-        I18n.setTranslations({
+        settings.translations = {
             'en': require('./i18n/en'),
             'de': require('./i18n/de'),
             'es': require('./i18n/es'),
@@ -166,7 +163,9 @@ class App extends GenericApp {
             'pt': require('./i18n/pt'),
             'ru': require('./i18n/ru'),
             'zh-cn': require('./i18n/zh-cn'),
-        });
+        };
+        super(props, settings);
+        this.objects = {};
     }
 
     onConnectionReady() {
