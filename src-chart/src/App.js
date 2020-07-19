@@ -15,6 +15,7 @@ import theme from '@iobroker/adapter-react/Theme';
 import '@iobroker/adapter-react/index.css';
 
 import ChartModel from './Components/ChartModel';
+import ChartView from './Components/ChartView';
 
 const styles = theme => ({
 
@@ -146,6 +147,12 @@ class App extends Component {
 
         return <MuiThemeProvider theme={this.state.theme}>
                 <>
+                    <ChartView
+                        socket={this.socket}
+                        t={I18n.t}
+                        lang={I18n.getLanguage()}
+                        themeType={this.state.themeType}
+                    />
                     {this.renderError()}
                 </>
             </MuiThemeProvider>;

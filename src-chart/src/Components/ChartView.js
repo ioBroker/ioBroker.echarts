@@ -1,9 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
-import withWidth from "@material-ui/core/withWidth";
-import {withStyles} from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import React from 'react';
+import PropTypes from 'prop-types';
+import withWidth from '@material-ui/core/withWidth';
+import {withStyles} from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import echarts from 'echarts/lib/echarts';
@@ -578,18 +578,22 @@ class ChartView extends React.Component {
 
     installEventHandlers() {
         const zr = this.echartsReact.getEchartsInstance().getZr();
+
         if (!zr._iobInstalled) {
             zr._iobInstalled = true;
+
             zr.on('mousedown', e => {
                 console.log('mouse down');
                 this.mouseDown = true;
                 this.chart.lastX = e.offsetX;
             });
+
             zr.on('mouseup', () => {
                 console.log('mouse up');
                 this.mouseDown = false;
                 this.setNewRange(true);
             });
+
             zr.on('mousewheel', e => {
                 let diff = this.chart.max - this.chart.min;
                 const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
@@ -605,6 +609,7 @@ class ChartView extends React.Component {
 
                 this.setNewRange();
             });
+
             zr.on('mousemove', e => {
                 if (this.mouseDown) {
                     const moved = this.chart.lastX - (e.offsetX - GRID_PADDING_LEFT);
@@ -632,11 +637,13 @@ class ChartView extends React.Component {
                     }
                 }
             });
+
             zr.on('touchend', e => {
                 e.preventDefault();
                 this.mouseDown = false;
                 this.setNewRange(true);
             });
+
             zr.on('touchmove', e => {
                 e.preventDefault();
                 const touches = e.touches || e.originalEvent.touches;
@@ -695,7 +702,7 @@ class ChartView extends React.Component {
                 option={ this.getOption() }
                 notMerge={ true }
                 lazyUpdate={ true }
-                theme={ this.props.themeName === 'dark' ? 'dark' : '' }
+                theme={ this.props.themeType === 'dark' ? 'dark' : '' }
                 style={{ height: this.state.chartHeight + 'px', width: '100%' }}
                 opts={{ renderer: 'svg' }}
                 onEvents={ {
@@ -739,11 +746,10 @@ class ChartView extends React.Component {
 ChartView.propTypes = {
     t: PropTypes.func,
     lang: PropTypes.string,
-    expertMode: PropTypes.bool,
     socket: PropTypes.object,
     obj: PropTypes.object,
     customsInstances: PropTypes.array,
-    themeName: PropTypes.string,
+    themeType: PropTypes.string,
     objects: PropTypes.object,
 };
 
