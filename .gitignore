@@ -14,3 +14,5 @@ admin/i18n/*/flat.txt
 /src/package-lock.json
 /package-lock.json
 /iob_npm.done
+/src-chart/package-lock.json
+/src-chart/old
