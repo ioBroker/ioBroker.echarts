@@ -206,6 +206,7 @@ class App extends GenericApp {
                 lines: [],
                 marks: [],
             },
+            loadedPresetData: null,
 
             progress: 0,
 
@@ -230,13 +231,11 @@ class App extends GenericApp {
             .then(() => this.getAllData())
             .then(() => this.refreshData())
             .then(() => {
-                setTimeout(() => {
-                    if (window.localStorage.getItem('App.selectedPresetId')) {
-                        this.loadPreset(window.localStorage.getItem('App.selectedPresetId'))
-                    } else if (window.localStorage.getItem('App.selectedChartId')) {
-                        this.loadChart(window.localStorage.getItem('App.selectedChartId'), window.localStorage.getItem('App.selectedInstance'))
-                    }
-                }, 100);
+                if (window.localStorage.getItem('App.selectedPresetId')) {
+                    this.loadPreset(window.localStorage.getItem('App.selectedPresetId'))
+                } else if (window.localStorage.getItem('App.selectedChartId')) {
+                    this.loadChart(window.localStorage.getItem('App.selectedChartId'), window.localStorage.getItem('App.selectedInstance'))
+                }
             })
             .catch(e => this.showError(e));
     }
@@ -267,7 +266,7 @@ class App extends GenericApp {
             .then(newState => {
                 newState.ready = true;
                 newState.changingPreset = '';
-                newState.selectedPresetChanged = false;
+                //newState.selectedPresetChanged = false;
 
                 // Fill missing data
                 Object.keys(newState.presets).forEach(id => {
@@ -569,7 +568,7 @@ class App extends GenericApp {
                                         selected={this.state.selectedChartId === chart._id}
                                         onClick={
                                         () => {
-                                            this.state.presetMode ?
+                                            this.state.presetMode && this.state.selectedPresetChanged ?
                                             this.setState({loadChartDialog: chart._id, loadChartDialogInstance: group._id}) :
                                             this.loadChart(chart._id, group._id)
                                         }
@@ -602,7 +601,7 @@ class App extends GenericApp {
             selected={item._id === this.state.selectedPresetId}
             button
             onClick={ () =>
-                this.state.presetMode ?
+                this.state.presetMode && this.state.selectedPresetChanged ?
                 this.setState({loadPresetDialog: preset._id}) :
                 this.loadPreset(preset._id)
             }>
@@ -654,7 +653,7 @@ class App extends GenericApp {
                 if (this.state.selectedPresetChanged) {
                     this.confirmCb = () => {
                         //this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false, opened});
-                        window.localStorage.setItem('Presets.opened', JSON.stringify(opened));
+                        //window.localStorage.setItem('Presets.opened', JSON.stringify(opened));
                     };
                     return this.setState({presetChangeDialog: 'empty'});
                 }
@@ -761,7 +760,14 @@ class App extends GenericApp {
         window.localStorage.setItem('App.selectedPresetId', id);
         window.localStorage.setItem('App.selectedChartId', '');
         window.localStorage.setItem('App.selectedInstance', '');
-        this.setState({presetData: preset.native.data, presetMode: true, selectedChartId: null, selectedPresetId: id});
+        this.setState({
+            presetData: preset.native.data, 
+            selectedPresetData: preset.native.data, 
+            selectedPresetChanged: false,
+            presetMode: true, 
+            selectedChartId: null, 
+            selectedPresetId: id
+        });
     }
 
     loadChart(id, instance) {
@@ -801,7 +807,7 @@ class App extends GenericApp {
         window.localStorage.setItem('App.selectedChartId', id);
         window.localStorage.setItem('App.selectedInstance', instance);
         window.localStorage.setItem('App.selectedPresetId', '');
-        this.setState({presetData: presetData, presetMode: false, selectedChartId: id, selectedPresetId: null});
+        this.setState({presetData: presetData, presetMode: false, selectedChartId: id, selectedPresetId: null, selectedPresetChanged: false});
     }
 
     enablePresetMode = () => {
@@ -1136,6 +1142,7 @@ class App extends GenericApp {
     };
 
     onUpdatePreset = presetData => {
+        this.setState({selectedPresetChanged: JSON.stringify(presetData) != JSON.stringify(this.state.loadedPresetData)});
         this.setState({presetData})
     };
 
@@ -1163,7 +1170,7 @@ class App extends GenericApp {
                         window.localStorage && window.localStorage.setItem('App.settingsSize', this.settingsSize.toString());
                     }}
                 >
-                    <MainChart
+                    { this.state.selectedPresetId || this.state.selectedChartId ? <MainChart
                         key="MainChart"
                         visible={!this.state.resizing}
                         theme={this.state.themeType}
@@ -1173,7 +1180,7 @@ class App extends GenericApp {
                         presetMode={this.state.presetMode}
                         socket={this.socket}
                         createPreset={()=>{this.createPreset(this.getNewPresetId())}}
-                    />
+                    /> : null}
                     {
                         this.state.presetMode ? <SettingsEditor
                             socket={this.socket}
@@ -1187,6 +1194,7 @@ class App extends GenericApp {
                             instances={this.state.instances}
                             systemConfig={this.state.systemConfig}
                             selectedPresetId={this.state.selectedPresetId}
+                            selectedPresetChanged={this.state.selectedPresetChanged}
                             savePreset={this.savePreset}
                         /> : null
                     }

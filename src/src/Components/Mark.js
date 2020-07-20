@@ -18,6 +18,7 @@ let styles = {
         borderStyle: 'solid',
         borderWidth: '1px',
         borderColor: 'lightgrey',
+        overflow: 'initial'
     },
     shortFields: {
         display: 'inline-block',

@@ -4,7 +4,8 @@ import {withStyles} from '@material-ui/core/styles';
 
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import ColorPicker from 'material-ui-color-picker'
+//import ColorPicker from 'material-ui-color-picker'
+import ColorPicker from './ColorPicker';
 import TextField from '@material-ui/core/TextField';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -29,6 +30,11 @@ const styles = {
     objectButton: {
         marginTop: 'auto',
         paddingLeft: '10px'
+    },
+    colorPicker: {
+        left: '-200px',
+        top: '60px',
+        position: 'relative'
     }
 }
 
@@ -169,6 +175,7 @@ let IOColorPicker = function (props) {
     return <div className={props.classes.fieldContainer}>
         <ColorPicker 
             label={I18n.t(props.label)}
+            pickerClassName={props.classes.colorPicker}
             inputProps={{
                 style: {backgroundColor: props.formData[props.name]}
             }} 

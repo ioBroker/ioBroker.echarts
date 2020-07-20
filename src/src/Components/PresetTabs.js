@@ -231,9 +231,14 @@ class PresetTabs extends React.Component {
     render() {
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static" className={this.props.classes.tabsContainer}>
-                <IconButton size="small" className={this.props.classes.buttonSave} onClick={(e)=>{
-                    this.props.savePreset(this.props.selectedPresetId);
-                }}>
+                <IconButton 
+                    size="small" 
+                    className={this.props.classes.buttonSave} 
+                    style={{visibility: this.props.selectedPresetChanged ? 'visible' : 'hidden'}}
+                    onClick={(e)=>{
+                        this.props.savePreset(this.props.selectedPresetId);
+                    }}
+                >
                     <IconSave/>
                 </IconButton>
                 <TabList
@@ -507,7 +512,8 @@ PresetTabs.propTypes = {
     socket: PropTypes.object,
     instances: PropTypes.array,
     selectedPresetId: PropTypes.string,
-    savePreset: PropTypes.func
+    savePreset: PropTypes.func,
+    selectedPresetChanged: PropTypes.bool
 };
 
 export default withStyles(styles)(PresetTabs)

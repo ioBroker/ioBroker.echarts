@@ -19,6 +19,7 @@ let styles = {
         borderStyle: 'solid',
         borderWidth: '1px',
         borderColor: 'lightgrey',
+        overflow: 'initial'
     },
     shortFields: {
         display: 'inline-block',
@@ -55,8 +56,6 @@ class Line extends React.Component {
                 </IconButton>
             </div>
             { this.props.opened ? <>
-            <Grid container>
-                <Grid item xs={6}>
                     <div className={this.props.classes.shortFields}>
                         <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" options={
                             (() => {
@@ -104,8 +103,6 @@ class Line extends React.Component {
                             bottomColor: 'bottom colored',
                         }}/>
                     </div>
-                </Grid>
-                <Grid item xs={6}>
                     <div className={this.props.classes.shortFields}>
                         <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
                         <IOSelect formData={this.props.line} updateValue={this.updateField} name="offset" label="X-Offset" options={{
@@ -162,8 +159,6 @@ class Line extends React.Component {
                         <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" type="number"/>
                         <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" type="number"/>
                     </div>
-                </Grid>
-            </Grid>
             </> : 
                 <div className={this.props.classes.shortFields}>
                     <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" options={

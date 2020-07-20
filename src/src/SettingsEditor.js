@@ -78,6 +78,7 @@ class SettingsEditor extends React.Component {
                     instances={this.props.instances}
                     systemConfig={this.props.systemConfig}
                     selectedPresetId={this.props.selectedPresetId}
+                    selectedPresetChanged={this.props.selectedPresetChanged}
                     savePreset={this.props.savePreset}
                 />
             </div>
@@ -93,7 +94,8 @@ SettingsEditor.propTypes = {
     onChange: PropTypes.func,
     verticalLayout: PropTypes.bool,
     selectedPresetId: PropTypes.string,
-    savePreset: PropTypes.func
+    savePreset: PropTypes.func,
+    selectedPresetChanged: PropTypes.bool
 };
 
 export default withStyles(styles)(SettingsEditor);
