@@ -123,20 +123,6 @@ class ChartSettings extends React.Component {
                     <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                 </Grid>
             </Grid>
-            <Grid item xs={6} className={this.props.classes.fieldsContainer}>
-                <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.enablePresetMode}>
-                    {I18n.t('Create preset')}
-                </Button>
-                <h4>{I18n.t('Aggregate')}</h4>
-                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
-                    'count': 'counts',
-                    'step': 'seconds',
-                }}/>
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
-                    label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
-                />
-                <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
-            </Grid>
         </div>;
     }
 }
