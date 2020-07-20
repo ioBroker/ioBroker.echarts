@@ -519,6 +519,7 @@ class App extends GenericApp {
     deletePreset = (id) => {
         return this.socket.delObject(id)
             .then(() => {
+                window.localStorage.setItem('App.selectedPresetId', '');
                 return this.refreshData(id);
             })
             .catch(e => this.showError(e));
@@ -756,6 +757,9 @@ class App extends GenericApp {
     }
 
     loadPreset(id) {
+        if (!this.state.presets[id]) {
+            return;
+        }
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
         window.localStorage.setItem('App.selectedPresetId', id);
         window.localStorage.setItem('App.selectedChartId', '');
