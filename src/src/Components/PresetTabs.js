@@ -263,6 +263,7 @@ class PresetTabs extends React.Component {
                        this.props.presetData.lines.map((line, key) => <Line
                             instances={this.props.instances}
                             line={line}
+                            width={this.props.width}
                             updateLine={this.updateLine}
                             deleteLine={this.deleteLine}
                             index={key}
@@ -446,10 +447,10 @@ class PresetTabs extends React.Component {
                         'bottom:5;left:65': 'Bottom, left, inside',
                         'bottom:5;right:5': 'Bottom, right, inside',
                         'bottom:5;left:50': 'Bottom, center, inside',
-                        'top:5;right:-5': 'Top, right, outside',
+                        /*'top:5;right:-5': 'Top, right, outside',
                         'top:50;right:-5': 'Middle, right, outside',
                         'bottom:5;right:-5': 'Bottom, right, outside',
-                        'bottom:-5;left:50': 'Bottom, center, outside',
+                        'bottom:-5;left:50': 'Bottom, center, outside',*/
                     }}/>
                     <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="titleColor" label="Title color" />
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" />
@@ -513,7 +514,8 @@ PresetTabs.propTypes = {
     instances: PropTypes.array,
     selectedPresetId: PropTypes.string,
     savePreset: PropTypes.func,
-    selectedPresetChanged: PropTypes.bool
+    selectedPresetChanged: PropTypes.bool,
+    width: PropTypes.number,
 };
 
 export default withStyles(styles)(PresetTabs)

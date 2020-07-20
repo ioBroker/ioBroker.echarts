@@ -39,35 +39,12 @@ function padding2(num) {
 }
 
 const styles = theme => ({
-    paper: {
-        height: '100%',
+    chart: {
         maxHeight: '100%',
         maxWidth: '100%',
-        overflow: 'hidden',
-    },
-    chart: {
         width: '100%',
-        height: 'calc(100% - ' + (theme.mixins.toolbar.minHeight + theme.spacing(1)) + 'px)',
+        height: '100%',
         overflow: 'hidden',
-    },
-    selectHistoryControl: {
-        width: 130,
-    },
-    selectRelativeTime: {
-        marginLeft: 10,
-        width: 200,
-    },
-    notAliveInstance: {
-        opacity: 0.5,
-    },
-    splitLineButtonIcon: {
-        marginRight: theme.spacing(1),
-    },
-    splitLineButton: {
-        float: 'right',
-    },
-    grow: {
-        flexGrow: 1,
     },
 });
 
@@ -77,36 +54,18 @@ const GRID_PADDING_RIGHT = 25;
 class ChartView extends React.Component {
     constructor(props) {
         super(props);
-        let from = new Date();
-        from.setHours(from.getHours() - 24 * 7);
-        this.start = from.getTime();
-        this.end   = new Date().getTime();
 
         this.state = {
-            loaded: false,
-            historyInstance: '',
-            historyInstances: null,
-            defaultHistory: '',
             chartHeight: 300,
             chartWidth: 500,
-            relativeRange: 30,
         };
 
         this.echartsReact = React.createRef();
         // this.rangeRef     = React.createRef();
-        this.readTimeout  = null;
-        this.chartValues  = null;
-        this.rangeValues  = null;
-
-        this.unit = this.props.obj.common && this.props.obj.common.unit ? ' ' + this.props.obj.common.unit : '';
 
         this.divRef = React.createRef();
 
         this.chart = {};
-
-        this.prepareData()
-            .then(() => this.readHistoryRange())
-            .then(() => this.setRelativeInterval(true, true, () => this.forceUpdate()));
     }
 
     componentDidMount() {
@@ -126,7 +85,7 @@ class ChartView extends React.Component {
         });
     };
 
-    onChange = (id, state) => {
+    /*onChange = (id, state) => {
         if (id === this.props.obj._id &&
             state &&
             this.rangeValues &&
@@ -140,213 +99,97 @@ class ChartView extends React.Component {
                 this.updateChart();
             }
         }
-    };
+    };*/
 
-    prepareData() {
-        let list;
-        return this.getHistoryInstances()
-            .then(_list => {
-                list = _list;
-                // read default history
-                return this.props.socket.getSystemConfig();
-            })
-            .then(config => {
-                const defaultHistory = config && config.common && config.common.defaultHistory;
-
-                // find current history
-                // first read from localstorage
-                let historyInstance = window.localStorage.getItem('App.historyInstance') || '';
-                if (!historyInstance || !list.find(it => it.id === historyInstance && it.alive)) {
-                    // try default history
-                    historyInstance = defaultHistory;
-                }
-                if (!historyInstance || !list.find(it => it.id === historyInstance && it.alive)) {
-                    // find first alive history
-                    historyInstance = list.find(it => it.alive) || '';
-                }
-                // get first entry
-                if (!historyInstance && list.length) {
-                    historyInstance = defaultHistory;
-                }
-                this.setState( {
-                    historyInstances: list,
-                    defaultHistory,
-                    historyInstance
-                });
-            });
-    }
-
-    getHistoryInstances() {
-        const list = [];
-        const ids = [];
-        this.props.customsInstances.forEach(instance => {
-            const instObj = this.props.objects['system.adapter.' + instance];
-            if (instObj && instObj.common && instObj.common.getHistory) {
-                let listObj = {id: instance, alive: false};
-                list.push(listObj);
-                ids.push('system.adapter.' + instance + '.alive');
-            }
-        });
-
-        if (ids.length) {
-            return this.props.socket.getForeignStates(ids)
-                .then(alives => {
-                    Object.keys(alives).forEach(id => {
-                        const item = list.find(it => id.endsWith(it.id + '.alive'));
-                        if (item) {
-                            item.alive = alives[id] && alives[id].val;
-                        }
-                    });
-                    return list;
-                });
-        } else {
-            return Promise.resolve(list);
-        }
-    }
-
-    readHistoryRange() {
-        const now = new Date();
-        const oldest = new Date(2000, 0, 1);
-
-        this.props.socket.getHistory(this.props.obj._id, {
-            instance: this.defaultHistory,
-            start: oldest.getTime(),
-            end: now.getTime(),
-            step: 3600000, // hourly
-            from: false,
-            ack: false,
-            q: false,
-            addID: false,
-            aggregate: 'minmax'
-        })
-            .then(values => {
-                // remove interpolated first value
-                if (values[0].val === null) {
-                    values.shift();
-                }
-                this.rangeValues = values;
-            });
-    }
-
-    readHistory(start, end) {
-        /*interface GetHistoryOptions {
-            instance?: string;
-            start?: number;
-            end?: number;
-            step?: number;
-            count?: number;
-            from?: boolean;
-            ack?: boolean;
-            q?: boolean;
-            addID?: boolean;
-            limit?: number;
-            ignoreNull?: boolean;
-            sessionId?: any;
-            aggregate?: 'minmax' | 'min' | 'max' | 'average' | 'total' | 'count' | 'none';
-        }*/
-        const options = {
-            instance: this.defaultHistory,
-            start,
-            end,
-            from: false,
-            ack: false,
-            q: false,
-            addID: false,
-            aggregate: 'none'
-        };
-
-        if (end - start > 60000 * 24) {
-            options.aggregate = 'minmax';
-            //options.step = 60000;
-        }
-
-        return this.props.socket.getHistory(this.props.obj._id, options)
-            .then(values => {
-                // merge range and chart
-                let chart = [];
-                let r = 0;
-                let range = this.rangeValues;
-
-                for (let t = 0; t < values.length; t++) {
-                    while (r < range.length && range[r].ts < values[t].ts) {
-                        chart.push(range[r]);
-                        console.log('add ' + new Date(range[r].ts).toISOString() + ': ' + range[r].val);
-                        r++;
-                    }
-                    // if range and details are not equal
-                    if (!chart.length || chart[chart.length - 1].ts < values[t].ts) {
-                        chart.push(values[t]);
-                        console.log('add value ' + new Date(values[t].ts).toISOString() + ': ' + values[t].val)
-                    } else if (chart[chart.length - 1].ts === values[t].ts && chart[chart.length - 1].val !== values[t].ts) {
-                        console.error('Strange data!');
-                    }
-                }
-
-                while (r < range.length) {
-                    chart.push(range[r]);
-                    console.log('add range ' + new Date(range[r].ts).toISOString() + ': ' + range[r].val);
-                    r++;
-                }
-
-                this.chartValues = chart;
-
-                return chart;
-            });
-    }
-
-    convertData(values) {
-        values = values || this.chartValues;
-        const data = [];
+    convertData(i) {
+        const values = this.props.data[i];
         if (!values.length) {
-            return data;
+            return [];
         }
-        for (let i = 0; i < values.length; i++) {
-            data.push({
-                value: [values[i].ts, values[i].val]
-            });
-        }
+
         if (!this.chart.min) {
             this.chart.min = values[0].ts;
             this.chart.max = values[values.length - 1].ts;
         }
 
-        return data;
+        return values;
+    }
+
+    getSeries() {
+        return this.props.config.l.map((oneLine, i) => {
+            const cfg = {
+                xAxisIndex: 0,
+                type: 'line',
+                showSymbol: false,
+                hoverAnimation: true,
+                animation: false,
+                data: this.convertData(i),
+                lineStyle:{
+                    color: oneLine.color,
+                }
+            };
+            return cfg;
+        });
     }
 
     getOption() {
+
+        console.log(JSON.stringify(this.props.config, null, 2));
+
+        let titlePos = {};
+        if (this.props.config.titlePos) {
+            this.props.config.titlePos.split(';').forEach(a => {
+                const parts = a.split(':');
+                titlePos[parts[0].trim()] = parseInt(parts[1].trim(), 10);
+            });
+        }
+
+        const xAxisHeight = 20;
+
         return {
             backgroundColor: 'transparent',
             title: {
-                text: Utils.getObjectName(this.props.objects, this.props.obj._id, { language: this.props.lang }),
+                text: this.props.config.title || '',
+                textStyle: {
+                    fontSize: this.props.config.titleSize ? parseInt(this.props.config.titleSize, 10) : undefined,
+                    color: this.props.config.titleColor || undefined
+                },
                 padding: [
                     8,  // up
                     0,  // right
                     0,  // down
                     90, // left
-                ]
+                ],
+                textVerticalAlign: titlePos.bottom      ? 'bottom' : 'top',
+                textAlign:         titlePos.left === 50 ? 'center' : (titlePos.right === -5 ? 'right' : 'left'),
+                top:               titlePos.top  === 35 ? 0 : (titlePos.top === 50 ? '50%' : undefined),
+                left:              titlePos.left === 50 ? '50%' : (titlePos.left === 65 ? 0 : undefined),
+                bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight : titlePos.bottom) : undefined,
+                right:             titlePos.right === 5 ? 25 : undefined,
             },
             grid: {
-                left: GRID_PADDING_LEFT,
-                top: 8,
-                right: GRID_PADDING_RIGHT,
+                left:   GRID_PADDING_LEFT,
+                top:    8,
+                right:  GRID_PADDING_RIGHT,
                 bottom: 40,
             },
             tooltip: {
                 trigger: 'axis',
                 formatter: params => {
-                    params = params[0];
-                    const date = new Date(params.value[0]);
-                    return `${date.toLocaleString()}.${padding3(date.getMilliseconds())}: ${params.value[1]}${this.unit}`;
+                    const date = new Date(params[0].value[0]);
+                    const values = params.map(param => param.value[1] === null ? 'null' : param.value[1] + this.props.config.l[param.seriesIndex].unit);
+                    return `${date.toLocaleString()}.${padding3(date.getMilliseconds())}: ${values.join(', ')}`;
                 },
                 axisPointer: {
                     animation: true
                 }
             },
-            xAxis: {
+            xAxis:
+            {
                 type: 'time',
-                splitLine: {
-                    show: false
-                },
+                /*splitLine: {
+                    show: true
+                },*/
                 splitNumber: Math.round((this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT) / 50),
                 min: this.chart.min,
                 max: this.chart.max,
@@ -366,20 +209,22 @@ class ChartView extends React.Component {
                     }
                 }
             },
-            yAxis: {
-                type: 'value',
-                boundaryGap: [0, '100%'],
-                splitLine: {
-                    show: !!this.state.splitLine
-                },
-                splitNumber: Math.round(this.state.chartHeight / 50),
-                axisLabel: {
-                    formatter: '{value}' + this.unit,
-                },
-                axisTick: {
-                    alignWithLabel: true,
+            yAxis: [
+                {
+                    type: 'value',
+                    boundaryGap: [0, '100%'],
+                    /*splitLine: {
+                        show: true,//!!this.props.config.gridLinesX
+                    },
+                    splitNumber: Math.round(this.state.chartHeight / 100),*/
+                    axisLabel: {
+                        formatter: '{value}' + this.props.config.l[0].unit,
+                    },
+                    axisTick: {
+                        alignWithLabel: true,
+                    }
                 }
-            },
+            ],
             toolbox: {
                 left: 'right',
                 feature: {
@@ -418,24 +263,14 @@ class ChartView extends React.Component {
                     realtime: true,
                 },
             ],*/
-            series: [
-                {
-                    xAxisIndex: 0,
-                    type: 'line',
-                    showSymbol: false,
-                    hoverAnimation: true,
-                    animation: false,
-                    data: this.convertData(),
-                    lineStyle:{
-                        color: '#4dabf5',
-                    }
-                }
-            ]
+            series: this.getSeries()
         };
     }
 
     static getDerivedStateFromProps(props, state) {
-        return null;
+        if (props.data !== state.data) {
+            return {data: props.data};
+        }
     }
 
     updateChart(start, end, withReadData, cb) {
@@ -579,7 +414,7 @@ class ChartView extends React.Component {
     installEventHandlers() {
         const zr = this.echartsReact.getEchartsInstance().getZr();
 
-        if (!zr._iobInstalled) {
+        if (false && !zr._iobInstalled) {
             zr._iobInstalled = true;
 
             zr.on('mousedown', e => {
@@ -695,11 +530,15 @@ class ChartView extends React.Component {
     }
 
     renderChart() {
-        if (this.chartValues) {
+        if (this.state.data) {
+            const option = this.getOption();
+
+            //console.log(JSON.stringify(option, null, 2));
+
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
                 echarts={ echarts }
-                option={ this.getOption() }
+                option={ option }
                 notMerge={ true }
                 lazyUpdate={ true }
                 theme={ this.props.themeType === 'dark' ? 'dark' : '' }
@@ -725,21 +564,19 @@ class ChartView extends React.Component {
             const width  = this.divRef.current.offsetWidth;
             const height = this.divRef.current.offsetHeight;
             if (this.state.chartHeight !== height) {// || this.state.chartHeight !== height) {
-                setTimeout(() => this.setState({ chartHeight: height, chartWidth: width }), 100);
+                setTimeout(() => this.setState({ chartHeight: height, chartWidth: width }), 10);
             }
         }
     }
 
     render() {
-        if (!this.state.historyInstances) {
-            return <LinearProgress/>;
+        if (!this.divRef.current) {
+            setTimeout(() => this.forceUpdate(), 10);
         }
 
-        return <Paper className={ this.props.classes.paper }>
-            <div ref={ this.divRef } className={ this.props.classes.chart }>
-                { this.renderChart() }
-            </div>
-        </Paper>;
+        return <div ref={ this.divRef } className={ this.props.classes.chart }>
+            { this.renderChart() }
+        </div>;
     }
 }
 
@@ -747,10 +584,9 @@ ChartView.propTypes = {
     t: PropTypes.func,
     lang: PropTypes.string,
     socket: PropTypes.object,
-    obj: PropTypes.object,
-    customsInstances: PropTypes.array,
+    config: PropTypes.object,
     themeType: PropTypes.string,
-    objects: PropTypes.object,
+    data: PropTypes.array,
 };
 
 export default withWidth()(withStyles(styles)(ChartView));

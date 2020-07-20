@@ -72,6 +72,7 @@ class SettingsEditor extends React.Component {
             </div> : null }
             <div className={this.props.classes.logBoxInner} key="logList">
                 <PresetTabs
+                    width={this.props.width}
                     socket={this.props.socket}
                     presetData={this.props.presetData}
                     onChange={this.props.onChange}
@@ -95,7 +96,8 @@ SettingsEditor.propTypes = {
     verticalLayout: PropTypes.bool,
     selectedPresetId: PropTypes.string,
     savePreset: PropTypes.func,
-    selectedPresetChanged: PropTypes.bool
+    selectedPresetChanged: PropTypes.bool,
+    width: PropTypes.number,
 };
 
 export default withStyles(styles)(SettingsEditor);

@@ -210,9 +210,29 @@ class ChartModel {
                 .then(obj => {
                     this.config = normalizeConfig(obj.native.data);
                     this.readData();
+                    this.socket.subscribeObject(this.preset, this.onPresetUpdate);
                 });
         } else {
             this.readData();
+        }
+    }
+
+    onPresetUpdate = (id, obj) => {
+        this.config = normalizeConfig(obj.native.data);
+
+        // just copy data to force update
+        this.seriesData = JSON.parse(JSON.stringify(this.seriesData));
+        this.onUpdate && this.onUpdate(this.seriesData);
+    };
+
+    destroy() {
+        if (this.subscribed) {
+            this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChange));
+            this.subscribes = [];
+            this.subscribed = null;
+        }
+        if (this.preset) {
+            this.socket.unsubscribeObject(this.preset, this.onPresetUpdate);
         }
     }
 
@@ -226,6 +246,10 @@ class ChartModel {
 
     onError(cb) {
         this.onError = cb;
+    }
+
+    getConfig() {
+        return this.config;
     }
 
     getStartStop(index, step) {
@@ -275,7 +299,7 @@ class ChartModel {
 
                     // offset is in seconds
                     start = new Date(this.config.start).setHours(startTime[0], startTime[1]);
-                    end   = new Date(this.config.end)  .setHours(endTime[0],   endTime[1]);
+                    end   = new Date(this.config.end).setHours(endTime[0],   endTime[1]);
                     start = this.addTime(start, this.config.l[index].offset);
                     end   = this.addTime(end,   this.config.l[index].offset);
                 } else {
@@ -349,7 +373,12 @@ class ChartModel {
                     start:      start,
                     end:        end,
                     ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
-                    aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax'
+                    aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
+                    from:       false,
+                    ack:        false,
+                    q:          false,
+                    addID:      false,
+
                 };
 
                 if (this.config.aggregateType === 'step') {
@@ -360,7 +389,6 @@ class ChartModel {
 
                 this.navOptions[index] = option;
                 return option;
-
             } else {
                 end   = this.addTime(this.now, this.config.l[index].offset);
                 start = end - step;
@@ -370,7 +398,11 @@ class ChartModel {
                     end:        end,
                     ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
                     aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
-                    count:      1
+                    count:      1,
+                    from:       false,
+                    ack:        false,
+                    q:          false,
+                    addID:      false,
                 };
 
                 this.navOptions[index].end   = end;
@@ -418,20 +450,20 @@ class ChartModel {
                             values[i].val = parseFloat(values[i].val);
                         }
 
-                        _series.push([values[i].ts, values[i].val !== null ? values[i].val + option.yOffset : null]);
+                        _series.push({value: [values[i].ts, values[i].val !== null ? values[i].val + option.yOffset : null]});
                     }
 
                     // add start and end
                     if (_series.length) {
                         if (_series[0][0] > option.start) {
-                            _series.unshift([option.start, null]);
+                            _series.unshift({value: [option.start, null]});
                         }
                         if (_series[_series.length - 1][0] < option.end) {
-                            _series.push([option.end, null]);
+                            _series.push({value: [option.end, null]});
                         }
                     } else {
-                        _series.push([option.start, null]);
-                        _series.push([option.end,   null]);
+                        _series.push({value: [option.start, null]});
+                        _series.push({value: [option.end,   null]});
                     }
 
                     // free memory
@@ -519,21 +551,21 @@ class ChartModel {
                             //}
 
                             if (values[i].val !== null) {
-                                _series.push([values[i].ts, values[i].val]);
+                                _series.push({value: [values[i].ts, values[i].val]});
                             }
                         }
 
                         // add start and end
                         if (_series.length) {
                             if (_series[0][0] > option.start) {
-                                _series.unshift([option.start, '']);
+                                _series.unshift({value: [option.start, '']});
                             }
                             if (_series[_series.length - 1][0] < option.end) {
-                                _series.push([option.end, '']);
+                                _series.push({value: [option.end, '']});
                             }
                         } else {
-                            _series.push([option.start, '']);
-                            _series.push([option.end,   '']);
+                            _series.push({value: [option.start, '']});
+                            _series.push({value: [option.end,   '']});
                         }
                         // free memory
                         res.values = null;

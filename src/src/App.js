@@ -87,10 +87,10 @@ const styles = theme => ({
             background: theme.type === 'dark' ? '#595858' : '#ccc;'
         }
     },
-    mainDiv: {
+    mainListDiv: {
         width: '100%',
         height: '100%',
-        overflow: 'auto',
+        overflow: 'hidden',
     },
     content: {
         width: '100%',
@@ -128,6 +128,14 @@ const styles = theme => ({
     },
     mainToolbar: {
         background: theme.palette.primary.main,
+    },
+    noGutters: {
+        paddingTop: 0,
+        paddingBottom: 0,
+    },
+    heightMinusToolbar: {
+        height: 'calc(100% - 38px)',
+        overflow: 'auto'
     },
 });
 
@@ -533,9 +541,9 @@ class App extends GenericApp {
                 }
             }
         }));
-    }
+    };
 
-    renderCharts() {
+    renderSimpleHistory() {
         return <List className={ this.props.classes.scroll }>
             {
                 this.state.instances.map((group, key) =>
@@ -597,6 +605,7 @@ class App extends GenericApp {
         level = level || 0;
 
         return <ListItem
+            classes={ {gutters: this.props.classes.noGutters} }
             style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
             key={ item._id }
             selected={item._id === this.state.selectedPresetId}
@@ -676,7 +685,7 @@ class App extends GenericApp {
         // Show folder item
         parent && parent.id && result.push(<ListItem
             key={ parent.prefix }
-            classes={ {gutters: this.props.classes.noGutters} }
+            classes={ {gutters: this.props.classes.noGutters } }
             className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
             style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
         >
@@ -684,8 +693,16 @@ class App extends GenericApp {
                 <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
                 <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
             }</ListItemIcon>
-            <ListItemText>{ parent.id }</ListItemText>
+            <ListItemText>{ parent.id }
+                <IconButton onClick={ () => this.setState({editFolderDialog: parent, editFolderDialogTitle: parent.id, editFolderDialogTitleOrigin: parent.id}) }
+                            title={ I18n.t('Edit folder name') }
+                ><IconEdit/></IconButton>
+            </ListItemText>
             <ListItemSecondaryAction>
+                {parent && parent.id && opened ? <IconButton
+                    onClick={() => this.createPreset(this.getNewPresetId(), parent.id) }
+                    title={ I18n.t('Create new preset') }
+                ><IconAdd/></IconButton> : null}
                 <IconButton onClick={ () => this.toggleFolder(parent) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
                     { opened ? <IconCollapse/> : <IconExpand/> }
                 </IconButton>
@@ -693,23 +710,6 @@ class App extends GenericApp {
         </ListItem>);
 
         if (parent && (opened || !parent.id)) { // root cannot be closed and have id === ''
-            parent.id && result.push(<ListItem key={ 'keys_' + parent.prefix }>
-                <ListItemSecondaryAction>
-                    <IconButton
-                        onClick={() => this.createPreset(this.getNewPresetId(), parent.id) }
-                        title={ I18n.t('Create new preset') }
-                    ><IconAdd/></IconButton>
-                    { /* <IconButton
-                        onClick={() => this.setState({addFolderDialog: parent, addFolderDialogTitle: ''})}
-                        title={ I18n.t('Create new folder') }
-                    ><IconFolderAdd/></IconButton> */ }
-
-                    <IconButton onClick={ () => this.setState({editFolderDialog: parent, editFolderDialogTitle: parent.id, editFolderDialogTitleOrigin: parent.id}) }
-                                title={ I18n.t('Edit folder name') }
-                    ><IconEdit/></IconButton>
-                </ListItemSecondaryAction>
-            </ListItem>);
-
             const values = Object.values(parent.presets);
             const subFolders = Object.values(parent.subFolders);
 
@@ -717,21 +717,20 @@ class App extends GenericApp {
             result.push(subFolders.sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)).map(subFolder =>
                 this.renderTree(subFolder, level + 1)));
 
-            // Add as second presets
-
+            // Add as second the presets
             result.push(<ListItem
                 key={ 'items_' + parent.prefix }
                 classes={ {gutters: this.props.classes.noGutters} }
                 className={ this.props.classes.width100 }>
                 <List
                     className={ this.props.classes.list }
-                    classes={ {root: this.props.classes.leftMenuItem} }
+                    classes={ {root: clsx(this.props.classes.leftMenuItem, this.props.classes.noGutters)} }
                     style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
                 >
                     { values.length ?
                         values.sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0)).map(preset => this.renderTreePreset(preset, level))
                         :
-                        (!subFolders.length ? <ListItem><ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText></ListItem> : '')
+                        (!subFolders.length ? <ListItem classes={ {gutters: this.props.classes.noGutters} }><ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText></ListItem> : '')
                     }
                 </List>
             </ListItem>);
@@ -740,13 +739,13 @@ class App extends GenericApp {
         return result;
     };
 
-    savePreset = (id) => {
+    savePreset = id => {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
         preset.native.data = JSON.parse(JSON.stringify(this.state.presetData));
         this.socket.setObject(id, preset)
             .then(() => this.refreshData())
             .catch(e => this.showError(e));
-    }
+    };
 
     renamePreset(id, newTitle) {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
@@ -871,7 +870,7 @@ class App extends GenericApp {
                             this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')}) 
                         }
                         onKeyPress={(e) => {
-                            if (this.state.addFolderDialogTitle && e.which == 13) {
+                            if (this.state.addFolderDialogTitle && e.which === 13) {
                                 this.addFolder(this.state.addFolderDialog, this.state.addFolderDialogTitle);
                                 this.setState({addFolderDialog: null});
                             }
@@ -904,7 +903,7 @@ class App extends GenericApp {
                     label={ I18n.t('Title') }
                     value={ this.state.editFolderDialogTitle }
                     onKeyPress={(e) => {
-                        if (this.state.editFolderDialogTitle && e.which == 13) {
+                        if (this.state.editFolderDialogTitle && e.which === 13) {
                             this.renameFolder(this.state.editFolderDialog, this.state.editFolderDialogTitle)
                                 .then(() => this.setState({editFolderDialog: null}));
                         }
@@ -957,13 +956,9 @@ class App extends GenericApp {
                         className={ this.props.classes.width100 }
                         value={ this.state.newFolder || '__root__' }
                         onChange={e => this.setState({newFolder: e.target.value}) }
-                        onKeyPress={(e) => {
-                            if (e.which == 13) {
-                                this.setState({moveDialog: null}, () =>
-                                    this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newFolder === '__root__' ? '' : this.state.newFolder)
-                                )
-                            }
-                        }}
+                        onKeyPress={e => e.which === 13 && this.setState({moveDialog: null}, () =>
+                                    this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newFolder === '__root__' ? '' : this.state.newFolder))
+                        }
                     >
                         { getFolderList(this.state.folders).map(folder =>
                             <MenuItem
@@ -1016,7 +1011,7 @@ class App extends GenericApp {
                             this.setState({renamePresetDialogTitle: e.target.value })
                         }
                         onKeyPress={(e) => {
-                            if (this.state.renamePresetDialogTitle && e.which == 13) {
+                            if (this.state.renamePresetDialogTitle && e.which === 13) {
                                 this.setState({renameDialog: null}, () =>
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle)
                                 )
@@ -1146,7 +1141,7 @@ class App extends GenericApp {
     };
 
     onUpdatePreset = presetData => {
-        this.setState({selectedPresetChanged: JSON.stringify(presetData) != JSON.stringify(this.state.loadedPresetData)});
+        this.setState({selectedPresetChanged: JSON.stringify(presetData) !== JSON.stringify(this.state.loadedPresetData)});
         this.setState({presetData})
     };
 
@@ -1159,7 +1154,7 @@ class App extends GenericApp {
                     this.setState({menuOpened: !this.state.menuOpened, resizing: true});
                     setTimeout(() => this.setState({resizing: false}), 300);
                 }}>
-                    {this.state.menuOpened ? (<IconMenuOpened />) : (<IconMenuClosed />)}
+                    {this.state.menuOpened ? <IconMenuOpened /> : <IconMenuClosed />}
                 </div>
                 <SplitterLayout
                     key="MainSplitter"
@@ -1189,6 +1184,7 @@ class App extends GenericApp {
                         this.state.presetMode ? <SettingsEditor
                             socket={this.socket}
                             key="Editor"
+                            width={window.innerWidth - this.menuSize}
                             onChange={this.onUpdatePreset}
                             presetData={this.state.presetData}
                             verticalLayout={!this.state.logHorzLayout}
@@ -1205,6 +1201,22 @@ class App extends GenericApp {
                 </SplitterLayout>
             </div>
         ];
+    }
+
+    renderLeftList() {
+        return <div className={this.props.classes.mainListDiv} key="mainMenuDiv">
+            {this.renderListToolbar()}
+            <div className={ this.props.classes.heightMinusToolbar }>
+                <div key="listPresets">
+                    <List className={ this.props.classes.scroll }>
+                        { this.renderTree(this.state.folders) }
+                    </List>
+                </div>
+                <div key="list">
+                    { this.renderSimpleHistory() }
+                </div>
+            </div>
+        </div>;
     }
 
     render() {
@@ -1235,17 +1247,7 @@ class App extends GenericApp {
                                 window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
                             }}
                         >
-                            <div className={classes.mainDiv} key="mainmenudiv">
-                                {this.renderListToolbar()}
-                                <div key="list2" className={ this.props.classes.heightMinusToolbar }>
-                                    <List className={ this.props.classes.scroll }>
-                                        { this.renderTree(this.state.folders) }
-                                    </List>
-                                </div>
-                                <div key="list" className={ this.props.classes.heightMinusToolbar }>
-                                    { this.renderCharts() }
-                                </div>
-                            </div>
+                            {this.renderLeftList()}
                             {this.renderMain()}
                         </SplitterLayout>
                     </div>

@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import { withTheme } from '@material-ui/core/styles';
 import withWidth from '@material-ui/core/withWidth';
-import clsx from 'clsx';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 
 import Utils from '@iobroker/adapter-react/Components/Utils';
@@ -18,7 +17,10 @@ import ChartModel from './Components/ChartModel';
 import ChartView from './Components/ChartView';
 
 const styles = theme => ({
-
+    root: {
+        width: '100%',
+        height: '100%',
+    }
 });
 
 class App extends Component {
@@ -35,6 +37,7 @@ class App extends Component {
             themeName:  this.getThemeName(themeInstance),
             themeType:  this.getThemeType(themeInstance),
         };
+        this.divRef = React.createRef();
 
         // init translations
         const translations = {
@@ -98,6 +101,10 @@ class App extends Component {
         });
     }
 
+    componentWillUnmount() {
+        this.chartData && this.chartData.destroy();
+    }
+
     /**
      * Get a theme
      * @param {string} name Theme name
@@ -135,7 +142,7 @@ class App extends Component {
     }
 
     render() {
-        if (!this.state.connected) {
+        if (!this.state.connected || !this.state.seriesData) {
             return <MuiThemeProvider theme={this.state.theme}>
                 <Loader theme={this.state.themeType}/>
             </MuiThemeProvider>;
@@ -145,17 +152,21 @@ class App extends Component {
             console.log('seriesData: ' + JSON.stringify(this.state.seriesData));
         }
 
+        const config = this.chartData.getConfig();
+
         return <MuiThemeProvider theme={this.state.theme}>
-                <>
-                    <ChartView
-                        socket={this.socket}
-                        t={I18n.t}
-                        lang={I18n.getLanguage()}
-                        themeType={this.state.themeType}
-                    />
-                    {this.renderError()}
-                </>
-            </MuiThemeProvider>;
+            <div ref={this.divRef} className={this.props.classes.root} style={{width: config.width, height: config.height, background: this.state.theme.palette.background.default, color: this.state.theme.palette.text.primary}}>
+                <ChartView
+                    socket={this.socket}
+                    t={I18n.t}
+                    data={this.state.seriesData}
+                    config={this.chartData.getConfig()}
+                    lang={I18n.getLanguage()}
+                    themeType={this.state.themeType}
+                />
+                {this.renderError()}
+            </div>
+        </MuiThemeProvider>;
     }
 }
 

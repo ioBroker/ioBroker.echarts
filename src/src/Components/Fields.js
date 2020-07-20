@@ -36,26 +36,24 @@ const styles = {
         top: '60px',
         position: 'relative'
     }
-}
+};
 
 let IOSelect = function (props) {
     const label = I18n.t(props.label);
     return <div className={props.classes.fieldContainer}>
-        <FormControl style={{minWidth: '200px'}}>
+        <FormControl style={{minWidth: props.minWidth || 200, width: props.width}}>
             <InputLabel shrink={true}>{ label }</InputLabel>
             <Select 
                 label={label}
-                onChange={(e) => {
-                    props.updateValue(props.name, e.target.value)
-                }} 
+                onChange={e => props.updateValue(props.name, e.target.value)}
                 value={props.formData[props.name] || ''}
                 displayEmpty
             >
                 {
                     props.options ? 
-                    Object.keys(props.options).map((key) =>
-                        <MenuItem key={key} value={key}>{I18n.t(props.options[key])}</MenuItem>)
-                     : null
+                        Object.keys(props.options).map((key) =>
+                            <MenuItem key={key} value={key}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
+                         : null
                 }
             </Select>
         </FormControl>
@@ -132,29 +130,30 @@ export {IODateTimeField};
 let IOObjectField = function (props) {
     let [state, setState] = useState({});
 
-    return <div className={props.classes.fieldContainer}>
+    return <div className={props.classes.fieldContainer} style={{width: props.width}}>
         <div className={props.classes.objectContainer}>
             <TextField 
                 className={props.classes.objectField}
                 label={I18n.t(props.label)}
                 InputLabelProps={{shrink: true}} 
                 value={props.formData[props.name] || ''}
-                onChange={(e) => {
-                    props.updateValue(props.name, e.target.value)
-                }}
+                onChange={(e) => props.updateValue(props.name, e.target.value)}
             />
-            <IconButton size="small" onClick={()=>{setState({showDialog: true})}} className={props.classes.objectButton}>
+            <IconButton size="small" onClick={() => setState({showDialog: true})} className={props.classes.objectButton}>
                 <IconFolderOpened/>
             </IconButton>
         </div>
         {state.showDialog ? <DialogSelectID
-                key="selectDialog"
+                key={'selectDialog_' + props.name}
                 socket={ props.socket }
                 dialogName={props.name}
                 customFilter={props.customFilter}
                 title={ I18n.t('Select for ') + props.label}
                 selected={ props.formData[props.name] }
-                onOk={ (e) => {props.updateValue(props.name, e); setState({showDialog: false});} }
+                onOk={e => {
+                    props.updateValue(props.name, e);
+                    setState({showDialog: false});
+                } }
                 onClose={ () => setState({showDialog: false}) }
             /> : null
         }
