@@ -137,6 +137,9 @@ const styles = theme => ({
         height: 'calc(100% - 38px)',
         overflow: 'auto'
     },
+    itemIconFolder: {
+        cursor: 'pointer'
+    },
 });
 
 function getFolderPrefix(presetId) {
