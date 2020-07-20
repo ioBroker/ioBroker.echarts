@@ -229,6 +229,15 @@ class App extends GenericApp {
             })
             .then(() => this.getAllData())
             .then(() => this.refreshData())
+            .then(() => {
+                setTimeout(() => {
+                    if (window.localStorage.getItem('App.selectedPresetId')) {
+                        this.loadPreset(window.localStorage.getItem('App.selectedPresetId'))
+                    } else if (window.localStorage.getItem('App.selectedChartId')) {
+                        this.loadChart(window.localStorage.getItem('App.selectedChartId'), window.localStorage.getItem('App.selectedInstance'))
+                    }
+                }, 100);
+            })
             .catch(e => this.showError(e));
     }
 
@@ -268,7 +277,7 @@ class App extends GenericApp {
                 });
 
                 if (!newState.presets[this.state.selectedPresetId]) {
-                    newState.selectedPresetId = Object.keys(newState.presets).shift() || '';
+                    //newState.selectedPresetId = Object.keys(newState.presets).shift() || '';
                 }
 
                 if ((newState.selectedPresetId || that.state.selectedPresetId) &&
@@ -331,7 +340,7 @@ class App extends GenericApp {
                     let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
 
                     this.setState({instances: insts, chartFolders: chartFolders}, () => {
-                        if (selectedChartId) {
+                        if (selectedChartId && !window.localStorage.getItem('App.selectedPresetId') && !window.localStorage.getItem('App.selectedChartId')) {
                             this.loadChart(selectedChartId, insts[0]._id);
                         }
                     });
@@ -503,6 +512,7 @@ class App extends GenericApp {
         this.setState({changingPreset: id}, () =>
             this.socket.setObject(id, template)
                 .then(() => this.refreshData(id))
+                .then(() => this.loadPreset(id))
                 .catch(e => this.showError(e))
         );
     };
@@ -531,7 +541,7 @@ class App extends GenericApp {
                 this.state.instances.map((group, key) =>
                     {
                         let opened = this.state.chartFolders[group._id];
-                        return <>
+                        return <React.Fragment key={key}>
                             <ListItem
                                 classes={ {gutters: this.props.classes.noGutters} }
                                 className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
@@ -572,7 +582,7 @@ class App extends GenericApp {
                                     </ListItem>
                                 }) : null
                             }
-                        </>
+                        </React.Fragment>
                     }
                 )}
             </List>
@@ -589,7 +599,7 @@ class App extends GenericApp {
         return <ListItem
             style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
             key={ item._id }
-            selected={item._id == this.state.selectedPresetId}
+            selected={item._id === this.state.selectedPresetId}
             button
             onClick={ () =>
                 this.state.presetMode ?
@@ -599,7 +609,20 @@ class App extends GenericApp {
             <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
             <ListItemText
                 classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
-                primary={ Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
+                primary={ <>
+                    { Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
+                    <IconButton 
+                        size="small" 
+                        aria-label="Rename" 
+                        title={ I18n.t('Rename') } 
+                        onClick={ (e) => {
+                            e.stopPropagation();
+                            this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name}) 
+                        }}
+                    >
+                        <IconEdit/>
+                    </IconButton>
+                </>}
                 secondary={ Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}, true) }
                 />
             <ListItemSecondaryAction>
@@ -607,15 +630,6 @@ class App extends GenericApp {
                     <CircularProgress size={ 24 }/>
                     :
                     <>
-                        <div>
-                            <IconButton size="small" onClick={(e)=>{
-                                e.stopPropagation();
-                                this.setState({savePresetDialog: item._id});
-                            }}>
-                                <IconSave/>
-                            </IconButton>
-                            <IconButton size="small" aria-label="Rename" title={ I18n.t('Rename') } onClick={ () => this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name}) }><IconEdit/></IconButton>
-                        </div>
                         <div>
                             <IconButton size="small" aria-label="Move to folder" title={ I18n.t('Move to folder') } onClick={ () => this.setState({moveDialog: preset._id, newFolder: getFolderPrefix(preset._id)}) }><IconMoveToFolder/></IconButton>
                             <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deleteDialog: preset._id}) }><IconDelete/></IconButton>
@@ -639,13 +653,13 @@ class App extends GenericApp {
                 // To do ask question
                 if (this.state.selectedPresetChanged) {
                     this.confirmCb = () => {
-                        this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false, opened});
+                        //this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false, opened});
                         window.localStorage.setItem('Presets.opened', JSON.stringify(opened));
                     };
                     return this.setState({presetChangeDialog: 'empty'});
                 }
 
-                this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false});
+                //this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false});
             }
         }
 
@@ -726,7 +740,7 @@ class App extends GenericApp {
         return result;
     };
 
-    savePreset(id) {
+    savePreset = (id) => {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
         preset.native.data = JSON.parse(JSON.stringify(this.state.presetData));
         this.socket.setObject(id, preset)
@@ -744,6 +758,9 @@ class App extends GenericApp {
 
     loadPreset(id) {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
+        window.localStorage.setItem('App.selectedPresetId', id);
+        window.localStorage.setItem('App.selectedChartId', '');
+        window.localStorage.setItem('App.selectedInstance', '');
         this.setState({presetData: preset.native.data, presetMode: true, selectedChartId: null, selectedPresetId: id});
     }
 
@@ -781,7 +798,10 @@ class App extends GenericApp {
             noedit: false,
             animation: 0
         };
-        this.setState({presetData: presetData, presetMode: false, selectedChartId: id});
+        window.localStorage.setItem('App.selectedChartId', id);
+        window.localStorage.setItem('App.selectedInstance', instance);
+        window.localStorage.setItem('App.selectedPresetId', '');
+        this.setState({presetData: presetData, presetMode: false, selectedChartId: id, selectedPresetId: null});
     }
 
     enablePresetMode = () => {
@@ -834,8 +854,19 @@ class App extends GenericApp {
             >
                 <DialogTitle>{I18n.t('Create folder')}</DialogTitle>
                 <DialogContent className={ this.props.classes.p }>
-                    <TextField label={ I18n.t('Title') } value={ this.state.addFolderDialogTitle } onChange={ e =>
-                        this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')}) }/>
+                    <TextField 
+                        label={ I18n.t('Title') } 
+                        value={ this.state.addFolderDialogTitle } 
+                        onChange={ e =>
+                            this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')}) 
+                        }
+                        onKeyPress={(e) => {
+                            if (this.state.addFolderDialogTitle && e.which == 13) {
+                                this.addFolder(this.state.addFolderDialog, this.state.addFolderDialogTitle);
+                                this.setState({addFolderDialog: null});
+                            }
+                        }}
+                    />
                 </DialogContent>
                 <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
                     <Button variant="contained" onClick={ () => this.setState({addFolderDialog: null}) }>
@@ -862,6 +893,12 @@ class App extends GenericApp {
                 <TextField
                     label={ I18n.t('Title') }
                     value={ this.state.editFolderDialogTitle }
+                    onKeyPress={(e) => {
+                        if (this.state.editFolderDialogTitle && e.which == 13) {
+                            this.renameFolder(this.state.editFolderDialog, this.state.editFolderDialogTitle)
+                                .then(() => this.setState({editFolderDialog: null}));
+                        }
+                    }}
                     onChange={ e => this.setState({editFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')}) }/>
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
@@ -909,7 +946,15 @@ class App extends GenericApp {
                     <Select
                         className={ this.props.classes.width100 }
                         value={ this.state.newFolder || '__root__' }
-                        onChange={e => this.setState({newFolder: e.target.value}) }>
+                        onChange={e => this.setState({newFolder: e.target.value}) }
+                        onKeyPress={(e) => {
+                            if (e.which == 13) {
+                                this.setState({moveDialog: null}, () =>
+                                    this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newFolder === '__root__' ? '' : this.state.newFolder)
+                                )
+                            }
+                        }}
+                    >
                         { getFolderList(this.state.folders).map(folder =>
                             <MenuItem
                                 key={ folder.prefix }
@@ -954,9 +999,20 @@ class App extends GenericApp {
             <DialogTitle>{ I18n.t('Rename preset') }</DialogTitle>
             <DialogContent>
                 <FormControl classes={ {root: this.props.classes.width100} }>
-                    <TextField label={ I18n.t('Title') } value={ this.state.renamePresetDialogTitle } onChange={ e =>
-                        this.setState({renamePresetDialogTitle: e.target.value })
-                    }/>
+                    <TextField 
+                        label={ I18n.t('Title') } 
+                        value={ this.state.renamePresetDialogTitle } 
+                        onChange={ e =>
+                            this.setState({renamePresetDialogTitle: e.target.value })
+                        }
+                        onKeyPress={(e) => {
+                            if (this.state.renamePresetDialogTitle && e.which == 13) {
+                                this.setState({renameDialog: null}, () =>
+                                    this.renamePreset(presetId, this.state.renamePresetDialogTitle)
+                                )
+                            }
+                        }}
+                    />
                 </FormControl>
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
@@ -1011,11 +1067,18 @@ class App extends GenericApp {
                     }}>
                         <IconCancel/> { I18n.t('Cancel') }
                     </Button>
+                    <Button variant="contained" color="secondary" onClick={() => {
+                        this.savePreset(this.state.selectedPresetId);
+                        this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
+                        this.setState({loadChartDialog: ''});
+                    }}>
+                        <IconSave/> { I18n.t('Save current preset and load') }
+                    </Button>
                     <Button variant="contained" color="secondary" onClick={e => {
                         this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
                         this.setState({loadChartDialog: ''});
                     }}>
-                        <IconSave/> { I18n.t('Load chart') }
+                        { I18n.t('Load chart') }
                     </Button>
                 </DialogActions>
             </Dialog> : null;
@@ -1034,10 +1097,17 @@ class App extends GenericApp {
                         <IconCancel/> { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
+                        this.savePreset(this.state.selectedPresetId);
                         this.loadPreset(this.state.loadPresetDialog);
                         this.setState({loadPresetDialog: ''});
                     }}>
-                        <IconSave/> { I18n.t('Load preset') }
+                        <IconSave/> { I18n.t('Save current preset and load') }
+                    </Button>
+                    <Button variant="contained" color="secondary" onClick={() => {
+                        this.loadPreset(this.state.loadPresetDialog);
+                        this.setState({loadPresetDialog: ''});
+                    }}>
+                        { I18n.t('Load preset') }
                     </Button>
                 </DialogActions>
             </Dialog> : null;
@@ -1102,6 +1172,7 @@ class App extends GenericApp {
                         enablePresetMode={this.enablePresetMode}
                         presetMode={this.state.presetMode}
                         socket={this.socket}
+                        createPreset={()=>{this.createPreset(this.getNewPresetId())}}
                     />
                     {
                         this.state.presetMode ? <SettingsEditor
@@ -1115,6 +1186,8 @@ class App extends GenericApp {
                             selected={this.state.selected}
                             instances={this.state.instances}
                             systemConfig={this.state.systemConfig}
+                            selectedPresetId={this.state.selectedPresetId}
+                            savePreset={this.savePreset}
                         /> : null
                     }
                 </SplitterLayout>

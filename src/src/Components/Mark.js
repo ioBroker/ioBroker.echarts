@@ -18,6 +18,14 @@ let styles = {
         borderStyle: 'solid',
         borderWidth: '1px',
         borderColor: 'lightgrey',
+    },
+    shortFields: {
+        display: 'inline-block',
+        '& > div': {
+            display: 'inline-flex',
+            paddingRight: '20px',
+            width: '200px'
+        }
     }
 };
 
@@ -66,7 +74,7 @@ class Mark extends React.Component {
                     <IconDelete/>
                 </IconButton>
             </div>
-            { this.props.opened ? <>
+            { this.props.opened ? <div className={this.props.classes.shortFields}>
                 <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={lines}/>
                 <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
                 <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
@@ -82,7 +90,14 @@ class Mark extends React.Component {
                 <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/>
                 <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/>
                 <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" />
-            </> : null}
+            </div> : <div className={this.props.classes.shortFields}>
+                <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={lines}/>
+                <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
+                <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
+                <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
+                <IOCheckbox formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill"/>
+                <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
+            </div>}
         </CardContent></Card>
     }
 }

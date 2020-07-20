@@ -14,8 +14,9 @@ let styles = theme => ({
     },
     fieldsContainer: {
         '& > div': {
-            display: 'inline-block',
+            display: 'inline-flex',
             paddingRight: 20,
+            width: '200px'
         }
     },
     hintButton: {
@@ -108,7 +109,7 @@ class ChartSettings extends React.Component {
                         }
                     </Grid>
                     <Grid item xs={6} className={this.props.classes.fieldsContainer}>
-                        <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.enablePresetMode}>
+                        <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.createPreset}>
                             {I18n.t('Create preset')}
                         </Button>
                         <h4>{I18n.t('Aggregate')}</h4>
@@ -131,6 +132,7 @@ ChartSettings.propTypes = {
     presetData: PropTypes.object,
     socket: PropTypes.object,
     instances: PropTypes.array,
+    createPreset: PropTypes.func
 };
 
 export default withStyles(styles)(ChartSettings)

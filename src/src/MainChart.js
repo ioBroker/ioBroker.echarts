@@ -102,6 +102,7 @@ class MainChart extends React.Component {
                 enablePresetMode={this.props.enablePresetMode}
                 presetData={this.props.presetData}
                 socket={this.props.socket}
+                createPreset={this.props.createPreset}
             />
         </div>
     }
@@ -182,7 +183,8 @@ MainChart.propTypes = {
     presetData: PropTypes.object,
     presetMode: PropTypes.bool,
     enablePresetMode: PropTypes.func,
-    theme: PropTypes.string
+    theme: PropTypes.string,
+    createPreset: PropTypes.func
 };
 
 export default withStyles(styles)(MainChart);

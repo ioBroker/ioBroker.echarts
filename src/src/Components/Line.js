@@ -19,6 +19,14 @@ let styles = {
         borderStyle: 'solid',
         borderWidth: '1px',
         borderColor: 'lightgrey',
+    },
+    shortFields: {
+        display: 'inline-block',
+        '& > div': {
+            display: 'inline-flex',
+            paddingRight: '20px',
+            width: '200px'
+        }
     }
 };
 
@@ -30,25 +38,26 @@ class Line extends React.Component {
     
     render() {
         return <Card className={this.props.classes.card}><CardContent>
+            <div>
+                {I18n.t('Line')} {this.props.index} - {this.props.line.name}
+                <IconButton title={ I18n.t('Edit') }
+                    onClick={()=>{
+                        this.props.lineOpenToggle(this.props.index);
+                    }
+                }><IconEdit/></IconButton>
+                <IconButton
+                    size="small"
+                    style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
+                    onClick={()=>{
+                        this.props.deleteLine(this.props.index);
+                    }}>
+                    <IconDelete/>
+                </IconButton>
+            </div>
+            { this.props.opened ? <>
             <Grid container>
                 <Grid item xs={6}>
-                    <div>
-                        {I18n.t('Line')} {this.props.index} - {this.props.line.name}
-                        <IconButton title={ I18n.t('Edit') }
-                            onClick={()=>{
-                                this.props.lineOpenToggle(this.props.index);
-                            }
-                        }><IconEdit/></IconButton>
-                        <IconButton
-                            size="small"
-                            style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
-                            onClick={()=>{
-                                this.props.deleteLine(this.props.index);
-                            }}>
-                            <IconDelete/>
-                        </IconButton>
-                    </div>
-                    { this.props.opened ? <>
+                    <div className={this.props.classes.shortFields}>
                         <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" options={
                             (() => {
                                 let result = {};
@@ -94,10 +103,10 @@ class Line extends React.Component {
                             topColor: 'top colored',
                             bottomColor: 'bottom colored',
                         }}/>
-                    </> : null}
-                    </Grid>
-                    <Grid item xs={6}>
-                    { this.props.opened ? <>
+                    </div>
+                </Grid>
+                <Grid item xs={6}>
+                    <div className={this.props.classes.shortFields}>
                         <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
                         <IOSelect formData={this.props.line} updateValue={this.updateField} name="offset" label="X-Offset" options={{
                             '0': '0 seconds',
@@ -152,9 +161,38 @@ class Line extends React.Component {
                         <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
                         <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" type="number"/>
                         <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" type="number"/>
-                    </> : null}
+                    </div>
                 </Grid>
             </Grid>
+            </> : 
+                <div className={this.props.classes.shortFields}>
+                    <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" options={
+                        (() => {
+                            let result = {};
+                            this.props.instances.forEach(instance => result[instance._id] = instance._id);
+                            return result;
+                        })()
+                    }/>
+                    <IOObjectField formData={this.props.line} updateValue={this.updateField} name="id" label="ID" customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}} socket={this.props.socket}/>
+                    <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
+                        minmax: 'minmax',
+                        average: 'average',
+                        min: 'min',
+                        max: 'max',
+                        total: 'total',
+                        onchange: 'on change',
+                    }}/>
+                    <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
+                        line: 'Line',
+                        bar: 'Bar',
+                        scatterplot: 'Scatter plot',
+                        steps: 'Steps',
+                        spline: 'Spline',
+                    }}/>
+                    <IOTextField formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill" />
+                    <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
+                </div>
+            }
         </CardContent></Card>
     }
 }

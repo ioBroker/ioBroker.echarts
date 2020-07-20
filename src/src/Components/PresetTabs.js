@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
+import clsx from 'clsx';
 
+import IconButton from '@material-ui/core/IconButton';
 import TabList from '@material-ui/lab/TabList';
 import Tab from '@material-ui/core/Tab';
 import TabPanel from '@material-ui/lab/TabPanel';
@@ -11,6 +13,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Grid from '@material-ui/core/Grid';
 import {MdAdd as IconAdd} from 'react-icons/md';
 import Fab from '@material-ui/core/Fab';
+import {MdSave as IconSave} from 'react-icons/md';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
@@ -23,6 +26,9 @@ const styles = theme => ({
         overflowY: 'auto',
         flex: 1
     },
+    tabsContainer: {
+        flexDirection: 'row'
+    },
     tabContent: {
         paddingTop: theme.spacing(1),
         position: 'relative',
@@ -31,6 +37,16 @@ const styles = theme => ({
         position: 'absolute',
         top: theme.spacing(1),
         right: theme.spacing(1),
+    },
+    buttonSave: {
+        paddingLeft: '10px'
+    },
+    shortFields: {
+        '& > div': {
+            display: 'inline-flex',
+            paddingRight: '20px',
+            width: '200px'
+        }
     }
 });
 
@@ -214,7 +230,12 @@ class PresetTabs extends React.Component {
 
     render() {
         return <TabContext value={this.state.selectedTab}>
-            <AppBar position="static">
+            <AppBar position="static" className={this.props.classes.tabsContainer}>
+                <IconButton size="small" className={this.props.classes.buttonSave} onClick={(e)=>{
+                    this.props.savePreset(this.props.selectedPresetId);
+                }}>
+                    <IconSave/>
+                </IconButton>
                 <TabList
                     onChange={(event, newValue)=>{this.setState({selectedTab: newValue})}}
                     variant="scrollable"
@@ -267,7 +288,7 @@ class PresetTabs extends React.Component {
                 </TabPanel>
                 <TabPanel value="2" classes={{root: this.props.classes.tabContent}}>
                     <Grid container>
-                        <Grid item xs={6}>
+                        <Grid item xs={6} className={this.props.classes.shortFields}>
                             <h4>{I18n.t('Time Span')}</h4>
                                 <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
                                     'relative': 'relative',
@@ -341,7 +362,7 @@ class PresetTabs extends React.Component {
                                 </>
                             }
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={6} className={this.props.classes.shortFields}>
                             <h4>{I18n.t('Aggregate')}</h4>
                             <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
                                 'count': 'counts',
@@ -354,7 +375,7 @@ class PresetTabs extends React.Component {
                             </Grid>
                         </Grid>
                 </TabPanel>
-                <TabPanel value="3" classes={{root: this.props.classes.tabContent}}>
+                <TabPanel value="3" className={clsx(this.props.classes.tabContent, this.props.classes.shortFields)}>
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Show legend" name="legend" options={{
                         '': 'none',
                         'nw': 'Top, left',
@@ -408,7 +429,7 @@ class PresetTabs extends React.Component {
                         '10000': '10 seconds',
                     }}/>
                 </TabPanel>
-                <TabPanel value="4" classes={{root: this.props.classes.tabContent}}>
+                <TabPanel value="4" classes={{root: this.props.classes.tabContent}} className={this.props.classes.shortFields}>
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title"/>
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="titlePos" label="Title position" options={{
                         '': 'none',
@@ -425,12 +446,12 @@ class PresetTabs extends React.Component {
                         'bottom:5;right:-5': 'Bottom, right, outside',
                         'bottom:-5;left:50': 'Bottom, center, outside',
                     }}/>
-                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="titleColor" label="Title size" />
+                    <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="titleColor" label="Title color" />
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" />
                 </TabPanel>
                 <TabPanel value="5" classes={{root: this.props.classes.tabContent}}>
                     <Grid container>
-                        <Grid item sm={6} xs={12}>
+                        <Grid item sm={6} xs={12} className={this.props.classes.shortFields}>
                             <h4>{I18n.t('Appearance')}</h4>
                             <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" type="number" />
                             <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" type="number" />
@@ -459,7 +480,7 @@ class PresetTabs extends React.Component {
                             <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_grid_color" label="Grid color" />
                             <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_border_width" label="Border width" />
                         </Grid>
-                        <Grid item sm={6} xs={12}>
+                        <Grid item sm={6} xs={12} className={this.props.classes.shortFields}>
                             <h4>{I18n.t('Bar settings')}</h4>
                             <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="barColor" label="Fill color" />
                             <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_barLabels" label="Show labels" options={{
@@ -485,6 +506,8 @@ PresetTabs.propTypes = {
     presetData: PropTypes.object,
     socket: PropTypes.object,
     instances: PropTypes.array,
+    selectedPresetId: PropTypes.string,
+    savePreset: PropTypes.func
 };
 
 export default withStyles(styles)(PresetTabs)
