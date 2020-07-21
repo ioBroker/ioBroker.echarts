@@ -13,11 +13,13 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import {withStyles} from '@material-ui/core/styles';
 
-let styles = {
+let styles = theme => ({
     card: {
-        borderStyle: 'solid',
-        borderWidth: '1px',
-        borderColor: 'lightgrey',
+        borderStyle: 'dashed',
+        borderWidth: 1,
+        marginBottom: theme.spacing(1),
+        padding: theme.spacing(1),
+        borderColor: theme.palette.grey['600'],
         overflow: 'initial'
     },
     shortFields: {
@@ -28,7 +30,7 @@ let styles = {
             width: '200px'
         }
     }
-};
+});
 
 class Mark extends React.Component {
     state = {
