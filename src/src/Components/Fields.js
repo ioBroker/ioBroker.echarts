@@ -47,6 +47,7 @@ let IOSelect = function (props) {
                 label={label}
                 onChange={e => props.updateValue(props.name, e.target.value)}
                 value={props.formData[props.name] || ''}
+                renderValue={props.renderValue}
                 displayEmpty
             >
                 {
