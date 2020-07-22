@@ -96,15 +96,14 @@ const styles = theme => ({
 class MainChart extends React.Component {
 
     getTabs() {
-        return this.props.presetMode ? null : <div>
+        return this.props.presetMode ? null :
             <ChartSettings
                 onChange={this.props.onChange}
                 enablePresetMode={this.props.enablePresetMode}
                 presetData={this.props.presetData}
                 socket={this.props.socket}
                 createPreset={this.props.createPreset}
-            />
-        </div>
+            />;
     }
 
     getUrl() {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
 
-import Grid from '@material-ui/core/Grid';
+import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -26,7 +26,7 @@ let styles = theme => ({
         '& > div': {
             display: 'flex',
             paddingRight: 20,
-            width: '200px'
+            width: 200
         }
     },
     hintButton: {
@@ -49,19 +49,22 @@ let styles = theme => ({
     settingsButton: {
         color: 'currentColor',
         fontSize: '16px'
+    },
+    grow1: {
+        flexGrow: 1,
     }
 });
 
 const RefreshSelect = function (props) {
     return <div className={props.className}>
-        <Select 
+        <Select
             onChange={e => props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             renderValue={props.renderValue}
             displayEmpty
         >
             {
-                props.options ? 
+                props.options ?
                     Object.keys(props.options).map((key) =>
                         <MenuItem key={key} value={key}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
                         : null
@@ -149,10 +152,7 @@ class ChartSettings extends React.Component {
     };
 
     render() {
-        return <div className={this.props.classes.mainDiv}>
-            <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.createPreset}>
-                {I18n.t('Create preset')}
-            </Button>
+        return <Toolbar className={this.props.classes.mainDiv} variant="dense">
             <IconButton
                 title={ I18n.t('Time span') }
                 size="small"
@@ -162,7 +162,7 @@ class ChartSettings extends React.Component {
             >
                 <IconTime/>
                 {
-                    this.props.presetData.timeType == 'relative' ?
+                    this.props.presetData.timeType === 'relative' ?
                     I18n.t(rangeOptions[this.props.presetData.range]) + ' ' + I18n.t('to') + ' ' + I18n.t(relativeEndOptions[this.props.presetData.relativeEnd]) :
                     this.props.presetData.start + ' ' + this.props.presetData.start_time + ' - ' + this.props.presetData.end + ' ' + this.props.presetData.end_time
                 }
@@ -229,19 +229,23 @@ class ChartSettings extends React.Component {
                     </div>
                 </div>
             </Popover>
-            <RefreshSelect 
-                className={this.props.classes.refreshSelect} 
-                minWidth="0px" width="initial" 
-                formData={this.props.presetData} 
-                updateValue={this.updateField} 
-                name="live" 
-                label="" 
+            <RefreshSelect
+                className={this.props.classes.refreshSelect}
+                minWidth="0px" width="initial"
+                formData={this.props.presetData}
+                updateValue={this.updateField}
+                name="live"
+                label=""
                 options={liveOptions}
                 renderValue={()=>
                     <><IconRefresh/> {I18n.t(liveOptions[this.props.presetData['live']])}</>
                 }
             />
-        </div>;
+            <div className={this.props.classes.grow1}/>
+            <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.createPreset}>
+                {I18n.t('Create preset')}
+            </Button>
+        </Toolbar>;
     }
 }
 
