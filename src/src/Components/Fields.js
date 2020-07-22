@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
+import clsx from 'clsx';
 
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
@@ -40,7 +41,7 @@ const styles = {
 
 let IOSelect = function (props) {
     const label = I18n.t(props.label);
-    return <div className={props.classes.fieldContainer}>
+    return <div className={clsx(props.classes.fieldContainer, props.className)}>
         <FormControl style={{minWidth: props.minWidth || 200, width: props.width}}>
             <InputLabel shrink={true}>{ label }</InputLabel>
             <Select 

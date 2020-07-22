@@ -159,19 +159,23 @@ class PresetTabs extends React.Component {
             'timeFormat':'%H:%M:%S %d.%m.%y',
             */
         },
-        selectedTab: '0',
-        linesOpened: {},
-        marksOpened: {},
+        selectedTab: window.localStorage.getItem('PresetTabs.selectedTab') !== null ? window.localStorage.getItem('PresetTabs.selectedTab') : '0',
+        linesOpened: window.localStorage.getItem('Lines.opened') ? JSON.parse(window.localStorage.getItem('Lines.opened')) : {},
+        marksOpened: window.localStorage.getItem('Marks.opened') ? JSON.parse(window.localStorage.getItem('Marks.opened')) : {},
     };
 
     lineOpenToggle = (index) => {
         let opened = typeof this.state.linesOpened[index] === 'undefined' || this.state.linesOpened[index] === true;
-        this.setState(update(this.state, {linesOpened: {[index]: {$set: !opened}}}))
+        let newState = update(this.state, {linesOpened: {[index]: {$set: !opened}}});
+        this.setState(newState)
+        window.localStorage.setItem('Lines.opened', JSON.stringify(newState.linesOpened));
     };
 
     markOpenToggle = (index) => {
         let opened = typeof this.state.marksOpened[index] === 'undefined' || this.state.marksOpened[index] === true;
-        this.setState(update(this.state, {marksOpened: {[index]: {$set: !opened}}}))
+        let newState = update(this.state, {marksOpened: {[index]: {$set: !opened}}});
+        this.setState(newState)
+        window.localStorage.setItem('Marks.opened', JSON.stringify(newState.marksOpened));
     };
 
     updateField = (name, value, time)=>{
@@ -242,7 +246,10 @@ class PresetTabs extends React.Component {
                     <IconSave/>
                 </IconButton>
                 <TabList
-                    onChange={(event, newValue)=>{this.setState({selectedTab: newValue})}}
+                    onChange={(event, newValue)=>{
+                        window.localStorage.setItem('PresetTabs.selectedTab', newValue);
+                        this.setState({selectedTab: newValue})
+                    }}
                     variant="scrollable"
                     scrollButtons="on"
                 >

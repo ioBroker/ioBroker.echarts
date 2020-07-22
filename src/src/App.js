@@ -189,6 +189,12 @@ class App extends GenericApp {
         } catch (e) {
             opened = [];
         }
+        let chartsOpened;
+        try {
+            chartsOpened = JSON.parse(window.localStorage.getItem('Charts.opened')) || {};
+        } catch (e) {
+            chartsOpened = {};
+        }
 
         const newState = {
             lang: this.socket.systemLang,
@@ -198,7 +204,7 @@ class App extends GenericApp {
             presets: {},
             folders: null,
             presetMode: false,
-            chartFolders: {},
+            chartFolders: chartsOpened,
             search: null,
             addFolderDialog: null,
             addFolderDialogTitle: null,
@@ -270,7 +276,8 @@ class App extends GenericApp {
             if (changingPreset) {
                 this.setState({changingPreset}, () => resolve());
             } else {
-                this.setState({ready: false}, () => resolve());
+                //this.setState({ready: false}, () => resolve());
+                resolve();
             }
         })
             .then(() => this.getData())
@@ -343,7 +350,7 @@ class App extends GenericApp {
                         const enabledDP = {};
                         Object.keys(obj.enabledDP).sort().forEach(id => {enabledDP[id] = obj.enabledDP[id]; enabledDP[id].group = obj._id});
                         obj.enabledDP = enabledDP;
-                        chartFolders[obj._id] = true;
+                        chartFolders[obj._id] = typeof this.state.chartFolders[obj._id] !== 'undefined' ? this.state.chartFolders[obj._id] : true;
                         return obj;
                     });
 
@@ -537,13 +544,16 @@ class App extends GenericApp {
     };
 
     toggleChartFolder = (id) => {
-        this.setState(update(this.state, {
+        let newState = update(this.state, {
             chartFolders: {
                 [id]: {
                     $set : !(this.state.chartFolders[id])
                 }
             }
-        }));
+        });
+        this.setState(newState);
+
+        window.localStorage.setItem('Charts.opened', JSON.stringify(newState.chartFolders));
     };
 
     renderSimpleHistory() {
@@ -745,6 +755,7 @@ class App extends GenericApp {
     savePreset = id => {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
         preset.native.data = JSON.parse(JSON.stringify(this.state.presetData));
+        this.setState({loadedPresetData: this.state.presetData, selectedPresetChanged: false});
         this.socket.setObject(id, preset)
             .then(() => this.refreshData())
             .catch(e => this.showError(e));
@@ -776,6 +787,10 @@ class App extends GenericApp {
         });
     }
 
+    loadChartParam(name, defaultValue) {
+        return window.localStorage.getItem('Chart.' + name) ? window.localStorage.getItem('Chart.' + name) : defaultValue;
+    }
+
     loadChart(id, instance) {
         let presetData = {
             marks: [],
@@ -798,11 +813,17 @@ class App extends GenericApp {
             hoverDetail: true,
             aggregate: 'onchange',
             chartType: 'step',
-            live: '30',
-            aggregateType: 'step',
-            aggregateSpan: 300,
-            relativeEnd: 'now',
-            timeType: 'relative',
+            live: this.loadChartParam('live', '30'),
+            timeType: this.loadChartParam('timeType', 'relative'),
+            aggregateType: this.loadChartParam('aggregateType', 'step'),
+            aggregateSpan: this.loadChartParam('aggregateSpan', 300),
+            ticks: this.loadChartParam('ticks', ''),
+            range: this.loadChartParam('range', 1440),
+            relativeEnd: this.loadChartParam('relativeEnd', 'now'),
+            start: this.loadChartParam('start', ''),
+            end: this.loadChartParam('end', ''),
+            start_time: this.loadChartParam('start_time', ''),
+            end_time: this.loadChartParam('end_time', ''),
             noBorder: 'noborder',
             bg: '#00000000',
             timeFormat: '%H:%M',
