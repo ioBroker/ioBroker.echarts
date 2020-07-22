@@ -39,12 +39,17 @@ let styles = theme => ({
     },
     refreshSelect: {
         display: 'inline-block',
+        paddingLeft: '4px',
         '& > div:before': {
             borderWidth: '0px'
         },
         '& > div:hover:before': {
             borderBottom: '0px'
         }
+    },
+    refreshSelectButtonTitle: {
+        display: 'inline-flex',
+        paddingTop: '4px',
     },
     settingsButton: {
         color: 'currentColor',
@@ -238,7 +243,9 @@ class ChartSettings extends React.Component {
                 label=""
                 options={liveOptions}
                 renderValue={()=>
-                    <><IconRefresh/> {I18n.t(liveOptions[this.props.presetData['live']])}</>
+                    <div className={this.props.classes.refreshSelectButtonTitle}>
+                        <IconRefresh/>&nbsp;{I18n.t(liveOptions[this.props.presetData['live']])}
+                    </div>
                 }
             />
             <div className={this.props.classes.grow1}/>
