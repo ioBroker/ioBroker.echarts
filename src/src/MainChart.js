@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from '@material-ui/core/styles';
+import {MuiThemeProvider, withStyles} from '@material-ui/core/styles';
 
 import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
@@ -87,15 +87,20 @@ const styles = theme => ({
         marginRight: 5
     },
     container: {
-        display: 'flex',
-        flexDirection: 'column',
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+    },
+    heightWithoutToolbar: {
+        height: 'calc(100% - 48px)',
+    },
+    height100: {
         height: '100%',
     }
 });
 
 class MainChart extends React.Component {
-
-    getTabs() {
+    renderToolbar() {
         return this.props.presetMode ? null :
             <ChartSettings
                 onChange={this.props.onChange}
@@ -106,7 +111,7 @@ class MainChart extends React.Component {
             />;
     }
 
-    getUrl() {
+    getUrlParameters() {
         let translate = {
             'lines': 'l',
             'marks': 'm'
@@ -132,6 +137,12 @@ class MainChart extends React.Component {
         for (let k in this.props.presetData) {
             let v = this.props.presetData[k];
             let translateCurrentObject = translateObject[k];
+
+            if (k === 'chartType' || k === 'aggregate') {
+                continue;
+            }
+
+
             if (translate[k]) {
                 k = translate[k];
             }
@@ -139,14 +150,23 @@ class MainChart extends React.Component {
                 for (let i = 0; i < v.length; i++) {
                     const arrayObject = v[i];
                     for (let k2 in arrayObject) {
-                        let v2 = arrayObject[k2];
-                        if (translateCurrentObject[k2]) {
-                            k2 = translateCurrentObject[k2];
+                        if (arrayObject.hasOwnProperty(k2)) {
+                            let v2 = arrayObject[k2];
+                            if (v2 !== undefined && v2 !== null && v2 !== '') {
+                                if (!this.props.presetMode && (k2 === 'chartType' || k2 === 'aggregate') && this.props.presetData[k2]) {
+                                    v2 = this.props.presetData[k2];
+                                }
+
+                                if (translateCurrentObject[k2]) {
+                                    k2 = translateCurrentObject[k2];
+                                }
+
+                                url += encodeURIComponent(k + '[' + i + '][' + k2 + ']') + '=' + encodeURIComponent(v2) + '&';
+                            }
                         }
-                        url += encodeURIComponent(k + '[' + i + '][' + k2 + ']') + '=' + encodeURIComponent(v2) + '&';
                     }
                 }
-            } else {
+            } else if (v !== undefined && v !== null && v !== '') {
                 url += encodeURIComponent(k) + '=' + encodeURIComponent(v) + '&';
             }
         }
@@ -154,23 +174,33 @@ class MainChart extends React.Component {
         return url;
     }
 
+
+    getUrl() {
+        if (this.props.presetMode) {
+            return '/flot/index.html?' + this.getUrlParameters();
+            //return '/flot/index.html?preset=' + encodeURIComponent(this.props.selectedPresetId);
+        } else {
+            return '/flot/index.html?' + this.getUrlParameters();
+        }
+    }
+
     getChartFrame() {
-        const query = getUrlQuery();
-        const host = query.host ? query.host : 'localhost';
-        return (<div style={{flex: 1, display: this.props.visible ? 'block' : 'none'}}><ChartFrame
-            src={'http://' + host + ':8082/flot/index.html?' + this.getUrl()}
-        /></div>);
+        return <div style={{display: this.props.visible ? 'block' : 'none'}} className={!this.props.presetMode ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
+            <ChartFrame src={this.getUrl()}
+        /></div>;
     }
 
     render() {
-        return <div className={this.props.classes.container}>
-            {this.getTabs()}
-            {this.getChartFrame()}
-            {/* <div style={{height: '200px', overflow: 'auto'}}>
-                <pre>{this.getUrl()}</pre>
-                <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
-            </div> */}
-        </div>
+        return <MuiThemeProvider theme={this.props.theme}>
+            <div className={this.props.classes.container}>
+                {this.renderToolbar()}
+                {this.getChartFrame()}
+                {/* <div style={{height: '200px', overflow: 'auto'}}>
+                    <pre>{this.getUrlParameters()}</pre>
+                    <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
+                </div> */}
+            </div>
+        </MuiThemeProvider>
     }
 }
 
@@ -181,9 +211,10 @@ MainChart.propTypes = {
     socket: PropTypes.object,
     presetData: PropTypes.object,
     presetMode: PropTypes.bool,
+    selectedPresetId: PropTypes.string,
     enablePresetMode: PropTypes.func,
-    theme: PropTypes.string,
-    createPreset: PropTypes.func
+    createPreset: PropTypes.func,
+    theme: PropTypes.object
 };
 
 export default withStyles(styles)(MainChart);

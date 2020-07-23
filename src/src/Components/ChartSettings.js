@@ -7,16 +7,21 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import IconButton from '@material-ui/core/IconButton';
 import Popover from '@material-ui/core/Popover';
 
-import {IOTextField, IOSelect, IOObjectField, IODateTimeField} from './Fields';
+import {IOTextField, IOSelect, IODateTimeField} from './Fields';
 import I18n from '@iobroker/adapter-react/i18n';
 
 import {IoMdTime as IconTime} from 'react-icons/all';
-import {GrAggregate as IconAggregate} from 'react-icons/all';
 import {FiRefreshCw as IconRefresh} from 'react-icons/all';
 import {IoMdArrowDropdown as IconDropDown} from 'react-icons/all';
+
+class IconAggregate extends React.Component {
+    render() {
+        return <svg onClick={e => this.props.onClick && this.props.onClick(e)} viewBox="0 0 32 32" width={this.props.width || 20} height={this.props.width || 20} xmlns="http://www.w3.org/2000/svg" className={ this.props.className }>
+            <path fill='none' stroke="currentColor" strokeWidth='2' d='M16,9 L9,9 L9,16 L9,16 C9,19.8659932 12.1340068,23 16,23 L16,23 C19.8659932,23 23,19.8659932 23,16 C23,12.1340068 19.8659932,9 16,9 L16,9 Z M8,15 L15,15 L15,8 L15,8 C15,4.13400675 11.8659932,1 8,1 L8,1 C4.13400675,1 1,4.13400675 1,8 C1,11.8659932 4.13400675,15 8,15 L8,15 Z' transform='rotate(180 12 12)' />        </svg>;
+    }
+}
 
 let styles = theme => ({
     mainDiv: {
@@ -54,11 +59,15 @@ let styles = theme => ({
     },
     settingsButton: {
         color: 'currentColor',
-        fontSize: '16px'
+        fontSize: 16,
+        textTransform: 'inherit'
     },
     grow1: {
         flexGrow: 1,
-    }
+    },
+    aggregateIcon: {
+        marginTop: 4,
+    },
 });
 
 const RefreshSelect = function (props) {
@@ -145,7 +154,7 @@ class ChartSettings extends React.Component {
         timeSpanOpened: false,
         aggregateOpened: false,
         refreshOpened: false
-    }
+    };
 
     updateField = (name, value, time)=>{
         let updateObject = {[name]: {$set: value}};
@@ -159,7 +168,7 @@ class ChartSettings extends React.Component {
 
     render() {
         return <Toolbar className={this.props.classes.mainDiv} variant="dense">
-            <IconButton
+            <Button
                 title={ I18n.t('Time span') }
                 size="small"
                 className={this.props.classes.settingsButton}
@@ -173,7 +182,7 @@ class ChartSettings extends React.Component {
                     this.props.presetData.start + ' ' + this.props.presetData.start_time + ' - ' + this.props.presetData.end + ' ' + this.props.presetData.end_time
                 }
                 <IconDropDown/>
-            </IconButton>
+            </Button>
             <Popover className={this.props.classes.popOver}
                 open={this.state.timeSpanOpened}
                 onClose={()=>{this.setState({timeSpanOpened: false})}}
@@ -205,18 +214,18 @@ class ChartSettings extends React.Component {
                     </div>
                 </div>
             </Popover>
-            <IconButton
+            <Button
                 title={ I18n.t('Aggregate') }
                 size="small"
                 className={this.props.classes.settingsButton}
                 id="aggregateOpenButton"
                 onClick={() => {this.setState({aggregateOpened: !this.state.aggregateOpened})}}
             >
-                <IconAggregate/>
+                <IconAggregate className={this.props.classes.aggregateIcon}/>
                 {this.props.presetData['aggregateSpan']}
                 {this.props.presetData.aggregateType === 'step' ? 's' : 'c'}
                 <IconDropDown/>
-            </IconButton>
+            </Button>
             <Popover
                 open={this.state.aggregateOpened}
                 anchorEl={()=> document.getElementById('aggregateOpenButton')}
@@ -231,13 +240,39 @@ class ChartSettings extends React.Component {
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
                             label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                         />
-                        <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="aggregate"
+                            label="Type"
+                            options={{
+                                minmax: 'minmax',
+                                average: 'average',
+                                min: 'min',
+                                max: 'max',
+                                total: 'total',
+                                onchange: 'on change',
+                            }}/>
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="chartType"
+                            label="Chart type"
+                            options={{
+                                auto: 'Auto (Line or Steps)',
+                                line: 'Line',
+                                bar: 'Bar',
+                                scatterplot: 'Scatter plot',
+                                steps: 'Steps',
+                                spline: 'Spline',
+                            }}
+                        />
                     </div>
                 </div>
             </Popover>
             <RefreshSelect
                 className={this.props.classes.refreshSelect}
-                minWidth="0px" width="initial"
+                minWidth={0} width="initial"
                 formData={this.props.presetData}
                 updateValue={this.updateField}
                 name="live"

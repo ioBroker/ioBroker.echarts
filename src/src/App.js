@@ -633,13 +633,13 @@ class App extends GenericApp {
                 classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
                 primary={ <>
                     { Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
-                    <IconButton 
-                        size="small" 
-                        aria-label="Rename" 
-                        title={ I18n.t('Rename') } 
+                    <IconButton
+                        size="small"
+                        aria-label="Rename"
+                        title={ I18n.t('Rename') }
                         onClick={ (e) => {
                             e.stopPropagation();
-                            this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name}) 
+                            this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name})
                         }}
                     >
                         <IconEdit/>
@@ -778,11 +778,11 @@ class App extends GenericApp {
         window.localStorage.setItem('App.selectedChartId', '');
         window.localStorage.setItem('App.selectedInstance', '');
         this.setState({
-            presetData: preset.native.data, 
-            selectedPresetData: preset.native.data, 
+            presetData: preset.native.data,
+            selectedPresetData: preset.native.data,
             selectedPresetChanged: false,
-            presetMode: true, 
-            selectedChartId: null, 
+            presetMode: true,
+            selectedChartId: null,
             selectedPresetId: id
         });
     }
@@ -795,24 +795,24 @@ class App extends GenericApp {
         let presetData = {
             marks: [],
             lines: [{
-                id: id,
-                instance: instance,
+                id,
+                instance,
                 offset: 0,
                 aggregate: 'minmax',
                 color: '#1868a8',
+                chartType: 'auto',
                 thickness: 1,
                 shadowsize: 1,
                 smoothing: 0,
                 afterComma: 0,
                 ignoreNull: false,
             }],
-            range: 1440,
             zoom: true,
             axeX: 'lines',
             axeY: 'inside',
             hoverDetail: true,
-            aggregate: 'onchange',
-            chartType: 'step',
+            aggregate: 'minmax',
+            chartType: 'auto',
             live: this.loadChartParam('live', '30'),
             timeType: this.loadChartParam('timeType', 'relative'),
             aggregateType: this.loadChartParam('aggregateType', 'step'),
@@ -831,10 +831,12 @@ class App extends GenericApp {
             noedit: false,
             animation: 0
         };
+
         window.localStorage.setItem('App.selectedChartId', id);
         window.localStorage.setItem('App.selectedInstance', instance);
         window.localStorage.setItem('App.selectedPresetId', '');
-        this.setState({presetData: presetData, presetMode: false, selectedChartId: id, selectedPresetId: null, selectedPresetChanged: false});
+
+        this.setState({presetData, presetMode: false, selectedChartId: id, selectedPresetId: null, selectedPresetChanged: false});
     }
 
     enablePresetMode = () => {
@@ -854,9 +856,9 @@ class App extends GenericApp {
                 ><IconFolderAdd/></IconButton>
 
                 <span className={this.props.classes.right}>
-                                            <IconButton 
-                                                onClick={() => 
-                                                    this.setState({showSearch: !this.state.showSearch, search: ''}) 
+                                            <IconButton
+                                                onClick={() =>
+                                                    this.setState({showSearch: !this.state.showSearch, search: ''})
                                                 }>
                                                 <SearchIcon/>
                                             </IconButton>
@@ -887,11 +889,11 @@ class App extends GenericApp {
             >
                 <DialogTitle>{I18n.t('Create folder')}</DialogTitle>
                 <DialogContent className={ this.props.classes.p }>
-                    <TextField 
-                        label={ I18n.t('Title') } 
-                        value={ this.state.addFolderDialogTitle } 
+                    <TextField
+                        label={ I18n.t('Title') }
+                        value={ this.state.addFolderDialogTitle }
                         onChange={ e =>
-                            this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')}) 
+                            this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')})
                         }
                         onKeyPress={(e) => {
                             if (this.state.addFolderDialogTitle && e.which === 13) {
@@ -1028,9 +1030,9 @@ class App extends GenericApp {
             <DialogTitle>{ I18n.t('Rename preset') }</DialogTitle>
             <DialogContent>
                 <FormControl classes={ {root: this.props.classes.width100} }>
-                    <TextField 
-                        label={ I18n.t('Title') } 
-                        value={ this.state.renamePresetDialogTitle } 
+                    <TextField
+                        label={ I18n.t('Title') }
+                        value={ this.state.renamePresetDialogTitle }
                         onChange={ e =>
                             this.setState({renamePresetDialogTitle: e.target.value })
                         }
@@ -1196,11 +1198,13 @@ class App extends GenericApp {
                     { this.state.selectedPresetId || this.state.selectedChartId ? <MainChart
                         key="MainChart"
                         visible={!this.state.resizing}
-                        theme={this.state.themeType}
+                        theme={this.state.theme}
+                        themeType={this.state.themeType}
                         onChange={this.onUpdatePreset}
                         presetData={this.state.presetData}
                         enablePresetMode={this.enablePresetMode}
                         presetMode={this.state.presetMode}
+                        selectedPresetId={this.state.selectedPresetId}
                         socket={this.socket}
                         createPreset={()=>{this.createPreset(this.getNewPresetId())}}
                     /> : null}

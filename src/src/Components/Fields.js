@@ -5,22 +5,22 @@ import clsx from 'clsx';
 
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-//import ColorPicker from 'material-ui-color-picker'
-import ColorPicker from './ColorPicker';
 import TextField from '@material-ui/core/TextField';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
+
+import IconSelectID from '@material-ui/icons/Subject';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
+import ColorPicker from './ColorPicker';
 
-const styles = {
+const styles = theme => ({
     fieldContainer: {
-        paddingTop: '10px',
+        paddingTop: 10,
         whiteSpace: 'nowrap'
     },
     checkBoxLabel: {
@@ -30,21 +30,21 @@ const styles = {
     objectField: {flex: 1},
     objectButton: {
         marginTop: 'auto',
-        paddingLeft: '10px'
+        paddingLeft: 0
     },
     colorPicker: {
-        left: '-200px',
-        top: '60px',
+        left: -200,
+        top: 60,
         position: 'relative'
     }
-};
+});
 
 let IOSelect = function (props) {
     const label = I18n.t(props.label);
     return <div className={clsx(props.classes.fieldContainer, props.className)}>
         <FormControl style={{minWidth: props.minWidth || 200, width: props.width}}>
             <InputLabel shrink={true}>{ label }</InputLabel>
-            <Select 
+            <Select
                 label={label}
                 onChange={e => props.updateValue(props.name, e.target.value)}
                 value={props.formData[props.name] || ''}
@@ -52,7 +52,7 @@ let IOSelect = function (props) {
                 displayEmpty
             >
                 {
-                    props.options ? 
+                    props.options ?
                         Object.keys(props.options).map((key) =>
                             <MenuItem key={key} value={key}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
                          : null
@@ -91,16 +91,16 @@ export {IOCheckbox};
 
 let IOTextField = function (props) {
     return <div className={props.classes.fieldContainer}>
-        <TextField 
+        <TextField
             label={I18n.t(props.label)}
-            InputLabelProps={{shrink: true}} 
+            InputLabelProps={{shrink: true}}
             onChange={(e) => {
                 props.updateValue(props.name, e.target.value)
-            }} 
+            }}
             value={props.formData[props.name] || ''}
             type={props.type}
         />
-    </div> 
+    </div>
 };
 IOTextField.propTypes = {
     label: PropTypes.string,
@@ -118,7 +118,7 @@ let IODateTimeField = function (props) {
             let date = e.target.value.split('T');
             props.updateValue(props.name, date[0], date[1]);
         }} value={props.formData[props.name] ? props.formData[props.name] + 'T' + props.formData[props.name + '_time'] : ''}/>
-    </div> 
+    </div>
 };
 IODateTimeField.propTypes = {
     label: PropTypes.string,
@@ -134,15 +134,15 @@ let IOObjectField = function (props) {
 
     return <div className={props.classes.fieldContainer} style={{width: props.width}}>
         <div className={props.classes.objectContainer}>
-            <TextField 
+            <TextField
                 className={props.classes.objectField}
                 label={I18n.t(props.label)}
-                InputLabelProps={{shrink: true}} 
+                InputLabelProps={{shrink: true}}
                 value={props.formData[props.name] || ''}
                 onChange={(e) => props.updateValue(props.name, e.target.value)}
             />
             <IconButton size="small" onClick={() => setState({showDialog: true})} className={props.classes.objectButton}>
-                <IconFolderOpened/>
+                <IconSelectID/>
             </IconButton>
         </div>
         {state.showDialog ? <DialogSelectID
@@ -159,7 +159,7 @@ let IOObjectField = function (props) {
                 onClose={ () => setState({showDialog: false}) }
             /> : null
         }
-    </div>    
+    </div>
 };
 IOObjectField.propTypes = {
     label: PropTypes.string,
@@ -174,15 +174,15 @@ export {IOObjectField};
 
 let IOColorPicker = function (props) {
     return <div className={props.classes.fieldContainer}>
-        <ColorPicker 
+        <ColorPicker
             label={I18n.t(props.label)}
             pickerClassName={props.classes.colorPicker}
             inputProps={{
                 style: {backgroundColor: props.formData[props.name]}
-            }} 
+            }}
             onChange={(color) => {
                 props.updateValue(props.name, color)
-            }} 
+            }}
             InputLabelProps={{shrink: true}}
             value={props.formData[props.name] || ''}
         />

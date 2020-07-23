@@ -7,12 +7,10 @@ import I18n from '@iobroker/adapter-react/i18n';
 import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fields';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
-import {MdModeEdit as IconEdit} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import {withStyles} from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
 
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
@@ -198,6 +196,7 @@ class Line extends React.Component {
                 name="chartType"
                 label="Chart type"
                 options={{
+                    auto: 'Auto (Line or Steps)',
                     line: 'Line',
                     bar: 'Bar',
                     scatterplot: 'Scatter plot',
@@ -250,7 +249,7 @@ class Line extends React.Component {
     }
 
     render() {
-        return<Card className={this.props.classes.card}>
+        return <Card className={this.props.classes.card}>
             <CardContent className={this.props.classes.cardContent}>
                 { this.props.opened ?
                     <>
@@ -284,6 +283,7 @@ class Line extends React.Component {
                                 onchange: 'on change',
                             }}/>
                             <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
+                                auto: 'Auto (Line or Steps)',
                                 line: 'Line',
                                 bar: 'Bar',
                                 scatterplot: 'Scatter plot',
