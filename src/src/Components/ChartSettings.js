@@ -39,17 +39,18 @@ let styles = theme => ({
     },
     refreshSelect: {
         display: 'inline-block',
-        paddingLeft: '4px',
+        paddingLeft: 4,
         '& > div:before': {
-            borderWidth: '0px'
+            borderWidth: 0
         },
         '& > div:hover:before': {
-            borderBottom: '0px'
-        }
+            borderBottom: 0
+        },
+        marginLeft: theme.spacing(1),
     },
     refreshSelectButtonTitle: {
         display: 'inline-flex',
-        paddingTop: '4px',
+        paddingTop: 6,
     },
     settingsButton: {
         color: 'currentColor',

@@ -73,6 +73,16 @@
         "option1": true,
         "option2": "42"
     },
-    "objects": [],
+    "objects": [
+        {
+            "_id": "_design/chart",
+            "language": "javascript",
+            "views": {
+                "chart": {
+                    "map": "function(doc) { if (doc.type === 'chart') emit(doc.common.name, doc); }"
+                }
+            }
+        }
+    ],
     "instanceObjects": []
 }
