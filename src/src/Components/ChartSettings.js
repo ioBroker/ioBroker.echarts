@@ -35,7 +35,6 @@ let styles = theme => ({
         }
     },
     hintButton: {
-        marginTop: 8,
         marginRight: 20,
         float: 'right'
     },
