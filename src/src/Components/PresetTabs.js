@@ -56,6 +56,17 @@ const styles = theme => ({
     }
 });
 
+const PREDEFINED_COLORS = [
+    '#144578',
+    '#1868A8',
+    '#665191',
+    '#a05195',
+    '#d45087',
+    '#f95d6a',
+    '#ff7c43',
+    '#ffa600',
+];
+
 class PresetTabs extends React.Component {
     state = {
         presetData: {
@@ -175,14 +186,14 @@ class PresetTabs extends React.Component {
     lineOpenToggle = (index) => {
         let opened = typeof this.state.linesOpened[index] !== 'undefined' && this.state.linesOpened[index] === true;
         let newState = update(this.state, {linesOpened: {[index]: {$set: !opened}}});
-        this.setState(newState)
+        this.setState(newState);
         window.localStorage.setItem('Lines.opened', JSON.stringify(newState.linesOpened));
     };
 
     markOpenToggle = (index) => {
         let opened = typeof this.state.marksOpened[index] !== 'undefined' && this.state.marksOpened[index] === true;
         let newState = update(this.state, {marksOpened: {[index]: {$set: !opened}}});
-        this.setState(newState)
+        this.setState(newState);
         window.localStorage.setItem('Marks.opened', JSON.stringify(newState.marksOpened));
     };
 
@@ -229,9 +240,16 @@ class PresetTabs extends React.Component {
     };
 
     addLine = () => {
+        const len = this.props.presetData.lines.length;
+        const color = PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
+
         let newPresetData = update(this.props.presetData, {
             lines: {
-                $push: [{instance: 'system.adapter.' + this.props.systemConfig.common.defaultHistory}]
+                $push: [{
+                    instance: 'system.adapter.' + this.props.systemConfig.common.defaultHistory,
+                    color,
+                    xaxe: !len ? undefined : 'off',
+                }]
             }
         });
         this.props.onChange(newPresetData);
@@ -530,25 +548,12 @@ class PresetTabs extends React.Component {
                                 <h4>{I18n.t('Appearance')}</h4>
                                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" type="number" />
                                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="options_height" label="Height" type="number" />
-                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_noborder" label="No border" options={{
-                                    '': '',
-                                    'noborder': 'yes',
+                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_noborder" label="Border" options={{
+                                    '': 'With border',
+                                    'noborder': 'Without border',
                                 }}/>
                                 <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_window_bg" label="Window background" />
-                                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="options_bg_custom" label={'Custom chart background'}/>
-                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="options_bg" label="Chart background" options={{
-                                    '': 'default',
-                                    '0': 'Portrait',
-                                    '1': 'Instagram',
-                                    '2': 'ServQuick',
-                                    '3': 'Metallic Toad',
-                                    '4': 'Clouds',
-                                    '5': 'Mirage',
-                                    '6': 'Steel Gray',
-                                    '7': 'Horizon',
-                                    '8': 'Koko Caramel',
-                                    '9': 'Turquoise flow',
-                                }}/>
+                                <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_bg_custom" label={'Chart background'}/>
                                 <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_x_labels_color" label="X labels color" />
                                 <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_y_labels_color" label="Y labels color" />
                                 <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="options_border_color" label="Border color" />
