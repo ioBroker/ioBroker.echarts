@@ -7,7 +7,6 @@ import I18n from '@iobroker/adapter-react/i18n';
 import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fields';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
-import {MdModeEdit as IconEdit} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -26,6 +25,8 @@ const WIDTHS = {
     buttons: 100
 };
 
+const LINE_HEIGHT = 48;
+
 let styles = theme => ({
     card: {
         borderStyle: 'dashed',
@@ -39,8 +40,8 @@ let styles = theme => ({
         display: 'block',
         '& > div': {
             display: 'inline-flex',
-            paddingRight: '20px',
-            width: '200px'
+            paddingRight: 20,
+            width: 200
         }
     },
     shortLineIdField: {
@@ -48,60 +49,60 @@ let styles = theme => ({
         minWidth: WIDTHS.lineId,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
-        paddingRight: '10px'
+        paddingRight: 10
     },
     shortUpperValueOrIdField: {
         display: 'inline-flex',
         minWidth: WIDTHS.upperValueOrId,
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
-        paddingRight: '10px'
+        paddingRight: 10
     },
     shortLowerValueOrIdField: {
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         display: 'inline-flex',
         minWidth: WIDTHS.lowerValueOrId,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
         verticalAlign: 'top',
-        paddingRight: '10px'
+        paddingRight: 10
     },
     shortColorField: {
         display: 'inline-flex',
         minWidth: WIDTHS.color,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
-        paddingRight: '10px'
+        paddingRight: 10
     },
     shortFillField: {
         display: 'inline-flex',
         width: WIDTHS.fill,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
-        paddingRight: '10px'
+        paddingRight: 10
     },
     shortTextField: {
         display: 'inline-flex',
         minWidth: WIDTHS.text,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
-        paddingRight: '10px'
+        paddingRight: 10
     },
     shortButtonsField: {
         display: 'inline-flex',
         minWidth: WIDTHS.buttons,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
     lineClosed: {
@@ -110,7 +111,7 @@ let styles = theme => ({
         overflow: 'hidden',
         flexDirection: 'row',
         flex: 1,
-        height: '48px'
+        height: LINE_HEIGHT
     },
     lineClosedContainer: {
         display: 'flex'
@@ -138,7 +139,7 @@ class Mark extends React.Component {
     updateField = (name, value)=>{
         let newMark = update(this.props.mark, {[name]: {$set: value}});
         this.props.updateMark(this.props.index, newMark);
-    }
+    };
 
     renderClosedLine(lines) {
         return <div className={this.props.classes.lineClosedContainer}>
@@ -148,53 +149,53 @@ class Mark extends React.Component {
                     onClick={() => this.props.markOpenToggle(this.props.index)}>
                     <IconFolderClosed/>
                 </IconButton>
-                <IOSelect 
-                    formData={this.props.mark} 
-                    updateValue={this.updateField} 
-                    name="lineId" 
-                    label="Line ID" 
+                <IOSelect
+                    formData={this.props.mark}
+                    updateValue={this.updateField}
+                    name="lineId"
+                    label="Line ID"
                     options={lines}
                     classes={{fieldContainer: this.props.classes.shortLineIdField}}
                     minWidth={WIDTHS.lineId}
                 />
-                <IOObjectField 
-                    formData={this.props.mark} 
-                    updateValue={this.updateField} 
-                    name="upperValueOrId" 
-                    label="Upper value or ID" 
-                    socket={this.props.socket} 
+                <IOObjectField
+                    formData={this.props.mark}
+                    updateValue={this.updateField}
+                    name="upperValueOrId"
+                    label="Upper value or ID"
+                    socket={this.props.socket}
                     classes={{fieldContainer: this.props.classes.shortUpperValueOrIdField}}
                     minWidth={WIDTHS.upperValueOrId}
                 />
-                <IOObjectField 
-                    formData={this.props.mark} 
-                    updateValue={this.updateField} 
-                    name="lowerValueOrId" 
-                    label="Lower value or ID" 
-                    socket={this.props.socket} 
+                <IOObjectField
+                    formData={this.props.mark}
+                    updateValue={this.updateField}
+                    name="lowerValueOrId"
+                    label="Lower value or ID"
+                    socket={this.props.socket}
                     classes={{fieldContainer: this.props.classes.shortLowerValueOrIdField}}
                     minWidth={WIDTHS.lowerValueOrId}
                 />
-                <IOColorPicker 
-                    formData={this.props.mark} 
-                    updateValue={this.updateField} 
-                    name="color" 
-                    label="Color" 
+                <IOColorPicker
+                    formData={this.props.mark}
+                    updateValue={this.updateField}
+                    name="color"
+                    label="Color"
                     classes={{fieldContainer: this.props.classes.shortColorField}}
                     minWidth={WIDTHS.color}
                 />
-                <IOCheckbox 
-                    formData={this.props.mark} 
-                    updateValue={this.updateField} 
-                    name="fill" 
+                <IOCheckbox
+                    formData={this.props.mark}
+                    updateValue={this.updateField}
+                    name="fill"
                     label="Fill"
                     classes={{fieldContainer: this.props.classes.shortFillField}}
                     minWidth={WIDTHS.dataType}
                 />
-                <IOTextField 
-                    formData={this.props.mark} 
-                    updateValue={this.updateField} 
-                    name="text" 
+                <IOTextField
+                    formData={this.props.mark}
+                    updateValue={this.updateField}
+                    name="text"
                     label="Text"
                     classes={{fieldContainer: this.props.classes.shortTextField}}
                     minWidth={WIDTHS.fill}
@@ -210,19 +211,17 @@ class Mark extends React.Component {
             </IconButton>
         </div>
     }
-    
+
     render() {
         let lines = {};
-        this.props.presetData.lines.forEach((line, index) => {
-            lines[index] = index + " - " + line.id;
-        });
+        this.props.presetData.lines.forEach((line, index) => lines[index] = index + ' - ' + line.id);
         return <Card className={this.props.classes.card}><CardContent>
             { this.props.opened ? <>
                 <div>
                     <IconButton title={ I18n.t('Edit') }
                         onClick={() => this.props.markOpenToggle(this.props.index)
                     }><IconFolderOpened/></IconButton>
-                    {I18n.t('Mark')} {this.props.index}{this.props.mark.text ? ' - ' + this.props.mark.text : ''}
+                    {I18n.t('Mark')} {this.props.index + 1}{this.props.mark.text ? ' - ' + this.props.mark.text : ''}
                     <IconButton
                         size="small"
                         style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}

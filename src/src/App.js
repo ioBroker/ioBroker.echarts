@@ -69,7 +69,8 @@ const styles = theme => ({
         width: '100%',
         height: '100%',
         background: theme.palette.background.default,
-        color: theme.palette.text.primary
+        color: theme.palette.text.primary,
+        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     },
     leftMenuItem: {
         width: '100%',

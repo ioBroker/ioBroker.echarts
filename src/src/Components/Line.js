@@ -196,7 +196,7 @@ class Line extends React.Component {
                 name="chartType"
                 label="Chart type"
                 options={{
-                    auto: 'Auto (Line or Steps)',
+                    auto: 'Auto',
                     line: 'Line',
                     bar: 'Bar',
                     scatterplot: 'Scatter plot',
@@ -257,7 +257,7 @@ class Line extends React.Component {
                             <IconButton title={ I18n.t('Edit') }
                                         onClick={() => this.props.lineOpenToggle(this.props.index)
                                         }><IconFolderOpened/></IconButton>
-                            {I18n.t('Line')} {this.props.index}{this.props.line.name ? ' - ' + this.props.line.name : ''}
+                            {I18n.t('Line')} {this.props.index + 1}{this.props.line.name ? ' - ' + this.props.line.name : ''}
                             <IconButton
                                 size="small"
                                 style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
