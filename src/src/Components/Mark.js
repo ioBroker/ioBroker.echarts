@@ -51,7 +51,9 @@ let styles = theme => ({
             display: 'inline-flex',
             paddingRight: 20,
             width: 200
-        }
+        },
+        paddingBottom: theme.spacing(2),
+        borderBottom: '1px dotted ' + theme.palette.grey[400]
     },
     shortLineIdField: {
         display: 'inline-flex',
@@ -124,7 +126,14 @@ let styles = theme => ({
     },
     lineClosedContainer: {
         display: 'flex'
-    }
+    },
+    deleteButton: {
+
+    },
+    deleteButtonFull: {
+        float: 'right',
+        marginRight: 12
+    },
 });
 
 class Mark extends React.Component {
@@ -222,7 +231,7 @@ class Mark extends React.Component {
 
     render() {
         let lines = {};
-        this.props.presetData.lines.forEach((line, index) => lines[index] = index + ' - ' + line.id);
+        this.props.presetData.lines.forEach((line, index) => lines[index] = index + ' - ' + (line.id || I18n.t('No ID yet')));
         return <Card className={this.props.classes.card}><CardContent className={this.props.classes.cardContent}>
             { this.props.opened ? <>
                 <div>
@@ -231,10 +240,10 @@ class Mark extends React.Component {
                     }><IconFolderOpened/></IconButton>
                     {I18n.t('Mark')} {this.props.index + 1}{this.props.mark.text ? ' - ' + this.props.mark.text : ''}
                     <IconButton
-                        style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
-                        onClick={()=>{
-                            this.props.deleteMark(this.props.index);
-                        }}>
+                        className={this.props.classes.deleteButtonFull}
+                        aria-label="Delete"
+                        title={I18n.t('Delete')}
+                        onClick={() => this.props.deleteMark(this.props.index)}>
                         <IconDelete/>
                     </IconButton>
                 </div>
@@ -242,18 +251,23 @@ class Mark extends React.Component {
                     <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={lines}/>
                     <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
                     <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
+                </div>
+                <div className={this.props.classes.shortFields}>
                     <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
                     <IOCheckbox formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill"/>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL" type="number"/>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS" type="number"/>
+                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number"/>
+                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number"/>
+                </div>
+                <div className={this.props.classes.shortFields}>
                     <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
-                    <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
-                        'l': 'Left',
-                        'r': 'Right',
-                    }}/>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/>
-                    <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" />
+                    {this.props.mark.text ?
+                        <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
+                            'l': 'Left',
+                            'r': 'Right',
+                        }}/> : null}
+                    {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/> : null}
+                    {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
+                    {this.props.mark.text ?<IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" /> : null}
                 </div>
             </> : this.renderClosedLine(lines)}
         </CardContent></Card>

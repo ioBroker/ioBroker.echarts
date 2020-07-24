@@ -137,6 +137,7 @@ let IOObjectField = function (props) {
             <TextField
                 className={props.classes.objectField}
                 label={I18n.t(props.label)}
+                fullWidth={true}
                 InputLabelProps={{shrink: true}}
                 value={props.formData[props.name] || ''}
                 onChange={(e) => props.updateValue(props.name, e.target.value)}

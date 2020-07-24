@@ -12,8 +12,8 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import {withStyles} from '@material-ui/core/styles';
 
-import {FaFolder as IconFolderClosed} from 'react-icons/all';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
+import {FaFolder as IconFolderClosed} from 'react-icons/fa';
+import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
 
 const WIDTHS = {
     instance: 100,
@@ -24,6 +24,8 @@ const WIDTHS = {
     name: 200,
     buttons: 50 + 50
 };
+
+const LINE_HEIGHT = 48;
 
 let styles = theme => ({
     card: {
@@ -48,13 +50,14 @@ let styles = theme => ({
             paddingRight: 20,
             width: 200,
         },
-        marginBottom: theme.spacing(2),
+        paddingBottom: theme.spacing(2),
+        borderBottom: '1px dotted ' + theme.palette.grey[400]
     },
     shortInstanceField: {
         display: 'inline-block',
         minWidth: WIDTHS.instance,
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
     shortIdField: {
@@ -62,11 +65,11 @@ let styles = theme => ({
         minWidth: WIDTHS.id,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
     shortDataTypeField: {
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         display: 'inline-block',
         minWidth: WIDTHS.dataType,
         marginLeft: theme.spacing(1),
@@ -78,7 +81,7 @@ let styles = theme => ({
         minWidth: WIDTHS.chartType,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
     shortColorField: {
@@ -87,7 +90,7 @@ let styles = theme => ({
         width: WIDTHS.color,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
     shortNameField: {
@@ -95,7 +98,7 @@ let styles = theme => ({
         minWidth: WIDTHS.name,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
     shortButtonsField: {
@@ -103,7 +106,7 @@ let styles = theme => ({
         minWidth: WIDTHS.buttons,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: '48px',
+        lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
     deleteButton: {
@@ -113,6 +116,10 @@ let styles = theme => ({
         float: 'right',
         marginRight: 12
     },
+    fullWidth: {
+        width: '100%',
+        minWidth: 200
+    }
 });
 
 class Line extends React.Component {
@@ -277,14 +284,22 @@ class Line extends React.Component {
                             </IconButton>
                         </div>
                         <div className={this.props.classes.shortFields}>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" options={
+                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" noTranslate={true} options={
                                 (() => {
                                     let result = {};
-                                    this.props.instances.forEach(instance => result[instance._id] = instance._id);
+                                    this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
                                     return result;
                                 })()
                             }/>
-                            <IOObjectField formData={this.props.line} updateValue={this.updateField} name="id" label="ID" customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}} socket={this.props.socket}/>
+                            <IOObjectField
+                                formData={this.props.line}
+                                classes={{objectContainer: this.props.classes.fullWidth}}
+                                updateValue={this.updateField}
+                                name="id"
+                                label="ID"
+                                width={'calc(100% - 250px)'}
+                                customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}}
+                                socket={this.props.socket}/>
                         </div>
                         <div className={this.props.classes.shortFields}>
                             <IOColorPicker formData={this.props.line} updateValue={this.updateField} name="color" label="Color" />
