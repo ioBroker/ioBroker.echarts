@@ -165,21 +165,21 @@ class PresetTabs extends React.Component {
             */
         },
         selectedTab: window.localStorage.getItem('PresetTabs.selectedTab') !== null ? window.localStorage.getItem('PresetTabs.selectedTab') : '0',
-        linesOpened: window.localStorage.getItem('Lines.opened') ? JSON.parse(window.localStorage.getItem('Lines.opened')) : {},
-        marksOpened: window.localStorage.getItem('Marks.opened') ? JSON.parse(window.localStorage.getItem('Marks.opened')) : {},
+        linesOpened: window.localStorage.getItem('Lines.opened') !== null ? JSON.parse(window.localStorage.getItem('Lines.opened')) : [],
+        marksOpened: window.localStorage.getItem('Marks.opened') !== null ? JSON.parse(window.localStorage.getItem('Marks.opened')) : [],
         deleteLineDialog: null,
         deleteMarkDialog: null,
     };
-
+    
     lineOpenToggle = (index) => {
-        let opened = typeof this.state.linesOpened[index] === 'undefined' || this.state.linesOpened[index] === true;
+        let opened = typeof this.state.linesOpened[index] !== 'undefined' && this.state.linesOpened[index] === true;
         let newState = update(this.state, {linesOpened: {[index]: {$set: !opened}}});
         this.setState(newState)
         window.localStorage.setItem('Lines.opened', JSON.stringify(newState.linesOpened));
     };
 
     markOpenToggle = (index) => {
-        let opened = typeof this.state.marksOpened[index] === 'undefined' || this.state.marksOpened[index] === true;
+        let opened = typeof this.state.marksOpened[index] !== 'undefined' && this.state.marksOpened[index] === true;
         let newState = update(this.state, {marksOpened: {[index]: {$set: !opened}}});
         this.setState(newState)
         window.localStorage.setItem('Marks.opened', JSON.stringify(newState.marksOpened));
@@ -216,9 +216,15 @@ class PresetTabs extends React.Component {
         let newPresetData = update(this.props.presetData, {
             marks: {
                 $splice: [[index, 1]]
-            }
+            },
         });
         this.props.onChange(newPresetData);
+        let newState = update(this.state, {
+            marksOpened: {
+                $splice: [[index, 1]]
+            }
+        });
+        this.setState(newState);
     };
 
     addLine = () => {
@@ -237,6 +243,12 @@ class PresetTabs extends React.Component {
             }
         });
         this.props.onChange(newPresetData);
+        let newState = update(this.state, {
+            linesOpened: {
+                $splice: [[index, 1]]
+            }
+        });
+        this.setState(newState);
     };
 
     renderDeleteLineDialog() {
@@ -326,7 +338,7 @@ class PresetTabs extends React.Component {
                                 index={key}
                                 key={key}
                                 socket={this.props.socket}
-                                opened={typeof this.state.linesOpened[key] === 'undefined' || this.state.linesOpened[key] === true}
+                                opened={typeof this.state.linesOpened[key] !== 'undefined' && this.state.linesOpened[key] === true}
                                 lineOpenToggle={this.lineOpenToggle}
                             />)
                         }
@@ -344,7 +356,7 @@ class PresetTabs extends React.Component {
                                 index={key}
                                 key={key}
                                 socket={this.props.socket}
-                                opened={typeof this.state.marksOpened[key] === 'undefined' || this.state.marksOpened[key] === true}
+                                opened={typeof this.state.marksOpened[key] !== 'undefined' && this.state.marksOpened[key] === true}
                                 markOpenToggle={this.markOpenToggle}
                             />)
                         }
