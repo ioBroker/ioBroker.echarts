@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import IconButton from '@material-ui/core/IconButton';
+//import IconButton from '@material-ui/core/IconButton';
 
-import I18n from '@iobroker/adapter-react/i18n';
+//import I18n from '@iobroker/adapter-react/i18n';
 import {withStyles} from '@material-ui/core/styles/index';
 
 import PresetTabs from './Components/PresetTabs';
 
 // replace later with MdHorizontalSplit and MdVerticalSplit
-const IconVerticalSplit   = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAACFJREFUeAFjAIJRwP////8PYIKWHCigNQdKj/pn1D+jAABTG16wVQqVpQAAAABJRU5ErkJggg==';
-const IconHorizontalSplit = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAABtJREFUeAFjAIJRwP8fCj7QkENn/4z6Z5QzCgBjbWaoyx1PqQAAAABJRU5ErkJggg==';
+//const IconVerticalSplit   = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAACFJREFUeAFjAIJRwP////8PYIKWHCigNQdKj/pn1D+jAABTG16wVQqVpQAAAABJRU5ErkJggg==';
+//const IconHorizontalSplit = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAABtJREFUeAFjAIJRwP8fCj7QkENn/4z6Z5QzCgBjbWaoyx1PqQAAAABJRU5ErkJggg==';
 
 const TOOLBOX_WIDTH = 0;//34;
 
@@ -56,7 +56,7 @@ const styles = theme => ({
 class SettingsEditor extends React.Component {
     render() {
         return <div className={this.props.classes.logBox}>
-            {false ? <div className={this.props.classes.toolbox} key="toolbox">
+            {/*false ? <div className={this.props.classes.toolbox} key="toolbox">
                 {this.props.onLayoutChange ?
                     (<IconButton
                         className={this.props.classes.iconButtons}
@@ -69,7 +69,7 @@ class SettingsEditor extends React.Component {
                             src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit}
                         />
                     </IconButton>) : null}
-            </div> : null }
+            </div> : null*/ }
             <div className={this.props.classes.logBoxInner} key="logList">
                 <PresetTabs
                     width={this.props.width}

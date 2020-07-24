@@ -145,7 +145,13 @@ const styles = theme => ({
         '& button': {
             whiteSpace: 'nowrap'
         }
-    }
+    },
+    itemIconPreset: {
+        color: theme.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark
+    },
+    folderIconPreset: {
+        color: theme.type === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary.light
+    },
 });
 
 function getFolderPrefix(presetId) {
@@ -240,7 +246,7 @@ class App extends GenericApp {
             logHorzLayout: window.localStorage.getItem('App.logHorzLayout') === 'true',
             confirm: '',
             searchText: '',
-            themeType: window.localStorage.getItem('App.theme') || 'light',
+            themeType: window.localStorage.getItem('App.themeName') || 'light',
         };
         this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.settingsSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
@@ -271,8 +277,12 @@ class App extends GenericApp {
                 startkey: 'flot.',
                 endkey: 'flot.\u9999'
             }, (err, res) => {
-                res && res.rows && res.rows.forEach(preset => presets[preset.value._id] = preset.value);
-                resolve({presets, folders: th.buildTree(presets)});
+                if (err) {
+                    reject(err);
+                } else {
+                    res && res.rows && res.rows.forEach(preset => presets[preset.value._id] = preset.value);
+                    resolve({presets, folders: th.buildTree(presets)});
+                }
             }));
     }
 
@@ -379,11 +389,6 @@ class App extends GenericApp {
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
             .then(instances => this.getAllCustoms(instances))
     }
-
-    onObjectChange = (id, obj, oldObj) => {
-        console.log('Changed ' + id);
-    };
-
 
     toggleLogLayout() {
         window.localStorage && window.localStorage.setItem('App.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
@@ -506,13 +511,13 @@ class App extends GenericApp {
     getNewPresetId() {
         let newId = 0;
 
-        for (const id in this.state.presets) {
+        Object.keys(this.state.presets).forEach(id => {
             let shortId = id.split('.').pop();
             let matches = shortId.match(/^preset([0-9]+)$/);
             if (matches && parseInt(matches[1], 10) >= newId) {
                 newId = parseInt(matches[1]) + 1;
             }
-        }
+        });
 
         return 'preset' + newId;
     };
@@ -615,7 +620,7 @@ class App extends GenericApp {
             </List>
     }
 
-    renderTreePreset = (item, level) => {
+    renderTreePreset = (item, level, anySubFolders) => {
         const preset = this.state.presets[item._id];
         if (!preset || (this.state.search && !item.common.name.includes(this.state.search))) {
             return null;
@@ -625,7 +630,7 @@ class App extends GenericApp {
 
         return <ListItem
             classes={ {gutters: this.props.classes.noGutters} }
-            style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
+            style={ {paddingLeft: level * LEVEL_PADDING } }
             key={ item._id }
             selected={item._id === this.state.selectedPresetId}
             button
@@ -634,7 +639,7 @@ class App extends GenericApp {
                 this.setState({loadPresetDialog: preset._id}) :
                 this.loadPreset(preset._id)
             }>
-            <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
+            <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset)} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
             <ListItemText
                 classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
                 primary={ <>
@@ -658,10 +663,12 @@ class App extends GenericApp {
                     <CircularProgress size={ 24 }/>
                     :
                     <>
-                        <div>
+                        {level || anySubFolders ?
                             <IconButton size="small" aria-label="Move to folder" title={ I18n.t('Move to folder') } onClick={ () => this.setState({moveDialog: preset._id, newFolder: getFolderPrefix(preset._id)}) }><IconMoveToFolder/></IconButton>
-                            <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deleteDialog: preset._id}) }><IconDelete/></IconButton>
-                        </div>
+                            :
+                            null
+                        }
+                        <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deleteDialog: preset._id}) }><IconDelete/></IconButton>
                     </>
                 }
             </ListItemSecondaryAction>
@@ -680,10 +687,10 @@ class App extends GenericApp {
             if (Object.keys(folder.presets).includes(this.state.selectedPresetId)) {
                 // To do ask question
                 if (this.state.selectedPresetChanged) {
-                    this.confirmCb = () => {
+                    /*this.confirmCb = () => {
                         //this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false, opened});
                         //window.localStorage.setItem('Presets.opened', JSON.stringify(opened));
-                    };
+                    };*/
                     return this.setState({presetChangeDialog: 'empty'});
                 }
 
@@ -708,7 +715,7 @@ class App extends GenericApp {
             className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
             style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
         >
-            <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleFolder(parent) }>{ opened ?
+            <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.folderIconPreset)} } onClick={ () => this.toggleFolder(parent) }>{ opened ?
                 <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
                 <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
             }</ListItemIcon>
@@ -728,7 +735,7 @@ class App extends GenericApp {
             </ListItemSecondaryAction>
         </ListItem>);
 
-        if (parent && (opened || !parent.id)) { // root cannot be closed and have id === ''
+        if (parent && (opened || !parent.id)) { // root cannot be closed and have id = ''
             const values = Object.values(parent.presets);
             const subFolders = Object.values(parent.subFolders);
 
@@ -747,7 +754,7 @@ class App extends GenericApp {
                     style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
                 >
                     { values.length ?
-                        values.sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0)).map(preset => this.renderTreePreset(preset, level))
+                        values.sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0)).map(preset => this.renderTreePreset(preset, level, subFolders.length))
                         :
                         (!subFolders.length ? <ListItem classes={ {gutters: this.props.classes.noGutters} }><ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText></ListItem> : '')
                     }
@@ -778,7 +785,7 @@ class App extends GenericApp {
         this.socket.setObject(newId, preset)
             .then(() => this.refreshData())
             .then(() => {
-                if (this.state.selectedPresetId == id) {
+                if (this.state.selectedPresetId === id) {
                     this.loadPreset(newId);
                 }
             })
@@ -790,9 +797,11 @@ class App extends GenericApp {
             return;
         }
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
+
         window.localStorage.setItem('App.selectedPresetId', id);
         window.localStorage.setItem('App.selectedChartId', '');
         window.localStorage.setItem('App.selectedInstance', '');
+
         this.setState({
             presetData: preset.native.data,
             selectedPresetData: preset.native.data,
@@ -827,8 +836,8 @@ class App extends GenericApp {
             axeX: 'lines',
             axeY: 'inside',
             hoverDetail: true,
-            aggregate: 'minmax',
-            chartType: 'auto',
+            aggregate: this.loadChartParam('aggregate', 'minmax'),
+            chartType: this.loadChartParam('chartType', 'auto'),
             live: this.loadChartParam('live', '30'),
             timeType: this.loadChartParam('timeType', 'relative'),
             aggregateType: this.loadChartParam('aggregateType', 'step'),
@@ -885,12 +894,12 @@ class App extends GenericApp {
                         className={ this.props.classes.textInput }
                         onChange={ e => this.setState({search: e.target.value}) }
                         InputProps={{
-                            endAdornment: this.state.search ? (
+                            endAdornment: this.state.search ?
                                 <IconButton
                                     onClick={() => this.setState({ search: '' })}>
                                     <ClearIcon />
                                 </IconButton>
-                            ) : undefined,
+                             : undefined,
                         }}
                     /> : null
                 }
@@ -1020,7 +1029,7 @@ class App extends GenericApp {
                 <Button
                     variant="contained"
                     disabled={ !isIdUnique }
-                    color="primary" onClick={ e =>
+                    color="primary" onClick={() =>
                         this.setState({moveDialog: null}, () =>
                             this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newFolder === '__root__' ? '' : this.state.newFolder))
                     }
@@ -1075,7 +1084,7 @@ class App extends GenericApp {
                 <Button
                     variant="contained"
                     disabled={ disabled }
-                    color="primary" onClick={ e =>
+                    color="primary" onClick={() =>
                         this.setState({renameDialog: null}, () =>
                             this.renamePreset(presetId, this.state.renamePresetDialogTitle)
                         )
@@ -1098,7 +1107,7 @@ class App extends GenericApp {
                 <Button variant="contained" onClick={ () => this.setState({deleteDialog: false}) }>
                     {I18n.t('Cancel')}
                 </Button>
-                <Button variant="contained" color="secondary" onClick={e => {
+                <Button variant="contained" color="secondary" onClick={() => {
                     this.deletePreset(this.state.deleteDialog);
                     this.setState({deleteDialog: false});
                 }}>
@@ -1127,7 +1136,7 @@ class App extends GenericApp {
                     }}>
                         <IconSave/> { I18n.t('Save current preset and load') }
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={e => {
+                    <Button variant="contained" color="secondary" onClick={() => {
                         this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
                         this.setState({loadChartDialog: ''});
                     }}>

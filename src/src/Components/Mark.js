@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
+import clsx from 'clsx';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
@@ -54,6 +55,10 @@ let styles = theme => ({
         },
         paddingBottom: theme.spacing(2),
         borderBottom: '1px dotted ' + theme.palette.grey[400]
+    },
+    shortFieldsLast: {
+        borderBottom: '0px',
+        paddingBottom: 0,
     },
     shortLineIdField: {
         display: 'inline-flex',
@@ -258,7 +263,7 @@ class Mark extends React.Component {
                     <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number"/>
                     <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number"/>
                 </div>
-                <div className={this.props.classes.shortFields}>
+                <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                     <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
                     {this.props.mark.text ?
                         <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{

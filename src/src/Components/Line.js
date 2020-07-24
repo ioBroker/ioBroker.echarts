@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
+import clsx from 'clsx';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
@@ -14,6 +15,7 @@ import {withStyles} from '@material-ui/core/styles';
 
 import {FaFolder as IconFolderClosed} from 'react-icons/fa';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
+import Utils from '@iobroker/adapter-react/Components/Utils';
 
 const WIDTHS = {
     instance: 100,
@@ -52,6 +54,10 @@ let styles = theme => ({
         },
         paddingBottom: theme.spacing(2),
         borderBottom: '1px dotted ' + theme.palette.grey[400]
+    },
+    shortFieldsLast: {
+        borderBottom: '0px',
+        paddingBottom: 0,
     },
     shortInstanceField: {
         display: 'inline-block',
@@ -131,10 +137,30 @@ class Line extends React.Component {
     }
     updateField = (name, value) => {
         let newLine = update(this.props.line, {[name]: {$set: value}});
-        if (name == 'id') {
-            let name = value.split('.');
-            name = name.length ? name[name.length - 1] : '';
-            newLine = update(newLine, {['name']: {$set: name}});
+        if (name === 'id') {
+            if (this.props.line.id !== value) {
+                return this.props.socket.getObject(value)
+                    .then(obj => {
+                        if (obj && obj.common && obj.common.name) {
+                            name = Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()});
+                        } else {
+                            let _name = value.split('.');
+                            name = _name.length ? _name[_name.length - 1] : '';
+                        }
+                        if (obj && obj.common && obj.common.unit) {
+                            newLine = update(newLine, {['unit']: {$set: obj.common.unit}});
+                        }
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        let _name = value.split('.');
+                        name = _name.length ? _name[_name.length - 1] : '';
+                    })
+                    .then(() => {
+                        newLine = update(newLine, {['name']: {$set: name}});
+                        this.props.updateLine(this.props.index, newLine);
+                    });
+            }
         }
         this.props.updateLine(this.props.index, newLine);
     };
@@ -142,6 +168,8 @@ class Line extends React.Component {
     static getDerivedStateFromProps(props, state) {
         if (props.width !== state.width) {
             return {width: props.width};
+        } else {
+            return null;
         }
     }
 
@@ -327,8 +355,8 @@ class Line extends React.Component {
                         <div className={this.props.classes.shortFields}>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
                             <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" type="number"/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" type="number"/>
+                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={1} type="number"/>
+                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number"/>
                         </div>
                         <div className={this.props.classes.shortFields}>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" />
@@ -397,13 +425,13 @@ class Line extends React.Component {
                                 'true': 'ignore null values',
                                 '0': 'use 0 instead of null values',
                             }}/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number"/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number"/>
+                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0}/>
+                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0}/>
                         </div>
-                        <div className={this.props.classes.shortFields}>
+                        <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                             <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
-                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" type="number"/> : null}
-                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" type="number"/> : null}
+                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" min={1} type="number"/> : null}
+                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" min={1} type="number"/> : null}
                         </div>
                     </>
                     :

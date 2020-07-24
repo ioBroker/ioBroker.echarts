@@ -155,7 +155,7 @@ class ChartSettings extends React.Component {
         refreshOpened: false
     };
 
-    updateField = (name, value, time)=>{
+    updateField = (name, value, time) => {
         let updateObject = {[name]: {$set: value}};
         if (time) {
             updateObject[name + '_time'] = {$set: time};
@@ -232,12 +232,19 @@ class ChartSettings extends React.Component {
             >
                 <div className={this.props.classes.popOver}>
                     <div className={this.props.classes.fieldsContainer}>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
-                            'count': 'counts',
-                            'step': 'seconds',
-                        }}/>
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
-                            label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="chartType"
+                            label="Chart type"
+                            options={{
+                                auto: 'Auto (Line or Steps)',
+                                line: 'Line',
+                                bar: 'Bar',
+                                scatterplot: 'Scatter plot',
+                                steps: 'Steps',
+                                spline: 'Spline',
+                            }}
                         />
                         <IOSelect
                             formData={this.props.presetData}
@@ -252,19 +259,12 @@ class ChartSettings extends React.Component {
                                 total: 'total',
                                 onchange: 'on change',
                             }}/>
-                        <IOSelect
-                            formData={this.props.presetData}
-                            updateValue={this.updateField}
-                            name="chartType"
-                            label="Chart type"
-                            options={{
-                                auto: 'Auto (Line or Steps)',
-                                line: 'Line',
-                                bar: 'Bar',
-                                scatterplot: 'Scatter plot',
-                                steps: 'Steps',
-                                spline: 'Spline',
-                            }}
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
+                            'count': 'counts',
+                            'step': 'seconds',
+                        }}/>
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
+                            label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                         />
                     </div>
                 </div>

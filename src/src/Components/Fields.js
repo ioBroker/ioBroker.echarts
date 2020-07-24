@@ -94,9 +94,9 @@ let IOTextField = function (props) {
         <TextField
             label={I18n.t(props.label)}
             InputLabelProps={{shrink: true}}
-            onChange={(e) => {
-                props.updateValue(props.name, e.target.value)
-            }}
+            inputProps={{min: props.min, max: props.max}}
+            onChange={(e) =>
+                props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             type={props.type}
         />
@@ -108,6 +108,8 @@ IOTextField.propTypes = {
     value: PropTypes.any,
     formData: PropTypes.object,
     type: PropTypes.string,
+    min: PropTypes.number,
+    max: PropTypes.number,
 };
 IOTextField = withStyles(styles)(IOTextField);
 export {IOTextField};
@@ -176,14 +178,14 @@ export {IOObjectField};
 let IOColorPicker = function (props) {
     return <div className={props.classes.fieldContainer}>
         <ColorPicker
+            variant="standard"
             label={I18n.t(props.label)}
             pickerClassName={props.classes.colorPicker}
             inputProps={{
                 style: {backgroundColor: props.formData[props.name]}
             }}
-            onChange={(color) => {
-                props.updateValue(props.name, color)
-            }}
+            onChange={color =>
+                props.updateValue(props.name, color)}
             InputLabelProps={{shrink: true}}
             value={props.formData[props.name] || ''}
         />

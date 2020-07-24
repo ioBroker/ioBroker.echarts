@@ -182,7 +182,7 @@ class PresetTabs extends React.Component {
         deleteLineDialog: null,
         deleteMarkDialog: null,
     };
-    
+
     lineOpenToggle = (index) => {
         let opened = typeof this.state.linesOpened[index] !== 'undefined' && this.state.linesOpened[index] === true;
         let newState = update(this.state, {linesOpened: {[index]: {$set: !opened}}});
@@ -288,7 +288,7 @@ class PresetTabs extends React.Component {
                 <Button variant="contained" onClick={ () => this.setState({deleteLineDialog: null}) }>
                     {I18n.t('Cancel')}
                 </Button>
-                <Button variant="contained" color="secondary" onClick={e => {
+                <Button variant="contained" color="secondary" onClick={() => {
                     this.deleteLine(this.state.deleteLineDialog);
                     this.setState({deleteLineDialog: null});
                 }}>
@@ -309,7 +309,7 @@ class PresetTabs extends React.Component {
                 <Button variant="contained" onClick={ () => this.setState({deleteMarkDialog: null}) }>
                     {I18n.t('Cancel')}
                 </Button>
-                <Button variant="contained" color="secondary" onClick={e => {
+                <Button variant="contained" color="secondary" onClick={() => {
                     this.deleteMark(this.state.deleteMarkDialog);
                     this.setState({deleteMarkDialog: null});
                 }}>
@@ -323,12 +323,11 @@ class PresetTabs extends React.Component {
         return <>
             <TabContext value={this.state.selectedTab}>
                 <AppBar position="static" className={this.props.classes.tabsContainer}>
-                    <IconButton 
-                        className={this.props.classes.buttonSave} 
+                    <IconButton
+                        className={this.props.classes.buttonSave}
                         style={{visibility: this.props.selectedPresetChanged ? 'visible' : 'hidden'}}
-                        onClick={(e)=>{
-                            this.props.savePreset(this.props.selectedPresetId);
-                        }}
+                        onClick={() =>
+                            this.props.savePreset(this.props.selectedPresetId)}
                     >
                         <IconSave/>
                     </IconButton>
@@ -359,7 +358,7 @@ class PresetTabs extends React.Component {
                                 line={line}
                                 width={this.props.width}
                                 updateLine={this.updateLine}
-                                deleteLine={(index) => {this.setState({deleteLineDialog: index})}}
+                                deleteLine={index => {this.setState({deleteLineDialog: index})}}
                                 index={key}
                                 key={key}
                                 socket={this.props.socket}
