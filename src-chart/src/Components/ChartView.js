@@ -148,6 +148,7 @@ class ChartView extends React.Component {
 
         return {
             backgroundColor: 'transparent',
+            animation: !this.props.noAnimation,
             title: {
                 text: this.props.config.title || '',
                 textStyle: {
@@ -587,6 +588,7 @@ ChartView.propTypes = {
     config: PropTypes.object,
     themeType: PropTypes.string,
     data: PropTypes.array,
+    noAnimation: PropTypes.bool,
 };
 
 export default withWidth()(withStyles(styles)(ChartView));

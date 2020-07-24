@@ -148,7 +148,7 @@ class Line extends React.Component {
                             name = _name.length ? _name[_name.length - 1] : '';
                         }
                         if (obj && obj.common && obj.common.unit) {
-                            newLine = update(newLine, {['unit']: {$set: obj.common.unit}});
+                            newLine = update(newLine, {unit: {$set: obj.common.unit}});
                         }
                     })
                     .catch(e => {
@@ -157,7 +157,7 @@ class Line extends React.Component {
                         name = _name.length ? _name[_name.length - 1] : '';
                     })
                     .then(() => {
-                        newLine = update(newLine, {['name']: {$set: name}});
+                        newLine = update(newLine, {name: {$set: name}});
                         this.props.updateLine(this.props.index, newLine);
                     });
             }

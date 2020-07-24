@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {withStyles} from "@material-ui/core";
 import Paper from '@material-ui/core/Paper';
 
-
 const styles = theme => ({
     darkBackground: {
         stroke: '#3a3a3a !important',
@@ -17,6 +16,7 @@ const styles = theme => ({
         color: theme.palette.primary.main// && console.log(JSON.stringify(theme))
     }
 });
+
 
 function deParam(params, coerce) {
     const obj = {};
@@ -109,20 +109,21 @@ function deParam(params, coerce) {
 
 class ChartFrame extends React.Component {
     render() {
-        return <Paper className={this.props.classes.iframe} style={{background: '#333'}}>
-            <pre>{this.props.src.split('&').join('\n')}</pre>
-            <br/>
-            <hr/>
-            <br/>
-            <pre>{JSON.stringify(deParam(this.props.src.split('?')[1]), null, 2)}</pre>
-        </Paper>
-
-        /*return <iframe
-            title="iobrokerChart"
-            className={this.props.classes.iframe}
-            src={this.props.src}>
-
-        </iframe>;*/
+        if (window.location.port === '3000') {
+            return <Paper className={this.props.classes.iframe} style={{background: '#333'}}>
+                <pre>{this.props.src.split('&').join('\n')}</pre>
+                <br/>
+                <hr/>
+                <br/>
+                <pre>{JSON.stringify(deParam(this.props.src.split('?')[1]), null, 2)}</pre>
+            </Paper>;
+        } else {
+            return <iframe
+                title="iobrokerChart"
+                className={this.props.classes.iframe}
+                src={this.props.src}>
+            </iframe>;
+        }
     }
 }
 

@@ -33,6 +33,7 @@ class App extends Component {
             connected:  false,
             reading:    true,
             seriesData: null,
+            noLoader:   Utils.parseQuery(window.location.search).noLoader || false,
             theme:      themeInstance,
             themeName:  this.getThemeName(themeInstance),
             themeType:  this.getThemeType(themeInstance),
@@ -137,15 +138,22 @@ class App extends Component {
     }
 
     renderError() {
-        if (!this.state.errorText) return null;
-        return (<DialogError text={this.state.errorText} onClose={() => this.setState({errorText: ''})}/>);
+        if (!this.state.errorText) {
+            return null;
+        } else {
+            return <DialogError text={this.state.errorText} onClose={() => this.setState({errorText: ''})}/>;
+        }
     }
 
     render() {
         if (!this.state.connected || !this.state.seriesData) {
-            return <MuiThemeProvider theme={this.state.theme}>
-                <Loader theme={this.state.themeType}/>
-            </MuiThemeProvider>;
+            if (this.state.noLoader) {
+                return null;
+            } else {
+                return <MuiThemeProvider theme={this.state.theme}>
+                    <Loader theme={this.state.themeType}/>
+                </MuiThemeProvider>;
+            }
         }
 
         if (this.state.seriesData) {
@@ -155,10 +163,13 @@ class App extends Component {
         const config = this.chartData.getConfig();
 
         return <MuiThemeProvider theme={this.state.theme}>
-            <div ref={this.divRef} className={this.props.classes.root} style={{width: config.width, height: config.height, background: this.state.theme.palette.background.default, color: this.state.theme.palette.text.primary}}>
+            <div ref={this.divRef}
+                 className={this.props.classes.root}
+                 style={{width: config.width, height: config.height, background: this.state.theme.palette.background.default, color: this.state.theme.palette.text.primary}}>
                 <ChartView
                     socket={this.socket}
                     t={I18n.t}
+                    noAnimation={this.state.noLoader}
                     data={this.state.seriesData}
                     config={this.chartData.getConfig()}
                     lang={I18n.getLanguage()}

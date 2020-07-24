@@ -4,7 +4,6 @@ import {MuiThemeProvider, withStyles} from '@material-ui/core/styles';
 
 import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
-import getUrlQuery from './utils/getUrlQuery';
 
 const styles = theme => ({
 
@@ -133,7 +132,7 @@ class MainChart extends React.Component {
                 'textSize': 'fs',
             },
         };
-        let url = '';
+        let url = [];
         for (let k in this.props.presetData) {
             let v = this.props.presetData[k];
             let translateCurrentObject = translateObject[k];
@@ -141,7 +140,6 @@ class MainChart extends React.Component {
             if (k === 'chartType' || k === 'aggregate') {
                 continue;
             }
-
 
             if (translate[k]) {
                 k = translate[k];
@@ -161,26 +159,29 @@ class MainChart extends React.Component {
                                     k2 = translateCurrentObject[k2];
                                 }
 
-                                url += encodeURIComponent(k + '[' + i + '][' + k2 + ']') + '=' + encodeURIComponent(v2) + '&';
+                                url.push(encodeURIComponent(k + '[' + i + '][' + k2 + ']') + '=' + encodeURIComponent(v2));
                             }
                         }
                     }
                 }
             } else if (v !== undefined && v !== null && v !== '') {
-                url += encodeURIComponent(k) + '=' + encodeURIComponent(v) + '&';
+                url.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
             }
         }
+        url.push('noLoader=true');
 
-        return url;
+        return url.join('&');
     }
-
 
     getUrl() {
         if (this.props.presetMode) {
-            return '/flot/index.html?' + this.getUrlParameters();
-            //return '/flot/index.html?preset=' + encodeURIComponent(this.props.selectedPresetId);
+            if (window.location.port === '3000') {
+                return 'chart/index.html?' + this.getUrlParameters();
+            } else {
+                return 'chart/index.html?preset=' + encodeURIComponent(this.props.selectedPresetId) + '&noLoader=true';
+            }
         } else {
-            return '/flot/index.html?' + this.getUrlParameters();
+            return 'chart/index.html?' + this.getUrlParameters();
         }
     }
 
@@ -195,10 +196,6 @@ class MainChart extends React.Component {
             <div className={this.props.classes.container}>
                 {this.renderToolbar()}
                 {this.getChartFrame()}
-                {/* <div style={{height: '200px', overflow: 'auto'}}>
-                    <pre>{this.getUrlParameters()}</pre>
-                    <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
-                </div> */}
             </div>
         </MuiThemeProvider>
     }

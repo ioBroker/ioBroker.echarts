@@ -1,31 +1,4 @@
-function parseQuery(query) {
-    query = (query || '').toString().replace(/^\?/, '');
-    const result = {};
-    query.split('&').forEach(part => {
-        part = part.trim();
-        if (part) {
-            const parts = part.split('=');
-            const attr = decodeURIComponent(parts[0]).trim();
-            if (parts.length > 1) {
-                result[attr] = decodeURIComponent(parts[1]);
-                if (result[attr] === 'true') {
-                    result[attr] = true;
-                } else if (result[attr] === 'false') {
-                    result[attr] = false;
-                } else {
-                    const f = parseFloat(result[attr]);
-                    if (f.toString() === result[attr]) {
-                        result[attr] = f;
-                    }
-                }
-            } else {
-                result[attr] = true;
-            }
-        }
-    });
-
-    return result;
-}
+import Utils from '@iobroker/adapter-react/Components/Utils';
 
 function deParam(params, coerce) {
     const obj = {};
@@ -176,7 +149,7 @@ function normalizeConfig(config) {
 class ChartModel {
     constructor(socket, config) {
         if (!config) {
-            const query = parseQuery(window.location.search); // Utils.parseQuery
+            const query = Utils.parseQuery(window.location.search); // Utils.parseQuery
 
             if (query.preset) {
                 this.preset = query.preset;
@@ -205,6 +178,10 @@ class ChartModel {
         this.subscribed      = false;
         this.sessionId       = 1;
 
+        this.onUpdateFunc    = null;
+        this.onReadingFunc   = null;
+        this.onErrorFunc     = null;
+
         if (this.preset) {
             this.socket.getObject(this.preset)
                 .then(obj => {
@@ -222,7 +199,7 @@ class ChartModel {
 
         // just copy data to force update
         this.seriesData = JSON.parse(JSON.stringify(this.seriesData));
-        this.onUpdate && this.onUpdate(this.seriesData);
+        this.onUpdateFunc && this.onUpdateFunc(this.seriesData);
     };
 
     destroy() {
@@ -237,15 +214,15 @@ class ChartModel {
     }
 
     onUpdate(cb) {
-        this.onUpdate = cb;
+        this.onUpdateFunc = cb;
     }
 
     onReading(cb) {
-        this.onReading = cb;
+        this.onReadingFunc = cb;
     }
 
     onError(cb) {
-        this.onError = cb;
+        this.onErrorFunc = cb;
     }
 
     getConfig() {
@@ -726,7 +703,7 @@ class ChartModel {
         }
 
         if (this.config.l) {
-            this.onReading && this.onReading(true);
+            this.onReadingFunc && this.onReadingFunc(true);
 
             // todo
 //            if (config.renderer === 'pie' || (config.renderer === 'bar' && config._ids.length > 1)) {
@@ -751,14 +728,14 @@ class ChartModel {
                         if (!this.subscribed) {
                             this.subscribed = true;
                             this.subscribeAll(this.subscribes, () =>
-                                this.onUpdate(this.seriesData));
+                                this.onUpdateFunc(this.seriesData));
                         } else {
-                            this.onUpdate(this.seriesData);
+                            this.onUpdateFunc(this.seriesData);
                         }
                     })));
         } else {
-            this.onError && this.onError('No config provided');
-            this.onReading && this.onReading(false);
+            this.onErrorFunc && this.onErrorFunc('No config provided');
+            this.onReadingFunc && this.onReadingFunc(false);
         }
     }
 }

@@ -246,7 +246,6 @@ class App extends GenericApp {
             logHorzLayout: window.localStorage.getItem('App.logHorzLayout') === 'true',
             confirm: '',
             searchText: '',
-            themeType: window.localStorage.getItem('App.themeName') || 'light',
         };
         this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.settingsSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
