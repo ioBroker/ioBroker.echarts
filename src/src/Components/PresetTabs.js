@@ -44,7 +44,8 @@ const styles = theme => ({
         right: theme.spacing(1),
     },
     buttonSave: {
-        paddingLeft: '10px'
+        paddingLeft: '10px',
+        color: 'white'
     },
     shortFields: {
         '& > div': {
@@ -298,7 +299,6 @@ class PresetTabs extends React.Component {
             <TabContext value={this.state.selectedTab}>
                 <AppBar position="static" className={this.props.classes.tabsContainer}>
                     <IconButton 
-                        size="small" 
                         className={this.props.classes.buttonSave} 
                         style={{visibility: this.props.selectedPresetChanged ? 'visible' : 'hidden'}}
                         onClick={(e)=>{

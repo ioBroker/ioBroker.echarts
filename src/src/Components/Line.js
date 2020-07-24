@@ -119,6 +119,11 @@ class Line extends React.Component {
     }
     updateField = (name, value) => {
         let newLine = update(this.props.line, {[name]: {$set: value}});
+        if (name == 'id') {
+            let name = value.split('.');
+            name = name.length ? name[name.length - 1] : '';
+            newLine = update(newLine, {['name']: {$set: name}});
+        }
         this.props.updateLine(this.props.index, newLine);
     };
 

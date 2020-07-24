@@ -768,7 +768,7 @@ class App extends GenericApp {
         this.socket.delObject(id);
         let newId = id.split('.');
         newId.splice(-1, 1);
-        newId.push(newTitle);
+        newId.push(newTitle.replace(FORBIDDEN_CHARS, '_'));
         newId = newId.join('.');
         this.socket.setObject(newId, preset)
             .then(() => this.refreshData())
@@ -1035,7 +1035,7 @@ class App extends GenericApp {
 
         let newId = presetId.split('.');
         newId.splice(-1, 1);
-        newId.push(this.state.renamePresetDialogTitle);
+        newId.push(this.state.renamePresetDialogTitle.replace(FORBIDDEN_CHARS, '_'));
         newId = newId.join('.');
         let disabled =  !!this.state.presets[newId];
 
@@ -1051,7 +1051,7 @@ class App extends GenericApp {
                         label={ I18n.t('Title') }
                         value={ this.state.renamePresetDialogTitle }
                         onChange={ e =>
-                            this.setState({renamePresetDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_') })
+                            this.setState({renamePresetDialogTitle: e.target.value })
                         }
                         onKeyPress={(e) => {
                             if (!disabled && this.state.renamePresetDialogTitle && e.which === 13) {

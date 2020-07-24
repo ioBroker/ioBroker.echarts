@@ -36,6 +36,15 @@ let styles = theme => ({
         borderColor: theme.palette.grey['600'],
         overflow: 'initial'
     },
+    cardContent: {
+        padding: 0,
+        margin: 0,
+        '&:last-child': {
+            padding: 0,
+            paddingRight: '20px'
+        },
+        paddingRight: '20px'
+    },
     shortFields: {
         display: 'block',
         '& > div': {
@@ -202,7 +211,6 @@ class Mark extends React.Component {
                 />
             </div>
             <IconButton
-                size="small"
                 style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
                 onClick={()=>{
                     this.props.deleteMark(this.props.index);
@@ -215,7 +223,7 @@ class Mark extends React.Component {
     render() {
         let lines = {};
         this.props.presetData.lines.forEach((line, index) => lines[index] = index + ' - ' + line.id);
-        return <Card className={this.props.classes.card}><CardContent>
+        return <Card className={this.props.classes.card}><CardContent className={this.props.classes.cardContent}>
             { this.props.opened ? <>
                 <div>
                     <IconButton title={ I18n.t('Edit') }
@@ -223,7 +231,6 @@ class Mark extends React.Component {
                     }><IconFolderOpened/></IconButton>
                     {I18n.t('Mark')} {this.props.index + 1}{this.props.mark.text ? ' - ' + this.props.mark.text : ''}
                     <IconButton
-                        size="small"
                         style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
                         onClick={()=>{
                             this.props.deleteMark(this.props.index);
