@@ -764,8 +764,18 @@ class App extends GenericApp {
     renamePreset(id, newTitle) {
         let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
         preset.common.name = newTitle;
-        this.socket.setObject(id, preset)
+        this.socket.delObject(id);
+        let newId = id.split('.');
+        newId.splice(-1, 1);
+        newId.push(newTitle);
+        newId = newId.join('.');
+        this.socket.setObject(newId, preset)
             .then(() => this.refreshData())
+            .then(() => {
+                if (this.state.selectedPresetId == id) {
+                    this.loadPreset(newId);
+                }
+            })
             .catch(e => this.showError(e));
     }
 
@@ -1022,6 +1032,12 @@ class App extends GenericApp {
 
         const presetId = this.state.renameDialog;
 
+        let newId = presetId.split('.');
+        newId.splice(-1, 1);
+        newId.push(this.state.renamePresetDialogTitle);
+        newId = newId.join('.');
+        let disabled =  !!this.state.presets[newId];
+
         return <Dialog
             open={ true }
             key="renameDialog"
@@ -1034,10 +1050,10 @@ class App extends GenericApp {
                         label={ I18n.t('Title') }
                         value={ this.state.renamePresetDialogTitle }
                         onChange={ e =>
-                            this.setState({renamePresetDialogTitle: e.target.value })
+                            this.setState({renamePresetDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_') })
                         }
                         onKeyPress={(e) => {
-                            if (this.state.renamePresetDialogTitle && e.which === 13) {
+                            if (!disabled && this.state.renamePresetDialogTitle && e.which === 13) {
                                 this.setState({renameDialog: null}, () =>
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle)
                                 )
@@ -1052,7 +1068,7 @@ class App extends GenericApp {
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={ this.state.presets[presetId].name === this.state.renamePresetDialogTitle }
+                    disabled={ disabled }
                     color="primary" onClick={ e =>
                         this.setState({renameDialog: null}, () =>
                             this.renamePreset(presetId, this.state.renamePresetDialogTitle)
