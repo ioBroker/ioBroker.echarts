@@ -713,7 +713,7 @@ class App extends GenericApp {
             key={ parent.prefix }
             classes={ {gutters: this.props.classes.noGutters } }
             className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
-            style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
+            style={ {paddingLeft: level * LEVEL_PADDING} }
         >
             <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.folderIconPreset)} } onClick={ () => this.toggleFolder(parent) }>{ opened ?
                 <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
@@ -751,7 +751,7 @@ class App extends GenericApp {
                 <List
                     className={ this.props.classes.list }
                     classes={ {root: clsx(this.props.classes.leftMenuItem, this.props.classes.noGutters)} }
-                    style={ {paddingLeft: level * LEVEL_PADDING + this.props.theme.spacing(1)} }
+                    style={ {paddingLeft: level * LEVEL_PADDING} }
                 >
                     { values.length ?
                         values.sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0)).map(preset => this.renderTreePreset(preset, level, subFolders.length))

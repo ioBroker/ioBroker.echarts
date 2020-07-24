@@ -44,14 +44,13 @@ const styles = theme => ({
         right: theme.spacing(1),
     },
     buttonSave: {
-        paddingLeft: '10px',
-        color: 'white'
+        color: theme.type === 'dark' ? '#CC0000' : '#CC0000'
     },
     shortFields: {
         '& > div': {
             display: 'inline-flex',
-            paddingRight: '20px',
-            width: '200px'
+            paddingRight: 20,
+            width: 200,
         }
     }
 });
