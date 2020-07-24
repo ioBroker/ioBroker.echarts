@@ -141,6 +141,11 @@ const styles = theme => ({
     itemIconFolder: {
         cursor: 'pointer'
     },
+    buttonsContainer: {
+        '& button': {
+            whiteSpace: 'nowrap'
+        }
+    }
 });
 
 function getFolderPrefix(presetId) {

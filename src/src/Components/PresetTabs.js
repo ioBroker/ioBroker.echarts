@@ -216,9 +216,14 @@ class PresetTabs extends React.Component {
     };
 
     addMark = () => {
+        const len = this.props.presetData.marks.length;
+        const color = PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
+
         let newPresetData = update(this.props.presetData, {
             marks: {
-                $push: [{}]
+                $push: [{
+                    color
+                }]
             }
         });
         this.props.onChange(newPresetData);
@@ -249,6 +254,8 @@ class PresetTabs extends React.Component {
                     instance: 'system.adapter.' + this.props.systemConfig.common.defaultHistory,
                     color,
                     xaxe: !len ? undefined : 'off',
+                    chartType: 'auto',
+                    aggregate: 'minmax'
                 }]
             }
         });
