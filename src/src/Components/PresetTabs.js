@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
 import clsx from 'clsx';
+import { Droppable, Draggable } from "react-beautiful-dnd";
 
 import IconButton from '@material-ui/core/IconButton';
 import TabList from '@material-ui/lab/TabList';
@@ -38,6 +39,7 @@ const styles = theme => ({
     tabContent: {
         paddingTop: theme.spacing(1),
         position: 'relative',
+        minHeight: 'calc(100% - 32px)'
     },
     buttonAdd: {
         position: 'absolute',
@@ -55,11 +57,21 @@ const styles = theme => ({
         }
     },
     noContent : {
-        paddingTop: theme.spacing(1)
+        padding: theme.spacing(1),
+        height: 64,
+        verticalAlign: 'middle',
+        lineHeight: '64px',
+        width: '100%',
+    },
+    dragHint: {
+        paddingLeft: theme.spacing(1),
+        fontSize: 10,
+        fontStyle: 'italic',
+        opacity: 0.8,
     }
 });
 
-const PREDEFINED_COLORS = [
+const PREDEFINED_COLORS_MARKS = [
     '#144578',
     '#1868A8',
     '#665191',
@@ -69,6 +81,16 @@ const PREDEFINED_COLORS = [
     '#ff7c43',
     '#ffa600',
 ];
+
+const getItemStyle = (isDragging, draggableStyle) => ({
+    // some basic styles to make the items look a bit nicer
+    userSelect: "none",
+    width: '100%',
+    // change background colour if dragging
+    background: isDragging ? "lightgreen" : "grey",
+    // styles we need to apply on draggables
+    ...draggableStyle
+});
 
 class PresetTabs extends React.Component {
     state = {
@@ -114,7 +136,7 @@ class PresetTabs extends React.Component {
 
     addMark = () => {
         const len = this.props.presetData.marks.length;
-        const color = PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
+        const color = PREDEFINED_COLORS_MARKS[len % PREDEFINED_COLORS_MARKS.length];
 
         let newPresetData = update(this.props.presetData, {
             marks: {
@@ -143,7 +165,7 @@ class PresetTabs extends React.Component {
 
     addLine = () => {
         const len = this.props.presetData.lines.length;
-        const color = PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
+        const color = this.props.PREDEFINED_COLORS[len % this.props.PREDEFINED_COLORS.length];
 
         let newPresetData = update(this.props.presetData, {
             lines: {
@@ -217,29 +239,56 @@ class PresetTabs extends React.Component {
     }
 
     renderTabLines() {
-        return <TabPanel value="0" classes={{root: this.props.classes.tabContent}}>
-            <Fab onClick={this.addLine} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add line to chart')}>
-                <IconAdd/>
-            </Fab>
-            {
-                this.props.presetData.lines.length ?
-                    this.props.presetData.lines.map((line, key) => <Line
-                        instances={this.props.instances}
-                        line={line}
-                        width={this.props.width}
-                        updateLine={this.updateLine}
-                        deleteLine={index => {this.setState({deleteLineDialog: index})}}
-                        index={key}
-                        key={key}
-                        socket={this.props.socket}
-                        opened={typeof this.state.linesOpened[key] !== 'undefined' && this.state.linesOpened[key] === true}
-                        lineOpenToggle={this.lineOpenToggle}
-                    />) :
-                    <div className={this.props.classes.noContent}>
-                        {I18n.t('You can create a new line with a "+" on the right.')}
-                    </div>
-            }
-        </TabPanel>;
+        return <Droppable droppableId="droppable">
+            {(provided, snapshot) =>
+                <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    style={{
+                        background: snapshot.isDraggingOver ? this.props.theme.palette.secondary.dark : undefined,
+                        width: '100%',
+                        minHeight: '100%',
+                    }}
+                >
+                    <TabPanel value="0" classes={{root: this.props.classes.tabContent}}>
+                        <Fab onClick={this.addLine} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add line to chart')}>
+                            <IconAdd/>
+                        </Fab>
+                        {this.props.presetData.lines.length ? this.props.presetData.lines.map((line, index) =>
+                            <Draggable key={line.id + '_' + index} draggableId={line.id + '_' + index} index={index}>
+                                {(provided, snapshot) =>
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                                    >
+                                        <Line
+                                            provided={provided}
+                                            snapshot={snapshot}
+                                            theme={this.props.theme}
+                                            instances={this.props.instances}
+                                            line={line}
+                                            width={this.props.width}
+                                            updateLine={this.updateLine}
+                                            deleteLine={index => this.setState({deleteLineDialog: index})}
+                                            index={index}
+                                            key={index}
+                                            socket={this.props.socket}
+                                            opened={typeof this.state.linesOpened[index] !== 'undefined' && this.state.linesOpened[index] === true}
+                                            lineOpenToggle={this.lineOpenToggle}
+                                        />
+                                    </div>
+                                }
+                            </Draggable>)
+                        :
+                            <div className={this.props.classes.noContent}>
+                                {I18n.t('Create a new line with a "+" on the right.')}
+                            </div>
+                        }
+                        <div className={this.props.classes.dragHint}>{I18n.t('You can drag and drop simple lines from the left list.')}</div>
+                    </TabPanel>
+                </div>}
+            </Droppable>;
     }
 
     renderTabMarkings() {
@@ -249,15 +298,15 @@ class PresetTabs extends React.Component {
             </Fab>
             {
                 this.props.presetData.marks.length ?
-                    this.props.presetData.marks.map((mark, key) => <Mark
+                    this.props.presetData.marks.map((mark, index) => <Mark
                         mark={mark}
                         presetData={this.props.presetData}
                         updateMark={this.updateMark}
                         deleteMark={(index) => {this.setState({deleteMarkDialog: index})}}
-                        index={key}
-                        key={key}
+                        index={index}
+                        key={index}
                         socket={this.props.socket}
-                        opened={typeof this.state.marksOpened[key] !== 'undefined' && this.state.marksOpened[key] === true}
+                        opened={typeof this.state.marksOpened[index] !== 'undefined' && this.state.marksOpened[index] === true}
                         markOpenToggle={this.markOpenToggle}
                     />) :
                     <div className={this.props.classes.noContent}>
@@ -553,6 +602,8 @@ PresetTabs.propTypes = {
     savePreset: PropTypes.func,
     selectedPresetChanged: PropTypes.bool,
     width: PropTypes.number,
+    PREDEFINED_COLORS: PropTypes.array,
+    theme: PropTypes.object,
 };
 
 export default withStyles(styles)(PresetTabs)

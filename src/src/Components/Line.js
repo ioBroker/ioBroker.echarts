@@ -2,20 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
 import clsx from 'clsx';
+import {withStyles} from '@material-ui/core/styles';
 
-import I18n from '@iobroker/adapter-react/i18n';
-
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fields';
-
-import {MdDelete as IconDelete} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import {withStyles} from '@material-ui/core/styles';
 
+import {MdDelete as IconDelete} from 'react-icons/md';
+import {MdMenu as IconDrag} from 'react-icons/md';
 import {FaFolder as IconFolderClosed} from 'react-icons/fa';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
+
 import Utils from '@iobroker/adapter-react/Components/Utils';
+import I18n from '@iobroker/adapter-react/i18n';
+
+import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fields';
 
 const WIDTHS = {
     instance: 100,
@@ -24,7 +25,7 @@ const WIDTHS = {
     dataType: 110,
     color: 100,
     name: 200,
-    buttons: 50 + 50
+    buttons: 50 + 50 + 16
 };
 
 const LINE_HEIGHT = 48;
@@ -205,6 +206,7 @@ class Line extends React.Component {
         }
 
         return <div className={this.props.classes.lineClosed}>
+            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : null }
             <IconButton
                 title={ I18n.t('Edit') }
                 onClick={() => this.props.lineOpenToggle(this.props.index)}>
@@ -294,11 +296,13 @@ class Line extends React.Component {
     }
 
     render() {
-        return <Card className={this.props.classes.card}>
+        return <Card className={this.props.classes.card}
+        style={{background: this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined}}>
             <CardContent className={this.props.classes.cardContent}>
                 { this.props.opened ?
                     <>
                         <div>
+                            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : null }
                             <IconButton title={ I18n.t('Edit') }
                                         onClick={() => this.props.lineOpenToggle(this.props.index)
                                         }><IconFolderOpened/></IconButton>
@@ -446,11 +450,14 @@ Line.propTypes = {
     line: PropTypes.object,
     socket: PropTypes.object,
     updateLine: PropTypes.func,
+    provided: PropTypes.object,
+    snapshot: PropTypes.object,
     index: PropTypes.number,
     opened: PropTypes.bool,
     instances: PropTypes.array,
     lineOpenToggle: PropTypes.func,
     width: PropTypes.number,
+    theme: PropTypes.object,
 };
 
 export default withStyles(styles)(Line);

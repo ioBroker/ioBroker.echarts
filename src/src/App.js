@@ -6,6 +6,7 @@ import withWidth from '@material-ui/core/withWidth';
 import clsx from 'clsx';
 import SplitterLayout from 'react-splitter-layout';
 import { MuiThemeProvider } from '@material-ui/core/styles';
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import IconButton from '@material-ui/core/IconButton';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -61,6 +62,16 @@ import getDefaultPreset from './Components/DefaultPreset';
 
 const LEVEL_PADDING = 16;
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
+const PREDEFINED_COLORS = [
+    '#144578',
+    '#1868A8',
+    '#665191',
+    '#a05195',
+    '#d45087',
+    '#f95d6a',
+    '#ff7c43',
+    '#ffa600',
+];
 
 const styles = theme => ({
     root: {
@@ -152,6 +163,15 @@ const styles = theme => ({
     folderIconPreset: {
         color: theme.type === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary.light
     },
+    width100: {
+        width: '100%',
+    },
+    buttonIcon: {
+        marginRight: theme.spacing(0.5),
+    },
+    itemIconRoot: {
+        minWidth: 24,
+    }
 });
 
 function getFolderPrefix(presetId) {
@@ -498,21 +518,23 @@ class App extends GenericApp {
             });
     }
 
-    getNewPresetId(prefix) {
-        let newId = 1;
-        prefix = prefix || 'preset';
+    isNameUnique(name) {
+        return !Object.keys(this.state.presets).find(id => this.state.presets[id].common.name === name);
+    }
 
-        const regEx = new RegExp('^' + prefix + '([0-9]+)$');
+    getNewPresetName(prefix) {
+        let index = prefix ? '' : '1';
+        prefix = prefix || 'preset_';
 
-        Object.keys(this.state.presets).forEach(id => {
-            let shortId = id.split('.').pop();
-            let matches = shortId.match(regEx);
-            if (matches && parseInt(matches[1], 10) >= newId) {
-                newId = parseInt(matches[1]) + 1;
+        while(!this.isNameUnique(prefix + index)) {
+            if (!index) {
+                index = 2;
+            } else {
+                index++;
             }
-        });
+        }
 
-        return prefix + newId;
+        return prefix + index;
     };
 
     createPreset(name, parentId, historyInstance, stateId) {
@@ -525,7 +547,9 @@ class App extends GenericApp {
             }
         })
             .then(obj => {
-                name = name || obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '';
+                name = (name || (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '')).trim();
+
+                name = this.getNewPresetName(name);
 
                 let template = {
                     common: {
@@ -538,7 +562,7 @@ class App extends GenericApp {
                     type: 'chart'
                 };
 
-                let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${this.getNewPresetId(name.replace(FORBIDDEN_CHARS, '_').trim())}`;
+                let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
 
                 this.setState({changingPreset: id}, () =>
                     this.socket.setObject(id, template)
@@ -607,56 +631,104 @@ class App extends GenericApp {
     };
 
     renderSimpleHistory() {
-        return <List className={ this.props.classes.scroll }>
-            {
-                this.state.instances.map((group, key) =>
-                    {
-                        let opened = this.state.chartFolders[group._id];
-                        return <React.Fragment key={key}>
-                            <ListItem
-                                classes={ {gutters: this.props.classes.noGutters} }
-                                className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
-                            >
-                                <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>{ opened ?
-                                    <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
-                                    <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
-                                }</ListItemIcon>
-                                <ListItemText>{ group._id.replace('system.adapter.', '') }</ListItemText>
-                                <ListItemSecondaryAction>
-                                    <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
-                                        { opened ? <IconCollapse/> : <IconExpand/> }
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                            {
-                                opened ? Object.values(group.enabledDP).map((chart, key)=> {
-                                    if (this.state.search && !chart._id.includes(this.state.search)) {
-                                        return null;
-                                    }
-                                    return <ListItem
-                                        key={key}
-                                        button
-                                        style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
-                                        selected={this.state.selectedChartId === chart._id}
-                                        onClick={
-                                        () => {
-                                            this.state.presetMode && this.state.selectedPresetChanged ?
-                                            this.setState({loadChartDialog: chart._id, loadChartDialogInstance: group._id}) :
-                                            this.loadChart(chart._id, group._id)
-                                        }
-                                    }>
-                                        <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} }><IconChart className={ this.props.classes.itemIcon }/></ListItemIcon>
-                                        <ListItemText
-                                            classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
-                                            primary={ chart._id.replace('system.adapter.', '') }
-                                        />
-                                    </ListItem>
-                                }) : null
+        let gIndex = 0;
+        return <Droppable droppableId="Lines" isDropDisabled={true}>
+            {(provided, snapshot) =>
+                <div ref={provided.innerRef}>
+                    <List className={ this.props.classes.scroll }>
+                        {this.state.instances.map((group, index) => {
+                            let opened = this.state.chartFolders[group._id];
+                            return <React.Fragment key={index}>
+                                <ListItem
+                                    key={index}
+                                    classes={ {gutters: this.props.classes.noGutters} }
+                                    className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
+                                >
+                                    <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>{ opened ?
+                                        <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
+                                        <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
+                                    }</ListItemIcon>
+                                    <ListItemText>{ group._id.replace('system.adapter.', '') }</ListItemText>
+                                    <ListItemSecondaryAction>
+                                        <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
+                                            { opened ? <IconCollapse/> : <IconExpand/> }
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                                {
+                                    opened ? Object.values(group.enabledDP)
+                                        .filter(chart => !this.state.search || chart._id.includes(this.state.search))
+                                        .map((chart, index) =>
+                                            <Draggable
+                                                isDragDisabled={!this.state.presetMode}
+                                                key={group._id + '_' + chart._id}
+                                                draggableId={group._id + '***' + chart._id}
+                                                index={gIndex++}>
+                                                {(provided, snapshot) =>
+                                                    <>
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            style={provided.draggableProps.style}
+                                                            className="drag-items"
+                                                            >
+                                                            <ListItem
+                                                                key={group._id + '_' + chart._id}
+                                                                button
+                                                                style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
+                                                                selected={this.state.selectedChartId === chart._id}
+                                                                onClick={() => this.state.presetMode && this.state.selectedPresetChanged ?
+                                                                    this.setState({
+                                                                        loadChartDialog: chart._id,
+                                                                        loadChartDialogInstance: group._id
+                                                                    }) :
+                                                                    this.loadChart(chart._id, group._id)
+                                                                }
+                                                            >
+                                                                <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}><IconChart
+                                                                    className={this.props.classes.itemIcon}/></ListItemIcon>
+                                                                <ListItemText
+                                                                    classes={{
+                                                                        primary: this.props.classes.listItemTitle,
+                                                                        secondary: this.props.classes.listItemSubTitle
+                                                                    }}
+                                                                    primary={chart._id.replace('system.adapter.', '')}
+                                                                />
+                                                            </ListItem>
+
+                                                        </div>
+                                                        {snapshot.isDragging ?
+                                                            <div className="react-beatiful-dnd-copy">
+                                                                <ListItem
+                                                                    key={group._id + '_' + chart._id + 'copy'}
+                                                                    style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
+                                                                    selected={this.state.selectedChartId === chart._id}
+                                                                >
+                                                                    <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
+                                                                        <IconChart className={this.props.classes.itemIcon}/>
+                                                                    </ListItemIcon>
+                                                                    <ListItemText
+                                                                        classes={{
+                                                                            primary: this.props.classes.listItemTitle,
+                                                                            secondary: this.props.classes.listItemSubTitle
+                                                                        }}
+                                                                        primary={chart._id.replace('system.adapter.', '')}
+                                                                    />
+                                                                </ListItem>
+                                                            </div>: null}
+                                                        </>
+                                                }
+                                            </Draggable>
+                                    ) : null
+                                }
+                            </React.Fragment>
                             }
-                        </React.Fragment>
-                    }
-                )}
-            </List>
+                        )}
+                        {provided.placeholder}
+                    </List>
+                </div> }
+        </Droppable>;
     }
 
     renderTreePreset = (item, level, anySubFolders) => {
@@ -950,12 +1022,15 @@ class App extends GenericApp {
     renderAddFolderDialog() {
         return this.state.addFolderDialog ?
             <Dialog
+                maxWidth="md"
+                fullWidth={true}
                 open={ !!this.state.addFolderDialog }
                 onClose={ () => this.setState({addFolderDialog: null}) }
             >
                 <DialogTitle>{I18n.t('Create folder')}</DialogTitle>
                 <DialogContent className={ this.props.classes.p }>
                     <TextField
+                        fullWidth={true}
                         label={ I18n.t('Title') }
                         value={ this.state.addFolderDialogTitle }
                         onChange={ e => this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()})}
@@ -983,16 +1058,22 @@ class App extends GenericApp {
             </Dialog> : null;
     }
 
-    renderEditFolderDialog() {
+    renderRenameFolderDialog() {
         const isUnique = !Object.keys(this.state.folders.subFolders).find(folder => folder.id === this.state.editFolderDialogTitle);
 
-        return this.state.editFolderDialog ? <Dialog open={ !!this.state.editFolderDialog } onClose={ () => this.setState({editFolderDialog: null}) }>
+        return this.state.editFolderDialog ? <Dialog
+            maxWidth="md"
+            fullWidth={true}
+            open={ !!this.state.editFolderDialog }
+            onClose={ () => this.setState({editFolderDialog: null}) }
+        >
             <DialogTitle>{ I18n.t('Edit folder') }</DialogTitle>
             <DialogContent>
                 <TextField
+                    fullWidth={true}
                     label={ I18n.t('Title') }
                     value={ this.state.editFolderDialogTitle }
-                    onKeyPress={(e) => {
+                    onKeyPress={e => {
                         if (this.state.editFolderDialogTitle && e.which === 13) {
                             this.renameFolder(this.state.editFolderDialog, this.state.editFolderDialogTitle)
                                 .then(() => this.setState({editFolderDialog: null}));
@@ -1016,7 +1097,7 @@ class App extends GenericApp {
                     autoFocus
                 >
                     <IconCheck className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Apply') }
+                    { I18n.t('Rename') }
                 </Button>
             </DialogActions>
         </Dialog> : null;
@@ -1034,6 +1115,8 @@ class App extends GenericApp {
         const isIdUnique = !Object.keys(this.state.presets).find(id => id === newId);
 
         return <Dialog
+            maxWidth="md"
+            fullWidth={true}
             open={ true }
             key="moveDialog"
             onClose={ () => this.setState({moveDialog: null}) }
@@ -1043,6 +1126,7 @@ class App extends GenericApp {
                 <FormControl classes={ {root: this.props.classes.width100} }>
                     <InputLabel shrink={ true }>{ I18n.t('Folder') }</InputLabel>
                     <Select
+                        fullWidth={true}
                         className={ this.props.classes.width100 }
                         value={ this.state.newFolder || '__root__' }
                         onChange={e => this.setState({newFolder: e.target.value}) }
@@ -1063,6 +1147,7 @@ class App extends GenericApp {
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
                 <Button variant="contained" onClick={ () => this.setState({moveDialog: null}) }>
+                    <IconCancel className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Cancel') }
                 </Button>
                 <Button
@@ -1073,6 +1158,7 @@ class App extends GenericApp {
                             this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newFolder === '__root__' ? '' : this.state.newFolder))
                     }
                 >
+                    <IconCheck className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Move to folder') }
                 </Button>
             </DialogActions>
@@ -1086,13 +1172,9 @@ class App extends GenericApp {
 
         const presetId = this.state.renameDialog;
 
-        let newId = presetId.split('.');
-        newId.splice(-1, 1);
-        newId.push(this.state.renamePresetDialogTitle.replace(FORBIDDEN_CHARS, '_').trim());
-        newId = newId.join('.');
-        let disabled =  !!this.state.presets[newId];
-
         return <Dialog
+            maxWidth="md"
+            fullWidth={true}
             open={ true }
             key="renameDialog"
             onClose={ () => this.setState({renameDialog: null}) }
@@ -1101,16 +1183,14 @@ class App extends GenericApp {
             <DialogContent>
                 <FormControl classes={ {root: this.props.classes.width100} }>
                     <TextField
-                        label={ I18n.t('Title') }
+                        fullWidth={true}
+                        label={ I18n.t('Name') }
                         value={ this.state.renamePresetDialogTitle }
-                        onChange={ e =>
-                            this.setState({renamePresetDialogTitle: e.target.value })
-                        }
-                        onKeyPress={(e) => {
-                            if (!disabled && this.state.renamePresetDialogTitle && e.which === 13) {
+                        onChange={ e => this.setState({renamePresetDialogTitle: e.target.value})}
+                        onKeyPress={e => {
+                            if (this.isNameUnique(this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle && e.which === 13) {
                                 this.setState({renameDialog: null}, () =>
-                                    this.renamePreset(presetId, this.state.renamePresetDialogTitle)
-                                )
+                                    this.renamePreset(presetId, this.state.renamePresetDialogTitle));
                             }
                         }}
                     />
@@ -1118,17 +1198,18 @@ class App extends GenericApp {
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
                 <Button variant="contained" onClick={ () => this.setState({renameDialog: null}) }>
+                    <IconCancel className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Cancel') }
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={ disabled }
+                    disabled={ !this.state.renamePresetDialogTitle || !this.isNameUnique(this.state.renamePresetDialogTitle) }
                     color="primary" onClick={() =>
                         this.setState({renameDialog: null}, () =>
-                            this.renamePreset(presetId, this.state.renamePresetDialogTitle)
-                        )
+                            this.renamePreset(presetId, this.state.renamePresetDialogTitle))
                     }
                 >
+                    <IconCheck className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Rename') }
                 </Button>
             </DialogActions>
@@ -1144,12 +1225,14 @@ class App extends GenericApp {
             <DialogTitle>{ I18n.t('Are you sure for delete this preset?') }</DialogTitle>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
                 <Button variant="contained" onClick={ () => this.setState({deleteDialog: false}) }>
+                    <IconCancel className={ this.props.classes.buttonIcon }/>
                     {I18n.t('Cancel')}
                 </Button>
                 <Button variant="contained" color="secondary" onClick={() => {
                     this.deletePreset(this.state.deleteDialog);
                     this.setState({deleteDialog: false});
                 }}>
+                    <IconDelete className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Delete') }
                 </Button>
             </DialogActions>
@@ -1158,6 +1241,8 @@ class App extends GenericApp {
 
     renderLoadChartDialog() {
         return this.state.loadChartDialog ? <Dialog
+            maxWidth="lg"
+            fullWidth={true}
             open={ true }
             key="loadChartDialog"
             onClose={ () => this.setState({loadChartDialog: ''}) }>
@@ -1166,14 +1251,16 @@ class App extends GenericApp {
                     <Button variant="contained" onClick={() => {
                         this.setState({loadChartDialog: ''});
                     }}>
-                        <IconCancel/> { I18n.t('Cancel') }
+                        <IconCancel className={ this.props.classes.buttonIcon }/>
+                        { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
                         this.savePreset(this.state.selectedPresetId);
                         this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
                         this.setState({loadChartDialog: ''});
                     }}>
-                        <IconSave/> { I18n.t('Save current preset and load') }
+                        <IconSave className={ this.props.classes.buttonIcon }/>
+                        { I18n.t('Save current preset and load') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
                         this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
@@ -1187,6 +1274,8 @@ class App extends GenericApp {
 
     renderLoadPresetDialog() {
         return this.state.loadPresetDialog ? <Dialog
+            maxWidth="lg"
+            fullWidth={true}
             open={ true }
             key="loadPresetDialog"
             onClose={ () => this.setState({loadPresetDialog: ''}) }>
@@ -1195,14 +1284,14 @@ class App extends GenericApp {
                     <Button variant="contained" onClick={() => {
                         this.setState({loadPresetDialog: ''});
                     }}>
-                        <IconCancel/> { I18n.t('Cancel') }
+                        <IconCancel  className={ this.props.classes.buttonIcon }/> { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
                         this.savePreset(this.state.selectedPresetId);
                         this.loadPreset(this.state.loadPresetDialog);
                         this.setState({loadPresetDialog: ''});
                     }}>
-                        <IconSave/> { I18n.t('Save current preset and load') }
+                        <IconSave className={ this.props.classes.buttonIcon }/> { I18n.t('Save current preset and load') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
                         this.loadPreset(this.state.loadPresetDialog);
@@ -1216,6 +1305,8 @@ class App extends GenericApp {
 
     renderCloseFolderDialog() {
         return this.state.closeFolderDialog ? <Dialog
+            maxWidth="lg"
+            fullWidth={true}
             open={ true }
             key="closeFolderDialog"
             onClose={ () => this.setState({closeFolderDialog: ''}) }>
@@ -1225,7 +1316,7 @@ class App extends GenericApp {
                         this.toggleFolder(this.state.closeFolderDialog);
                         this.setState({closeFolderDialog: ''});
                     }}>
-                        <IconCancel/> { I18n.t('Cancel') }
+                        <IconCancel className={ this.props.classes.buttonIcon }/> { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
                         this.savePreset(this.state.selectedPresetId);
@@ -1237,7 +1328,7 @@ class App extends GenericApp {
                             closeFolderDialog: false,
                         })
                     }}>
-                        <IconSave/> { I18n.t('Save current preset and close') }
+                        <IconSave className={ this.props.classes.buttonIcon }/> { I18n.t('Save current preset and close') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
                         this.setState({
@@ -1256,6 +1347,8 @@ class App extends GenericApp {
 
     renderSavePresetDialog() {
         return this.state.savePresetDialog ? <Dialog
+            maxWidth="lg"
+            fullWidth={true}
             open={ true }
             key="savePresetDialog"
             onClose={ () => this.setState({savePresetDialog: ''}) }>
@@ -1264,13 +1357,13 @@ class App extends GenericApp {
                     <Button variant="contained" onClick={() => {
                         this.setState({savePresetDialog: ''});
                     }}>
-                        <IconCancel/> { I18n.t('Cancel') }
+                        <IconCancel className={ this.props.classes.buttonIcon }/> { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
                         this.savePreset(this.state.savePresetDialog);
                         this.setState({savePresetDialog: ''});
                     }}>
-                        <IconSave/> { I18n.t('Save preset') }
+                        <IconSave className={ this.props.classes.buttonIcon }/> { I18n.t('Save preset') }
                     </Button>
                 </DialogActions>
             </Dialog> : null;
@@ -1321,10 +1414,11 @@ class App extends GenericApp {
                         createPreset={(id, parent, instance, stateId) => this.createPreset(id, parent, instance, stateId)}
                     /> : null}
                     {
-                        this.state.presetMode ? <SettingsEditor
+                        this.state.presetMode && this.state.presetData? <SettingsEditor
                             socket={this.socket}
                             key="Editor"
                             width={window.innerWidth - this.menuSize}
+                            theme={this.state.theme}
                             onChange={this.onUpdatePreset}
                             presetData={this.state.presetData}
                             verticalLayout={!this.state.logHorzLayout}
@@ -1335,6 +1429,7 @@ class App extends GenericApp {
                             systemConfig={this.state.systemConfig}
                             selectedPresetId={this.state.selectedPresetId}
                             selectedPresetChanged={this.state.selectedPresetChanged}
+                            PREDEFINED_COLORS={PREDEFINED_COLORS}
                             savePreset={this.savePreset}
                         /> : null
                     }
@@ -1347,17 +1442,49 @@ class App extends GenericApp {
         return <div className={this.props.classes.mainListDiv} key="mainMenuDiv">
             {this.renderListToolbar()}
             <div className={ this.props.classes.heightMinusToolbar }>
-                <div key="listPresets">
-                    <List className={ this.props.classes.scroll }>
-                        { this.renderTree(this.state.folders) }
-                    </List>
-                </div>
-                <div key="list">
-                    { this.renderSimpleHistory() }
-                </div>
+                <List className={ this.props.classes.scroll }>
+                    { this.renderTree(this.state.folders) }
+                </List>
+                { this.renderSimpleHistory() }
             </div>
         </div>;
     }
+
+    onDragEnd = result => {
+        const { source, destination, draggableId } = result;
+        if (destination && draggableId.includes('***') && source.droppableId === 'Lines') {
+            const [instance, stateId] = draggableId.split('***');
+            this.socket.getObject(stateId)
+                .then(obj => {
+                    const len = this.state.presetData.lines.length;
+                    const color = (obj && obj.common && obj.common.color) || PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
+
+                    const presetData = JSON.parse(JSON.stringify(this.state.presetData));
+                    const newLine = {
+                        instance,
+                        name: (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim(),
+                        color,
+                        id: stateId,
+                        unit: (obj && obj.common && obj.common.unit) || '',
+                        xaxe: !len ? undefined : 'off',
+                        chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
+                        aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
+                    };
+                    if (!destination) {
+                        presetData.lines.push(newLine);
+                    } else {
+                        presetData.lines.splice(destination.index, 0, newLine);
+                    }
+
+                    this.onUpdatePreset(presetData);
+                });
+        } else if (destination && source.droppableId === destination.droppableId) {
+            const presetData = JSON.parse(JSON.stringify(this.state.presetData));
+            const [removed] = presetData.lines.splice(source.index, 1);
+            presetData.lines.splice(destination.index, 0, removed);
+            this.onUpdatePreset(presetData);
+        }
+    };
 
     render() {
         const {classes} = this.props;
@@ -1371,28 +1498,30 @@ class App extends GenericApp {
         return (
             <MuiThemeProvider theme={this.state.theme}>
                 <React.Fragment>
-                    <div className={classes.root} key="divside">
-                        <SplitterLayout
-                            key="sidemenuwidth"
-                            vertical={false}
-                            primaryMinSize={300}
-                            primaryIndex={1}
-                            secondaryMinSize={300}
-                            secondaryInitialSize={this.menuSize}
-                            customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
-                            onDragStart={() => this.setState({resizing: true})}
-                            onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
-                            onDragEnd={() => {
-                                this.setState({resizing: false});
-                                window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
-                            }}
-                        >
-                            {this.renderLeftList()}
-                            {this.renderMain()}
-                        </SplitterLayout>
+                    <div className={classes.root} key="divSide">
+                        <DragDropContext onDragEnd={this.onDragEnd}>
+                            <SplitterLayout
+                                key="sidemenuwidth"
+                                vertical={false}
+                                primaryMinSize={300}
+                                primaryIndex={1}
+                                secondaryMinSize={300}
+                                secondaryInitialSize={this.menuSize}
+                                customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
+                                onDragStart={() => this.setState({resizing: true})}
+                                onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
+                                onDragEnd={() => {
+                                    this.setState({resizing: false});
+                                    window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
+                                }}
+                            >
+                                {this.renderLeftList()}
+                                {this.renderMain()}
+                            </SplitterLayout>
+                        </DragDropContext>
                     </div>
                     { this.renderAddFolderDialog() }
-                    { this.renderEditFolderDialog() }
+                    { this.renderRenameFolderDialog() }
                     { this.renderDeleteDialog() }
                     { this.renderMoveDialog() }
                     { this.renderRenameDialog() }

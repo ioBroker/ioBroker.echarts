@@ -19,3 +19,10 @@ html {
 .iobVerticalSplitter .layout-pane-primary {
   overflow: hidden;
 }
+
+.react-beatiful-dnd-copy ~ .drag-items {
+  transform: none !important;
+}
+.react-beatiful-dnd-copy ~ [data-rbd-placeholder-context-id] {
+  display: none !important;
+}

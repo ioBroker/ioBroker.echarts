@@ -1,5 +1,4 @@
 import Utils from "@iobroker/adapter-react/Components/Utils";
-import I18n from "@iobroker/adapter-react/i18n";
 
 const DEFAULT_PRESET = {
     lines:[
