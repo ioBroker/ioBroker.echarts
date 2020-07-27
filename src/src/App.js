@@ -561,7 +561,33 @@ class App extends GenericApp {
                 }
             }
         });
+
         this.setState(newState);
+
+        if (this.state.selectedChartId) {
+            let selectedInstance = this.state.instances.find(instance => 
+                instance.enabledDP[this.state.selectedChartId]
+            )
+            if (selectedInstance._id == id) {
+                let openedChartFolder = null;
+                for (let k in this.state.chartFolders) {
+                    if (k != id && this.state.chartFolders[k]) {
+                        openedChartFolder = k;
+                        break;
+                    }
+                }
+                if (openedChartFolder) {
+                    let openedChart = this.state.instances.find(instance => 
+                        instance._id == openedChartFolder
+                    );
+                    openedChart = Object.values(openedChart.enabledDP)[0]._id;
+                    this.loadChart(openedChart);
+                } else {
+                    newState.presetData = {};
+                    newState.selectedChartId = null;
+                }
+            }
+        }
 
         window.localStorage.setItem('Charts.opened', JSON.stringify(newState.chartFolders));
     };
@@ -686,14 +712,15 @@ class App extends GenericApp {
             if (Object.keys(folder.presets).includes(this.state.selectedPresetId)) {
                 // To do ask question
                 if (this.state.selectedPresetChanged) {
-                    /*this.confirmCb = () => {
-                        //this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false, opened});
-                        //window.localStorage.setItem('Presets.opened', JSON.stringify(opened));
-                    };*/
-                    return this.setState({presetChangeDialog: 'empty'});
+                    this.setState({closeFolderDialog: folder});
+                } else {
+                    this.setState({
+                        selectedPresetId: null,
+                        presetData: {},
+                        presetMode: false,
+                        selectedPresetChanged: false,
+                    })
                 }
-
-                //this.setState({selectedPresetId: '', selectedPresetData: null, selectedPresetChanged: false});
             }
         }
 
@@ -1174,6 +1201,46 @@ class App extends GenericApp {
             </Dialog> : null;
     };
 
+    renderCloseFolderDialog() {
+        return this.state.closeFolderDialog ? <Dialog
+            open={ true }
+            key="closeFolderDialog"
+            onClose={ () => this.setState({closeFolderDialog: ''}) }>
+                <DialogTitle>{ I18n.t('Are you sure for close folder and cancel unsaved changes?') }</DialogTitle>
+                <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
+                    <Button variant="contained" onClick={() => {
+                        this.toggleFolder(this.state.closeFolderDialog);
+                        this.setState({closeFolderDialog: ''});
+                    }}>
+                        <IconCancel/> { I18n.t('Cancel') }
+                    </Button>
+                    <Button variant="contained" color="secondary" onClick={() => {
+                        this.savePreset(this.state.selectedPresetId);
+                        this.setState({
+                            selectedPresetId: null,
+                            presetData: {},
+                            presetMode: false,
+                            selectedPresetChanged: false,
+                            closeFolderDialog: false,
+                        })
+                    }}>
+                        <IconSave/> { I18n.t('Save current preset and close') }
+                    </Button>
+                    <Button variant="contained" color="secondary" onClick={() => {
+                        this.setState({
+                            selectedPresetId: null,
+                            presetData: {},
+                            presetMode: false,
+                            selectedPresetChanged: false,
+                            closeFolderDialog: false,
+                        })
+                    }}>
+                        { I18n.t('Close folder') }
+                    </Button>
+                </DialogActions>
+            </Dialog> : null;
+    };
+
     renderSavePresetDialog() {
         return this.state.savePresetDialog ? <Dialog
             open={ true }
@@ -1319,6 +1386,7 @@ class App extends GenericApp {
                     { this.renderError() }
                     { this.renderToast() }
                     { this.renderSavePresetDialog() }
+                    { this.renderCloseFolderDialog() }
                 </React.Fragment>
             </MuiThemeProvider>
         );

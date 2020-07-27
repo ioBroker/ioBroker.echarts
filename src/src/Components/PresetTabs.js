@@ -52,6 +52,9 @@ const styles = theme => ({
             paddingRight: 20,
             width: 200,
         }
+    },
+    noContent : {
+        paddingTop: theme.spacing(1)
     }
 });
 
@@ -352,18 +355,22 @@ class PresetTabs extends React.Component {
                             <IconAdd/>
                         </Fab>
                         {
-                        this.props.presetData.lines.map((line, key) => <Line
-                                instances={this.props.instances}
-                                line={line}
-                                width={this.props.width}
-                                updateLine={this.updateLine}
-                                deleteLine={index => {this.setState({deleteLineDialog: index})}}
-                                index={key}
-                                key={key}
-                                socket={this.props.socket}
-                                opened={typeof this.state.linesOpened[key] !== 'undefined' && this.state.linesOpened[key] === true}
-                                lineOpenToggle={this.lineOpenToggle}
-                            />)
+                            this.props.presetData.lines.length ? 
+                            this.props.presetData.lines.map((line, key) => <Line
+                                    instances={this.props.instances}
+                                    line={line}
+                                    width={this.props.width}
+                                    updateLine={this.updateLine}
+                                    deleteLine={index => {this.setState({deleteLineDialog: index})}}
+                                    index={key}
+                                    key={key}
+                                    socket={this.props.socket}
+                                    opened={typeof this.state.linesOpened[key] !== 'undefined' && this.state.linesOpened[key] === true}
+                                    lineOpenToggle={this.lineOpenToggle}
+                                />) : 
+                            <div className={this.props.classes.noContent}>
+                                {I18n.t('You can create a new line with a "+" on the right.')}
+                            </div>
                         }
                     </TabPanel>
                     <TabPanel value="1" classes={{root: this.props.classes.tabContent}}>
@@ -371,6 +378,7 @@ class PresetTabs extends React.Component {
                             <IconAdd/>
                         </Fab>
                         {
+                            this.props.presetData.marks.length ?
                             this.props.presetData.marks.map((mark, key) => <Mark
                                 mark={mark}
                                 presetData={this.props.presetData}
@@ -381,7 +389,10 @@ class PresetTabs extends React.Component {
                                 socket={this.props.socket}
                                 opened={typeof this.state.marksOpened[key] !== 'undefined' && this.state.marksOpened[key] === true}
                                 markOpenToggle={this.markOpenToggle}
-                            />)
+                            />) :
+                            <div className={this.props.classes.noContent}>
+                                {I18n.t('You can create a new markings with a "+" on the right.')}
+                            </div>
                         }
                     </TabPanel>
                     <TabPanel value="2" classes={{root: this.props.classes.tabContent}}>
