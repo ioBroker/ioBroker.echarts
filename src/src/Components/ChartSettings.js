@@ -284,7 +284,7 @@ class ChartSettings extends React.Component {
                 }
             />
             <div className={this.props.classes.grow1}/>
-            <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={this.props.createPreset}>
+            <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={() => this.props.createPreset(null, null, this.props.selectedChartInstance, this.props.selectedChartId)}>
                 {I18n.t('Create preset')}
             </Button>
         </Toolbar>;
@@ -296,7 +296,9 @@ ChartSettings.propTypes = {
     presetData: PropTypes.object,
     socket: PropTypes.object,
     instances: PropTypes.array,
-    createPreset: PropTypes.func
+    createPreset: PropTypes.func,
+    selectedChartId: PropTypes.string,
+    selectedChartInstance: PropTypes.string,
 };
 
 export default withStyles(styles)(ChartSettings)

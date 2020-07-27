@@ -42,7 +42,6 @@ import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
 import {MdMenu as IconMenuClosed} from 'react-icons/md';
 import {MdArrowBack as IconMenuOpened} from 'react-icons/md';
 import SearchIcon from '@material-ui/icons/Search';
-// import {MdFileUpload as IconImport} from 'react-icons/md';
 import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
 import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
 import ClearIcon from '@material-ui/icons/Close';
@@ -58,6 +57,7 @@ import '@iobroker/adapter-react/index.css';
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
 import getUrlQuery from './utils/getUrlQuery';
+import getDefaultPreset from './Components/DefaultPreset';
 
 const LEVEL_PADDING = 16;
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
@@ -209,7 +209,6 @@ class App extends GenericApp {
         }
 
         const newState = {
-            lang: this.socket.systemLang,
             ready: false,
             selectedPresetId: window.localStorage.getItem('Presets.selectedPresetId') || '',
             opened,
@@ -231,10 +230,6 @@ class App extends GenericApp {
             moveDialog: null,
             newFolder: '',
             selectedPresetData: null,
-            presetData: {
-                lines: [],
-                marks: [],
-            },
             loadedPresetData: null,
 
             progress: 0,
@@ -247,12 +242,14 @@ class App extends GenericApp {
             confirm: '',
             searchText: '',
         };
+
         this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.settingsSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
 
         this.socket.getSystemConfig()
             .then(systemConfig => {
                 newState.systemConfig = systemConfig;
+                newState.presetData = getDefaultPreset(systemConfig.common.defaultHistory);
                 this.setState(newState);
                 return Promise.resolve();
             })
@@ -262,7 +259,7 @@ class App extends GenericApp {
                 if (window.localStorage.getItem('App.selectedPresetId')) {
                     this.loadPreset(window.localStorage.getItem('App.selectedPresetId'))
                 } else if (window.localStorage.getItem('App.selectedChartId')) {
-                    this.loadChart(window.localStorage.getItem('App.selectedChartId'), window.localStorage.getItem('App.selectedInstance'))
+                    this.loadChart(window.localStorage.getItem('App.selectedChartId'), window.localStorage.getItem('App.selectedChartInstance'))
                 }
             })
             .catch(e => this.showError(e));
@@ -270,23 +267,21 @@ class App extends GenericApp {
 
     getData() {
         let presets = {};
-        let th = this;
         return new Promise((resolve, reject) =>
             this.socket._socket.emit('getObjectView', 'chart', 'chart', {
-                startkey: 'flot.',
-                endkey: 'flot.\u9999'
+                startkey: this.adapterName + '.',
+                endkey: this.adapterName + '.\u9999'
             }, (err, res) => {
                 if (err) {
                     reject(err);
                 } else {
                     res && res.rows && res.rows.forEach(preset => presets[preset.value._id] = preset.value);
-                    resolve({presets, folders: th.buildTree(presets)});
+                    resolve({presets, folders: this.buildTree(presets)});
                 }
             }));
     }
 
     refreshData(changingPreset) {
-        const that = this;
         return new Promise(resolve => {
             if (changingPreset) {
                 this.setState({changingPreset}, () => resolve());
@@ -308,18 +303,14 @@ class App extends GenericApp {
                     presetObj.native = presetObj.native || {};
                 });
 
-                if (!newState.presets[this.state.selectedPresetId]) {
-                    //newState.selectedPresetId = Object.keys(newState.presets).shift() || '';
-                }
-
-                if ((newState.selectedPresetId || that.state.selectedPresetId) &&
-                    newState.presets[newState.selectedPresetId || that.state.selectedPresetId]) {
-                    newState.selectedPresetData = JSON.parse(JSON.stringify(newState.presets[newState.selectedPresetId || that.state.selectedPresetId]));
+                if ((newState.selectedPresetId || this.state.selectedPresetId) &&
+                    newState.presets[newState.selectedPresetId || this.state.selectedPresetId]) {
+                    newState.selectedPresetData = JSON.parse(JSON.stringify(newState.presets[newState.selectedPresetId || this.state.selectedPresetId]));
                 } else {
                     newState.selectedPresetData = null;
                 }
 
-                that.setState(newState);
+                this.setState(newState);
             });
     }
 
@@ -462,7 +453,7 @@ class App extends GenericApp {
     addPresetToFolderPrefix = (preset, folderPrefix, noRefresh) => {
         let oldId = preset._id;
         let presetId = preset._id.split('.').pop();
-        preset._id = 'flot.0.' + folderPrefix + (folderPrefix ? '.' : '') + presetId;
+        preset._id = this.adapterName + '.0.' + folderPrefix + (folderPrefix ? '.' : '') + presetId;
 
         return this.socket.delObject(oldId)
             .then(() => {
@@ -507,47 +498,69 @@ class App extends GenericApp {
             });
     }
 
-    getNewPresetId() {
-        let newId = 0;
+    getNewPresetId(prefix) {
+        let newId = 1;
+        prefix = prefix || 'preset';
+
+        const regEx = new RegExp('^' + prefix + '([0-9]+)$');
 
         Object.keys(this.state.presets).forEach(id => {
             let shortId = id.split('.').pop();
-            let matches = shortId.match(/^preset([0-9]+)$/);
+            let matches = shortId.match(regEx);
             if (matches && parseInt(matches[1], 10) >= newId) {
                 newId = parseInt(matches[1]) + 1;
             }
         });
 
-        return 'preset' + newId;
+        return prefix + newId;
     };
 
-    createPreset(name, parentId) {
-        let template = {
-            common: {
-                name: '',
-            },
-            native: {
-                url: '',
-                data: this.state.presetData,
-            },
-            type: 'chart'
-        };
+    createPreset(name, parentId, historyInstance, stateId) {
+        return new Promise(resolve => {
+            if (stateId) {
+                return this.socket.getObject(stateId)
+                    .then(obj => resolve(obj));
+            } else {
+                resolve(null);
+            }
+        })
+            .then(obj => {
+                name = name || obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '';
 
-        template.common.name = name;
-        let id = 'flot.0.' + (parentId ? parentId + '.' : '') + template.common.name;
+                let template = {
+                    common: {
+                        name,
+                    },
+                    native: {
+                        url: '',
+                        data: getDefaultPreset(historyInstance || this.state.systemConfig.common.defaultHistory, obj, I18n.getLanguage()),
+                    },
+                    type: 'chart'
+                };
 
-        this.setState({changingPreset: id}, () =>
-            this.socket.setObject(id, template)
-                .then(() => this.refreshData(id))
-                .then(() => this.loadPreset(id))
-                .catch(e => this.showError(e))
-        );
+                let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${this.getNewPresetId(name.replace(FORBIDDEN_CHARS, '_').trim())}`;
+
+                this.setState({changingPreset: id}, () =>
+                    this.socket.setObject(id, template)
+                        .then(() => this.refreshData(id))
+                        .then(() => this.loadPreset(id))
+                        .catch(e => this.showError(e))
+                );
+            });
     };
 
     deletePreset = (id) => {
         return this.socket.delObject(id)
             .then(() => {
                 window.localStorage.setItem('App.selectedPresetId', '');
+
+                this.setState({
+                    selectedPresetId: null,
+                    presetData: {},
+                    presetMode: false,
+                    selectedPresetChanged: false,
+                });
+
                 return this.refreshData(id);
             })
             .catch(e => this.showError(e));
@@ -565,26 +578,27 @@ class App extends GenericApp {
         this.setState(newState);
 
         if (this.state.selectedChartId) {
-            let selectedInstance = this.state.instances.find(instance => 
-                instance.enabledDP[this.state.selectedChartId]
-            )
-            if (selectedInstance._id == id) {
+            let selectedInstance = this.state.instances.find(instance =>
+                instance.enabledDP[this.state.selectedChartId]);
+
+            if (selectedInstance._id === id) {
                 let openedChartFolder = null;
                 for (let k in this.state.chartFolders) {
-                    if (k != id && this.state.chartFolders[k]) {
+                    if (this.state.chartFolders.hasOwnProperty(k) && k !== id && this.state.chartFolders[k]) {
                         openedChartFolder = k;
                         break;
                     }
                 }
                 if (openedChartFolder) {
-                    let openedChart = this.state.instances.find(instance => 
-                        instance._id == openedChartFolder
-                    );
+                    let openedChart = this.state.instances.find(instance =>
+                        instance._id === openedChartFolder);
+
                     openedChart = Object.values(openedChart.enabledDP)[0]._id;
                     this.loadChart(openedChart);
                 } else {
                     newState.presetData = {};
                     newState.selectedChartId = null;
+                    newState.selectedChartInstance = null;
                 }
             }
         }
@@ -616,7 +630,7 @@ class App extends GenericApp {
                             </ListItem>
                             {
                                 opened ? Object.values(group.enabledDP).map((chart, key)=> {
-                                    if ((this.state.search && !chart._id.includes(this.state.search))) {
+                                    if (this.state.search && !chart._id.includes(this.state.search)) {
                                         return null;
                                     }
                                     return <ListItem
@@ -719,7 +733,7 @@ class App extends GenericApp {
                         presetData: {},
                         presetMode: false,
                         selectedPresetChanged: false,
-                    })
+                    });
                 }
             }
         }
@@ -752,7 +766,7 @@ class App extends GenericApp {
             </ListItemText>
             <ListItemSecondaryAction>
                 {parent && parent.id && opened ? <IconButton
-                    onClick={() => this.createPreset(this.getNewPresetId(), parent.id) }
+                    onClick={() => this.createPreset(null, parent.id) }
                     title={ I18n.t('Create new preset') }
                 ><IconAdd/></IconButton> : null}
                 <IconButton onClick={ () => this.toggleFolder(parent) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
@@ -806,7 +820,7 @@ class App extends GenericApp {
         this.socket.delObject(id);
         let newId = id.split('.');
         newId.splice(-1, 1);
-        newId.push(newTitle.replace(FORBIDDEN_CHARS, '_'));
+        newId.push(newTitle.replace(FORBIDDEN_CHARS, '_').trim());
         newId = newId.join('.');
         this.socket.setObject(newId, preset)
             .then(() => this.refreshData())
@@ -826,7 +840,7 @@ class App extends GenericApp {
 
         window.localStorage.setItem('App.selectedPresetId', id);
         window.localStorage.setItem('App.selectedChartId', '');
-        window.localStorage.setItem('App.selectedInstance', '');
+        window.localStorage.setItem('App.selectedChartInstance', '');
 
         this.setState({
             presetData: preset.native.data,
@@ -834,6 +848,7 @@ class App extends GenericApp {
             selectedPresetChanged: false,
             presetMode: true,
             selectedChartId: null,
+            selectedChartInstance: null,
             selectedPresetId: id
         });
     }
@@ -884,20 +899,20 @@ class App extends GenericApp {
         };
 
         window.localStorage.setItem('App.selectedChartId', id);
-        window.localStorage.setItem('App.selectedInstance', instance);
+        window.localStorage.setItem('App.selectedChartInstance', instance);
         window.localStorage.setItem('App.selectedPresetId', '');
 
-        this.setState({presetData, presetMode: false, selectedChartId: id, selectedPresetId: null, selectedPresetChanged: false});
+        this.setState({presetData, presetMode: false, selectedChartId: id, selectedChartInstance: instance, selectedPresetId: null, selectedPresetChanged: false});
     }
 
     enablePresetMode = () => {
-        this.setState({presetMode: true, selectedChartId: null});
+        this.setState({presetMode: true, selectedChartId: null, selectedChartInstance: null});
     };
 
     renderListToolbar() {
         return <Toolbar key="toolbar" variant="dense" className={ this.props.classes.mainToolbar }>
                 <IconButton
-                    onClick={ () => this.createPreset(this.getNewPresetId()) }
+                    onClick={ () => this.createPreset() }
                     title={ I18n.t('Create new preset') }
                 ><IconAdd/></IconButton>
 
@@ -943,10 +958,8 @@ class App extends GenericApp {
                     <TextField
                         label={ I18n.t('Title') }
                         value={ this.state.addFolderDialogTitle }
-                        onChange={ e =>
-                            this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')})
-                        }
-                        onKeyPress={(e) => {
+                        onChange={ e => this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()})}
+                        onKeyPress={e => {
                             if (this.state.addFolderDialogTitle && e.which === 13) {
                                 this.addFolder(this.state.addFolderDialog, this.state.addFolderDialogTitle);
                                 this.setState({addFolderDialog: null});
@@ -985,7 +998,7 @@ class App extends GenericApp {
                                 .then(() => this.setState({editFolderDialog: null}));
                         }
                     }}
-                    onChange={ e => this.setState({editFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_')}) }/>
+                    onChange={ e => this.setState({editFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()}) }/>
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
                 <Button variant="contained" onClick={ () => this.setState({editFolderDialog: null}) }>
@@ -1075,7 +1088,7 @@ class App extends GenericApp {
 
         let newId = presetId.split('.');
         newId.splice(-1, 1);
-        newId.push(this.state.renamePresetDialogTitle.replace(FORBIDDEN_CHARS, '_'));
+        newId.push(this.state.renamePresetDialogTitle.replace(FORBIDDEN_CHARS, '_').trim());
         newId = newId.join('.');
         let disabled =  !!this.state.presets[newId];
 
@@ -1302,8 +1315,10 @@ class App extends GenericApp {
                         enablePresetMode={this.enablePresetMode}
                         presetMode={this.state.presetMode}
                         selectedPresetId={this.state.selectedPresetId}
+                        selectedChartId={this.state.selectedChartId}
+                        selectedChartInstance={this.state.selectedChartInstance}
                         socket={this.socket}
-                        createPreset={()=>{this.createPreset(this.getNewPresetId())}}
+                        createPreset={(id, parent, instance, stateId) => this.createPreset(id, parent, instance, stateId)}
                     /> : null}
                     {
                         this.state.presetMode ? <SettingsEditor

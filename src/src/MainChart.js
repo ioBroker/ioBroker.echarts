@@ -105,6 +105,8 @@ class MainChart extends React.Component {
                 onChange={this.props.onChange}
                 enablePresetMode={this.props.enablePresetMode}
                 presetData={this.props.presetData}
+                selectedChartId={this.props.selectedChartId}
+                selectedChartInstance={this.props.selectedChartInstance}
                 socket={this.props.socket}
                 createPreset={this.props.createPreset}
             />;
@@ -174,15 +176,8 @@ class MainChart extends React.Component {
     }
 
     getUrl() {
-        if (this.props.presetMode) {
-            if (window.location.port === '3000') {
-                return 'chart/index.html?' + this.getUrlParameters();
-            } else {
-                return 'chart/index.html?preset=' + encodeURIComponent(this.props.selectedPresetId) + '&noLoader=true';
-            }
-        } else {
-            return 'chart/index.html?' + this.getUrlParameters();
-        }
+        const URL = (window.location.search || '').includes('dev=true') ? 'http://localhost:3000/' : 'chart/';
+        return URL + 'index.html?' + this.getUrlParameters();
     }
 
     getChartFrame() {
@@ -209,6 +204,8 @@ MainChart.propTypes = {
     presetData: PropTypes.object,
     presetMode: PropTypes.bool,
     selectedPresetId: PropTypes.string,
+    selectedChartId: PropTypes.string,
+    selectedChartInstance: PropTypes.string,
     enablePresetMode: PropTypes.func,
     createPreset: PropTypes.func,
     theme: PropTypes.object

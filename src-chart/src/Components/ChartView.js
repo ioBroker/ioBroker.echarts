@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import withWidth from '@material-ui/core/withWidth';
 import {withStyles} from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -226,7 +225,7 @@ class ChartView extends React.Component {
                     }
                 }
             ],
-            toolbox: {
+            toolbox: this.props.config.export ? {
                 left: 'right',
                 feature: {
                     /*dataZoom: {
@@ -241,7 +240,7 @@ class ChartView extends React.Component {
                         show: true,
                     }
                 }
-            },
+            } : undefined,
             /*dataZoom: [
                 {
                     show: true,
@@ -271,6 +270,8 @@ class ChartView extends React.Component {
     static getDerivedStateFromProps(props, state) {
         if (props.data !== state.data) {
             return {data: props.data};
+        } else {
+            return null;
         }
     }
 

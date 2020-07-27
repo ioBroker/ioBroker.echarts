@@ -133,16 +133,22 @@ function normalizeConfig(config) {
         }
     }
 
+    config.l = config.l || [];
+
+    if (!config.l.length) {
+        config.l.push({id: '', unit: ''});
+    }
+
     // Set default values
-    config.width        = config.width  || '100%';
-    config.height       = config.height || '100%';
-    config.timeFormat   = config.timeFormat || '%H:%M:%S %e.%m.%y';
-    config.useComma     = config.useComma  === 'true' || config.useComma  === true;
-    config.zoom         = config.zoom      === 'true' || config.zoom      === true;
-    config.animation    = parseInt(config.animation)  || 0;
-    config.noedit       = config.noedit    === 'true' || config.noedit    === true;
+    config.width        = config.width                 || '100%';
+    config.height       = config.height                || '100%';
+    config.timeFormat   = config.timeFormat            || '%H:%M:%S %e.%m.%y';
+    config.useComma     = config.useComma   === 'true' || config.useComma  === true;
+    config.zoom         = config.zoom       === 'true' || config.zoom      === true;
+    config.animation    = parseInt(config.animation)   || 0;
+    config.noedit       = config.noedit     === 'true' || config.noedit    === true;
     config.afterComma   = config.afterComma === undefined ? 2 : parseInt(config.afterComma, 10);
-    config.timeType     = config.timeArt || config.timeType || 'relative';
+    config.timeType     = config.timeType || 'relative';
     return config;
 }
 
@@ -195,7 +201,11 @@ class ChartModel {
     }
 
     onPresetUpdate = (id, obj) => {
-        this.config = normalizeConfig(obj.native.data);
+        if (obj) {
+            this.config = normalizeConfig(obj.native.data);
+        } else {
+            this.config = normalizeConfig({});
+        }
 
         // just copy data to force update
         this.seriesData = JSON.parse(JSON.stringify(this.seriesData));
@@ -280,6 +290,8 @@ class ChartModel {
                     start = this.addTime(start, this.config.l[index].offset);
                     end   = this.addTime(end,   this.config.l[index].offset);
                 } else {
+                    this.config.relativeEnd = this.config.relativeEnd || 'now';
+
                     if (this.config.relativeEnd === 'now') {
                         _now = new Date(this.now);
                     } else if (this.config.relativeEnd.indexOf('minute') !== -1) {
@@ -341,6 +353,8 @@ class ChartModel {
                         _now.setSeconds(0);
                         _now.setMilliseconds(0);
                     }
+
+                    this.config.range = this.config.range || '30m';
 
                     end   = this.addTime(_now, this.config.l[index].offset);
                     start = this.addTime(end,  this.config.range, false, true);
