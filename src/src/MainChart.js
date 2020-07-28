@@ -177,7 +177,7 @@ class MainChart extends React.Component {
 
     getUrl() {
         const URL = (window.location.search || '').includes('dev=true') ? 'http://localhost:3000/' : 'chart/';
-        return URL + 'index.html?' + this.getUrlParameters();
+        return URL + 'index.html#' + this.getUrlParameters();
     }
 
     getChartFrame() {

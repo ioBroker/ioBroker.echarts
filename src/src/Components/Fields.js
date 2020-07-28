@@ -13,6 +13,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 
 import IconSelectID from '@material-ui/icons/Subject';
+import IconDelete from '@material-ui/icons/Delete';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
@@ -184,11 +185,11 @@ let IOColorPicker = function (props) {
             inputProps={{
                 style: {backgroundColor: props.formData[props.name]}
             }}
-            onChange={color =>
-                props.updateValue(props.name, color)}
+            onChange={color => props.updateValue(props.name, color)}
             InputLabelProps={{shrink: true}}
             value={props.formData[props.name] || ''}
         />
+        {props.formData[props.name] ? <IconButton onClick={() => props.updateValue(props.name, '')}><IconDelete /></IconButton> : null }
     </div>
 };
 IOColorPicker.propTypes = {

@@ -140,13 +140,18 @@ function normalizeConfig(config) {
     }
 
     // Set default values
-    config.width        = config.width                 || '100%';
-    config.height       = config.height                || '100%';
-    config.timeFormat   = config.timeFormat            || '%H:%M:%S %e.%m.%y';
-    config.useComma     = config.useComma   === 'true' || config.useComma  === true;
-    config.zoom         = config.zoom       === 'true' || config.zoom      === true;
-    config.animation    = parseInt(config.animation)   || 0;
-    config.noedit       = config.noedit     === 'true' || config.noedit    === true;
+    config.width        = config.width                   || '100%';
+    config.height       = config.height                  || '100%';
+    config.timeFormat   = config.timeFormat              || '%H:%M:%S %e.%m.%y';
+    config.useComma     = config.useComma    === 'true'  || config.useComma    === true;
+    config.zoom         = config.zoom        === 'true'  || config.zoom        === true;
+    config.export       = config.export      === 'true'  || config.export      === true;
+    config.grid_hideX   = config.grid_hideX  === 'true'  || config.grid_hideX  === true;
+    config.grid_hideY   = config.grid_hideY  === 'true'  || config.grid_hideY  === true;
+    config.hoverDetail  = config.hoverDetail === 'true'  || config.hoverDetail === true;
+    config.noLoader     = config.noLoader    === 'true'  || config.noLoader    === true;
+    config.noedit       = config.noedit      === 'true'  || config.noedit      === true;
+    config.animation    = parseInt(config.animation)     || 0;
     config.afterComma   = config.afterComma === undefined ? 2 : parseInt(config.afterComma, 10);
     config.timeType     = config.timeType || 'relative';
     return config;
@@ -154,23 +159,7 @@ function normalizeConfig(config) {
 
 class ChartModel {
     constructor(socket, config) {
-        if (!config) {
-            const query = Utils.parseQuery(window.location.search); // Utils.parseQuery
 
-            if (query.preset) {
-                this.preset = query.preset;
-            } else {
-                // search ID and range
-                const config = deParam((window.location.search || '').toString().replace(/^\?/, ''));
-                this.config = normalizeConfig(config);
-            }
-        } else {
-            if (typeof config === 'string') {
-                this.preset = config;
-            } else {
-                this.config = config;
-            }
-        }
 
         this.socket = socket;
 
@@ -188,6 +177,35 @@ class ChartModel {
         this.onReadingFunc   = null;
         this.onErrorFunc     = null;
 
+        this.lastHash = window.location.hash;
+
+        if (!config) {
+            this.onHashInstalled = true;
+            window.addEventListener('hashchange', this.onHashChange, false);
+        }
+
+        this.analyseAndLoadConfig(config);
+    }
+
+    analyseAndLoadConfig(config) {
+        if (config) {
+            if (typeof config === 'string') {
+                this.preset = config;
+            } else {
+                this.config = config;
+            }
+        } else {
+            const query = Utils.parseQuery(window.location.search); // Utils.parseQuery
+
+            if (query.preset) {
+                this.preset = query.preset;
+            } else {
+                // search ID and range
+                const _config = Object.assign(deParam((window.location.search || '').toString().replace(/^\?/, ''), true), deParam((window.location.hash || '').toString().replace(/^#/, ''), true));
+                this.config = normalizeConfig(_config);
+            }
+        }
+
         if (this.preset) {
             this.socket.getObject(this.preset)
                 .then(obj => {
@@ -199,6 +217,13 @@ class ChartModel {
             this.readData();
         }
     }
+
+    onHashChange = () => {
+        if (this.lastHash !== window.location.hash) {
+            this.lastHash = window.location.hash;
+            this.analyseAndLoadConfig();
+        }
+    };
 
     onPresetUpdate = (id, obj) => {
         if (obj) {
@@ -221,6 +246,8 @@ class ChartModel {
         if (this.preset) {
             this.socket.unsubscribeObject(this.preset, this.onPresetUpdate);
         }
+        this.onHashInstalled && window.removeEventListener('hashchange', this.onHashChange, false);
+        this.onHashInstalled = false;
     }
 
     onUpdate(cb) {
@@ -475,19 +502,24 @@ class ChartModel {
                     this.config.l[index].name = this.config.l[index].name || obj.common.name;
                     this.config.l[index].unit = this.config.l[index].unit || (obj.common.unit ? obj.common.unit.replace('�', '°') : '');
                     this.config.l[index].type = obj.common.type;
-                } else {
-                    this.config.l[index].name = this.config.l[index].name || this.config.l[index].id;
-                    this.config.l[index].unit = this.config.l[index].unit || '';
+                    if (this.config.l[index].chartType === 'auto') {
+                        this.config.l[index].chartType = obj.common.type === 'boolean' ? 'steps' : 'line';
+                        this.config.l[index].aggregate = obj.common.type === 'boolean' ? 'onchange' : 'minmax';
+                    }
                 }
                 return Promise.resolve();
             })
             .catch(e => {
                 console.error(`Cannot read object ${this.config.l[index].id}: ${e}`);
-                this.config.l[index].name = this.config.l[index].name || this.config.l[index].id;
-                this.config.l[index].unit = this.config.l[index].unit || '';
                 return Promise.resolve();
             })
             .then(() => {
+                this.config.l[index].name = this.config.l[index].name || this.config.l[index].id;
+                this.config.l[index].unit = this.config.l[index].unit || '';
+                if (this.config.l[index].chartType === 'auto') {
+                    this.config.l[index].chartType = 'line';
+                    this.config.l[index].aggregate = 'minmax';
+                }
                 if (typeof this.config.l[index].name === 'object') {
                     this.config.l[index].name = this.config.l[index].name[this.state.systemConfig.language] || this.config.l[index].name.en;
                 }

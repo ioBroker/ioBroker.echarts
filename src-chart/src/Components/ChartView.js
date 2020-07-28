@@ -145,9 +145,9 @@ class ChartView extends React.Component {
 
         const xAxisHeight = 20;
 
-        return {
+        const options = {
             backgroundColor: 'transparent',
-            animation: !this.props.noAnimation,
+            animation: !this.props.config.noAnimation && !this.props.config.noLoader,
             title: {
                 text: this.props.config.title || '',
                 textStyle: {
@@ -168,12 +168,14 @@ class ChartView extends React.Component {
                 right:             titlePos.right === 5 ? 25 : undefined,
             },
             grid: {
+                backgroundColor: this.props.config.bg_custom || 'transparent',
+                show: !!this.props.config.bg_custom,
                 left:   GRID_PADDING_LEFT,
                 top:    8,
                 right:  GRID_PADDING_RIGHT,
                 bottom: 40,
             },
-            tooltip: {
+            tooltip: this.props.config.export ? {
                 trigger: 'axis',
                 formatter: params => {
                     const date = new Date(params[0].value[0]);
@@ -183,14 +185,17 @@ class ChartView extends React.Component {
                 axisPointer: {
                     animation: true
                 }
-            },
+            } : undefined,
             xAxis:
-            {
+            [{
                 type: 'time',
-                /*splitLine: {
-                    show: true
-                },*/
-                splitNumber: Math.round((this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT) / 50),
+                splitLine: {
+                    show: !this.props.config.grid_hideX,
+                    lineStyle: this.props.config.grid_color ? {
+                        color: this.props.config.grid_color,
+                    } : undefined,
+                },
+                //splitNumber: Math.round((this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT) / 50),
                 min: this.chart.min,
                 max: this.chart.max,
                 axisTick: {
@@ -206,19 +211,24 @@ class ChartView extends React.Component {
                         } else {
                             return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
                         }
-                    }
+                    },
+                    color: this.props.config.x_labels_color || undefined,
                 }
-            },
+            }],
             yAxis: [
                 {
                     type: 'value',
                     boundaryGap: [0, '100%'],
-                    /*splitLine: {
-                        show: true,//!!this.props.config.gridLinesX
+                    splitLine: {
+                        show: !this.props.config.grid_hideY,
+                        lineStyle: this.props.config.grid_color ? {
+                            color: this.props.config.grid_color,
+                        } : undefined,
                     },
-                    splitNumber: Math.round(this.state.chartHeight / 100),*/
+                    //splitNumber: Math.round(this.state.chartHeight / 100),
                     axisLabel: {
                         formatter: '{value}' + this.props.config.l[0].unit,
+                        color: this.props.config.y_labels_color || undefined,
                     },
                     axisTick: {
                         alignWithLabel: true,
@@ -265,6 +275,12 @@ class ChartView extends React.Component {
             ],*/
             series: this.getSeries()
         };
+        if (!this.props.config.grid_color) {
+            options.yAxis.forEach(axis => delete axis.splitLine.lineStyle);
+            options.xAxis.forEach(axis => delete axis.splitLine.lineStyle);
+        }
+
+        return options;
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -576,7 +592,7 @@ class ChartView extends React.Component {
             setTimeout(() => this.forceUpdate(), 10);
         }
 
-        return <div ref={ this.divRef } className={ this.props.classes.chart }>
+        return <div ref={ this.divRef } className={ this.props.classes.chart } style={{background: this.props.config.window_bg || undefined}}>
             { this.renderChart() }
         </div>;
     }

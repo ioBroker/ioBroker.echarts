@@ -513,8 +513,9 @@ class PresetTabs extends React.Component {
                     <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="x_labels_color" label="X labels color" />
                     <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="y_labels_color" label="Y labels color" />
                     <br/>
-                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hide" label="Hide grid" />
-                    {!this.props.presetData.grid_hide ?
+                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideX" label="Hide X grid" />
+                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideY" label="Hide Y grid" />
+                    {!this.props.presetData.grid_hideX || !this.props.presetData.grid_hideY ?
                         <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="grid_color" label="Grid color" />
                         : null }
                     <br/>

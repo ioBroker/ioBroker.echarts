@@ -33,7 +33,7 @@ class App extends Component {
             connected:  false,
             reading:    true,
             seriesData: null,
-            noLoader:   Utils.parseQuery(window.location.search).noLoader || false,
+            noLoader:   Utils.parseQuery(window.location.search).noLoader || Utils.parseQuery((window.location.hash || '').replace(/^#/,'')).noLoader || false,
             theme:      themeInstance,
             themeName:  this.getThemeName(themeInstance),
             themeType:  this.getThemeType(themeInstance),
@@ -68,7 +68,7 @@ class App extends Component {
         } catch (e) {
             this.isIFrame = true;
         }
-        
+
         this.socket = new Connection({
             name: window.adapterName,
             doNotLoadAllObjects: true,
