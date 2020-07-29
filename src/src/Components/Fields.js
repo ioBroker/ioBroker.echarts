@@ -13,7 +13,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 
 import IconSelectID from '@material-ui/icons/Subject';
-import IconDelete from '@material-ui/icons/Delete';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
