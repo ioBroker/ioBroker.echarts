@@ -206,12 +206,17 @@ class ChartModel {
             }
         }
 
+        this.seriesData = [];
+
         if (this.preset) {
             this.socket.getObject(this.preset)
                 .then(obj => {
                     this.config = normalizeConfig(obj.native.data);
                     this.readData();
-                    this.socket.subscribeObject(this.preset, this.onPresetUpdate);
+                    if (this.presetSubscribed !== this.preset) {
+                        this.presetSubscribed = this.preset;
+                        this.socket.subscribeObject(this.preset, this.onPresetUpdate);
+                    }
                 });
         } else {
             this.readData();
@@ -243,8 +248,9 @@ class ChartModel {
             this.subscribes = [];
             this.subscribed = null;
         }
-        if (this.preset) {
-            this.socket.unsubscribeObject(this.preset, this.onPresetUpdate);
+        if (this.presetSubscribed) {
+            this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
+            this.presetSubscribed = null;
         }
         this.onHashInstalled && window.removeEventListener('hashchange', this.onHashChange, false);
         this.onHashInstalled = false;
@@ -674,7 +680,7 @@ class ChartModel {
     }
 
     onStateChange = (id, state) => {
-        if (!this.state.seriesData || !this.config || !this.config.m) {
+        if (!this.seriesData || !this.config || !this.config.m) {
             return;
         }
 

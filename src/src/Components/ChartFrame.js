@@ -17,13 +17,12 @@ const styles = theme => ({
     }
 });
 
-
 function deParam(params, coerce) {
     const obj = {};
     const coerceTypes = {'true': true, 'false': false, 'null': null};
 
     // Iterate over all name=value pairs.
-    params.replace(/\+/g, ' ').split('&').forEach(v => {
+    (params || '').replace(/\+/g, ' ').split('&').forEach(v => {
         const param = v.split('=');
         let key = decodeURIComponent(param[0]);
         let val;

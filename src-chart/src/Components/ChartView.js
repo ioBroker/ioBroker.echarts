@@ -102,7 +102,7 @@ class ChartView extends React.Component {
 
     convertData(i) {
         const values = this.props.data[i];
-        if (!values.length) {
+        if (!values || !values.length) {
             return [];
         }
 
