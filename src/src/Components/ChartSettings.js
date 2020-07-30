@@ -15,6 +15,7 @@ import I18n from '@iobroker/adapter-react/i18n';
 import {IoMdTime as IconTime} from 'react-icons/all';
 import {FiRefreshCw as IconRefresh} from 'react-icons/all';
 import {IoMdArrowDropdown as IconDropDown} from 'react-icons/all';
+import {MdAdd as IconPlus} from 'react-icons/md';
 
 class IconAggregate extends React.Component {
     render() {
@@ -148,6 +149,24 @@ const liveOptions = {
     '86400': '1 day',
 };
 
+const CHART_TYPES = {
+    auto: 'Auto (Line or Steps)',
+    line: 'Line',
+    //bar: 'Bar',
+    scatterplot: 'Scatter plot',
+    steps: 'Steps',
+    spline: 'Spline',
+};
+
+const AGGREGATES = {
+    minmax: 'minmax',
+    average: 'average',
+    min: 'min',
+    max: 'max',
+    total: 'total',
+    onchange: 'raw',
+};
+
 class ChartSettings extends React.Component {
     state = {
         timeSpanOpened: false,
@@ -221,8 +240,7 @@ class ChartSettings extends React.Component {
                 onClick={() => {this.setState({aggregateOpened: !this.state.aggregateOpened})}}
             >
                 <IconAggregate className={this.props.classes.aggregateIcon}/>
-                {this.props.presetData['aggregateSpan']}
-                {this.props.presetData.aggregateType === 'step' ? 's' : 'c'}
+                {I18n.t(CHART_TYPES[this.props.presetData.chartType])} / {I18n.t(AGGREGATES[this.props.presetData.aggregate])}
                 <IconDropDown/>
             </Button>
             <Popover
@@ -237,54 +255,42 @@ class ChartSettings extends React.Component {
                             updateValue={this.updateField}
                             name="chartType"
                             label="Chart type"
-                            options={{
-                                auto: 'Auto (Line or Steps)',
-                                line: 'Line',
-                                bar: 'Bar',
-                                scatterplot: 'Scatter plot',
-                                steps: 'Steps',
-                                spline: 'Spline',
-                            }}
+                            options={CHART_TYPES}
                         />
                         <IOSelect
                             formData={this.props.presetData}
                             updateValue={this.updateField}
                             name="aggregate"
-                            label="Type"
-                            options={{
-                                minmax: 'minmax',
-                                average: 'average',
-                                min: 'min',
-                                max: 'max',
-                                total: 'total',
-                                onchange: 'on change',
-                            }}/>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
+                            label="Aggregate"
+                            options={AGGREGATES}/>
+                        {this.props.presetData.aggregate !== 'onchange' ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
                             'count': 'counts',
                             'step': 'seconds',
-                        }}/>
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
+                        }}/> : null}
+                        {this.props.presetData.aggregate !== 'onchange' ? <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
                             label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
-                        />
+                        /> : null}
                     </div>
                 </div>
             </Popover>
-            <RefreshSelect
+            {this.props.presetData.timeType === 'relative' ? <RefreshSelect
                 className={this.props.classes.refreshSelect}
                 minWidth={0} width="initial"
                 formData={this.props.presetData}
                 updateValue={this.updateField}
                 name="live"
                 label=""
+                title={I18n.t('Auto-refresh')}
                 options={liveOptions}
                 renderValue={()=>
                     <div className={this.props.classes.refreshSelectButtonTitle}>
-                        <IconRefresh/>&nbsp;{I18n.t(liveOptions[this.props.presetData['live']])}
+                        <IconRefresh/>&nbsp;{I18n.t(liveOptions[this.props.presetData.live])}
                     </div>
                 }
-            />
+            /> : null }
             <div className={this.props.classes.grow1}/>
             <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={() => this.props.createPreset(null, null, this.props.selectedChartInstance, this.props.selectedChartId)}>
+                <IconPlus className={this.props.classes.buttonIcon}/>
                 {I18n.t('Create preset')}
             </Button>
         </Toolbar>;

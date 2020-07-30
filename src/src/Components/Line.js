@@ -245,7 +245,7 @@ class Line extends React.Component {
                 options={{
                     auto: 'Auto',
                     line: 'Line',
-                    bar: 'Bar',
+                    //bar: 'Bar',
                     scatterplot: 'Scatter plot',
                     steps: 'Steps',
                     spline: 'Spline',
@@ -264,7 +264,7 @@ class Line extends React.Component {
                     min: 'min',
                     max: 'max',
                     total: 'total',
-                    onchange: 'on change',
+                    onchange: 'raw',
                 }}
                 classes={{fieldContainer: this.props.classes.shortDataTypeField}}
             /> : null}
@@ -341,12 +341,12 @@ class Line extends React.Component {
                                 min: 'min',
                                 max: 'max',
                                 total: 'total',
-                                onchange: 'on change',
+                                onchange: 'raw',
                             }}/>
                             <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
                                 auto: 'Auto (Line or Steps)',
                                 line: 'Line',
-                                bar: 'Bar',
+                                //bar: 'Bar',
                                 scatterplot: 'Scatter plot',
                                 steps: 'Steps',
                                 spline: 'Spline',

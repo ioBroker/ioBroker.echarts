@@ -4,9 +4,12 @@ import withWidth from '@material-ui/core/withWidth';
 import {withStyles} from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
+import moment from 'moment';
+
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import echarts from 'echarts/lib/echarts';
 import 'echarts/lib/chart/line';
+import 'echarts/lib/chart/scatter';
 import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/grid';
 
@@ -16,8 +19,6 @@ import 'echarts/lib/component/title';
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/timeline';
 import 'zrender/lib/svg/svg';
-
-import Utils from '@iobroker/adapter-react/Components/Utils';
 
 function padding3(ms) {
     if (ms < 10) {
@@ -75,6 +76,17 @@ class ChartView extends React.Component {
         window.removeEventListener('resize', this.onResize);
     }
 
+    UNSAFE_componentWillReceiveProps(props) {
+        if (props.data !== this.state.data) {
+            if (typeof this.echartsReact.getEchartsInstance === 'function') {
+                const chartInstance = this.echartsReact.getEchartsInstance();
+                chartInstance.clear();  // may be it is not required
+                chartInstance.setOption(this.getOption(props), true);
+            }
+        } else {
+            return null;
+        }
+    }
     onResize = () => {
         this.timerResize && clearTimeout(this.timerResize);
 
@@ -100,8 +112,9 @@ class ChartView extends React.Component {
         }
     };*/
 
-    convertData(i) {
-        const values = this.props.data[i];
+    convertData(props, i) {
+        props = props || this.props;
+        const values = props.data[i];
         if (!values || !values.length) {
             return [];
         }
@@ -114,30 +127,37 @@ class ChartView extends React.Component {
         return values;
     }
 
-    getSeries() {
-        return this.props.config.l.map((oneLine, i) => {
+    getSeries(props) {
+        props = props || this.props;
+
+        return props.config.l.map((oneLine, i) => {
             const cfg = {
                 xAxisIndex: 0,
-                type: 'line',
+                type: oneLine.chartType === 'scatterplot' ? 'scatter' : 'line',
                 showSymbol: false,
                 hoverAnimation: true,
                 animation: false,
-                data: this.convertData(i),
+                step: oneLine.chartType === 'steps' ? 'start' : undefined,
+                smooth: oneLine.chartType === 'spline',
+                data: this.convertData(props, i),
                 lineStyle:{
                     color: oneLine.color,
-                }
+                },
+                itemStyle: oneLine.chartType === 'scatterplot' ? {
+                    color: oneLine.color
+                } : null,
             };
             return cfg;
         });
     }
 
-    getOption() {
-
-        console.log(JSON.stringify(this.props.config, null, 2));
+    getOption(props) {
+        props = props || this.props;
+        console.log(JSON.stringify(props.config, null, 2));
 
         let titlePos = {};
-        if (this.props.config.titlePos) {
-            this.props.config.titlePos.split(';').forEach(a => {
+        if (props.config.titlePos) {
+            props.config.titlePos.split(';').forEach(a => {
                 const parts = a.split(':');
                 titlePos[parts[0].trim()] = parseInt(parts[1].trim(), 10);
             });
@@ -147,12 +167,12 @@ class ChartView extends React.Component {
 
         const options = {
             backgroundColor: 'transparent',
-            animation: !this.props.config.noAnimation && !this.props.config.noLoader,
+            animation: !props.config.noAnimation && !props.config.noLoader,
             title: {
-                text: this.props.config.title || '',
+                text: props.config.title || '',
                 textStyle: {
-                    fontSize: this.props.config.titleSize ? parseInt(this.props.config.titleSize, 10) : undefined,
-                    color: this.props.config.titleColor || undefined
+                    fontSize: props.config.titleSize ? parseInt(props.config.titleSize, 10) : undefined,
+                    color: props.config.titleColor || undefined
                 },
                 padding: [
                     8,  // up
@@ -168,19 +188,26 @@ class ChartView extends React.Component {
                 right:             titlePos.right === 5 ? 25 : undefined,
             },
             grid: {
-                backgroundColor: this.props.config.bg_custom || 'transparent',
-                show: !!this.props.config.bg_custom,
+                backgroundColor: props.config.bg_custom || 'transparent',
+                show: !!props.config.bg_custom,
                 left:   GRID_PADDING_LEFT,
                 top:    8,
                 right:  GRID_PADDING_RIGHT,
                 bottom: 40,
             },
-            tooltip: this.props.config.export ? {
+            tooltip: props.config.hoverDetail ? {
                 trigger: 'axis',
                 formatter: params => {
                     const date = new Date(params[0].value[0]);
-                    const values = params.map(param => param.value[1] === null ? 'null' : param.value[1] + this.props.config.l[param.seriesIndex].unit);
-                    return `${date.toLocaleString()}.${padding3(date.getMilliseconds())}: ${values.join(', ')}`;
+
+                    const values = params.map(param =>
+                        `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${props.config.l[param.seriesIndex].color}">` +
+                            `<div style="display: flex;">${props.config.l[param.seriesIndex].name}:</div>` +
+                            `<div style="display: flex; flex-grow: 1"></div>` +
+                            `<div style="display: flex;"><b>${param.value[1] === null ? 'null' : param.value[1]}</b>${param.value[1] !== null ? props.config.l[param.seriesIndex].unit : ''}</div>` +
+                         `</div>`);
+
+                    return `<b>${moment(date).format('dddd, MMMM Do YYYY, h:mm:ss.SSS')}</b><br/>${values.join('<br/>')}`;
                 },
                 axisPointer: {
                     animation: true
@@ -190,9 +217,9 @@ class ChartView extends React.Component {
             [{
                 type: 'time',
                 splitLine: {
-                    show: !this.props.config.grid_hideX,
-                    lineStyle: this.props.config.grid_color ? {
-                        color: this.props.config.grid_color,
+                    show: !props.config.grid_hideX,
+                    lineStyle: props.config.grid_color ? {
+                        color: props.config.grid_color,
                     } : undefined,
                 },
                 //splitNumber: Math.round((this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT) / 50),
@@ -212,7 +239,7 @@ class ChartView extends React.Component {
                             return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
                         }
                     },
-                    color: this.props.config.x_labels_color || undefined,
+                    color: props.config.x_labels_color || undefined,
                 }
             }],
             yAxis: [
@@ -220,33 +247,33 @@ class ChartView extends React.Component {
                     type: 'value',
                     boundaryGap: [0, '100%'],
                     splitLine: {
-                        show: !this.props.config.grid_hideY,
-                        lineStyle: this.props.config.grid_color ? {
-                            color: this.props.config.grid_color,
+                        show: !props.config.grid_hideY,
+                        lineStyle: props.config.grid_color ? {
+                            color: props.config.grid_color,
                         } : undefined,
                     },
                     //splitNumber: Math.round(this.state.chartHeight / 100),
                     axisLabel: {
-                        formatter: '{value}' + this.props.config.l[0].unit,
-                        color: this.props.config.y_labels_color || undefined,
+                        formatter: '{value}' + props.config.l[0].unit,
+                        color: props.config.y_labels_color || undefined,
                     },
                     axisTick: {
                         alignWithLabel: true,
                     }
                 }
             ],
-            toolbox: this.props.config.export ? {
+            toolbox: props.config.export === true || props.config.export === 'true' ? {
                 left: 'right',
                 feature: {
                     /*dataZoom: {
                         yAxisIndex: 'none',
-                        title: this.props.t('Zoom'),
+                        title: props.t('Zoom'),
                     },
                     restore: {
-                        title: this.props.t('Restore')
+                        title: props.t('Restore')
                     },*/
                     saveAsImage: {
-                        title: this.props.t('Save as image'),
+                        title: props.t('Save as image'),
                         show: true,
                     }
                 }
@@ -273,22 +300,14 @@ class ChartView extends React.Component {
                     realtime: true,
                 },
             ],*/
-            series: this.getSeries()
+            series: this.getSeries(props)
         };
-        if (!this.props.config.grid_color) {
+        if (!props.config.grid_color) {
             options.yAxis.forEach(axis => delete axis.splitLine.lineStyle);
             options.xAxis.forEach(axis => delete axis.splitLine.lineStyle);
         }
 
         return options;
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        if (props.data !== state.data) {
-            return {data: props.data};
-        } else {
-            return null;
-        }
     }
 
     updateChart(start, end, withReadData, cb) {
@@ -548,7 +567,7 @@ class ChartView extends React.Component {
     }
 
     renderChart() {
-        if (this.state.data) {
+        if (this.props.data) {
             const option = this.getOption();
 
             //console.log(JSON.stringify(option, null, 2));
@@ -579,9 +598,9 @@ class ChartView extends React.Component {
 
     componentDidUpdate() {
         if (this.divRef.current) {
-            const width  = this.divRef.current.offsetWidth;
             const height = this.divRef.current.offsetHeight;
-            if (this.state.chartHeight !== height) {// || this.state.chartHeight !== height) {
+            if (this.state.chartHeight !== height) {
+                const width  = this.divRef.current.offsetWidth;
                 setTimeout(() => this.setState({ chartHeight: height, chartWidth: width }), 10);
             }
         }

@@ -11,7 +11,7 @@ import { version } from '../package.json';
 import theme from '@iobroker/adapter-react/Theme';
 import Utils from '@iobroker/adapter-react/Components/Utils';
 
-window.adapterName = 'echarts-index';
+window.adapterName = 'echarts-show';
 let themeName = Utils.getThemeName();
 
 console.log('iobroker.' + window.adapterName + '@' + version + ' using theme "' + themeName + '"');
@@ -33,7 +33,7 @@ function build() {
 // if not local development
 if (window.location.host !== 'localhost:3000' && false) {
     Sentry.init({
-        dsn: 'https://709f116e1de34029921e4f2696d6740f@sentry.iobroker.net/88',
+        dsn: 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95',
         release: 'iobroker.' + window.adapterName + '@' + version,
         integrations: [new SentryIntegrations.Dedupe()],
     });

@@ -18,6 +18,7 @@ import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 import ColorPicker from './ColorPicker';
 import ClearIcon from "@material-ui/icons/Close";
+import HelpIcon from "@material-ui/icons/Help";
 
 const styles = theme => ({
     fieldContainer: {
@@ -47,7 +48,8 @@ let IOSelect = function (props) {
             <InputLabel shrink={true}>{ label }</InputLabel>
             <Select
                 label={label}
-                onChange={e => props.updateValue(props.name, e.target.value)}
+                onChange={e =>
+                    props.updateValue(props.name, e.target.value)}
                 value={props.formData[props.name] || ''}
                 renderValue={props.renderValue}
                 displayEmpty
@@ -75,9 +77,9 @@ export {IOSelect};
 let IOCheckbox = function (props) {
     return <div className={props.classes.fieldContainer}>
         <FormControlLabel style={{paddingTop: 10}} label={<span className={props.classes.checkBoxLabel}>{I18n.t(props.label)}</span>} control={
-            <Checkbox onChange={(e) => {
+            <Checkbox onChange={e => {
                 props.updateValue(props.name, e.target.checked)
-            }} value={props.formData[props.name] || false}/>
+            }} checked={props.formData[props.name] || false}/>
         }/>
     </div>
 };
@@ -96,10 +98,24 @@ let IOTextField = function (props) {
             label={I18n.t(props.label)}
             InputLabelProps={{shrink: true}}
             inputProps={{min: props.min, max: props.max}}
-            onChange={(e) =>
+            onChange={e =>
                 props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             type={props.type}
+            InputProps={{
+                startAdornment: props.helperLink ? <IconButton
+                    size="small"
+                    onClick={() => window.open(props.helperLink,'_blank');}>
+                    <HelpIcon />
+                </IconButton> : undefined,
+                endAdornment: props.formData[props.name] ?
+                    <IconButton
+                        size="small"
+                        onClick={() => props.updateValue(props.name, '')}>
+                        <ClearIcon />
+                    </IconButton>
+                    : undefined,
+            }}
         />
     </div>
 };
@@ -111,13 +127,14 @@ IOTextField.propTypes = {
     type: PropTypes.string,
     min: PropTypes.number,
     max: PropTypes.number,
+    helperLink: PropTypes.string,
 };
 IOTextField = withStyles(styles)(IOTextField);
 export {IOTextField};
 
 let IODateTimeField = function (props) {
     return <div className={props.classes.fieldContainer}>
-        <TextField type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{shrink: true}} onChange={(e) => {
+        <TextField type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{shrink: true}} onChange={e => {
             let date = e.target.value.split('T');
             props.updateValue(props.name, date[0], date[1]);
         }} value={props.formData[props.name] ? props.formData[props.name] + 'T' + props.formData[props.name + '_time'] : ''}/>
@@ -143,7 +160,7 @@ let IOObjectField = function (props) {
                 fullWidth={true}
                 InputLabelProps={{shrink: true}}
                 value={props.formData[props.name] || ''}
-                onChange={(e) => props.updateValue(props.name, e.target.value)}
+                onChange={e => props.updateValue(props.name, e.target.value)}
             />
             <IconButton size="small" onClick={() => setState({showDialog: true})} className={props.classes.objectButton}>
                 <IconSelectID/>

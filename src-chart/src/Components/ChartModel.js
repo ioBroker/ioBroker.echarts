@@ -160,7 +160,6 @@ function normalizeConfig(config) {
 class ChartModel {
     constructor(socket, config) {
 
-
         this.socket = socket;
 
         this.seriesData      = [];
@@ -213,6 +212,7 @@ class ChartModel {
                 .then(obj => {
                     this.config = normalizeConfig(obj.native.data);
                     this.readData();
+                    // subscribe on preset changes
                     if (this.presetSubscribed !== this.preset) {
                         this.presetSubscribed = this.preset;
                         this.socket.subscribeObject(this.preset, this.onPresetUpdate);

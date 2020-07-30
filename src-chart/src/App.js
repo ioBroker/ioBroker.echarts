@@ -4,6 +4,8 @@ import { withTheme } from '@material-ui/core/styles';
 import withWidth from '@material-ui/core/withWidth';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 
+import LinearProgress from '@material-ui/core/LinearProgress';
+
 import Utils from '@iobroker/adapter-react/Components/Utils';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
@@ -20,6 +22,13 @@ const styles = theme => ({
     root: {
         width: '100%',
         height: '100%',
+        position: 'relative',
+    },
+    progress: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
     }
 });
 
@@ -92,7 +101,7 @@ class App extends Component {
                         this.chartData = new ChartModel(this.socket);
                         this.chartData.onError(err => this.showError(I18n.t(err)));
                         this.chartData.onReading(reading => this.setState({reading}));
-                        this.chartData.onUpdate(seriesData => this.setState({seriesData}));
+                        this.chartData.onUpdate(seriesData => this.setState({seriesData, reading: false}));
                     });
             },
             onError: err => {
@@ -166,6 +175,7 @@ class App extends Component {
             <div ref={this.divRef}
                  className={this.props.classes.root}
                  style={{width: config.width, height: config.height, background: this.state.theme.palette.background.default, color: this.state.theme.palette.text.primary}}>
+                {this.state.reading ? <LinearProgress className={this.props.classes.progress}/> : null}
                 <ChartView
                     socket={this.socket}
                     t={I18n.t}

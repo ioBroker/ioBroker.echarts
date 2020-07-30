@@ -94,7 +94,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
 class PresetTabs extends React.Component {
     state = {
-        presetData: getDefaultPreset(),
+        presetData: getDefaultPreset(this.props.systemConfig),
         selectedTab: window.localStorage.getItem('PresetTabs.selectedTab') !== null ? window.localStorage.getItem('PresetTabs.selectedTab') : '0',
         linesOpened: window.localStorage.getItem('Lines.opened') !== null ? JSON.parse(window.localStorage.getItem('Lines.opened')) : [],
         marksOpened: window.localStorage.getItem('Marks.opened') !== null ? JSON.parse(window.localStorage.getItem('Marks.opened')) : [],
@@ -395,7 +395,7 @@ class PresetTabs extends React.Component {
                     <br/>
                     <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
                 </Grid>
-                <Grid item xs={6} className={this.props.classes.shortFields}>
+                {this.props.presetData.lines.find(line => line.aggregate !== 'onchange') ? <Grid item xs={6} className={this.props.classes.shortFields}>
                     <h4>{I18n.t('Aggregate')}</h4>
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
                         'count': 'counts',
@@ -404,7 +404,7 @@ class PresetTabs extends React.Component {
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
                                  label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                     />
-                </Grid>
+                </Grid> : null }
             </Grid>
         </TabPanel>;
     }
@@ -431,34 +431,38 @@ class PresetTabs extends React.Component {
                 {/*<IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />*/}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show export button'} name="export" />
                 <br/>
-                <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
-                '': 'Default',
-                '%H:%M %d.%m': 'HH:MM dd.mm',
-                '%H:%M %d.%m.': 'HH:MM dd.mm.',
-                '%H:%M <br> %d.%m': 'HH:MM / dd.mm',
-                '%H:%M <br> %d.%m.': 'HH:MM / dd.mm.',
-                '%H:%M <br> %d.%m.%y': 'HH:MM / dd.mm.yy',
-                '%H:%M:%S %d.%m.%y': 'HH:MM:SS dd.mm.yy',
-                '%H:%M %d.%m.%y': 'HH:MM dd.mm.yy',
-                '%I:%M:%S %x %p': 'HH:MM:SS mm/dd/yy am (US)',
-                '%H:%M:%S %d/%m/%y': 'HH:MM:SS dd/mm/yy (UK)',
-                '%H:%M:%S %m.%d.%y': 'HH:MM:SS mm.dd.yy',
-                '%H:%M %a': 'HH:MM dow',
-                '%H:%M:%S %a': 'HH:MM:SS dow',
-                '%H:%M %m.%d': 'HH:MM mm.dd',
-                '%H:%M:%S': 'HH:MM:SS',
-                '%H:%M': 'HH:MM',
-                '%d.%m': 'dd.mm',
-                '%d.%m.': 'dd.mm.',
-                '%m/%d': 'mm/dd',
-                '%d': 'dd',
-                '%m': 'mm',
-                '%y': 'y',
-                '%H': 'HH',
-                '%M': 'MM',
-                '%a': 'dow',
-                '%d.%m.%y': 'dd.mm.yy',
-            }}/>
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Custom time format" name="timeFormatCustom" />
+                {this.props.presetData.timeFormatCustom ?
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
+                        '': 'Default',
+                        'HH:mm DD.MM': 'HH:MM dd.mm',
+                        'HH:mm DD.MM.': 'HH:MM dd.mm.',
+                        'HH:mm <br> DD.MM': 'HH:MM / dd.mm',
+                        'HH:mm <br> DD.MM.': 'HH:MM / dd.mm.',
+                        'HH:mm <br> DD.MM.YY': 'HH:MM / dd.mm.yy',
+                        'HH:mm:ss DD.MM.YY': 'HH:MM:SS dd.mm.yy',
+                        'HH:mm DD.MM.YY': 'HH:MM dd.mm.yy',
+                        'hh:mm:ss MM/DD/YY a': 'HH:MM:SS mm/dd/yy am (US)',
+                        'HH:mm:ss DD/MM/YY': 'HH:MM:SS dd/mm/yy (UK)',
+                        'HH:mm:ss MM.DD.YY': 'HH:MM:SS mm.dd.yy',
+                        'HH:mm ddd': 'HH:MM dow',
+                        'HH:mm:ss ddd': 'HH:MM:SS dow',
+                        'HH:mm MM.DD': 'HH:MM mm.dd',
+                        'HH:mm:ss': 'HH:MM:SS',
+                        'HH:mm': 'HH:MM',
+                        'DD.MM': 'dd.mm',
+                        'DD.MM.': 'dd.mm.',
+                        'MM/DD': 'mm/dd',
+                        'DD': 'dd',
+                        'MM': 'mm',
+                        'YY': 'y',
+                        'HH': 'HH',
+                        'mm': 'MM',
+                        'ddd': 'dow',
+                        'DD.MM.YY': 'dd.mm.yy',
+                    }}/> :
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" helperLink="https://momentjs.com/docs/#/displaying/format/"/> }
+
                 {/*<IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Animation" name="animation" options={{
                             '0': 'no',
                             '300': '300ms',
@@ -605,6 +609,7 @@ PresetTabs.propTypes = {
     width: PropTypes.number,
     PREDEFINED_COLORS: PropTypes.array,
     theme: PropTypes.object,
+    systemConfig: PropTypes.object,
 };
 
 export default withStyles(styles)(PresetTabs)

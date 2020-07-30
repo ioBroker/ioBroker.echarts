@@ -269,7 +269,7 @@ class App extends GenericApp {
         this.socket.getSystemConfig()
             .then(systemConfig => {
                 newState.systemConfig = systemConfig;
-                newState.presetData = getDefaultPreset(systemConfig.common.defaultHistory);
+                newState.presetData = getDefaultPreset(systemConfig);
                 this.setState(newState);
                 return Promise.resolve();
             })
@@ -557,7 +557,7 @@ class App extends GenericApp {
                     },
                     native: {
                         url: '',
-                        data: getDefaultPreset(historyInstance || this.state.systemConfig.common.defaultHistory, obj, I18n.getLanguage()),
+                        data: getDefaultPreset(this.state.systemConfig, historyInstance, obj, I18n.getLanguage()),
                     },
                     type: 'chart'
                 };

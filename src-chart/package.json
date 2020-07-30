@@ -16,7 +16,8 @@
     "react-icons": "^3.10.0",
     "react-scripts": "^3.4.1",
     "echarts": "^4.7.0",
-    "echarts-for-react": "^2.0.15-beta.1"
+    "echarts-for-react": "^2.0.15-beta.1",
+    "moment": "^2.27.0"
   },
   "homepage": ".",
   "scripts": {

@@ -104,21 +104,29 @@ const DEFAULT_PRESET = {
     legColumns: '',
     legBgOpacity: '',
     legBg: '',
-    timeFormat: '%H:%M:%S %d.%m.%y',
+    timeFormat: 'HH:mm:ss DD.MM.YY',
     export: true,
 };
 
-function getDefaultPreset(defaultHistory, obj, language) {
+function getDefaultPreset(systemSettings, instance, obj, language) {
     const preset = JSON.parse(JSON.stringify(DEFAULT_PRESET));
+
+    preset.useComma = systemSettings.common.isFloatComma || false;
+
+    if (systemSettings.common.dateFormat) {
+        preset.timeFormat = 'HH:mm:ss ' + systemSettings.common.dateFormat;
+    }
+
     preset.lines.push({
         name: (obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '',
         id: obj ? obj._id : '',
         color: (obj && obj.common && obj.common.color) || '#144578',
-        instance: defaultHistory,
+        instance: instance || systemSettings.common.defaultHistory,
         chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
         aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
         unit: (obj && obj.common && obj.common.unit) || ''
     });
+
     return preset;
 }
 export default getDefaultPreset;
