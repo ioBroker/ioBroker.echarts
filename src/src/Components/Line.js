@@ -16,7 +16,7 @@ import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
 import Utils from '@iobroker/adapter-react/Components/Utils';
 import I18n from '@iobroker/adapter-react/i18n';
 
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fields';
+import {IOTextField, IOCheckbox, IOColorPicker, IOSelect, IOObjectField, IOSlider} from './Fields';
 
 const WIDTHS = {
     instance: 100,
@@ -351,14 +351,20 @@ class Line extends React.Component {
                                 steps: 'Steps',
                                 spline: 'Spline',
                             }}/>
+                            {this.props.line.chartType === 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
                         </div>
                         <div className={this.props.classes.shortFields}>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
                         </div>
                         <div className={this.props.classes.shortFields}>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
+                            {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />*/}
+                            <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
                             <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
+                            {this.props.line.points && this.props.line.chartType !== 'scatterplot' ?
+                                <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> :
+                                null
+                            }
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={1} type="number"/>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number"/>
                         </div>
@@ -429,14 +435,19 @@ class Line extends React.Component {
                                 'true': 'ignore null values',
                                 '0': 'use 0 instead of null values',
                             }}/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0}/>
+                            {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0}/>*/}
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0}/>
+                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
+                                'solid': 'solid',
+                                'dashed': 'dashed',
+                                'dotted': 'dotted',
+                            }}/>
                         </div>
-                        <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+                        {/*<div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                             <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
                             {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" min={1} type="number"/> : null}
                             {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" min={1} type="number"/> : null}
-                        </div>
+                        </div>*/}
                     </>
                     :
                     this.renderClosedLine()

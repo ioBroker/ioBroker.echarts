@@ -432,7 +432,7 @@ class PresetTabs extends React.Component {
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show export button'} name="export" />
                 <br/>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Custom time format" name="timeFormatCustom" />
-                {this.props.presetData.timeFormatCustom ?
+                {!this.props.presetData.timeFormatCustom ?
                     <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
                         '': 'Default',
                         'HH:mm DD.MM': 'HH:MM dd.mm',

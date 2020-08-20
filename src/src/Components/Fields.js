@@ -11,6 +11,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
 
 import IconSelectID from '@material-ui/icons/Subject';
 
@@ -38,6 +40,20 @@ const styles = theme => ({
         left: -200,
         top: 60,
         position: 'relative'
+    },
+    sliderContainer: {
+        position: 'relative',
+        //height: theme.spacing(3),
+    },
+    sliderLabel: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        fontSize: 'small'
+    },
+    sliderRoot: {
+        paddingBottom: 0,
+        paddingTop: theme.spacing(2),
     }
 });
 
@@ -95,6 +111,7 @@ export {IOCheckbox};
 let IOTextField = function (props) {
     return <div className={props.classes.fieldContainer}>
         <TextField
+            style={{width: props.width}}
             label={I18n.t(props.label)}
             InputLabelProps={{shrink: true}}
             inputProps={{min: props.min, max: props.max}}
@@ -102,12 +119,14 @@ let IOTextField = function (props) {
                 props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             type={props.type}
+
             InputProps={{
                 startAdornment: props.helperLink ? <IconButton
                     size="small"
-                    onClick={() => window.open(props.helperLink,'_blank');}>
+                    onClick={() => window.open(props.helperLink,'_blank')}>
                     <HelpIcon />
                 </IconButton> : undefined,
+
                 endAdornment: props.formData[props.name] ?
                     <IconButton
                         size="small"
@@ -128,6 +147,7 @@ IOTextField.propTypes = {
     min: PropTypes.number,
     max: PropTypes.number,
     helperLink: PropTypes.string,
+    width: PropTypes.number,
 };
 IOTextField = withStyles(styles)(IOTextField);
 export {IOTextField};
@@ -225,3 +245,31 @@ IOColorPicker.propTypes = {
 };
 IOColorPicker = withStyles(styles)(IOColorPicker);
 export {IOColorPicker};
+
+let IOSlider = function (props) {
+    return <div className={clsx(props.classes.fieldContainer, props.classes.sliderContainer)}>
+        <Typography className={props.classes.sliderLabel}>{props.label}</Typography>
+        <Slider
+            classes={{root: props.classes.sliderRoot}}
+            value={parseFloat(props.formData[props.name] || props.min || 0) || 0}
+            //getAriaValueText={(props.formData[props.name] || '').toString()}
+            step={parseFloat(props.step || (((props.max || 1) - (props.min || 0)) / 10)) || 0.1}
+            marks
+            onChange={(e, value) => props.updateValue(props.name, value)}
+            min={parseFloat(props.min || 0)}
+            max={parseFloat(props.max || 1)}
+            valueLabelDisplay="auto"
+        />
+    </div>
+};
+IOSlider.propTypes = {
+    label: PropTypes.string,
+    name: PropTypes.string,
+    value: PropTypes.any,
+    min: PropTypes.number,
+    max: PropTypes.number,
+    step: PropTypes.number,
+    formData: PropTypes.object,
+};
+IOSlider = withStyles(styles)(IOSlider);
+export {IOSlider};

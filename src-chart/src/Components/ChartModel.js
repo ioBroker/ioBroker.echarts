@@ -183,7 +183,11 @@ class ChartModel {
             window.addEventListener('hashchange', this.onHashChange, false);
         }
 
-        this.analyseAndLoadConfig(config);
+        this.socket.getSystemConfig()
+            .then(systemConfig => {
+                this.systemConfig = systemConfig && systemConfig.common ? systemConfig.common : {};
+                return this.analyseAndLoadConfig(config);
+            });
     }
 
     analyseAndLoadConfig(config) {
@@ -206,6 +210,9 @@ class ChartModel {
         }
 
         this.seriesData = [];
+
+        this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
+        this.config.lang     = this.systemConfig.language;
 
         if (this.preset) {
             this.socket.getObject(this.preset)
@@ -527,7 +534,7 @@ class ChartModel {
                     this.config.l[index].aggregate = 'minmax';
                 }
                 if (typeof this.config.l[index].name === 'object') {
-                    this.config.l[index].name = this.config.l[index].name[this.state.systemConfig.language] || this.config.l[index].name.en;
+                    this.config.l[index].name = this.config.l[index].name[this.systemConfig.language] || this.config.l[index].name.en;
                 }
                 this.readOneChart(this.config.l[index].id, this.config.l[index].instance, index, cb);
             });

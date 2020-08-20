@@ -132,23 +132,61 @@ class ChartView extends React.Component {
 
         return props.config.l.map((oneLine, i) => {
             const cfg = {
+                name: oneLine.name,
                 xAxisIndex: 0,
                 type: oneLine.chartType === 'scatterplot' ? 'scatter' : 'line',
-                showSymbol: false,
+                showSymbol: oneLine.chartType === 'scatterplot' || oneLine.points,
                 hoverAnimation: true,
                 animation: false,
                 step: oneLine.chartType === 'steps' ? 'start' : undefined,
                 smooth: oneLine.chartType === 'spline',
                 data: this.convertData(props, i),
-                lineStyle:{
-                    color: oneLine.color,
-                },
-                itemStyle: oneLine.chartType === 'scatterplot' ? {
+                itemStyle: {
                     color: oneLine.color
-                } : null,
+                },
+                symbolSize: oneLine.chartType === 'scatterplot' || oneLine.points ? oneLine.symbolSize || 3 : undefined,
+                symbol: 'circle',
+                lineStyle: {
+                    width: oneLine.thickness || 1,
+                    shadowBlur: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
+                    shadowOffsetY: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
+                    shadowColor: oneLine.color,
+                    type: oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
+                }
             };
+            if (oneLine.fill) {
+                cfg.areaStyle = {
+                    color: oneLine.color,
+                    opacity: parseFloat(oneLine.fill),
+                };
+            }
+
             return cfg;
         });
+    }
+
+    yFormatter(val, line, props) {
+        props = props || this.props;
+        if (props.config.l[line].type === 'boolean') {
+            return val ? 'TRUE' : 'FALSE';
+        }
+
+        const afterComma = props.config.l[line].afterComma;
+        if (afterComma !== undefined && afterComma !== null) {
+            val = parseFloat(val);
+            if (props.config.useComma) {
+                return val.toFixed(afterComma).replace('.', ',');
+            } else {
+                return val.toFixed(afterComma);
+            }
+        } else {
+            if (props.config.useComma) {
+                val = parseFloat(val);
+                return val.toString().replace('.', ',');
+            } else {
+                return val;
+            }
+        }
     }
 
     getOption(props) {
@@ -164,6 +202,11 @@ class ChartView extends React.Component {
         }
 
         const xAxisHeight = 20;
+
+        const legend = !props.config.legend || props.config.legend === 'none' ? undefined : {
+            data: props.config.l.map(oneLine => oneLine.name),
+            show: true,
+        };
 
         const options = {
             backgroundColor: 'transparent',
@@ -187,6 +230,7 @@ class ChartView extends React.Component {
                 bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight : titlePos.bottom) : undefined,
                 right:             titlePos.right === 5 ? 25 : undefined,
             },
+            legend,
             grid: {
                 backgroundColor: props.config.bg_custom || 'transparent',
                 show: !!props.config.bg_custom,
@@ -200,12 +244,17 @@ class ChartView extends React.Component {
                 formatter: params => {
                     const date = new Date(params[0].value[0]);
 
-                    const values = params.map(param =>
-                        `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${props.config.l[param.seriesIndex].color}">` +
+                    const values = params.map(param => {
+                        let val = param.value[1] === null ?
+                            'null' :
+                            this.yFormatter(param.value[1], param.seriesIndex, props);
+
+                        return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${props.config.l[param.seriesIndex].color}">` +
                             `<div style="display: flex;">${props.config.l[param.seriesIndex].name}:</div>` +
                             `<div style="display: flex; flex-grow: 1"></div>` +
-                            `<div style="display: flex;"><b>${param.value[1] === null ? 'null' : param.value[1]}</b>${param.value[1] !== null ? props.config.l[param.seriesIndex].unit : ''}</div>` +
-                         `</div>`);
+                            `<div style="display: flex;"><b>${val}</b>${param.value[1] !== null ? props.config.l[param.seriesIndex].unit : ''}</div>` +
+                         `</div>`
+                    });
 
                     return `<b>${moment(date).format('dddd, MMMM Do YYYY, h:mm:ss.SSS')}</b><br/>${values.join('<br/>')}`;
                 },

@@ -124,7 +124,8 @@ function getDefaultPreset(systemSettings, instance, obj, language) {
         instance: instance || systemSettings.common.defaultHistory,
         chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
         aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
-        unit: (obj && obj.common && obj.common.unit) || ''
+        unit: (obj && obj.common && obj.common.unit) || '',
+        symbolSize: 3,
     });
 
     return preset;
