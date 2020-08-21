@@ -58,4 +58,4 @@ gulp.task('updateReadme', done => {
     done();
 });
 
-gulp.task('default', gulp.series('updateReadme', '[edit]6-patch-dep', '[chart]6-patch-dep'));
+gulp.task('default', gulp.series('updateReadme', '[edit]6-patch-dep', '[chart]7-copy-www-dep'));

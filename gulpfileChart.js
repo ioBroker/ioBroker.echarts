@@ -162,6 +162,10 @@ module.exports = function init(gulp) {
                     code ? reject('Exit code: ' + code) : resolve();
                 });
             }
+
+            let widget = fs.readFileSync(__dirname + '/widgets/echarts.html').toString('utf8');
+            widget = widget.replace(/version: "\d+\.\d+\.\d+"/, `version: "${version}"`);
+            fs.writeFileSync(__dirname + '/widgets/echarts.html', widget);
         });
     }
 
@@ -219,4 +223,39 @@ module.exports = function init(gulp) {
     }));
 
     gulp.task('[chart]6-patch-dep',  gulp.series('[chart]5-copy-dep', '[chart]6-patch'));
+
+    function checkChart(resolve, reject, start) {
+        if (!resolve) {
+            return new Promise((resolve, reject) =>
+                checkChart(resolve, reject, Date.now()));
+        } else {
+            console.log('Check src-chart/build/service-worker.js');
+            if (fs.existsSync(__dirname + '/src-chart/build/service-worker.js')) {
+                console.log('Exists src-chart/build/service-worker.js');
+                setTimeout(() => resolve(), 500);
+            } else {
+                if (Date.now() - start > 30000) {
+                    reject('timeout');
+                } else {
+                    console.log('Wait for src-chart/build/service-worker.js');
+                    setTimeout(() => checkChart(resolve, reject, start), 500);
+                }
+            }
+        }
+    }
+
+    function copyFilesToWWW() {
+        return del([
+            'www/**/*'
+        ]).then(() => {
+            return checkChart()
+                .then(() =>
+                    gulp.src(['admin/chart/**/*',])
+                        .pipe(gulp.dest('www')));
+        });
+    }
+    gulp.task('[chart]7-copy-www', () => copyFilesToWWW());
+
+    gulp.task('[chart]7-copy-www-dep',  gulp.series('[chart]6-patch-dep', '[chart]7-copy-www'));
+
 };

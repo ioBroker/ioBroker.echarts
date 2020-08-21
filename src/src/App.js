@@ -171,6 +171,11 @@ const styles = theme => ({
     },
     itemIconRoot: {
         minWidth: 24,
+    },
+    listItemSubTitle: {
+        fontSize: 'smaller',
+        opacity: 0.7,
+        fontStyle: 'italic'
     }
 });
 

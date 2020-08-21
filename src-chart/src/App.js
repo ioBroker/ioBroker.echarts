@@ -46,6 +46,7 @@ class App extends Component {
             theme:      themeInstance,
             themeName:  this.getThemeName(themeInstance),
             themeType:  this.getThemeType(themeInstance),
+            noBackground: Utils.parseQuery(window.location.search).noBG || Utils.parseQuery((window.location.hash || '').replace(/^#/,'')).noBG || false,
         };
         this.divRef = React.createRef();
 
@@ -174,7 +175,12 @@ class App extends Component {
         return <MuiThemeProvider theme={this.state.theme}>
             <div ref={this.divRef}
                  className={this.props.classes.root}
-                 style={{width: config.width, height: config.height, background: this.state.theme.palette.background.default, color: this.state.theme.palette.text.primary}}>
+                 style={{
+                     width: config.width,
+                     height: config.height,
+                     background: this.state.noBackground ? undefined : this.state.theme.palette.background.default,
+                     color: this.state.theme.palette.text.primary
+                 }}>
                 {this.state.reading ? <LinearProgress className={this.props.classes.progress}/> : null}
                 <ChartView
                     socket={this.socket}

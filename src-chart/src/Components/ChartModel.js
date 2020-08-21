@@ -211,13 +211,12 @@ class ChartModel {
 
         this.seriesData = [];
 
-        this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
-        this.config.lang     = this.systemConfig.language;
-
         if (this.preset) {
             this.socket.getObject(this.preset)
                 .then(obj => {
                     this.config = normalizeConfig(obj.native.data);
+                    this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
+                    this.config.lang     = this.systemConfig.language;
                     this.readData();
                     // subscribe on preset changes
                     if (this.presetSubscribed !== this.preset) {
@@ -226,6 +225,8 @@ class ChartModel {
                     }
                 });
         } else {
+            this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
+            this.config.lang     = this.systemConfig.language;
             this.readData();
         }
     }
