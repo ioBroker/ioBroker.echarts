@@ -207,15 +207,15 @@ module.exports = function init(gulp) {
     gulp.task('[chart]6-patch', () => new Promise(resolve => {
         if (fs.existsSync(__dirname + '/admin/chart/index.html')) {
             let code = fs.readFileSync(__dirname + '/admin/chart/index.html').toString('utf8');
-            code = code.replace(/<script>var script=document\.createElement\("script"\)[^<]+<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
+            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                `<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>`);
 
             fs.writeFileSync(__dirname + '/admin/chart/index.html', code);
         }
         if (fs.existsSync(__dirname + '/src-chart/build/index.html')) {
             let code = fs.readFileSync(__dirname + '/src-chart/build/index.html').toString('utf8');
-            code = code.replace(/<script>var script=document\.createElement\("script"\)[^<]+<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
+            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                `<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>`);
 
             fs.writeFileSync(__dirname + '/src-chart/build/index.html', code);
         }
@@ -244,6 +244,26 @@ module.exports = function init(gulp) {
         }
     }
 
+    function checkWWW(resolve, reject, start) {
+        if (!resolve) {
+            return new Promise((resolve, reject) =>
+                checkChart(resolve, reject, Date.now()));
+        } else {
+            console.log('Check www/index.html');
+            if (fs.existsSync(__dirname + '/www/index.html')) {
+                console.log('Exists www/index.html');
+                setTimeout(() => resolve(), 500);
+            } else {
+                if (Date.now() - start > 30000) {
+                    reject('timeout');
+                } else {
+                    console.log('Wait for www/index.html');
+                    setTimeout(() => checkChart(resolve, reject, start), 500);
+                }
+            }
+        }
+    }
+
     function copyFilesToWWW() {
         return del([
             'www/**/*'
@@ -251,7 +271,23 @@ module.exports = function init(gulp) {
             return checkChart()
                 .then(() =>
                     gulp.src(['admin/chart/**/*',])
-                        .pipe(gulp.dest('www')));
+                        .pipe(gulp.dest('www')))
+                .then(() => checkWWW())
+                .then(() => new Promise(resolve => {
+                        if (fs.existsSync(__dirname + '/www/index.html')) {
+                            let code = fs.readFileSync(__dirname + '/www/index.html').toString('utf8');
+                            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                                `<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>`);
+
+                            if (!code.includes('_socket/info.js')) {
+                                code = code.replace('<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>', '<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>');
+                            }
+
+                            fs.writeFileSync(__dirname + '/www/index.html', code);
+                        }
+
+                        resolve();
+                    }));
         });
     }
     gulp.task('[chart]7-copy-www', () => copyFilesToWWW());

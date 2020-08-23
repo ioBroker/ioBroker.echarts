@@ -208,14 +208,14 @@ module.exports = function init(gulp) {
     gulp.task('[edit]6-patch', () => new Promise(resolve => {
         if (fs.existsSync(__dirname + '/admin/tab.html')) {
             let code = fs.readFileSync(__dirname + '/admin/tab.html').toString('utf8');
-            code = code.replace(/<script>var script=document\.createElement\("script"\)[^<]+<\/script>/,
+            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
             fs.writeFileSync(__dirname + '/admin/tab.html', code);
         }
         if (fs.existsSync(__dirname + '/src/build/index.html')) {
             let code = fs.readFileSync(__dirname + '/src/build/index.html').toString('utf8');
-            code = code.replace(/<script>var script=document\.createElement\("script"\)[^<]+<\/script>/,
+            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
             fs.writeFileSync(__dirname + '/src/build/index.html', code);
