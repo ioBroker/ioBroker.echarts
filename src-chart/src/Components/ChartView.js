@@ -20,22 +20,8 @@ import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/timeline';
 import 'zrender/lib/svg/svg';
 
-function padding3(ms) {
-    if (ms < 10) {
-        return '00' + ms;
-    } else if (ms < 100) {
-        return '0' + ms;
-    } else {
-        return ms;
-    }
-}
-
 function padding2(num) {
-    if (num < 10) {
-        return '0' + num;
-    } else {
-        return num;
-    }
+    return num.toString().padStart(2, '0');
 }
 
 const styles = theme => ({
@@ -81,12 +67,13 @@ class ChartView extends React.Component {
             if (typeof this.echartsReact.getEchartsInstance === 'function') {
                 const chartInstance = this.echartsReact.getEchartsInstance();
                 chartInstance.clear();  // may be it is not required
-                chartInstance.setOption(this.getOption(props), true);
+                chartInstance.setOption(this.getOption(props));
             }
         } else {
             return null;
         }
     }
+
     onResize = () => {
         this.timerResize && clearTimeout(this.timerResize);
 
@@ -119,9 +106,12 @@ class ChartView extends React.Component {
             return [];
         }
 
-        if (!this.chart.min) {
-            this.chart.min = values[0].ts;
-            this.chart.max = values[values.length - 1].ts;
+        if (this.chart.min === null || this.chart.min > values[0].value[0]) {
+            this.chart.min = values[0].value[0];
+
+        }
+        if (this.chart.max === null || this.chart.max < values[values.length - 1].value[0]) {
+            this.chart.max = values[values.length - 1].value[0];
         }
 
         return values;
@@ -129,6 +119,8 @@ class ChartView extends React.Component {
 
     getSeries(props) {
         props = props || this.props;
+        this.chart.min = null;
+        this.chart.max = null;
 
         return props.config.l.map((oneLine, i) => {
             const cfg = {
@@ -147,11 +139,11 @@ class ChartView extends React.Component {
                 symbolSize: oneLine.chartType === 'scatterplot' || oneLine.points ? oneLine.symbolSize || 3 : undefined,
                 symbol: 'circle',
                 lineStyle: {
-                    width: oneLine.thickness || 1,
-                    shadowBlur: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
-                    shadowOffsetY: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
-                    shadowColor: oneLine.color,
-                    type: oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
+                    width:          oneLine.thickness || 1,
+                    shadowBlur:     oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
+                    shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
+                    shadowColor:    oneLine.color,
+                    type:           oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
                 }
             };
             if (oneLine.fill) {
@@ -191,7 +183,9 @@ class ChartView extends React.Component {
 
     getOption(props) {
         props = props || this.props;
-        console.log(JSON.stringify(props.config, null, 2));
+        this.debug = props.config && props.config.debug;
+
+        this.debug && console.log(JSON.stringify(props.config, null, 2));
 
         let titlePos = {};
         if (props.config.titlePos) {
@@ -207,6 +201,21 @@ class ChartView extends React.Component {
             data: props.config.l.map(oneLine => oneLine.name),
             show: true,
         };
+
+        const series = this.getSeries(props);
+
+        if (props.config.start) {
+            if (this.chart.max < props.config.end) {
+                this.chart.max = props.config.end;
+            }
+            if (this.chart.min > props.config.start) {
+                this.chart.min = props.config.start;
+            }
+        }
+
+        this.chart.diff        = this.chart.max - this.chart.min;
+        this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
+        this.chart.withSeconds = this.chart.diff < 60000 * 30;
 
         const options = {
             backgroundColor: 'transparent',
@@ -349,8 +358,9 @@ class ChartView extends React.Component {
                     realtime: true,
                 },
             ],*/
-            series: this.getSeries(props)
+            series
         };
+
         if (!props.config.grid_color) {
             options.yAxis.forEach(axis => delete axis.splitLine.lineStyle);
             options.xAxis.forEach(axis => delete axis.splitLine.lineStyle);
@@ -390,7 +400,7 @@ class ChartView extends React.Component {
                                 min: this.chart.min,
                                 max: this.chart.max,
                             }
-                        });
+                        }, true);
                         cb && cb();
                     });
             } else {
@@ -400,7 +410,7 @@ class ChartView extends React.Component {
                         min: this.chart.min,
                         max: this.chart.max,
                     }
-                });
+                }, true);
                 cb && cb();
             }
         }, 400);
@@ -425,7 +435,7 @@ class ChartView extends React.Component {
                     min: this.chart.min,
                     max: this.chart.max,
                 }
-            });
+            }, true);
 
             updateChart && this.updateChart(this.chart.min, this.chart.max, true);
         }

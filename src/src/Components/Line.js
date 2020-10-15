@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import update from 'immutability-helper';
-import clsx from 'clsx';
 import {withStyles} from '@material-ui/core/styles';
 
 import IconButton from '@material-ui/core/IconButton';

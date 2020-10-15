@@ -64,12 +64,21 @@ class App extends Component {
             'zh-cn': require('@iobroker/adapter-react/i18n/zh-cn'),
         };
 
+        const ownTranslations = {
+            'en': require('./i18n/en'),
+            'de': require('./i18n/de'),
+            'ru': require('./i18n/ru'),
+            'pt': require('./i18n/pt'),
+            'nl': require('./i18n/nl'),
+            'fr': require('./i18n/fr'),
+            'it': require('./i18n/it'),
+            'es': require('./i18n/es'),
+            'pl': require('./i18n/pl'),
+            'zh-cn': require('./i18n/zh-cn'),
+        };
+
         // merge together
-        /*if (settings && settings.translations) {
-            Object.keys(settings.translations).forEach(lang => translations[lang] = Object.assign(translations[lang], settings.translations[lang]));
-        } else if (props.translations) {
-            Object.keys(props.translations).forEach(lang => translations[lang] = Object.assign(translations[lang], props.translations[lang]));
-        }*/
+        Object.keys(translations).forEach(lang => translations[lang] = Object.assign(translations[lang], ownTranslations[lang]));
 
         I18n.setTranslations(translations);
 
@@ -81,7 +90,6 @@ class App extends Component {
 
         this.socket = new Connection({
             name: window.adapterName,
-            doNotLoadAllObjects: true,
             onProgress: progress => {
                 if (progress === PROGRESS.CONNECTING) {
                     this.setState({connected: false});
@@ -166,11 +174,11 @@ class App extends Component {
             }
         }
 
-        if (this.state.seriesData) {
+        const config = this.chartData.getConfig();
+
+        if (this.state.seriesData && config.debug) {
             console.log('seriesData: ' + JSON.stringify(this.state.seriesData));
         }
-
-        const config = this.chartData.getConfig();
 
         return <MuiThemeProvider theme={this.state.theme}>
             <div ref={this.divRef}
@@ -187,7 +195,7 @@ class App extends Component {
                     t={I18n.t}
                     noAnimation={this.state.noLoader}
                     data={this.state.seriesData}
-                    config={this.chartData.getConfig()}
+                    config={config}
                     lang={I18n.getLanguage()}
                     themeType={this.state.themeType}
                 />

@@ -175,8 +175,11 @@ class ChartModel {
         this.onUpdateFunc    = null;
         this.onReadingFunc   = null;
         this.onErrorFunc     = null;
+        this.objectPromises  = {};
 
-        this.lastHash = window.location.hash;
+        this.lastHash        = window.location.hash;
+
+        this.debug           = false;
 
         if (!config) {
             this.onHashInstalled = true;
@@ -200,6 +203,8 @@ class ChartModel {
         } else {
             const query = Utils.parseQuery(window.location.search); // Utils.parseQuery
 
+            this.debug = query.debug === true || query.debug === 'true' || query.debug === 1 || query.debug === '1';
+
             if (query.preset) {
                 this.preset = query.preset;
             } else {
@@ -211,23 +216,48 @@ class ChartModel {
 
         this.seriesData = [];
 
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+
         if (this.preset) {
+            if (!this.preset.startsWith('echarts.') || !this.preset.startsWith('flot.') || !this.preset.includes('.')) {
+                this.preset = 'echarts.0.' + this.preset;
+            }
+
             this.socket.getObject(this.preset)
                 .then(obj => {
+                    if (!obj || !obj.native || !obj.native.data || obj.type !== 'chart') {
+                        console.error(`Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
+                        return;
+                    }
                     this.config = normalizeConfig(obj.native.data);
                     this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
                     this.config.lang     = this.systemConfig.language;
+                    this.config.live     = parseInt(this.config.live, 10) || 0;
+                    this.config.debug    = this.debug;
+
                     this.readData();
                     // subscribe on preset changes
                     if (this.presetSubscribed !== this.preset) {
+                        this.presetSubscribed && this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
                         this.presetSubscribed = this.preset;
                         this.socket.subscribeObject(this.preset, this.onPresetUpdate);
+                    }
+                    if (this.config.live) {
+                        this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                     }
                 });
         } else {
             this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
             this.config.lang     = this.systemConfig.language;
+            this.config.live     = parseInt(this.config.live, 10) || 0;
+            this.config.debug    = this.debug;
             this.readData();
+            if (this.config.live) {
+                this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+            }
         }
     }
 
@@ -239,15 +269,26 @@ class ChartModel {
     };
 
     onPresetUpdate = (id, obj) => {
-        if (obj) {
-            this.config = normalizeConfig(obj.native.data);
-        } else {
-            this.config = normalizeConfig({});
+        if (id !== this.preset) {
+            return;
         }
+        let newConfig;
+        if (obj) {
+            newConfig = normalizeConfig(obj.native.data);
+        } else {
+            newConfig = normalizeConfig({});
+        }
+        if (JSON.stringify(newConfig) !== JSON.stringify(this.config)) {
+            this.config = newConfig;
+            this.updateInterval && clearInterval(this.updateInterval);
+            this.updateInterval = null;
 
-        // just copy data to force update
-        this.seriesData = JSON.parse(JSON.stringify(this.seriesData));
-        this.onUpdateFunc && this.onUpdateFunc(this.seriesData);
+            if (this.config.live) {
+                this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+            }
+
+            this.readData();
+        }
     };
 
     destroy() {
@@ -259,6 +300,10 @@ class ChartModel {
         if (this.presetSubscribed) {
             this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
             this.presetSubscribed = null;
+        }
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
         }
         this.onHashInstalled && window.removeEventListener('hashchange', this.onHashChange, false);
         this.onHashInstalled = false;
@@ -307,6 +352,10 @@ class ChartModel {
         if (this.config.zoomed) {
             this.navOptions[index].end   = this.config.l[index].zMax;
             this.navOptions[index].start = this.config.l[index].zMin;
+
+            this.config.start = this.navOptions[index].start;
+            this.config.end   = this.navOptions[index].end;
+
             return this.navOptions[index];
         } else {
             if (!step) {
@@ -402,15 +451,14 @@ class ChartModel {
                 }
 
                 option = {
-                    start:      start,
-                    end:        end,
+                    start,
+                    end,
                     ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
                     aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
                     from:       false,
                     ack:        false,
                     q:          false,
                     addID:      false,
-
                 };
 
                 if (this.config.aggregateType === 'step') {
@@ -418,6 +466,9 @@ class ChartModel {
                 } else if (this.config.aggregateType === 'count') {
                     option.count = this.config.aggregateSpan || (this.chartRef.current.clientWidth / 10);
                 }
+
+                this.config.start = start;
+                this.config.end   = end;
 
                 this.navOptions[index] = option;
                 return option;
@@ -439,6 +490,10 @@ class ChartModel {
 
                 this.navOptions[index].end   = end;
                 this.navOptions[index].start = this.addTime(end, this.config.range, false, true);
+
+                this.config.start = start;
+                this.config.end   = end;
+
                 return option;
             }
         }
@@ -451,7 +506,7 @@ class ChartModel {
         this.config.l[index].yOffset = parseFloat(this.config.l[index].yOffset) || 0;
 
         //console.log(JSON.stringify(option));
-        console.log(new Date(option.start) + ' - ' + new Date(option.end));
+        this.debug && console.log(new Date(option.start) + ' - ' + new Date(option.end));
 
         this.socket.getHistoryEx(id, option)
             .then(res => {
@@ -509,8 +564,15 @@ class ChartModel {
             .then(() => cb(id, index))
     }
 
+    _readObject(id) {
+        if (!this.objectPromises[id]) {
+            this.objectPromises[id] = this.socket.getObject(id);
+        }
+        return this.objectPromises[id];
+    }
+
     _readOneLine(index, cb) {
-        return this.socket.getObject(this.config.l[index].id)
+        return this._readObject(this.config.l[index].id)
             .then(obj => {
                 if (obj && obj.common) {
                     this.config.l[index].name = this.config.l[index].name || obj.common.name;
@@ -565,7 +627,7 @@ class ChartModel {
             option.sessionId = this.sessionId;
             option.aggregate = 'onchange';
 
-            console.log('Ticks: ' + new Date(option.start) + ' - ' + new Date(option.end));
+            this.debug && console.log('Ticks: ' + new Date(option.start) + ' - ' + new Date(option.end));
 
             this.socket.getHistoryEx(this.config.ticks, option)
                 .then(res => {
@@ -692,7 +754,7 @@ class ChartModel {
             return;
         }
 
-        console.log('State update ' + id + ' - ' + state.val);
+        this.debug && console.log('State update ' + id + ' - ' + state.val);
 
         for (let m = 0; m < this.config.m.length; m++) {
             if (this.config.m[m].oid === id) {
@@ -782,6 +844,7 @@ class ChartModel {
 //                    });
 //                }
 //            } else {
+            this.seriesData = [];
             this._readData(() =>
                 this.readTicks(_ticks =>
                     this.readMarkings(() => {
