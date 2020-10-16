@@ -18,6 +18,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@alcalzone/release-script": "^1.8.1",
     "@iobroker/testing": "^2.3.0",
     "@types/gulp": "^4.0.7",
     "axios": "^0.20.0",
@@ -31,7 +32,9 @@
   "main": "widgets/echarts.html",
   "scripts": {
     "test:package": "mocha test/package --exit",
-    "test": "npm run test:package"
+    "test": "npm run test:package",
+    "build": "node node_modules/gulp/bin/gulp.js",
+    "release": "node node_modules/@alcalzone/release-script/bin/release.js"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.echarts/issues"

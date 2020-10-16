@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
-import {IOTextField,IOCheckbox,IOColorPicker,IOSelect,IOObjectField} from './Fields';
+import {IOTextField, IOCheckbox, IOColorPicker, IOSelect, IOObjectField} from './Fields';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
@@ -164,7 +164,7 @@ class Mark extends React.Component {
         this.props.updateMark(this.props.index, newMark);
     };
 
-    renderClosedLine(lines) {
+    renderClosedLine(lines, colors) {
         return <div className={this.props.classes.lineClosedContainer}>
             <div className={this.props.classes.lineClosed}>
                 <IconButton
@@ -178,6 +178,7 @@ class Mark extends React.Component {
                     name="lineId"
                     label="Line ID"
                     options={lines}
+                    colors={colors}
                     classes={{fieldContainer: this.props.classes.shortLineIdField}}
                     minWidth={WIDTHS.lineId}
                 />
@@ -194,7 +195,7 @@ class Mark extends React.Component {
                     formData={this.props.mark}
                     updateValue={this.updateField}
                     name="lowerValueOrId"
-                    label="Lower value or ID"
+                    label="Lower value (no ID)"
                     socket={this.props.socket}
                     classes={{fieldContainer: this.props.classes.shortLowerValueOrIdField}}
                     minWidth={WIDTHS.lowerValueOrId}
@@ -236,7 +237,11 @@ class Mark extends React.Component {
 
     render() {
         let lines = {};
-        this.props.presetData.lines.forEach((line, index) => lines[index] = index + ' - ' + (line.id || I18n.t('No ID yet')));
+        let colors = {};
+        this.props.presetData.lines.forEach((line, index) => {
+            lines[index] = index + ' - ' + (line.id || I18n.t('No ID yet'));
+            colors[index] = line.color;
+        });
         return <Card className={this.props.classes.card}><CardContent className={this.props.classes.cardContent}>
             { this.props.opened ? <>
                 <div>
@@ -253,7 +258,7 @@ class Mark extends React.Component {
                     </IconButton>
                 </div>
                 <div className={this.props.classes.shortFields}>
-                    <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" label="Line ID" options={lines}/>
+                    <IOSelect      formData={this.props.mark} updateValue={this.updateField} name="lineId"         label="Line ID" options={lines} colors={colors}/>
                     <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
                     <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
                 </div>
@@ -274,7 +279,7 @@ class Mark extends React.Component {
                     {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
                     {this.props.mark.text ?<IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" /> : null}
                 </div>
-            </> : this.renderClosedLine(lines)}
+            </> : this.renderClosedLine(lines, colors)}
         </CardContent></Card>
     }
 }

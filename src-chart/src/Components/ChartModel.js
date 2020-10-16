@@ -237,7 +237,7 @@ class ChartModel {
                         return console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
                     }
                     this.config = normalizeConfig(obj.native.data);
-                    this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
+                    this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
                     this.config.lang     = this.systemConfig.language;
                     this.config.live     = parseInt(this.config.live, 10) || 0;
                     this.config.debug    = this.debug;
@@ -254,7 +254,7 @@ class ChartModel {
                     }
                 });
         } else {
-            this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
+            this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
             this.config.lang     = this.systemConfig.language;
             this.config.live     = parseInt(this.config.live, 10) || 0;
             this.config.debug    = this.debug;
@@ -276,23 +276,27 @@ class ChartModel {
         if (id !== this.preset) {
             return;
         }
-        let newConfig;
-        if (obj) {
-            newConfig = normalizeConfig(obj.native.data);
-        } else {
-            newConfig = normalizeConfig({});
-        }
-        if (JSON.stringify(newConfig) !== JSON.stringify(this.config)) {
-            this.config = newConfig;
-            this.updateInterval && clearInterval(this.updateInterval);
-            this.updateInterval = null;
-
-            if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
-                this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+        this.presetUpdateTimeout && clearTimeout(this.presetUpdateTimeout);
+        this.presetUpdateTimeout = setTimeout(() => {
+            this.presetUpdateTimeout = null;
+            let newConfig;
+            if (obj) {
+                newConfig = normalizeConfig(obj.native.data);
+            } else {
+                newConfig = normalizeConfig({});
             }
+            if (JSON.stringify(newConfig) !== JSON.stringify(this.config)) {
+                this.config = newConfig;
+                this.updateInterval && clearInterval(this.updateInterval);
+                this.updateInterval = null;
 
-            this.readData();
-        }
+                if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
+                    this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                }
+
+                this.readData();
+            }
+        }, 100);
     };
 
     setNewRange(options) {
@@ -348,6 +352,14 @@ class ChartModel {
             this.subscribes = [];
             this.subscribed = null;
         }*/
+        if (this.readOnZoomTimeout) {
+            clearTimeout(this.readOnZoomTimeout);
+            this.readOnZoomTimeout = null;
+        }
+        if (this.presetUpdateTimeout) {
+            clearTimeout(this.presetUpdateTimeout);
+            this.presetUpdateTimeout = null;
+        }
         if (this.presetSubscribed) {
             this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
             this.presetSubscribed = null;
@@ -566,6 +578,7 @@ class ChartModel {
                     option.yOffset = this.config.l[index].yOffset;
                     const values = res.values;
 
+                    this.seriesData[index] = []; // not really needed
                     const _series = this.seriesData[index];
 
                     for (let i = 0; i < values.length; i++) {

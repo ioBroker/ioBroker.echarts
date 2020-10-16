@@ -420,8 +420,8 @@ class PresetTabs extends React.Component {
                 }}/>
                 {this.props.presetData.legend ?
                 <>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" />
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity (0-1)" name="legBgOpacity" />
+                    {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" />*/}
+                    {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity (0-1)" name="legBgOpacity" />*/}
                     <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} label="Legend background" name="legBg" />
                 </> : null}
                 <br/>
@@ -437,9 +437,9 @@ class PresetTabs extends React.Component {
                         '': 'Default',
                         'HH:mm DD.MM': 'HH:MM dd.mm',
                         'HH:mm DD.MM.': 'HH:MM dd.mm.',
-                        'HH:mm <br> DD.MM': 'HH:MM / dd.mm',
-                        'HH:mm <br> DD.MM.': 'HH:MM / dd.mm.',
-                        'HH:mm <br> DD.MM.YY': 'HH:MM / dd.mm.yy',
+                        'HH:mm <br/> DD.MM': 'HH:MM / dd.mm',
+                        'HH:mm <br/> DD.MM.': 'HH:MM / dd.mm.',
+                        'HH:mm <br/> DD.MM.YY': 'HH:MM / dd.mm.yy',
                         'HH:mm:ss DD.MM.YY': 'HH:MM:SS dd.mm.yy',
                         'HH:mm DD.MM.YY': 'HH:MM dd.mm.yy',
                         'hh:mm:ss MM/DD/YY a': 'HH:MM:SS mm/dd/yy am (US)',
@@ -462,7 +462,6 @@ class PresetTabs extends React.Component {
                         'DD.MM.YY': 'dd.mm.yy',
                     }}/> :
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" helperLink="https://momentjs.com/docs/#/displaying/format/"/> }
-
                 {/*<IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Animation" name="animation" options={{
                             '0': 'no',
                             '300': '300ms',
@@ -529,8 +528,20 @@ class PresetTabs extends React.Component {
                         }}/>
                     {this.props.presetData.noBorder !== 'noborder' ?
                         <>
-                            <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="border_color" label="Border color" />
                             <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_width" label="Border width" min="0" type="number"/>
+                            {this.props.presetData.border_width ? <IOColorPicker formData={this.props.presetData} updateValue={this.updateField} name="border_color" label="Border color" /> : null}
+                            {this.props.presetData.border_width ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="border_style" label="Border style" options={{
+                                'solid':  'solid',
+                                'dotted': 'dotted',
+                                'dashed': 'dashed',
+                                'double': 'double',
+                                'groove': 'groove',
+                                'ridge':  'ridge',
+                                'inset':  'inset',
+                                'outset': 'outset',
+                            }}/> : null}
+                            {this.props.presetData.border_width ? <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min="0" type="number"/> : null}
+
                         </> : null}
                 </Grid>
                 {

@@ -64,18 +64,17 @@ let IOSelect = function (props) {
             <InputLabel shrink={true}>{ label }</InputLabel>
             <Select
                 label={label}
-                onChange={e =>
-                    props.updateValue(props.name, e.target.value)}
+                style={{color: props.colors ? props.colors[props.formData[props.name]] || undefined : undefined}}
+                onChange={e => props.updateValue(props.name, e.target.value)}
                 value={props.formData[props.name] || ''}
                 renderValue={props.renderValue}
                 displayEmpty
-            >
-                {
-                    props.options ?
-                        Object.keys(props.options).map((key) =>
-                            <MenuItem key={key} value={key}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
-                         : null
-                }
+            >{
+                props.options ?
+                    Object.keys(props.options).map(key =>
+                        <MenuItem key={key} value={key} style={{color: props.colors ? props.colors[key] || undefined : undefined}}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
+                     : null
+            }
             </Select>
         </FormControl>
     </div>
@@ -86,6 +85,7 @@ IOSelect.propTypes = {
     value: PropTypes.any,
     formData: PropTypes.object,
     options: PropTypes.object,
+    colors: PropTypes.object,
 };
 IOSelect = withStyles(styles)(IOSelect);
 export {IOSelect};

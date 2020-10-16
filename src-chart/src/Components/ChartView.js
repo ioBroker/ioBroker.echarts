@@ -31,6 +31,7 @@ import 'echarts/lib/component/grid';
 
 import 'echarts/lib/component/toolbox';
 import 'echarts/lib/component/title';
+import 'echarts/lib/component/legend';
 
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/timeline';
@@ -233,7 +234,8 @@ class ChartView extends React.Component {
                 `</div>`
         });
 
-        return `<b>${moment(date).format('dddd, MMMM Do YYYY, h:mm:ss.SSS')}</b><br/>${values.join('<br/>')}`;
+        const format = props.config.timeFormat || 'dddd, MMMM Do YYYY, h:mm:ss.SSS';
+        return `<b>${moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
     }
 
     getOption(props) {
@@ -252,9 +254,18 @@ class ChartView extends React.Component {
 
         const xAxisHeight = 20;
 
+        // 'nw': 'Top, left',
+        // 'ne': 'Top, right',
+        // 'sw': 'Bottom, left',
+        // 'se': 'Bottom, right',
         const legend = !props.config.legend || props.config.legend === 'none' ? undefined : {
-            data: props.config.l.map(oneLine => oneLine.name),
-            show: true,
+            data:   props.config.l.map(oneLine => oneLine.name),
+            show:   true,
+            left:   props.config.legend === 'nw' || props.config.legend === 'sw' ?  GRID_PADDING_LEFT + 1 : undefined,
+            right:  props.config.legend === 'ne' || props.config.legend === 'se' ?  GRID_PADDING_RIGHT + 1 : undefined,
+            top:    props.config.legend === 'nw' || props.config.legend === 'ne' ?  10 : undefined,
+            bottom: props.config.legend === 'sw' || props.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
+            backgroundColor: props.config.legBg || undefined
         };
 
         const series = this.getSeries(props);
@@ -289,10 +300,10 @@ class ChartView extends React.Component {
                 ],
                 textVerticalAlign: titlePos.bottom      ? 'bottom' : 'top',
                 textAlign:         titlePos.left === 50 ? 'center' : (titlePos.right === -5 ? 'right' : 'left'),
-                top:               titlePos.top  === 35 ? 0 : (titlePos.top === 50 ? '50%' : undefined),
-                left:              titlePos.left === 50 ? '50%' : (titlePos.left === 65 ? 0 : undefined),
-                bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight : titlePos.bottom) : undefined,
-                right:             titlePos.right === 5 ? 25 : undefined,
+                top:               titlePos.top  === 35 ? 5 : (titlePos.top === 50 ? '50%' : undefined),
+                left:              titlePos.left === 50 ? '50%' : (titlePos.left === 65 ? 15 : undefined),
+                bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight - 5 : titlePos.bottom) : undefined,
+                right:             titlePos.right === 5 ? 35 : undefined,
             },
             legend,
             grid: {
@@ -306,39 +317,44 @@ class ChartView extends React.Component {
             tooltip: props.config.hoverDetail ? {
                 trigger: 'axis',
                 formatter: params => this.renderTooltip(props, params),
+                hoverAnimation: true,
                 axisPointer: {
                     animation: true
                 }
             } : undefined,
-            xAxis:
-            [{
-                type: 'time',
-                splitLine: {
-                    show: !props.config.grid_hideX,
-                    lineStyle: props.config.grid_color ? {
-                        color: props.config.grid_color,
-                    } : undefined,
-                },
-                //splitNumber: Math.round((this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT) / 50),
-                min: this.chart.min,
-                max: this.chart.max,
-                axisTick: {
-                    alignWithLabel: true,
-                },
-                axisLabel: {
-                    formatter: (value, index) => {
-                        const date = new Date(value);
-                        if (this.chart.withSeconds) {
-                            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds());
-                        } else if (this.chart.withTime) {
-                            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + '\n' + padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1);
-                        } else {
-                            return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
-                        }
+            xAxis: [
+                {
+                    type: 'time',
+                    splitLine: {
+                        show: !props.config.grid_hideX,
+                        lineStyle: props.config.grid_color ? {
+                            color: props.config.grid_color,
+                        } : undefined,
                     },
-                    color: props.config.x_labels_color || undefined,
+                    //splitNumber: Math.round((this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT) / 50),
+                    min: this.chart.min,
+                    max: this.chart.max,
+                    axisTick: {
+                        alignWithLabel: true,
+                    },
+                    axisLabel: {
+                        formatter: (value, index) => {
+                            const date = new Date(value);
+                            if (props.config.timeFormat) {
+                                return moment(date).format(props.config.timeFormat).replace('<br/>', '\n');
+                            } else
+                            if (this.chart.withSeconds) {
+                                return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds());
+                            } else if (this.chart.withTime) {
+                                return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + '\n' + padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1);
+                            } else {
+                                return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
+                            }
+                        },
+                        color: props.config.x_labels_color || undefined,
+                    }
                 }
-            }],
+            ],
             yAxis: [
                 {
                     type: 'value',
@@ -351,7 +367,12 @@ class ChartView extends React.Component {
                     },
                     //splitNumber: Math.round(this.state.chartHeight / 100),
                     axisLabel: {
-                        formatter: '{value}' + props.config.l[0].unit,
+                        formatter: function (value) {
+                            if (props.config.useComma) {
+                                value = value.toString().replace('.', ',');
+                            }
+                            return value + props.config.l[0].unit;
+                        },//'{value}' + props.config.l[0].unit,
                         color: props.config.y_labels_color || undefined,
                     },
                     axisTick: {
@@ -668,10 +689,12 @@ class ChartView extends React.Component {
 
     componentDidUpdate() {
         if (this.divRef.current) {
-            const height = this.divRef.current.offsetHeight;
-            if (this.state.chartHeight !== height) {
-                const width  = this.divRef.current.offsetWidth;
-                setTimeout(() => this.setState({ chartHeight: height, chartWidth: width }), 10);
+            const borderWidth   = parseFloat(this.props.config.border_width)   || 0;
+            const borderPadding = parseFloat(this.props.config.border_padding) || 0;
+            const chartHeight = this.divRef.current.offsetHeight - (borderWidth + borderPadding) * 2;
+            if (this.state.chartHeight !== chartHeight) {
+                const chartWidth  = this.divRef.current.offsetWidth - (borderWidth + borderPadding) * 2;
+                setTimeout(() => this.setState({chartHeight, chartWidth}), 10);
             }
         }
     }
@@ -700,7 +723,21 @@ class ChartView extends React.Component {
             setTimeout(() => this.forceUpdate(), 10);
         }
 
-        return <div ref={ this.divRef } className={ this.props.classes.chart } style={{background: this.props.config.window_bg || undefined}}>
+        const borderWidth   = parseFloat(this.props.config.border_width) || 0;
+        const borderPadding = parseFloat(this.props.config.border_padding) || 0;
+
+        return <div
+            ref={ this.divRef }
+            className={ this.props.classes.chart }
+            style={{
+                width:  borderWidth || borderPadding ? 'calc(100% - ' + ((borderWidth + borderPadding) * 2 + 1) + 'px' : undefined,
+                height: borderWidth || borderPadding ? 'calc(100% - ' + (borderWidth + borderPadding) * 2 + 'px' : undefined,
+                background: this.props.config.window_bg || undefined,
+                borderWidth,
+                borderColor: this.props.config.border_color || undefined,
+                borderStyle: borderWidth ? this.props.config.border_style || 'solid' : '',
+                padding: borderPadding || 0,
+            }}>
             { this.renderResetButton() }
             { this.renderChart() }
         </div>;
