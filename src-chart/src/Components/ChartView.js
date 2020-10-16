@@ -2,9 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import withWidth from '@material-ui/core/withWidth';
 import {withStyles} from '@material-ui/core/styles';
+
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Fab from '@material-ui/core/Fab';
+
+import {FaRedoAlt as IconReset}  from 'react-icons/fa'
 
 import moment from 'moment';
+import 'moment/locale/en-gb';
+import 'moment/locale/es';
+import 'moment/locale/fr';
+import 'moment/locale/pl';
+import 'moment/locale/pt';
+import 'moment/locale/it';
+import 'moment/locale/nl';
+import 'moment/locale/ru';
+import 'moment/locale/zh-cn';
+import 'moment/locale/de';
+
+import I18n from '@iobroker/adapter-react/i18n';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import echarts from 'echarts/lib/echarts';
@@ -31,11 +47,23 @@ const styles = theme => ({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
+        position: 'relative',
+    },
+    resetButton: {
+        position: 'absolute',
+        top: 10,
+        right: 25,
+        zIndex: 2,
+        opacity: 0.7
+        //background: '#00000000',
+    },
+    resetButtonIcon: {
+        paddingTop: 6,
     },
 });
 
-const GRID_PADDING_LEFT = 80;
-const GRID_PADDING_RIGHT = 25;
+const GRID_PADDING_LEFT = 100;
+const GRID_PADDING_RIGHT = 30;
 
 class ChartView extends React.Component {
     constructor(props) {
@@ -50,8 +78,10 @@ class ChartView extends React.Component {
         // this.rangeRef     = React.createRef();
 
         this.divRef = React.createRef();
+        this.divResetButton = React.createRef();
 
         this.chart = {};
+        moment.locale(I18n.getLanguage());
     }
 
     componentDidMount() {
@@ -62,13 +92,20 @@ class ChartView extends React.Component {
         window.removeEventListener('resize', this.onResize);
     }
 
+    updateProperties = props => {
+        this.updatePropertiesTimeout = null;
+        if (typeof this.echartsReact.getEchartsInstance === 'function') {
+            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties`);
+            const chartInstance = this.echartsReact.getEchartsInstance();
+            chartInstance.clear();  // may be it is not required
+            chartInstance.setOption(this.getOption(props));
+        }
+    };
+
     UNSAFE_componentWillReceiveProps(props) {
         if (props.data !== this.state.data) {
-            if (typeof this.echartsReact.getEchartsInstance === 'function') {
-                const chartInstance = this.echartsReact.getEchartsInstance();
-                chartInstance.clear();  // may be it is not required
-                chartInstance.setOption(this.getOption(props));
-            }
+            this.updatePropertiesTimeout && clearTimeout(this.updatePropertiesTimeout);
+            this.updatePropertiesTimeout = setTimeout(this.updateProperties, 100, props);
         } else {
             return null;
         }
@@ -181,11 +218,29 @@ class ChartView extends React.Component {
         }
     }
 
+    renderTooltip(props, params) {
+        const date = new Date(params[0].value[0]);
+
+        const values = params.map(param => {
+            let val = param.value[1] === null ?
+                'null' :
+                this.yFormatter(param.value[1], param.seriesIndex, props);
+
+            return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${props.config.l[param.seriesIndex].color}">` +
+                `<div style="display: flex;">${props.config.l[param.seriesIndex].name}:</div>` +
+                `<div style="display: flex; flex-grow: 1"></div>` +
+                `<div style="display: flex;"><b>${val}</b>${param.value[1] !== null ? props.config.l[param.seriesIndex].unit : ''}</div>` +
+                `</div>`
+        });
+
+        return `<b>${moment(date).format('dddd, MMMM Do YYYY, h:mm:ss.SSS')}</b><br/>${values.join('<br/>')}`;
+    }
+
     getOption(props) {
         props = props || this.props;
         this.debug = props.config && props.config.debug;
 
-        this.debug && console.log(JSON.stringify(props.config, null, 2));
+        this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] ${JSON.stringify(props.config, null, 2)}`);
 
         let titlePos = {};
         if (props.config.titlePos) {
@@ -250,23 +305,7 @@ class ChartView extends React.Component {
             },
             tooltip: props.config.hoverDetail ? {
                 trigger: 'axis',
-                formatter: params => {
-                    const date = new Date(params[0].value[0]);
-
-                    const values = params.map(param => {
-                        let val = param.value[1] === null ?
-                            'null' :
-                            this.yFormatter(param.value[1], param.seriesIndex, props);
-
-                        return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${props.config.l[param.seriesIndex].color}">` +
-                            `<div style="display: flex;">${props.config.l[param.seriesIndex].name}:</div>` +
-                            `<div style="display: flex; flex-grow: 1"></div>` +
-                            `<div style="display: flex;"><b>${val}</b>${param.value[1] !== null ? props.config.l[param.seriesIndex].unit : ''}</div>` +
-                         `</div>`
-                    });
-
-                    return `<b>${moment(date).format('dddd, MMMM Do YYYY, h:mm:ss.SSS')}</b><br/>${values.join('<br/>')}`;
-                },
+                formatter: params => this.renderTooltip(props, params),
                 axisPointer: {
                     animation: true
                 }
@@ -369,7 +408,7 @@ class ChartView extends React.Component {
         return options;
     }
 
-    updateChart(start, end, withReadData, cb) {
+    /*updateChart(start, end, withReadData, cb) {
         if (start) {
             this.start = start;
         }
@@ -414,214 +453,185 @@ class ChartView extends React.Component {
                 cb && cb();
             }
         }, 400);
-    }
+    }*/
 
     setNewRange(updateChart) {
-        /*if (this.rangeRef.current &&
-            this.rangeRef.current.childNodes[1] &&
-            this.rangeRef.current.childNodes[1].value) {
-            this.rangeRef.current.childNodes[0].innerHTML = '';
-            this.rangeRef.current.childNodes[1].value = '';
-        }*/
         this.chart.diff        = this.chart.max - this.chart.min;
         this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
 
-        if (this.state.relativeRange !== 'absolute') {
-            this.setState({ relativeRange: 'absolute' });
+        this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] setNewRange: ${!!updateChart}`);
+        if (updateChart) {
+            this.updateDataTimer && clearTimeout(this.updateDataTimer);
+            this.updateDataTimer = null;
+
+            this.props.onRangeChange && this.props.onRangeChange({start: this.chart.min, end: this.chart.max});
         } else {
+            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
             this.echartsReact.getEchartsInstance().setOption({
                 xAxis: {
                     min: this.chart.min,
                     max: this.chart.max,
                 }
-            }, true);
-
-            updateChart && this.updateChart(this.chart.min, this.chart.max, true);
+            });
         }
     }
 
-    setRelativeInterval(mins, dontSave, cb) {
-        if (!dontSave) {
-            window.localStorage.setItem('App.relativeRange', mins);
-            this.setState({ relativeRange: mins });
-        }
-
-        const now = new Date();
-        if (now.getMilliseconds()) {
-            now.setMilliseconds(1000);
-        }
-        if (now.getSeconds()) {
-            now.setSeconds(60);
-        }
-
-        this.chart.max = now.getTime();
-
-        if (mins === 'day') {
-            now.setHours(0);
-            now.setMinutes(0);
-            this.chart.min = now.getTime();
-        } else if (mins === 'week') {
-            now.setHours(0);
-            now.setMinutes(0);
-            now.setFullYear(now.getFullYear() - 1);
-            // find week start
-            if (now.getDay()) { // if not sunday
-                now.setDate(now.getDate() - now.getDay() - 1);
-            } else {
-                now.setDate(now.getDate() - 6);
+    onMouseMove = e => {
+        if (this.mouseDown) {
+            if (this.divResetButton.current && this.divResetButton.current.style.display !== 'block') {
+                 this.divResetButton.current.style.display = 'block';
             }
+            const moved = this.chart.lastX - (e.offsetX - GRID_PADDING_LEFT);
+            this.chart.lastX = e.offsetX - GRID_PADDING_LEFT;
+            const diff = this.chart.max - this.chart.min;
+            const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
-            this.chart.min = now.getTime();
-        } else if (mins === '2weeks') {
-            now.setHours(0);
-            now.setMinutes(0);
-            now.setFullYear(now.getFullYear() - 1);
-            // find week start
-            if (now.getDay()) { // if not sunday
-                now.setDate(now.getDate() - now.getDay() - 8);
-            } else {
-                now.setDate(now.getDate() - 13);
-            }
-            this.chart.min = now.getTime();
-        } else if (mins === 'month') {
-            now.setHours(0);
-            now.setMinutes(0);
-            now.setDate(1);
-            this.chart.min = now.getTime();
-        } else if (mins === 'year') {
-            now.setHours(0);
-            now.setMinutes(0);
-            now.setDate(1);
-            now.setMonth(0);
-            this.chart.min = now.getTime();
-        } else if (mins === '12months') {
-            now.setHours(0);
-            now.setMinutes(0);
-            now.setFullYear(now.getFullYear() - 1);
-            this.chart.min = now.getTime();
-        } else {
-            mins = parseInt(mins, 10);
-            this.chart.min = this.chart.max - mins * 60000;
+            const shift = Math.round(moved * diff / width);
+            this.chart.min += shift;
+            this.chart.max += shift;
+            this.setNewRange();
         }
-        this.updateChart(this.chart.min, this.chart.max, true, cb);
-    }
+    };
 
-    installEventHandlers() {
-        const zr = this.echartsReact.getEchartsInstance().getZr();
+    onMouseDown = e => {
+        this.mouseDown = true;
+        this.chart.lastX = e.offsetX;
+        if (this.zr && !this.zr._mousemove) {
+            this.zr._mousemove = true;
+            this.zr.on('mousemove', this.onMouseMove);
+        }
+        const config = this.props.config;
+        if (config.live && this.props.onRangeChange) {
+            console.log('Stop update');
+            this.props.onRangeChange({stopLive: true});
+        }
+    };
 
-        if (false && !zr._iobInstalled) {
-            zr._iobInstalled = true;
+    onMouseUp = () => {
+        this.mouseDown = false;
+        this.setNewRange(true);
+        if (this.zr && this.zr._mousemove) {
+            this.zr._mousemove = false;
+            this.zr.off('mousemove', this.onMouseMove);
+        }
+    };
 
-            zr.on('mousedown', e => {
-                console.log('mouse down');
-                this.mouseDown = true;
-                this.chart.lastX = e.offsetX;
-            });
+    onMouseWheel = e => {
+        let diff = this.chart.max - this.chart.min;
+        const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
+        const x = e.offsetX - GRID_PADDING_LEFT;
+        const pos = x / width;
 
-            zr.on('mouseup', () => {
-                console.log('mouse up');
-                this.mouseDown = false;
-                this.setNewRange(true);
-            });
+        const oldDiff = diff;
+        const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
+        diff = diff * amount;
+        const move = oldDiff - diff;
+        this.chart.max += move * (1 - pos);
+        this.chart.min -= move * pos;
 
-            zr.on('mousewheel', e => {
-                let diff = this.chart.max - this.chart.min;
-                const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
-                const x = e.offsetX - GRID_PADDING_LEFT;
-                const pos = x / width;
+        this.setNewRange();
+        this.updateDataTimer && clearTimeout(this.updateDataTimer);
+        this.updateDataTimer = setTimeout(() => this.setNewRange(true), 1000);
+    };
 
-                const oldDiff = diff;
-                const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
-                diff = diff * amount;
-                const move = oldDiff - diff;
-                this.chart.max += move * (1 - pos);
-                this.chart.min -= move * pos;
+    onTouchStart = e => {
+        e.preventDefault();
+        this.mouseDown = true;
+        const touches = e.touches || e.originalEvent.touches;
+        if (touches) {
+            this.chart.lastX = touches[touches.length - 1].pageX;
+            if (touches.length > 1) {
+                this.chart.lastWidth = Math.abs(touches[0].pageX - touches[1].pageX);
+            } else {
+                this.chart.lastWidth = null;
+            }
+        }
+    };
 
-                this.setNewRange();
-            });
+    onTouchEnd = e => {
+        e.preventDefault();
+        this.mouseDown = false;
+        this.setNewRange(true);
+    };
 
-            zr.on('mousemove', e => {
-                if (this.mouseDown) {
-                    const moved = this.chart.lastX - (e.offsetX - GRID_PADDING_LEFT);
-                    this.chart.lastX = e.offsetX - GRID_PADDING_LEFT;
-                    const diff = this.chart.max - this.chart.min;
-                    const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
+    onTouchMove = e => {
+        e.preventDefault();
+        const touches = e.touches || e.originalEvent.touches;
+        if (!touches) {
+            return;
+        }
+        const pageX = touches[touches.length - 1].pageX - GRID_PADDING_LEFT;
+        if (this.mouseDown) {
+            if (touches.length > 1) {
+                // zoom
+                const fingerWidth = Math.abs(touches[0].pageX - touches[1].pageX);
+                if (this.chart.lastWidth !== null && fingerWidth !== this.chart.lastWidth) {
+                    let diff = this.chart.max - this.chart.min;
+                    const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
-                    const shift = Math.round(moved * diff / width);
-                    this.chart.min += shift;
-                    this.chart.max += shift;
+                    const amount     = fingerWidth > this.chart.lastWidth ? 1.1 : 0.9;
+                    const positionX  = touches[0].pageX > touches[1].pageX ?
+                        touches[1].pageX - GRID_PADDING_LEFT + fingerWidth / 2 :
+                        touches[0].pageX - GRID_PADDING_LEFT + fingerWidth / 2;
+
+                    const pos = positionX / chartWidth;
+
+                    const oldDiff = diff;
+                    diff = diff * amount;
+                    const move = oldDiff - diff;
+
+                    this.chart.max += move * (1 - pos);
+                    this.chart.min -= move * pos;
+
                     this.setNewRange();
                 }
-            });
+                this.chart.lastWidth = fingerWidth;
+            } else {
+                // swipe
+                const moved = this.chart.lastX - pageX;
+                const diff  = this.chart.max - this.chart.min;
+                const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
 
-            zr.on('touchstart', e => {
-                e.preventDefault();
-                this.mouseDown = true;
-                const touches = e.touches || e.originalEvent.touches;
-                if (touches) {
-                    this.chart.lastX = touches[touches.length - 1].pageX;
-                    if (touches.length > 1) {
-                        this.chart.lastWidth = Math.abs(touches[0].pageX - touches[1].pageX);
-                    } else {
-                        this.chart.lastWidth = null;
-                    }
-                }
-            });
+                const shift = Math.round(moved * diff / chartWidth);
+                this.chart.min += shift;
+                this.chart.max += shift;
 
-            zr.on('touchend', e => {
-                e.preventDefault();
-                this.mouseDown = false;
-                this.setNewRange(true);
-            });
+                this.setNewRange();
+            }
+        }
+        this.chart.lastX = pageX;
+    };
 
-            zr.on('touchmove', e => {
-                e.preventDefault();
-                const touches = e.touches || e.originalEvent.touches;
-                if (!touches) {
-                    return;
-                }
-                const pageX = touches[touches.length - 1].pageX - GRID_PADDING_LEFT;
-                if (this.mouseDown) {
-                    if (touches.length > 1) {
-                        // zoom
-                        const fingerWidth = Math.abs(touches[0].pageX - touches[1].pageX);
-                        if (this.chart.lastWidth !== null && fingerWidth !== this.chart.lastWidth) {
-                            let diff = this.chart.max - this.chart.min;
-                            const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
+    installEventHandlers() {
+        this.zr = this.echartsReact.getEchartsInstance().getZr();
 
-                            const amount     = fingerWidth > this.chart.lastWidth ? 1.1 : 0.9;
-                            const positionX  = touches[0].pageX > touches[1].pageX ?
-                                touches[1].pageX - GRID_PADDING_LEFT + fingerWidth / 2 :
-                                touches[0].pageX - GRID_PADDING_LEFT + fingerWidth / 2;
+        if (this.zr && this.props.config.zoom && !this.zr._iobInstalled) {
+            this.zr._iobInstalled = true;
 
-                            const pos = positionX / chartWidth;
+            this.zr.on('mousedown', this.onMouseDown);
 
-                            const oldDiff = diff;
-                            diff = diff * amount;
-                            const move = oldDiff - diff;
+            this.zr.on('mouseup', this.onMouseUp);
 
-                            this.chart.max += move * (1 - pos);
-                            this.chart.min -= move * pos;
+            this.zr.on('mousewheel', this.onMouseWheel);
 
-                            this.setNewRange();
-                        }
-                        this.chart.lastWidth = fingerWidth;
-                    } else {
-                        // swipe
-                        const moved = this.chart.lastX - pageX;
-                        const diff  = this.chart.max - this.chart.min;
-                        const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
+            this.zr.on('touchstart', this.onTouchStart);
 
-                        const shift = Math.round(moved * diff / chartWidth);
-                        this.chart.min += shift;
-                        this.chart.max += shift;
+            this.zr.on('touchend', this.onTouchEnd);
 
-                        this.setNewRange();
-                    }
-                }
-                this.chart.lastX = pageX;
-            });
+            this.zr.on('touchmove', this.onTouchMove);
+        } else if (this.zr && !this.props.config.zoom && this.zr._iobInstalled) {
+            this.zr._iobInstalled = false;
+            this.zr.off('mousedown', this.onMouseDown);
+            this.zr.off('mouseup', this.onMouseUp);
+            this.zr.off('mousewheel', this.onMouseWheel);
+            if (this.zr && this.zr._mousemove) {
+                this.zr._mousemove = false;
+                this.zr.off('mousemove', this.onMouseMove);
+            }
+            this.zr.off('touchstart', this.onTouchStart);
+            this.zr.off('touchend', this.onTouchEnd);
+            this.zr.off('touchmove', this.onTouchMove);
         }
     }
 
@@ -630,6 +640,7 @@ class ChartView extends React.Component {
             const option = this.getOption();
 
             //console.log(JSON.stringify(option, null, 2));
+            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
@@ -646,7 +657,7 @@ class ChartView extends React.Component {
                         this.updateChart(startValue, endValue, true);
                     },*/
                     rendered: e => {
-                        this.installEventHandlers();
+                        this.props.config.zoom && this.installEventHandlers();
                     }
                 }}
             />;
@@ -665,12 +676,32 @@ class ChartView extends React.Component {
         }
     }
 
+    renderResetButton() {
+        return <Fab
+            ref={ this.divResetButton }
+            size="small"
+            color="default"
+            style={{display: 'none'}}
+            className={this.props.classes.resetButton}
+            title={I18n.t('Reset pan and zoom')}
+            onClick={() => {
+                if (this.divResetButton.current) {
+                    this.divResetButton.current.style.display = 'none';
+                }
+                this.props.onRangeChange && this.props.onRangeChange();
+            }}
+        >
+            <IconReset className={this.props.classes.resetButtonIcon}/>
+        </Fab>;
+    }
+
     render() {
         if (!this.divRef.current) {
             setTimeout(() => this.forceUpdate(), 10);
         }
 
         return <div ref={ this.divRef } className={ this.props.classes.chart } style={{background: this.props.config.window_bg || undefined}}>
+            { this.renderResetButton() }
             { this.renderChart() }
         </div>;
     }
@@ -684,6 +715,7 @@ ChartView.propTypes = {
     themeType: PropTypes.string,
     data: PropTypes.array,
     noAnimation: PropTypes.bool,
+    onRangeChange: PropTypes.func,
 };
 
 export default withWidth()(withStyles(styles)(ChartView));

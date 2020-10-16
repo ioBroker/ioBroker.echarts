@@ -40,7 +40,6 @@ class App extends Component {
 
         this.state = {
             connected:  false,
-            reading:    true,
             seriesData: null,
             noLoader:   Utils.parseQuery(window.location.search).noLoader || Utils.parseQuery((window.location.hash || '').replace(/^#/,'')).noLoader || false,
             theme:      themeInstance,
@@ -49,6 +48,7 @@ class App extends Component {
             noBackground: Utils.parseQuery(window.location.search).noBG || Utils.parseQuery((window.location.hash || '').replace(/^#/,'')).noBG || false,
         };
         this.divRef = React.createRef();
+        this.progressRef = React.createRef();
 
         // init translations
         const translations = {
@@ -109,8 +109,8 @@ class App extends Component {
 
                         this.chartData = new ChartModel(this.socket);
                         this.chartData.onError(err => this.showError(I18n.t(err)));
-                        this.chartData.onReading(reading => this.setState({reading}));
-                        this.chartData.onUpdate(seriesData => this.setState({seriesData, reading: false}));
+                        this.chartData.onReading(reading => this.showProgress(reading));
+                        this.chartData.onUpdate(seriesData => this.setState({seriesData}, () => this.showProgress(false)));
                     });
             },
             onError: err => {
@@ -118,6 +118,12 @@ class App extends Component {
                 this.showError(err);
             }
         });
+    }
+
+    showProgress(isShow) {
+        if (this.progressRef.current) {
+            this.progressRef.current.style.display = isShow ? 'block' : 'none';
+        }
     }
 
     componentWillUnmount() {
@@ -159,7 +165,7 @@ class App extends Component {
         if (!this.state.errorText) {
             return null;
         } else {
-            return <DialogError text={this.state.errorText} onClose={() => this.setState({errorText: ''})}/>;
+            return <DialogError classes={{}} text={this.state.errorText} onClose={() => this.setState({errorText: ''})}/>;
         }
     }
 
@@ -189,7 +195,7 @@ class App extends Component {
                      background: this.state.noBackground ? undefined : this.state.theme.palette.background.default,
                      color: this.state.theme.palette.text.primary
                  }}>
-                {this.state.reading ? <LinearProgress className={this.props.classes.progress}/> : null}
+                <LinearProgress ref={this.progressRef} style={{display: 'block'}} className={this.props.classes.progress}/>
                 <ChartView
                     socket={this.socket}
                     t={I18n.t}
@@ -198,6 +204,7 @@ class App extends Component {
                     config={config}
                     lang={I18n.getLanguage()}
                     themeType={this.state.themeType}
+                    onRangeChange={options => this.chartData.setNewRange(options)}
                 />
                 {this.renderError()}
             </div>

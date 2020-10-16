@@ -158,28 +158,33 @@ function normalizeConfig(config) {
 }
 
 class ChartModel {
-    constructor(socket, config) {
-
+    constructor(socket, config, options) {
+        options = Object.assign({updateTimeout: 300}, options || {});
         this.socket = socket;
 
-        this.seriesData      = [];
-        this.ticks           = null;
-        this.liveInterval    = null;
+        this.updateTimeout    = options.updateTimeout || 300; // how often the new data will be requested by zoom and pan
 
-        this.navOptions      = {};
+        this.seriesData       = [];
+        this.ticks            = null;
+        this.liveInterval     = null;
 
-        this.subscribes      = [];
-        this.subscribed      = false;
-        this.sessionId       = 1;
+        this.navOptions       = {};
 
-        this.onUpdateFunc    = null;
-        this.onReadingFunc   = null;
-        this.onErrorFunc     = null;
-        this.objectPromises  = {};
+        //this.subscribes       = [];
+        //this.subscribed       = false;
+        this.sessionId        = 1;
+        this.updateInterval   = null; // update interval by time
+        this.presetSubscribed = false; // Is preset subscribed yet or not
 
-        this.lastHash        = window.location.hash;
+        this.onUpdateFunc     = null;
+        this.onReadingFunc    = null;
+        this.onErrorFunc      = null;
+        this.objectPromises   = {};
 
-        this.debug           = false;
+        this.lastHash         = window.location.hash;
+
+        this.debug            = false;
+        this.zoomData         = null;
 
         if (!config) {
             this.onHashInstalled = true;
@@ -229,8 +234,7 @@ class ChartModel {
             this.socket.getObject(this.preset)
                 .then(obj => {
                     if (!obj || !obj.native || !obj.native.data || obj.type !== 'chart') {
-                        console.error(`Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
-                        return;
+                        return console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
                     }
                     this.config = normalizeConfig(obj.native.data);
                     this.config.useComma = this.systemConfig.useComma === true || this.systemConfig.useComma === 'true';
@@ -245,7 +249,7 @@ class ChartModel {
                         this.presetSubscribed = this.preset;
                         this.socket.subscribeObject(this.preset, this.onPresetUpdate);
                     }
-                    if (this.config.live) {
+                    if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
                         this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                     }
                 });
@@ -255,7 +259,7 @@ class ChartModel {
             this.config.live     = parseInt(this.config.live, 10) || 0;
             this.config.debug    = this.debug;
             this.readData();
-            if (this.config.live) {
+            if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
         }
@@ -283,7 +287,7 @@ class ChartModel {
             this.updateInterval && clearInterval(this.updateInterval);
             this.updateInterval = null;
 
-            if (this.config.live) {
+            if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
 
@@ -291,12 +295,59 @@ class ChartModel {
         }
     };
 
+    setNewRange(options) {
+        this.debug && console.log(`[ChartModel] [${new Date().toISOString()}] setNewRange: ${JSON.stringify(options)}`);
+
+        if (!options) {
+            if (this.zoomData) {
+                this.zoomData = null;
+                this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
+                this.readOnZoomTimeout = setTimeout(() => {
+                    this.readOnZoomTimeout = null;
+                    if (this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+                        console.log('Restore update');
+                        this.updateInterval && clearInterval(this.updateInterval);
+                        this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                    }
+                    this.readData();
+                }, this.updateTimeout);
+            }
+        } else if (options.stopLive) {
+            this.zoomData = this.zoomData || {};
+            this.zoomData.stopLive = true;
+            if (this.updateInterval) {
+                console.log('Clear interval');
+                clearInterval(this.updateInterval);
+                this.updateInterval = null;
+            }
+        } else {
+            // options = {start, end}
+            const stopLive = this.zoomData && this.zoomData.stopLive;
+            if (stopLive) {
+                delete this.zoomData.stopLive;
+            }
+            if (!this.zoomData || JSON.stringify(this.zoomData) !== JSON.stringify(options)) {
+                this.zoomData = options;
+                if (stopLive) {
+                    this.zoomData.stopLive = true;
+                }
+                this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
+                this.readOnZoomTimeout = setTimeout(() => {
+                    this.readOnZoomTimeout = null;
+                    this.readData();
+                }, this.updateTimeout);
+            } else if (stopLive) {
+                this.zoomData.stopLive = true;
+            }
+        }
+    }
+
     destroy() {
-        if (this.subscribed) {
+        /*if (this.subscribed) {
             this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChange));
             this.subscribes = [];
             this.subscribed = null;
-        }
+        }*/
         if (this.presetSubscribed) {
             this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
             this.presetSubscribed = null;
@@ -349,153 +400,149 @@ class ChartModel {
             }
         }
 
-        if (this.config.zoomed) {
-            this.navOptions[index].end   = this.config.l[index].zMax;
-            this.navOptions[index].start = this.config.l[index].zMin;
-
-            this.config.start = this.navOptions[index].start;
-            this.config.end   = this.navOptions[index].end;
-
-            return this.navOptions[index];
-        } else {
-            if (!step) {
-                if (this.config.timeType === 'static') {
-                    let startTime;
-                    let endTime;
-                    if (this.config.start_time !== undefined) {
-                        startTime = this.config.start_time.split(':').map(Number);
-                    } else {
-                        startTime = [0, 0];
-                    }
-
-                    if (this.config.end_time !== undefined) {
-                        endTime = this.config.end_time.split(':').map(Number);
-                    } else {
-                        endTime = [24, 0];
-                    }
-
-                    // offset is in seconds
-                    start = new Date(this.config.start).setHours(startTime[0], startTime[1]);
-                    end   = new Date(this.config.end).setHours(endTime[0],   endTime[1]);
-                    start = this.addTime(start, this.config.l[index].offset);
-                    end   = this.addTime(end,   this.config.l[index].offset);
+        if (!step) {
+            if (this.zoomData) {
+                start = this.zoomData.start;
+                end   = this.zoomData.end;
+            } else
+            if (this.config.timeType === 'static') {
+                let startTime;
+                let endTime;
+                if (this.config.start_time !== undefined) {
+                    startTime = this.config.start_time.split(':').map(Number);
                 } else {
-                    this.config.relativeEnd = this.config.relativeEnd || 'now';
+                    startTime = [0, 0];
+                }
 
-                    if (this.config.relativeEnd === 'now') {
-                        _now = new Date(this.now);
-                    } else if (this.config.relativeEnd.indexOf('minute') !== -1) {
-                        const minutes = parseInt(this.config.relativeEnd, 10) || 1;
-                        _now = new Date(this.now);
-                        _now.setMinutes(Math.floor(_now.getMinutes() / minutes) * minutes + minutes);
-                        _now.setSeconds(0);
-                        _now.setMilliseconds(0);
-                    }  else if (this.config.relativeEnd.indexOf('hour') !== -1) {
-                        const hours = parseInt(this.config.relativeEnd, 10) || 1;
-                        _now = new Date(this.now);
-                        _now.setHours(Math.floor(_now.getHours() / hours) * hours + hours);
-                        _now.setMinutes(0);
-                        _now.setSeconds(0);
-                        _now.setMilliseconds(0);
-                    } else if (this.config.relativeEnd === 'today') {
-                        _now = new Date(this.now);
+                if (this.config.end_time !== undefined) {
+                    endTime = this.config.end_time.split(':').map(Number);
+                } else {
+                    endTime = [24, 0];
+                }
+
+                // offset is in seconds
+                start = new Date(this.config.start).setHours(startTime[0], startTime[1]);
+                end   = new Date(this.config.end).setHours(endTime[0],   endTime[1]);
+                start = this.addTime(start, this.config.l[index].offset);
+                end   = this.addTime(end,   this.config.l[index].offset);
+            }
+            else {
+                this.config.relativeEnd = this.config.relativeEnd || 'now';
+
+                if (this.config.relativeEnd === 'now') {
+                    _now = new Date(this.now);
+                } else if (this.config.relativeEnd.indexOf('minute') !== -1) {
+                    const minutes = parseInt(this.config.relativeEnd, 10) || 1;
+                    _now = new Date(this.now);
+                    _now.setMinutes(Math.floor(_now.getMinutes() / minutes) * minutes + minutes);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                }  else if (this.config.relativeEnd.indexOf('hour') !== -1) {
+                    const hours = parseInt(this.config.relativeEnd, 10) || 1;
+                    _now = new Date(this.now);
+                    _now.setHours(Math.floor(_now.getHours() / hours) * hours + hours);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                } else if (this.config.relativeEnd === 'today') {
+                    _now = new Date(this.now);
+                    _now.setDate(_now.getDate() + 1);
+                    _now.setHours(0);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                } else if (this.config.relativeEnd === 'weekUsa') {
+                    //const week = parseInt(config.relativeEnd, 10) || 1;
+                    _now = new Date(this.now);
+                    _now.setDate(_now.getDate() - _now.getDay() + 7);
+                    _now.setHours(0);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                } else if (this.config.relativeEnd === 'weekEurope') {
+                    //const _week = parseInt(config.relativeEnd, 10) || 1;
+                    _now = new Date(this.now);
+                    // If
+                    if (_now.getDay() === 0) {
                         _now.setDate(_now.getDate() + 1);
-                        _now.setHours(0);
-                        _now.setMinutes(0);
-                        _now.setSeconds(0);
-                        _now.setMilliseconds(0);
-                    } else if (this.config.relativeEnd === 'weekUsa') {
-                        //const week = parseInt(config.relativeEnd, 10) || 1;
-                        _now = new Date(this.now);
-                        _now.setDate(_now.getDate() - _now.getDay() + 7);
-                        _now.setHours(0);
-                        _now.setMinutes(0);
-                        _now.setSeconds(0);
-                        _now.setMilliseconds(0);
-                    } else if (this.config.relativeEnd === 'weekEurope') {
-                        //const _week = parseInt(config.relativeEnd, 10) || 1;
-                        _now = new Date(this.now);
-                        // If
-                        if (_now.getDay() === 0) {
-                            _now.setDate(_now.getDate() + 1);
-                        } else {
-                            _now.setDate(_now.getDate() - _now.getDay() + 8);
-                        }
-                        _now.setHours(0);
-                        _now.setMinutes(0);
-                        _now.setSeconds(0);
-                        _now.setMilliseconds(0);
-                    } else if (this.config.relativeEnd === 'month') {
-                        _now = new Date(this.now);
-                        _now.setMonth(_now.getMonth() + 1);
-                        _now.setDate(1);
-                        _now.setHours(0);
-                        _now.setMinutes(0);
-                        _now.setSeconds(0);
-                        _now.setMilliseconds(0);
-                    } else if (this.config.relativeEnd === 'year') {
-                        _now = new Date(this.now);
-                        _now.setFullYear(_now.getFullYear() + 1);
-                        _now.setMonth(0);
-                        _now.setDate(1);
-                        _now.setHours(0);
-                        _now.setMinutes(0);
-                        _now.setSeconds(0);
-                        _now.setMilliseconds(0);
+                    } else {
+                        _now.setDate(_now.getDate() - _now.getDay() + 8);
                     }
-
-                    this.config.range = this.config.range || '30m';
-
-                    end   = this.addTime(_now, this.config.l[index].offset);
-                    start = this.addTime(end,  this.config.range, false, true);
+                    _now.setHours(0);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                } else if (this.config.relativeEnd === 'month') {
+                    _now = new Date(this.now);
+                    _now.setMonth(_now.getMonth() + 1);
+                    _now.setDate(1);
+                    _now.setHours(0);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                } else if (this.config.relativeEnd === 'year') {
+                    _now = new Date(this.now);
+                    _now.setFullYear(_now.getFullYear() + 1);
+                    _now.setMonth(0);
+                    _now.setDate(1);
+                    _now.setHours(0);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
                 }
 
-                option = {
-                    start,
-                    end,
-                    ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
-                    aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
-                    from:       false,
-                    ack:        false,
-                    q:          false,
-                    addID:      false,
-                };
+                this.config.range = this.config.range || '30m';
 
-                if (this.config.aggregateType === 'step') {
-                    option.step = this.config.aggregateSpan * 1000;
-                } else if (this.config.aggregateType === 'count') {
-                    option.count = this.config.aggregateSpan || (this.chartRef.current.clientWidth / 10);
-                }
+                end   = this.addTime(_now, this.config.l[index].offset);
+                start = this.addTime(end,  this.config.range, false, true);
+            }
 
-                this.config.start = start;
-                this.config.end   = end;
+            option = {
+                start,
+                end,
+                ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
+                aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
+                from:       false,
+                ack:        false,
+                q:          false,
+                addID:      false,
+            };
 
-                this.navOptions[index] = option;
-                return option;
+            if (this.config.aggregateType === 'step') {
+                option.step = this.config.aggregateSpan * 1000;
+            } else if (this.config.aggregateType === 'count') {
+                option.count = this.config.aggregateSpan || (this.chartRef.current.clientWidth / 10);
+            }
+
+            this.config.start = start;
+            this.config.end   = end;
+
+            return option;
+        } else {
+            if (this.zoomData) {
+                start = this.zoomData.start;
+                end = this.zoomData.end;
             } else {
                 end   = this.addTime(this.now, this.config.l[index].offset);
                 start = end - step;
-
-                option = {
-                    start:      start,
-                    end:        end,
-                    ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
-                    aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
-                    count:      1,
-                    from:       false,
-                    ack:        false,
-                    q:          false,
-                    addID:      false,
-                };
-
-                this.navOptions[index].end   = end;
-                this.navOptions[index].start = this.addTime(end, this.config.range, false, true);
-
-                this.config.start = start;
-                this.config.end   = end;
-
-                return option;
             }
+
+            option = {
+                start,
+                end,
+                ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
+                aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
+                count:      1,
+                from:       false,
+                ack:        false,
+                q:          false,
+                addID:      false,
+            };
+
+            this.config.start = this.addTime(end, this.config.range, false, true);
+            this.config.end   = end;
+
+            return option;
         }
     }
 
@@ -506,12 +553,12 @@ class ChartModel {
         this.config.l[index].yOffset = parseFloat(this.config.l[index].yOffset) || 0;
 
         //console.log(JSON.stringify(option));
-        this.debug && console.log(new Date(option.start) + ' - ' + new Date(option.end));
+        this.debug && console.log('[ChartModel] ' + new Date(option.start) + ' - ' + new Date(option.end));
 
         this.socket.getHistoryEx(id, option)
             .then(res => {
                 if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
-                    return console.warn(`Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+                    return console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
                 }
 
                 if (res && res.values) {
@@ -560,7 +607,7 @@ class ChartModel {
 
                 return Promise.resolve();
             })
-            .catch(err => err && console.error(err))
+            .catch(err => err && console.error('[ChartModel] ' + err))
             .then(() => cb(id, index))
     }
 
@@ -586,7 +633,7 @@ class ChartModel {
                 return Promise.resolve();
             })
             .catch(e => {
-                console.error(`Cannot read object ${this.config.l[index].id}: ${e}`);
+                console.error(`[ChartModel] Cannot read object ${this.config.l[index].id}: ${e}`);
                 return Promise.resolve();
             })
             .then(() => {
@@ -627,12 +674,12 @@ class ChartModel {
             option.sessionId = this.sessionId;
             option.aggregate = 'onchange';
 
-            this.debug && console.log('Ticks: ' + new Date(option.start) + ' - ' + new Date(option.end));
+            this.debug && console.log('[ChartModel] Ticks: ' + new Date(option.start) + ' - ' + new Date(option.end));
 
             this.socket.getHistoryEx(this.config.ticks, option)
                 .then(res => {
                     if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
-                        return console.warn(`Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+                        return console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
                     }
 
                     if (res && res.values) {
@@ -674,7 +721,7 @@ class ChartModel {
                     }
                     return Promise.resolve();
                 })
-                .catch(e => console.error(e))
+                .catch(e => console.error(`[ChartModel] ${e}`))
                 .then(() => cb && cb(this.ticks));
         }
     }
@@ -689,7 +736,7 @@ class ChartModel {
                 }
             })
             .catch(e => {
-                console.error(e);
+                console.error(`[ChartModel] ${e}`);
                 cb(index, 0);
             });
     }
@@ -699,19 +746,20 @@ class ChartModel {
         if (!this.config.m || !this.config.m.length || m >= this.config.m.length) {
             return cb();
         } else {
+            // read markings
             if (!this.config.m[m].oid && this.config.m[m].v && parseFloat(this.config.m[m].v).toString() !== this.config.m[m].v && this.config.m[m].v.includes('.')) {
-                if (!this.subscribes.includes(this.config.m[m].v)) {
+                /*if (!this.subscribes.includes(this.config.m[m].v)) {
                     this.subscribes.push(this.config.m[m].v);
-                }
+                }*/
 
                 this.readValue(this.config.m[m].v, m, (index, val) => {
                     this.config.m[index].oid = this.config.m[index].v;
                     this.config.m[index].v   = val;
 
                     if (!this.config.m[m].oidl && this.config.m[m].vl && parseFloat(this.config.m[m].vl).toString() !== this.config.m[m].vl && this.config.m[m].vl.includes('.')) {
-                        if (!this.subscribes.includes(this.config.m[m].vl)) {
+                        /*if (!this.subscribes.includes(this.config.m[m].vl)) {
                             this.subscribes.push(this.config.m[m].vl);
-                        }
+                        }*/
 
                         this.readValue(this.config.m[m].vl, m, (index, val) => {
                             this.config.m[index].oidl = this.config.m[index].vl;
@@ -724,9 +772,9 @@ class ChartModel {
                 });
             } else
             if (!this.config.m[m].oidl && this.config.m[m].vl && parseFloat(this.config.m[m].vl).toString() !== this.config.m[m].vl && this.config.m[m].vl.includes('.')) {
-                if (!this.subscribes.includes(this.config.m[m].vl)) {
+                /*if (!this.subscribes.includes(this.config.m[m].vl)) {
                     this.subscribes.push(this.config.m[m].vl);
-                }
+                }*/
                 this.readValue(this.config.m[m].vl, m, (index, val) => {
                     this.config.m[index].oidl = this.config.m[index].vl;
                     this.config.m[index].vl   = val;
@@ -738,7 +786,7 @@ class ChartModel {
         }
     }
 
-    subscribeAll(subscribes, cb, s) {
+    /*subscribeAll(subscribes, cb, s) {
         s = s || 0;
 
         if (!subscribes || !subscribes.length || s >= subscribes.length) {
@@ -765,7 +813,7 @@ class ChartModel {
             }
         }
         //chart.update(null, ;config.m);
-    };
+    };*/
 
     addTime(time, offset, plusOrMinus, isOffsetInMinutes) {
         time = new Date(time);
@@ -817,6 +865,11 @@ class ChartModel {
     }
 
     readData() {
+        if (this.readOnZoomTimeout) {
+            clearTimeout(this.readOnZoomTimeout);
+            this.readOnZoomTimeout = null;
+        }
+
         this.now = Date.now();
         this.sessionId = this.sessionId || 0;
         this.sessionId++;
@@ -848,13 +901,13 @@ class ChartModel {
             this._readData(() =>
                 this.readTicks(_ticks =>
                     this.readMarkings(() => {
-                        if (!this.subscribed) {
+                        /*if (!this.subscribed) {
                             this.subscribed = true;
                             this.subscribeAll(this.subscribes, () =>
                                 this.onUpdateFunc(this.seriesData));
-                        } else {
+                        } else {*/
                             this.onUpdateFunc(this.seriesData);
-                        }
+                        //}
                     })));
         } else {
             this.onErrorFunc && this.onErrorFunc('No config provided');
