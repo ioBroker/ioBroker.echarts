@@ -111,12 +111,11 @@ export {IOCheckbox};
 let IOTextField = function (props) {
     return <div className={props.classes.fieldContainer}>
         <TextField
-            style={{width: props.width}}
+            style={{width: props.formData[props.name] ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : (props.width || '100%')}}
             label={I18n.t(props.label)}
             InputLabelProps={{shrink: true}}
             inputProps={{min: props.min, max: props.max}}
-            onChange={e =>
-                props.updateValue(props.name, e.target.value)}
+            onChange={e => props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             type={props.type}
 

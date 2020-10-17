@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
-import {IOTextField, IOCheckbox, IOColorPicker, IOSelect, IOObjectField} from './Fields';
+import {IOTextField, IOColorPicker, IOSelect, IOObjectField, IOSlider} from './Fields';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
@@ -42,9 +42,9 @@ let styles = theme => ({
         margin: 0,
         '&:last-child': {
             padding: 0,
-            paddingRight: '20px'
+            paddingRight: 20
         },
-        paddingRight: '20px'
+        paddingRight: 20
     },
     shortFields: {
         display: 'block',
@@ -57,8 +57,9 @@ let styles = theme => ({
         borderBottom: '1px dotted ' + theme.palette.grey[400]
     },
     shortFieldsLast: {
-        borderBottom: '0px',
+        borderBottom: 0,
         paddingBottom: 0,
+        position: 'relaitve',
     },
     shortLineIdField: {
         display: 'inline-flex',
@@ -104,6 +105,9 @@ let styles = theme => ({
         verticalAlign: 'top',
         paddingRight: 10
     },
+    sliderRoot: {
+        marginTop: 10,
+    },
     shortTextField: {
         display: 'inline-flex',
         minWidth: WIDTHS.text,
@@ -138,6 +142,21 @@ let styles = theme => ({
     deleteButtonFull: {
         float: 'right',
         marginRight: 12
+    },
+    title: {
+        width: 'inherit',
+        position: 'absolute',
+        whiteSpace: 'nowrap',
+        right: 0,
+        fontSize: 48,
+        opacity: 0.1,
+        lineHeight: '48px',
+        padding: 0,
+        marginTop: 20,
+        marginLeft: 0,
+        marginRight: 0,
+        marginBottom: 0,
+        paddingRight: 40,
     },
 });
 
@@ -182,48 +201,58 @@ class Mark extends React.Component {
                     classes={{fieldContainer: this.props.classes.shortLineIdField}}
                     minWidth={WIDTHS.lineId}
                 />
-                <IOObjectField
-                    formData={this.props.mark}
-                    updateValue={this.updateField}
-                    name="upperValueOrId"
-                    label="Upper value or ID"
-                    socket={this.props.socket}
-                    classes={{fieldContainer: this.props.classes.shortUpperValueOrIdField}}
-                    minWidth={WIDTHS.upperValueOrId}
-                />
-                <IOObjectField
-                    formData={this.props.mark}
-                    updateValue={this.updateField}
-                    name="lowerValueOrId"
-                    label="Lower value (no ID)"
-                    socket={this.props.socket}
-                    classes={{fieldContainer: this.props.classes.shortLowerValueOrIdField}}
-                    minWidth={WIDTHS.lowerValueOrId}
-                />
-                <IOColorPicker
-                    formData={this.props.mark}
-                    updateValue={this.updateField}
-                    name="color"
-                    label="Color"
-                    classes={{fieldContainer: this.props.classes.shortColorField}}
-                    minWidth={WIDTHS.color}
-                />
-                <IOCheckbox
-                    formData={this.props.mark}
-                    updateValue={this.updateField}
-                    name="fill"
-                    label="Fill"
-                    classes={{fieldContainer: this.props.classes.shortFillField}}
-                    minWidth={WIDTHS.dataType}
-                />
-                <IOTextField
-                    formData={this.props.mark}
-                    updateValue={this.updateField}
-                    name="text"
-                    label="Text"
-                    classes={{fieldContainer: this.props.classes.shortTextField}}
-                    minWidth={WIDTHS.fill}
-                />
+                {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
+                    <IOObjectField
+                        formData={this.props.mark}
+                        updateValue={this.updateField}
+                        name="upperValueOrId"
+                        label="Upper value or ID"
+                        socket={this.props.socket}
+                        classes={{fieldContainer: this.props.classes.shortUpperValueOrIdField}}
+                        minWidth={WIDTHS.upperValueOrId}
+                    /> : null}
+                {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
+                 this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
+                    <IOObjectField
+                        formData={this.props.mark}
+                        updateValue={this.updateField}
+                        name="lowerValueOrId"
+                        label="Upper value or ID"
+                        socket={this.props.socket}
+                        classes={{fieldContainer: this.props.classes.shortLowerValueOrIdField}}
+                        minWidth={WIDTHS.lowerValueOrId}
+                    /> : null}
+                {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
+                this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
+                    <IOColorPicker
+                        formData={this.props.mark}
+                        updateValue={this.updateField}
+                        name="color"
+                        label="Color"
+                        classes={{fieldContainer: this.props.classes.shortColorField}}
+                        minWidth={WIDTHS.color}
+                    /> : null}
+                {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== ''  &&
+                 this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' &&
+                 this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== ''?
+                    <IOSlider
+                        formData={this.props.mark}
+                        updateValue={this.updateField}
+                        minWidth={WIDTHS.dataType}
+                        classes={{fieldContainer: this.props.classes.shortFillField, sliderRoot: this.props.classes.sliderRoot}}
+                        name="fill"
+                        label="Fill (from 0 to 1)"
+                    /> : null}
+                {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
+                 this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
+                    <IOTextField
+                        formData={this.props.mark}
+                        updateValue={this.updateField}
+                        name="text"
+                        label="Text"
+                        classes={{fieldContainer: this.props.classes.shortTextField}}
+                        minWidth={WIDTHS.fill}
+                    /> : null}
             </div>
             <IconButton
                 style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
@@ -258,27 +287,51 @@ class Mark extends React.Component {
                     </IconButton>
                 </div>
                 <div className={this.props.classes.shortFields}>
+                    <p className={this.props.classes.title}>{I18n.t('Limits')}</p>
                     <IOSelect      formData={this.props.mark} updateValue={this.updateField} name="lineId"         label="Line ID" options={lines} colors={colors}/>
-                    <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} />
-                    <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} />
+
+                    {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
+                        <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} /> : null }
+
+                    {this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
+                        <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} /> : null }
                 </div>
-                <div className={this.props.classes.shortFields}>
-                    <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
-                    <IOCheckbox formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill"/>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number"/>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number"/>
-                </div>
-                <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
-                    {this.props.mark.text ?
-                        <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
-                            'l': 'Left',
-                            'r': 'Right',
-                        }}/> : null}
-                    {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/> : null}
-                    {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
-                    {this.props.mark.text ?<IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" /> : null}
-                </div>
+
+                {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
+                 (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
+                    <div className={this.props.classes.shortFields}>
+                        <p className={this.props.classes.title}>{I18n.t('Style')}</p>
+                        <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
+
+                        <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number"/>
+
+                        <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number"/>
+
+                        <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
+                            'solid': 'solid',
+                            'dashed': 'dashed',
+                            'dotted': 'dotted',
+                        }}/>
+
+                        {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') &&
+                         (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
+                            <IOSlider formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)"/> : null}
+                    </div> : null}
+
+                {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
+                 (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
+                    <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+                        <p className={this.props.classes.title}>{I18n.t('Label')}</p>
+                        <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
+                        {this.props.mark.text ?
+                            <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
+                                'l': 'Left',
+                                'r': 'Right',
+                            }}/> : null}
+                        {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/> : null}
+                        {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
+                        {this.props.mark.text ?<IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" /> : null}
+                    </div> : null }
             </> : this.renderClosedLine(lines, colors)}
         </CardContent></Card>
     }

@@ -21,13 +21,13 @@ const PickerDialog = ({
       />
     </div>
   </div>
-)
+);
 
 PickerDialog.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func,
   onClick: PropTypes.func,
   className: PropTypes.any
-}
+};
 
 export default PickerDialog

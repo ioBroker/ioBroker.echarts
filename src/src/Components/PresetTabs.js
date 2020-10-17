@@ -276,6 +276,7 @@ class PresetTabs extends React.Component {
                                             socket={this.props.socket}
                                             opened={typeof this.state.linesOpened[index] !== 'undefined' && this.state.linesOpened[index] === true}
                                             lineOpenToggle={this.lineOpenToggle}
+                                            maxLines={this.props.presetData.lines.length}
                                         />
                                     </div>
                                 }
@@ -540,7 +541,7 @@ class PresetTabs extends React.Component {
                                 'inset':  'inset',
                                 'outset': 'outset',
                             }}/> : null}
-                            {this.props.presetData.border_width ? <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min="0" type="number"/> : null}
+                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min="0" type="number"/>
 
                         </> : null}
                 </Grid>

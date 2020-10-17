@@ -6,7 +6,6 @@ import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
 
 const styles = theme => ({
-
     toolbar: {
         //a: console.log(JSON.stringify(theme)),
         minHeight: theme.mixins.toolbar.minHeight,
@@ -113,7 +112,8 @@ class MainChart extends React.Component {
     }
 
     getUrlParameters() {
-        let translate = {
+        let url = [];
+        /*let translate = {
             'lines': 'l',
             'marks': 'm'
         };
@@ -134,7 +134,6 @@ class MainChart extends React.Component {
                 'textSize': 'fs',
             },
         };
-        let url = [];
         for (let k in this.props.presetData) {
             let v = this.props.presetData[k];
             let translateCurrentObject = translateObject[k];
@@ -169,7 +168,8 @@ class MainChart extends React.Component {
             } else if (v !== undefined && v !== null && v !== '') {
                 url.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
             }
-        }
+        }*/
+        url.push('data=' + encodeURIComponent(JSON.stringify(this.props.presetData)));
         url.push('noLoader=true');
 
         return url.join('&');

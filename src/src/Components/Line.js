@@ -52,8 +52,24 @@ let styles = theme => ({
             paddingRight: 20,
             width: 200,
         },
+        position: 'relative',
         paddingBottom: theme.spacing(2),
         borderBottom: '1px dotted ' + theme.palette.grey[400]
+    },
+    title: {
+        width: 'inherit',
+        position: 'absolute',
+        whiteSpace: 'nowrap',
+        right: 0,
+        fontSize: 48,
+        opacity: 0.1,
+        lineHeight: '48px',
+        padding: 0,
+        marginTop: 20,
+        marginLeft: 0,
+        marginRight: 0,
+        marginBottom: 0,
+        paddingRight: 10,
     },
     shortFieldsLast: {
         borderBottom: '0px',
@@ -295,8 +311,20 @@ class Line extends React.Component {
     }
 
     render() {
-        return <Card className={this.props.classes.card}
-        style={{background: this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined}}>
+        const xAxisOptions = {
+            '': 'own axis'
+        };
+        for (let i = 0; i < this.props.maxLines; i++) {
+            if (i !== this.props.index) {
+                xAxisOptions[i] = I18n.t('From line %s', i + 1);
+            }
+        }
+        const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
+
+        return <Card
+            className={this.props.classes.card}
+            style={{background: this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined}}
+        >
             <CardContent className={this.props.classes.cardContent}>
                 { this.props.opened ?
                     <>
@@ -333,6 +361,7 @@ class Line extends React.Component {
                                 socket={this.props.socket}/>
                         </div>
                         <div className={this.props.classes.shortFields}>
+                            <p className={this.props.classes.title}>{I18n.t('Main')}</p>
                             <IOColorPicker formData={this.props.line} updateValue={this.updateField} name="color" label="Color" />
                             <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
                                 minmax: 'minmax',
@@ -353,10 +382,12 @@ class Line extends React.Component {
                             {this.props.line.chartType === 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
                         </div>
                         <div className={this.props.classes.shortFields}>
+                            <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
                         </div>
                         <div className={this.props.classes.shortFields}>
+                            <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
                             {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />*/}
                             <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
                             <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
@@ -368,24 +399,16 @@ class Line extends React.Component {
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number"/>
                         </div>
                         <div className={this.props.classes.shortFields}>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" />
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" />
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis" options={{
-                                '': '',
-                                off: 'off',
-                                left: 'left',
-                                right: 'right',
-                                leftColor: 'left colored',
-                                rightColor: 'right colored',
-                            }}/>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis" options={{
+                            <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
+                            {!this.props.index ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis position" options={{
                                 '': '',
                                 off: 'off',
                                 left: 'left',
                                 right: 'right',
                                 topColor: 'top colored',
                                 bottomColor: 'bottom colored',
-                            }}/>
+                            }}/> : null }
+                            {!this.props.index ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number"/> : null }
                             <IOSelect formData={this.props.line} updateValue={this.updateField} name="offset" label="X-Offset" options={{
                                 '0': '0 seconds',
                                 '10': '10 seconds',
@@ -417,18 +440,24 @@ class Line extends React.Component {
                                 '2y': '2 years',
                             }}/>
                             <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number"/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number"/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number"/>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" options={{
-                                '': 'default',
-                                '1': '1',
-                                '2': '2',
-                                '3': '3',
-                                '4': '4',
-                                '5': '5',
-                            }}/>
+
+                            <br/>
+                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" options={xAxisOptions}/>
+
+                            {ownYAxis ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis position" options={{
+                                '': '',
+                                off: 'off',
+                                left: 'left',
+                                right: 'right',
+                                leftColor: 'left colored',
+                                rightColor: 'right colored',
+                            }}/> : null}
+                            {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null }
+                            {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null }
+                            {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number"/> : null }
                         </div>
                         <div className={this.props.classes.shortFields}>
+                            <p className={this.props.classes.title}>{I18n.t('Others')}</p>
                             <IOSelect formData={this.props.line} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
                                 'false': 'default',
                                 'true': 'ignore null values',
@@ -458,6 +487,7 @@ class Line extends React.Component {
 
 Line.propTypes = {
     line: PropTypes.object,
+    maxLines: PropTypes.number,
     socket: PropTypes.object,
     updateLine: PropTypes.func,
     provided: PropTypes.object,

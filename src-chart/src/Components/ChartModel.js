@@ -135,6 +135,30 @@ function normalizeConfig(config) {
 
     config.l = config.l || [];
 
+    // convert marks
+    if (config.m) {
+        config.marks = [];
+        for (let j = 0; j < config.m.length; j++) {
+            config.marks[j] = {
+                lineId:         config.m[j].l,
+                upperValueOrId: config.m[j].v,
+                lowerValueOrId: config.m[j].vl,
+                color:          config.m[j].c,
+                fill:           config.m[j].f,
+                ol:             config.m[j].t,
+                os:             config.m[j].s,
+                text:           config.m[j].d,
+                textPosition:   config.m[j].p,
+                textOffset:     config.m[j].py,
+                textColor:      config.m[j].fc,
+                textSize:       config.m[j].fs,
+            };
+        }
+        delete config.m;
+    }
+
+    config.marks = config.marks || [];
+
     if (!config.l.length) {
         config.l.push({id: '', unit: ''});
     }
@@ -213,8 +237,29 @@ class ChartModel {
             if (query.preset) {
                 this.preset = query.preset;
             } else {
+                const hQuery = Utils.parseQuery((window.location.hash || '').toString().replace(/^#/, '')); // Utils.parseQuery
+                if (hQuery.data) {
+                    try {
+                        hQuery.data = JSON.parse(hQuery.data);
+                    } catch (e) {
+                        hQuery.data = {};
+                    }
+                }
+                if (query.data) {
+                    try {
+                        query.data = JSON.parse(query.data);
+                    } catch (e) {
+                        query.data = {};
+                    }
+                }
                 // search ID and range
-                const _config = Object.assign(deParam((window.location.search || '').toString().replace(/^\?/, ''), true), deParam((window.location.hash || '').toString().replace(/^#/, ''), true));
+                const _config = Object.assign(query.data || {}, hQuery.data || {}, true);
+                if (hQuery.noLoader !== undefined) {
+                    _config.noLoader = hQuery.noLoader;
+                }
+                if (query.noLoader !== undefined) {
+                    _config.noLoader = query.noLoader;
+                }
                 this.config = normalizeConfig(_config);
             }
         }
@@ -756,46 +801,53 @@ class ChartModel {
 
     readMarkings(cb, m) {
         m = m || 0;
-        if (!this.config.m || !this.config.m.length || m >= this.config.m.length) {
+        if (!this.config.marks || !this.config.marks.length || m >= this.config.marks.length) {
             return cb();
         } else {
             // read markings
-            if (!this.config.m[m].oid && this.config.m[m].v && parseFloat(this.config.m[m].v).toString() !== this.config.m[m].v && this.config.m[m].v.includes('.')) {
-                /*if (!this.subscribes.includes(this.config.m[m].v)) {
-                    this.subscribes.push(this.config.m[m].v);
-                }*/
+            return new Promise(resolve => {
+                if ((this.config.marks[m].upperValueOrId || this.config.marks[m].upperValueOrId === 0) &&
+                    parseFloat(this.config.marks[m].upperValueOrId).toString() !== this.config.marks[m].upperValueOrId.toString().replace(/\.0*$/, '') &&
+                    this.config.marks[m].upperValueOrId.toString().includes('.')
+                ) {
+                    /*if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
+                        this.subscribes.push(this.config.marks[m].upperValueOrId);
+                    }*/
 
-                this.readValue(this.config.m[m].v, m, (index, val) => {
-                    this.config.m[index].oid = this.config.m[index].v;
-                    this.config.m[index].v   = val;
-
-                    if (!this.config.m[m].oidl && this.config.m[m].vl && parseFloat(this.config.m[m].vl).toString() !== this.config.m[m].vl && this.config.m[m].vl.includes('.')) {
-                        /*if (!this.subscribes.includes(this.config.m[m].vl)) {
-                            this.subscribes.push(this.config.m[m].vl);
+                    this.socket.getState(this.config.marks[m].upperValueOrId)
+                        .then(state => {
+                            if (state && state.val !== undefined && state.val !== null) {
+                                this.config.marks[m].upperValue = parseFloat(state.val) || 0;
+                            } else {
+                                this.config.marks[m].upperValue = null;
+                            }
+                            resolve();
+                        });
+                } else {
+                    resolve();
+                }
+            })
+                .then(() => new Promise(resolve => {
+                    if ((this.config.marks[m].lowerValueOrId || this.config.marks[m].lowerValueOrId === 0) && parseFloat(this.config.marks[m].lowerValueOrId).toString() !== this.config.marks[m].lowerValueOrId.replace(/\.0*$/, '') && this.config.marks[m].lowerValueOrId.includes('.')) {
+                        /*if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
+                            this.subscribes.push(this.config.marks[m].upperValueOrId);
                         }*/
 
-                        this.readValue(this.config.m[m].vl, m, (index, val) => {
-                            this.config.m[index].oidl = this.config.m[index].vl;
-                            this.config.m[index].vl   = val;
-                            setTimeout(() => this.readMarkings(cb, m + 1), 0);
-                        });
+                        this.socket.getState(this.config.marks[m].lowerValueOrId)
+                            .then(state => {
+                                if (state && state.val !== undefined && state.val !== null) {
+                                    this.config.marks[m].lowerValue = parseFloat(state.val) || 0;
+                                } else {
+                                    this.config.marks[m].lowerValue = null;
+                                }
+                                resolve();
+                            });
                     } else {
-                        setTimeout(() => this.readMarkings(cb, m + 1), 0);
+                        resolve();
                     }
-                });
-            } else
-            if (!this.config.m[m].oidl && this.config.m[m].vl && parseFloat(this.config.m[m].vl).toString() !== this.config.m[m].vl && this.config.m[m].vl.includes('.')) {
-                /*if (!this.subscribes.includes(this.config.m[m].vl)) {
-                    this.subscribes.push(this.config.m[m].vl);
-                }*/
-                this.readValue(this.config.m[m].vl, m, (index, val) => {
-                    this.config.m[index].oidl = this.config.m[index].vl;
-                    this.config.m[index].vl   = val;
-                    setTimeout(() => this.readMarkings(cb, m + 1), 0);
-                });
-            } else {
-                setTimeout(() => this.readMarkings(cb, m + 1), 0);
-            }
+                }))
+                .then(() =>
+                    setTimeout(() => this.readMarkings(cb, m + 1), 0));
         }
     }
 

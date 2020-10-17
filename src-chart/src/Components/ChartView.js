@@ -28,6 +28,8 @@ import 'echarts/lib/chart/line';
 import 'echarts/lib/chart/scatter';
 import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/grid';
+import 'echarts/lib/component/markLine';
+import 'echarts/lib/component/markArea';
 
 import 'echarts/lib/component/toolbox';
 import 'echarts/lib/component/title';
@@ -63,8 +65,15 @@ const styles = theme => ({
     },
 });
 
-const GRID_PADDING_LEFT = 100;
-const GRID_PADDING_RIGHT = 30;
+let canvasCalcTextWidth = null;
+function calcTextWidth(text, fontSize, fontFamily) {
+    // canvas for better performance
+    const canvas = canvasCalcTextWidth || (canvasCalcTextWidth = document.createElement('canvas'));
+    const context = canvas.getContext('2d');
+    context.font = `${fontSize || 12}px ${fontFamily || 'Microsoft YaHei'}`;
+    const metrics = context.measureText(text);
+    return Math.ceil(metrics.width);
+}
 
 class ChartView extends React.Component {
     constructor(props) {
@@ -81,7 +90,7 @@ class ChartView extends React.Component {
         this.divRef = React.createRef();
         this.divResetButton = React.createRef();
 
-        this.chart = {};
+        this.chart = {yAxis: []};
         moment.locale(I18n.getLanguage());
     }
 
@@ -99,7 +108,7 @@ class ChartView extends React.Component {
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties`);
             const chartInstance = this.echartsReact.getEchartsInstance();
             chartInstance.clear();  // may be it is not required
-            chartInstance.setOption(this.getOption(props));
+            chartInstance.setOption(this.getOptions(props));
         }
     };
 
@@ -131,25 +140,38 @@ class ChartView extends React.Component {
             this.rangeValues.push({val: state.val, ts: state.ts});
 
             // update only if end is near to now
-            if (state.ts >= this.chart.min && state.ts <= this.chart.max + 300000) {
+            if (state.ts >= this.chart.min && state.ts <= this.chart.xMax + 300000) {
                 this.updateChart();
             }
         }
     };*/
 
-    convertData(props, i) {
+    convertData(props, i, yAxisIndex) {
         props = props || this.props;
         const values = props.data[i];
         if (!values || !values.length) {
             return [];
         }
 
-        if (this.chart.min === null || this.chart.min > values[0].value[0]) {
-            this.chart.min = values[0].value[0];
-
+        if (this.chart.xMin === null || this.chart.xMin > values[0].value[0]) {
+            this.chart.xMin = values[0].value[0];
         }
-        if (this.chart.max === null || this.chart.max < values[values.length - 1].value[0]) {
-            this.chart.max = values[values.length - 1].value[0];
+        if (this.chart.xMax === null || this.chart.xMax < values[values.length - 1].value[0]) {
+            this.chart.xMax = values[values.length - 1].value[0];
+        }
+
+        const yAxis = this.chart.yAxis[yAxisIndex] || {min: null, max: null};
+        this.chart.yAxis[yAxisIndex] = yAxis;
+        for (let i = 0; i < values.length; i++) {
+            if (values[i].value[1] === null) {
+                continue;
+            }
+            if (yAxis.min === null || yAxis.min > values[i].value[1]) {
+                yAxis.min = values[i].value[1];
+            }
+            if (yAxis.max === null || yAxis.max < values[i].value[1]) {
+                yAxis.max = values[i].value[1];
+            }
         }
 
         return values;
@@ -157,20 +179,22 @@ class ChartView extends React.Component {
 
     getSeries(props) {
         props = props || this.props;
-        this.chart.min = null;
-        this.chart.max = null;
+        this.chart.xMin = null;
+        this.chart.xMax = null;
 
         return props.config.l.map((oneLine, i) => {
+            const yAxisIndex = oneLine.commonYAxis === '' || oneLine.commonYAxis === undefined ? i : parseInt(oneLine.commonYAxis) || 0;
             const cfg = {
                 name: oneLine.name,
                 xAxisIndex: 0,
+                yAxisIndex,
                 type: oneLine.chartType === 'scatterplot' ? 'scatter' : 'line',
                 showSymbol: oneLine.chartType === 'scatterplot' || oneLine.points,
                 hoverAnimation: true,
                 animation: false,
                 step: oneLine.chartType === 'steps' ? 'start' : undefined,
                 smooth: oneLine.chartType === 'spline',
-                data: this.convertData(props, i),
+                data: this.convertData(props, i, yAxisIndex),
                 itemStyle: {
                     color: oneLine.color
                 },
@@ -195,26 +219,191 @@ class ChartView extends React.Component {
         });
     }
 
-    yFormatter(val, line, props) {
+    getYAxis(props) {
+        props = props || this.props;
+        this.chart.xMin = null;
+        this.chart.xMax = null;
+
+        return props.config.l.map((oneLine, i) => {
+            if (oneLine.commonYAxis !== '' && oneLine.commonYAxis !== undefined) {
+                return {};
+            }
+
+            let yMin = parseFloat(oneLine.min);
+            let yMax = parseFloat(oneLine.max);
+
+            const yAxis = this.chart.yAxis;
+            if (yAxis[i]) {
+                const diff = yAxis[i].max - yAxis[i].min;
+                if (isNaN(yMin)) {
+                    // auto calculate
+                    yMin = yAxis[i].min - diff * 0.1; // min - 10%
+                    if (yMin > 0) {
+                        yMin = 0;
+                    } else {
+                        if (diff > 5000) {
+                            yMin = Math.floor(yMin / 1000) * 1000;
+                        } else if (diff > 200) {
+                            yMin = Math.floor(yMin / 100) * 100;
+                        } else if (diff > 30) {
+                            yMin = Math.floor(yMin / 10) * 10;
+                        } else if (diff > 10) {
+                            yMin = Math.floor(yMin);
+                        } else if (diff > 1) {
+                            yMin = Math.floor(yMin * 10) / 10;
+                        }
+                    }
+                }
+                if (isNaN(yMax)) {
+                    // auto calculate
+                    yMax = yAxis[i].max + diff * 0.1; // max + 10%
+                    if (diff > 5000) {
+                        yMax = Math.ceil(yMax / 1000) * 1000;
+                    } else if (diff > 200) {
+                        yMax = Math.ceil(yMax / 100) * 100;
+                    } else if (diff > 30) {
+                        yMax = Math.ceil(yMax / 10) * 10;
+                    } else if (diff > 10) {
+                        yMax = Math.ceil(yMax);
+                    } else if (diff > 1) {
+                        yMax = Math.floor(yMax * 10) / 10;
+                    }
+                }
+            } else {
+                if (isNaN(yMin)) {
+                    yMin = undefined;
+                }
+                if (isNaN(yMax)) {
+                    yMax = undefined;
+                }
+            }
+
+            return {
+                type: 'value',
+                min: yMin,
+                max: yMax,
+                position: oneLine.yaxe || (!i ? 'left' : 'right'), // by default only first line is on the left
+                splitLine: !i ? { // grid has only first line
+                    show: !props.config.grid_hideY,
+                    lineStyle: props.config.grid_color ? {
+                        color: props.config.grid_color,
+                    } : undefined,
+                } : undefined,
+                //splitNumber: Math.round(this.state.chartHeight / 100),
+                axisLabel: {
+                    formatter: value => this.yFormatter(value, i, props, true),
+                    color: props.config.y_labels_color || undefined,
+                },
+                axisTick: {
+                    alignWithLabel: true,
+                }
+            };
+        });
+    }
+
+    getMarkings(props, options) {
+        // fill markings
+        props.config.marks && props.config.marks.forEach(oneMark => {
+            const lowerLimitFloat = oneMark.lowerValue !== undefined ? oneMark.lowerValue : parseFloat(oneMark.lowerValueOrId);
+            const upperLimitFloat = oneMark.upperValue !== undefined ? oneMark.upperValue : parseFloat(oneMark.upperValueOrId);
+            const isLowerNumber   = lowerLimitFloat !== null && !isNaN(lowerLimitFloat);
+            const isUpperNumber   = upperLimitFloat !== null && !isNaN(upperLimitFloat);
+
+            const series = options.series[oneMark.lineId];
+            if (isLowerNumber && isUpperNumber) {
+                // area
+                series.markArea = series.markArea || {
+                    symbol: ['none', 'none'],
+                    itemStyle: {
+                        color:       oneMark.color || series.itemStyle.color,
+                        borderWidth: 0,
+                        opacity:     parseFloat(oneMark.fill),
+                    },
+                    data: []
+                };
+                series.markArea.data.push([
+                    {yAxis: lowerLimitFloat, name: oneMark.text || ''},
+                    {yAxis: upperLimitFloat},
+                ]);
+
+            }
+            if (isLowerNumber || isUpperNumber) {
+                for (let i = 0; i < 2; i++) {
+                    if (!i && !isUpperNumber) {
+                        continue;
+                    } else if (i && !isLowerNumber) {
+                        continue;
+                    }
+                    const limitFloat = i ? lowerLimitFloat : upperLimitFloat;
+                    series.markLine = series.markLine || {
+                        symbol: ['none', 'none'],
+                        label: {
+                            show: !!oneMark.text,
+                            formatter: oneMark.text || '',
+                            position: oneMark.textPosition === 'r' ? 'end' : 'start',
+                            distance: oneMark.textOffset || -35,
+                            textStyle: {
+                                color: oneMark.textColor || '#FFF',
+                                fontStyle: 'normal',
+                                fontSize: oneMark.textSize || undefined,
+                            }
+                        },
+                        lineStyle: {
+                            color:          oneMark.color || series.itemStyle.color,
+                            width:          parseFloat(oneMark.ol) || 1,
+                            shadowBlur:     parseFloat(oneMark.os) ? parseFloat(oneMark.os) + 1 : 0,
+                            shadowOffsetY:  parseFloat(oneMark.os) ? parseFloat(oneMark.os) + 1 : 0,
+                            shadowColor:    oneMark.color,
+                            type:           oneMark.lineStyle || 'solid',
+                        },
+                        data: []
+                    };
+                    series.markLine.data.push({yAxis: limitFloat});
+
+                    // if minimum not set
+                    let yMin = parseFloat(props.config.l[oneMark.lineId].min);
+                    if (isNaN(yMin)) {
+                        if (this.chart.yAxis[oneMark.lineId].min > limitFloat && limitFloat < 0) {
+                            options.yAxis[0].min = limitFloat;
+                        }
+                    }
+                    let yMax = parseFloat(props.config.l[oneMark.lineId].min);
+                    if (isNaN(yMax)) {
+                        if (this.chart.yAxis[oneMark.lineId].max < limitFloat) {
+                            options.yAxis[0].max = limitFloat;
+                        }
+                    }
+                }
+            }
+        });
+
+        return options;
+    }
+
+    yFormatter(val, line, props, withUnit) {
         props = props || this.props;
         if (props.config.l[line].type === 'boolean') {
             return val ? 'TRUE' : 'FALSE';
+        }
+
+        if (val === null || val === undefined) {
+            return '';
         }
 
         const afterComma = props.config.l[line].afterComma;
         if (afterComma !== undefined && afterComma !== null) {
             val = parseFloat(val);
             if (props.config.useComma) {
-                return val.toFixed(afterComma).replace('.', ',');
+                return val.toFixed(afterComma).replace('.', ',') + (withUnit ? props.config.l[line].unit : '');
             } else {
-                return val.toFixed(afterComma);
+                return val.toFixed(afterComma) + (withUnit ? props.config.l[line].unit : '');
             }
         } else {
             if (props.config.useComma) {
-                val = parseFloat(val);
-                return val.toString().replace('.', ',');
+                val = parseFloat(val) || 0;
+                return val.toString().replace('.', ',') + (withUnit ? props.config.l[line].unit : '');
             } else {
-                return val;
+                return val.toString() + (withUnit ? props.config.l[line].unit : '');
             }
         }
     }
@@ -222,7 +411,7 @@ class ChartView extends React.Component {
     renderTooltip(props, params) {
         const date = new Date(params[0].value[0]);
 
-        const values = params.map(param => {
+        const values = params.filter(param => !param.seriesName.startsWith('__markings__')).map(param => {
             let val = param.value[1] === null ?
                 'null' :
                 this.yFormatter(param.value[1], param.seriesIndex, props);
@@ -238,7 +427,7 @@ class ChartView extends React.Component {
         return `<b>${moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
     }
 
-    getOption(props) {
+    getOptions(props) {
         props = props || this.props;
         this.debug = props.config && props.config.debug;
 
@@ -254,34 +443,22 @@ class ChartView extends React.Component {
 
         const xAxisHeight = 20;
 
-        // 'nw': 'Top, left',
-        // 'ne': 'Top, right',
-        // 'sw': 'Bottom, left',
-        // 'se': 'Bottom, right',
-        const legend = !props.config.legend || props.config.legend === 'none' ? undefined : {
-            data:   props.config.l.map(oneLine => oneLine.name),
-            show:   true,
-            left:   props.config.legend === 'nw' || props.config.legend === 'sw' ?  GRID_PADDING_LEFT + 1 : undefined,
-            right:  props.config.legend === 'ne' || props.config.legend === 'se' ?  GRID_PADDING_RIGHT + 1 : undefined,
-            top:    props.config.legend === 'nw' || props.config.legend === 'ne' ?  10 : undefined,
-            bottom: props.config.legend === 'sw' || props.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
-            backgroundColor: props.config.legBg || undefined
-        };
-
         const series = this.getSeries(props);
 
         if (props.config.start) {
-            if (this.chart.max < props.config.end) {
-                this.chart.max = props.config.end;
+            if (this.chart.xMax < props.config.end) {
+                this.chart.xMax = props.config.end;
             }
-            if (this.chart.min > props.config.start) {
-                this.chart.min = props.config.start;
+            if (this.chart.xMin > props.config.start) {
+                this.chart.xMin = props.config.start;
             }
         }
 
-        this.chart.diff        = this.chart.max - this.chart.min;
+        this.chart.diff        = this.chart.xMax - this.chart.xMin;
         this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
+
+        const yAxis = this.getYAxis(props);
 
         const options = {
             backgroundColor: 'transparent',
@@ -292,26 +469,19 @@ class ChartView extends React.Component {
                     fontSize: props.config.titleSize ? parseInt(props.config.titleSize, 10) : undefined,
                     color: props.config.titleColor || undefined
                 },
-                padding: [
-                    8,  // up
-                    0,  // right
-                    0,  // down
-                    90, // left
-                ],
                 textVerticalAlign: titlePos.bottom      ? 'bottom' : 'top',
                 textAlign:         titlePos.left === 50 ? 'center' : (titlePos.right === -5 ? 'right' : 'left'),
                 top:               titlePos.top  === 35 ? 5 : (titlePos.top === 50 ? '50%' : undefined),
                 left:              titlePos.left === 50 ? '50%' : (titlePos.left === 65 ? 15 : undefined),
-                bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight - 5 : titlePos.bottom) : undefined,
-                right:             titlePos.right === 5 ? 35 : undefined,
+                bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight - 10 : titlePos.bottom) : undefined,
+                right:             titlePos.right === 5 ? this.chart.padRight : undefined,
             },
-            legend,
             grid: {
                 backgroundColor: props.config.bg_custom || 'transparent',
                 show: !!props.config.bg_custom,
-                left:   GRID_PADDING_LEFT,
+                left:   0,
                 top:    8,
-                right:  GRID_PADDING_RIGHT,
+                right:  0,
                 bottom: 40,
             },
             tooltip: props.config.hoverDetail ? {
@@ -331,9 +501,9 @@ class ChartView extends React.Component {
                             color: props.config.grid_color,
                         } : undefined,
                     },
-                    //splitNumber: Math.round((this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT) / 50),
-                    min: this.chart.min,
-                    max: this.chart.max,
+                    //splitNumber: Math.round((this.state.chartWidth - this.chart.padRight - this.chart.padLeft) / 50),
+                    min: this.chart.xMin,
+                    max: this.chart.xMax,
                     axisTick: {
                         alignWithLabel: true,
                     },
@@ -355,31 +525,7 @@ class ChartView extends React.Component {
                     }
                 }
             ],
-            yAxis: [
-                {
-                    type: 'value',
-                    boundaryGap: [0, '100%'],
-                    splitLine: {
-                        show: !props.config.grid_hideY,
-                        lineStyle: props.config.grid_color ? {
-                            color: props.config.grid_color,
-                        } : undefined,
-                    },
-                    //splitNumber: Math.round(this.state.chartHeight / 100),
-                    axisLabel: {
-                        formatter: function (value) {
-                            if (props.config.useComma) {
-                                value = value.toString().replace('.', ',');
-                            }
-                            return value + props.config.l[0].unit;
-                        },//'{value}' + props.config.l[0].unit,
-                        color: props.config.y_labels_color || undefined,
-                    },
-                    axisTick: {
-                        alignWithLabel: true,
-                    }
-                }
-            ],
+            yAxis,
             toolbox: props.config.export === true || props.config.export === 'true' ? {
                 left: 'right',
                 feature: {
@@ -421,9 +567,56 @@ class ChartView extends React.Component {
             series
         };
 
+        this.getMarkings(props, options);
+
+        // calculate padding: left and right
+        let padLeft  = 0;
+        let padRight = 0;
+        series.forEach((ser, i) => {
+            let minTick = this.yFormatter(options.yAxis[ser.yAxisIndex].min, i, props, true);
+            let maxTick = this.yFormatter(options.yAxis[ser.yAxisIndex].max, i, props, true);
+
+            const position = options.yAxis[ser.yAxisIndex].position;
+            let wMin = calcTextWidth(minTick);
+            let wMax = calcTextWidth(maxTick);
+            if (position === 'left') {
+                if (wMin > padLeft) {
+                    padLeft = wMin;
+                }
+                if (wMax > padLeft) {
+                    padLeft = wMax;
+                }
+            } else {
+                if (wMin > padRight) {
+                    padRight = wMin;
+                }
+                if (wMax > padRight) {
+                    padRight = wMax;
+                }
+            }
+        });
+        options.grid.left = padLeft + 10;
+        options.grid.right = padRight + 10 + (props.config.export === true || props.config.export === 'true' ? 20 : 0);
+        this.chart.padLeft = options.grid.left;
+        this.chart.padRight = options.grid.right;
+
+        // 'nw': 'Top, left',
+        // 'ne': 'Top, right',
+        // 'sw': 'Bottom, left',
+        // 'se': 'Bottom, right',
+        options.legend = !props.config.legend || props.config.legend === 'none' ? undefined : {
+            data:   props.config.l.map(oneLine => oneLine.name),
+            show:   true,
+            left:   props.config.legend === 'nw' || props.config.legend === 'sw' ?  this.chart.padLeft  + 1 : undefined,
+            right:  props.config.legend === 'ne' || props.config.legend === 'se' ?  this.chart.padRight + 1 : undefined,
+            top:    props.config.legend === 'nw' || props.config.legend === 'ne' ?  10 : undefined,
+            bottom: props.config.legend === 'sw' || props.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
+            backgroundColor: props.config.legBg || undefined
+        };
+
         if (!props.config.grid_color) {
-            options.yAxis.forEach(axis => delete axis.splitLine.lineStyle);
-            options.xAxis.forEach(axis => delete axis.splitLine.lineStyle);
+            options.yAxis.forEach(axis => axis.splitLine && delete axis.splitLine.lineStyle);
+            options.xAxis.forEach(axis => axis.splitLine && delete axis.splitLine.lineStyle);
         }
 
         return options;
@@ -444,7 +637,7 @@ class ChartView extends React.Component {
         this.readTimeout = setTimeout(() => {
             this.readTimeout = null;
 
-            const diff = this.chart.max - this.chart.min;
+            const diff = this.chart.xMax - this.chart.xMin;
             if (diff !== this.chart.diff) {
                 this.chart.diff        = diff;
                 this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
@@ -457,8 +650,8 @@ class ChartView extends React.Component {
                         typeof this.echartsReact.getEchartsInstance === 'function' && this.echartsReact.getEchartsInstance().setOption({
                             series: [{data: this.convertData(values)}],
                             xAxis: {
-                                min: this.chart.min,
-                                max: this.chart.max,
+                                min: this.chart.xMin,
+                                max: this.chart.xMax,
                             }
                         }, true);
                         cb && cb();
@@ -467,8 +660,8 @@ class ChartView extends React.Component {
                 typeof this.echartsReact.getEchartsInstance === 'function' && this.echartsReact.getEchartsInstance().setOption({
                     series: [{data: this.convertData()}],
                     xAxis: {
-                        min: this.chart.min,
-                        max: this.chart.max,
+                        min: this.chart.xMin,
+                        max: this.chart.xMax,
                     }
                 }, true);
                 cb && cb();
@@ -477,7 +670,7 @@ class ChartView extends React.Component {
     }*/
 
     setNewRange(updateChart) {
-        this.chart.diff        = this.chart.max - this.chart.min;
+        this.chart.diff        = this.chart.xMax - this.chart.xMin;
         this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
 
@@ -486,13 +679,13 @@ class ChartView extends React.Component {
             this.updateDataTimer && clearTimeout(this.updateDataTimer);
             this.updateDataTimer = null;
 
-            this.props.onRangeChange && this.props.onRangeChange({start: this.chart.min, end: this.chart.max});
+            this.props.onRangeChange && this.props.onRangeChange({start: this.chart.xMin, end: this.chart.xMax});
         } else {
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
             this.echartsReact.getEchartsInstance().setOption({
                 xAxis: {
-                    min: this.chart.min,
-                    max: this.chart.max,
+                    min: this.chart.xMin,
+                    max: this.chart.xMax,
                 }
             });
         }
@@ -503,14 +696,14 @@ class ChartView extends React.Component {
             if (this.divResetButton.current && this.divResetButton.current.style.display !== 'block') {
                  this.divResetButton.current.style.display = 'block';
             }
-            const moved = this.chart.lastX - (e.offsetX - GRID_PADDING_LEFT);
-            this.chart.lastX = e.offsetX - GRID_PADDING_LEFT;
-            const diff = this.chart.max - this.chart.min;
-            const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
+            const moved = this.chart.lastX - (e.offsetX - this.chart.padLeft);
+            this.chart.lastX = e.offsetX - this.chart.padLeft;
+            const diff = this.chart.xMax - this.chart.xMin;
+            const width = this.state.chartWidth - this.chart.padRight - this.chart.padLeft;
 
             const shift = Math.round(moved * diff / width);
-            this.chart.min += shift;
-            this.chart.max += shift;
+            this.chart.xMin += shift;
+            this.chart.xMax += shift;
             this.setNewRange();
         }
     };
@@ -539,17 +732,17 @@ class ChartView extends React.Component {
     };
 
     onMouseWheel = e => {
-        let diff = this.chart.max - this.chart.min;
-        const width = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
-        const x = e.offsetX - GRID_PADDING_LEFT;
+        let diff = this.chart.xMax - this.chart.xMin;
+        const width = this.state.chartWidth - this.chart.padRight - this.chart.padLeft;
+        const x = e.offsetX - this.chart.padLeft;
         const pos = x / width;
 
         const oldDiff = diff;
         const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
         diff = diff * amount;
         const move = oldDiff - diff;
-        this.chart.max += move * (1 - pos);
-        this.chart.min -= move * pos;
+        this.chart.xMax += move * (1 - pos);
+        this.chart.xMin -= move * pos;
 
         this.setNewRange();
         this.updateDataTimer && clearTimeout(this.updateDataTimer);
@@ -582,19 +775,19 @@ class ChartView extends React.Component {
         if (!touches) {
             return;
         }
-        const pageX = touches[touches.length - 1].pageX - GRID_PADDING_LEFT;
+        const pageX = touches[touches.length - 1].pageX - this.chart.padLeft;
         if (this.mouseDown) {
             if (touches.length > 1) {
                 // zoom
                 const fingerWidth = Math.abs(touches[0].pageX - touches[1].pageX);
                 if (this.chart.lastWidth !== null && fingerWidth !== this.chart.lastWidth) {
-                    let diff = this.chart.max - this.chart.min;
-                    const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
+                    let diff = this.chart.xMax - this.chart.xMin;
+                    const chartWidth = this.state.chartWidth - this.chart.padRight - this.chart.padLeft;
 
                     const amount     = fingerWidth > this.chart.lastWidth ? 1.1 : 0.9;
                     const positionX  = touches[0].pageX > touches[1].pageX ?
-                        touches[1].pageX - GRID_PADDING_LEFT + fingerWidth / 2 :
-                        touches[0].pageX - GRID_PADDING_LEFT + fingerWidth / 2;
+                        touches[1].pageX - this.chart.padLeft + fingerWidth / 2 :
+                        touches[0].pageX - this.chart.padLeft + fingerWidth / 2;
 
                     const pos = positionX / chartWidth;
 
@@ -602,8 +795,8 @@ class ChartView extends React.Component {
                     diff = diff * amount;
                     const move = oldDiff - diff;
 
-                    this.chart.max += move * (1 - pos);
-                    this.chart.min -= move * pos;
+                    this.chart.xMax += move * (1 - pos);
+                    this.chart.xMin -= move * pos;
 
                     this.setNewRange();
                 }
@@ -611,12 +804,12 @@ class ChartView extends React.Component {
             } else {
                 // swipe
                 const moved = this.chart.lastX - pageX;
-                const diff  = this.chart.max - this.chart.min;
-                const chartWidth = this.state.chartWidth - GRID_PADDING_RIGHT - GRID_PADDING_LEFT;
+                const diff  = this.chart.xMax - this.chart.xMin;
+                const chartWidth = this.state.chartWidth - this.chart.padRight - this.chart.padLeft;
 
                 const shift = Math.round(moved * diff / chartWidth);
-                this.chart.min += shift;
-                this.chart.max += shift;
+                this.chart.xMin += shift;
+                this.chart.xMax += shift;
 
                 this.setNewRange();
             }
@@ -658,7 +851,7 @@ class ChartView extends React.Component {
 
     renderChart() {
         if (this.props.data) {
-            const option = this.getOption();
+            const option = this.getOptions();
 
             //console.log(JSON.stringify(option, null, 2));
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
@@ -689,7 +882,7 @@ class ChartView extends React.Component {
 
     componentDidUpdate() {
         if (this.divRef.current) {
-            const borderWidth   = parseFloat(this.props.config.border_width)   || 0;
+            const borderWidth   = this.props.config.noBorder !== 'noborder' ? parseFloat(this.props.config.border_width) || 0 : 0;
             const borderPadding = parseFloat(this.props.config.border_padding) || 0;
             const chartHeight = this.divRef.current.offsetHeight - (borderWidth + borderPadding) * 2;
             if (this.state.chartHeight !== chartHeight) {
@@ -723,20 +916,20 @@ class ChartView extends React.Component {
             setTimeout(() => this.forceUpdate(), 10);
         }
 
-        const borderWidth   = parseFloat(this.props.config.border_width) || 0;
+        const borderWidth   = this.props.config.noBorder !== 'noborder' ? parseFloat(this.props.config.border_width) || 0 : 0;
         const borderPadding = parseFloat(this.props.config.border_padding) || 0;
 
         return <div
             ref={ this.divRef }
             className={ this.props.classes.chart }
             style={{
-                width:  borderWidth || borderPadding ? 'calc(100% - ' + ((borderWidth + borderPadding) * 2 + 1) + 'px' : undefined,
-                height: borderWidth || borderPadding ? 'calc(100% - ' + (borderWidth + borderPadding) * 2 + 'px' : undefined,
-                background: this.props.config.window_bg || undefined,
                 borderWidth,
-                borderColor: this.props.config.border_color || undefined,
-                borderStyle: borderWidth ? this.props.config.border_style || 'solid' : '',
-                padding: borderPadding || 0,
+                width:          borderWidth || borderPadding ? 'calc(100% - ' + ((borderWidth + borderPadding) * 2 + 1) + 'px' : undefined,
+                height:         borderWidth || borderPadding ? 'calc(100% - ' + (borderWidth + borderPadding) * 2 + 'px' : undefined,
+                background:     this.props.config.window_bg || undefined,
+                borderColor:    this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
+                borderStyle:    this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',
+                padding:        borderPadding || 0,
             }}>
             { this.renderResetButton() }
             { this.renderChart() }

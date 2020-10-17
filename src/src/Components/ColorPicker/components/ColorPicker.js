@@ -40,7 +40,7 @@ const ColorPicker = ({
       placeholder={hintText || placeholder}
       onClick={() => setShowPicker(true)}
       onChange={e => {
-        setValue(e.target.value)
+        setValue(e.target.value);
         onChange(e.target.value)
       }}
       InputProps={{ style: { color: value === undefined ? internalValue : value } }}
@@ -51,19 +51,19 @@ const ColorPicker = ({
       <PickerDialog
         value={value === undefined ? internalValue : value}
         onClick={() => {
-          setShowPicker(false)
+          setShowPicker(false);
           onChange(value)
         }}
         onChange={c => {
-          const newValue = converters[convert](c)
-          setValue(newValue)
+          const newValue = converters[convert](c);
+          setValue(newValue);
           onChange(newValue)
         }}
         className={pickerClassName}
       />
     )}
   </>
-)
+);
 
 ColorPicker.propTypes = {
   value: PropTypes.string,
@@ -81,18 +81,18 @@ ColorPicker.propTypes = {
   internalValue: PropTypes.string,
   setValue: PropTypes.func,
   pickerClassName: PropTypes.any
-}
+};
 
 ColorPicker.defaultProps = {
   convert: DEFAULT_CONVERTER
-}
+};
 
 const makeColorPicker = compose(
   withState('showPicker', 'setShowPicker', false),
   withState('internalValue', 'setValue', ({ defaultValue }) => defaultValue)
-)
+);
 
-const MakedColorPicker = makeColorPicker(ColorPicker)
+const MakedColorPicker = makeColorPicker(ColorPicker);
 
 const ColorPickerField = ({ input: { value, onChange, ...restInput }, meta: { touched, error }, ...restProps }) => (
   <MakedColorPicker
@@ -102,12 +102,12 @@ const ColorPickerField = ({ input: { value, onChange, ...restInput }, meta: { to
     {...restInput}
     {...restProps}
   />
-)
+);
 
 ColorPickerField.propTypes = {
   input: PropTypes.object,
   meta: PropTypes.object
-}
+};
 
 export default MakedColorPicker
 
