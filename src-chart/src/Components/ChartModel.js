@@ -1,5 +1,5 @@
 import Utils from '@iobroker/adapter-react/Components/Utils';
-
+/*
 function deParam(params, coerce) {
     const obj = {};
     const coerceTypes = {'true': true, 'false': false, 'null': null};
@@ -88,7 +88,7 @@ function deParam(params, coerce) {
 
     return obj;
 }
-
+*/
 function normalizeConfig(config) {
     if (config.lines) {
         config.l = JSON.parse(JSON.stringify(config.lines));
@@ -255,10 +255,10 @@ class ChartModel {
                 // search ID and range
                 const _config = Object.assign(query.data || {}, hQuery.data || {}, true);
                 if (hQuery.noLoader !== undefined) {
-                    _config.noLoader = hQuery.noLoader;
+                    _config.noLoader = hQuery.noLoader === true || hQuery.noLoader === 'true' || hQuery.noLoader === 1 || hQuery.noLoader === '1';
                 }
                 if (query.noLoader !== undefined) {
-                    _config.noLoader = query.noLoader;
+                    _config.noLoader = query.noLoader === true || query.noLoader === 'true' || query.noLoader === 1 || query.noLoader === '1';
                 }
                 this.config = normalizeConfig(_config);
             }

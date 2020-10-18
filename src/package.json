@@ -12,7 +12,6 @@
     "moment": "^2.29.1",
     "clsx": "^1.1.1",
     "eslint": "^6.6.0",
-    "immutability-helper": "^3.1.1",
     "material-ui-color-picker": "^3.5.1",
     "react-beautiful-dnd": "^13.0.0",
     "react": "^16.13.1",

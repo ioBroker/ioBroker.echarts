@@ -77,7 +77,7 @@ let IOSelect = function (props) {
             }
             </Select>
         </FormControl>
-    </div>
+    </div>;
 };
 IOSelect.propTypes = {
     label: PropTypes.string,
@@ -97,7 +97,7 @@ let IOCheckbox = function (props) {
                 props.updateValue(props.name, e.target.checked)
             }} checked={props.formData[props.name] || false}/>
         }/>
-    </div>
+    </div>;
 };
 IOCheckbox.propTypes = {
     label: PropTypes.string,
@@ -118,7 +118,6 @@ let IOTextField = function (props) {
             onChange={e => props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             type={props.type}
-
             InputProps={{
                 startAdornment: props.helperLink ? <IconButton
                     size="small"
@@ -135,7 +134,7 @@ let IOTextField = function (props) {
                     : undefined,
             }}
         />
-    </div>
+    </div>;
 };
 IOTextField.propTypes = {
     label: PropTypes.string,
@@ -157,7 +156,7 @@ let IODateTimeField = function (props) {
             let date = e.target.value.split('T');
             props.updateValue(props.name, date[0], date[1]);
         }} value={props.formData[props.name] ? props.formData[props.name] + 'T' + props.formData[props.name + '_time'] : ''}/>
-    </div>
+    </div>;
 };
 IODateTimeField.propTypes = {
     label: PropTypes.string,
@@ -199,7 +198,7 @@ let IOObjectField = function (props) {
                 onClose={ () => setState({showDialog: false}) }
             /> : null
         }
-    </div>
+    </div>;
 };
 IOObjectField.propTypes = {
     label: PropTypes.string,
@@ -234,7 +233,7 @@ let IOColorPicker = function (props) {
             InputLabelProps={{shrink: true}}
             value={props.formData[props.name] || ''}
         />
-    </div>
+    </div>;
 };
 IOColorPicker.propTypes = {
     label: PropTypes.string,
@@ -259,7 +258,7 @@ let IOSlider = function (props) {
             max={parseFloat(props.max || 1)}
             valueLabelDisplay="auto"
         />
-    </div>
+    </div>;
 };
 IOSlider.propTypes = {
     label: PropTypes.string,

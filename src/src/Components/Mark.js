@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import update from 'immutability-helper';
 import clsx from 'clsx';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
-import {IOTextField, IOColorPicker, IOSelect, IOObjectField, IOSlider} from './Fields';
+import {IOTextField, IOSelect, IOObjectField, IOSlider} from './Fields';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
@@ -15,6 +14,10 @@ import {withStyles} from '@material-ui/core/styles';
 
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
+import ColorPicker from "@iobroker/adapter-react/Components/ColorPicker";
+import TextField from "@material-ui/core/TextField";
+import ClearIcon from "@material-ui/icons/Close";
+import Utils from "@iobroker/adapter-react/Components/Utils";
 
 const WIDTHS = {
     lineId: 100,
@@ -178,10 +181,45 @@ class Mark extends React.Component {
         */
       };
 
-    updateField = (name, value)=>{
-        let newMark = update(this.props.mark, {[name]: {$set: value}});
-        this.props.updateMark(this.props.index, newMark);
+    updateField = (name, value) => {
+        const mark = JSON.parse(JSON.stringify(this.props.mark));
+        mark[name] = value;
+        this.props.updateMark(this.props.index, mark);
     };
+
+    renderColorField(formData, onUpdate, label, name, minWidth, className) {
+        const textColor = Utils.invertColor(formData[name], true);
+        return <div className={className}>
+            <TextField
+                style={{minWidth, width: '100%', color: textColor}}
+                label={I18n.t(label)}
+                value={formData[name]}
+                onClick={() =>
+                    this.props.onSelectColor(this.state['_' + name], color =>
+                        this.setState({['_' + name]: color}, () =>
+                            onUpdate(name, ColorPicker.getColor(color))))}
+                onChange={e => {
+                    const color = e.target.value;
+                    this.setState({['_' + name]: color}, () =>
+                        onUpdate(name, color));
+                }}
+                inputProps={{style: {backgroundColor: formData[name]}}}
+                InputProps={{
+                    endAdornment: formData[name] ?
+                        <IconButton
+                            size="small"
+                            onClick={e => {
+                                e.stopPropagation();
+                                this.setState({['_' + name]: ''}, () => onUpdate(name, ''));
+                            }}>
+                            <ClearIcon />
+                        </IconButton>
+                        : undefined,
+                }}
+                InputLabelProps={{shrink: true}}
+            />
+        </div>;
+    }
 
     renderClosedLine(lines, colors) {
         return <div className={this.props.classes.lineClosedContainer}>
@@ -224,14 +262,7 @@ class Mark extends React.Component {
                     /> : null}
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
                 this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
-                    <IOColorPicker
-                        formData={this.props.mark}
-                        updateValue={this.updateField}
-                        name="color"
-                        label="Color"
-                        classes={{fieldContainer: this.props.classes.shortColorField}}
-                        minWidth={WIDTHS.color}
-                    /> : null}
+                    this.renderColorField(this.props.mark, this.updateField, 'Color', 'color', WIDTHS.color, this.props.classes.shortColorField) : null}
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== ''  &&
                  this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' &&
                  this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== ''?
@@ -264,6 +295,70 @@ class Mark extends React.Component {
         </div>
     }
 
+    renderOpenedCard(lines, colors) {
+        return <>
+            <div>
+                <IconButton title={ I18n.t('Edit') }
+                            onClick={() => this.props.markOpenToggle(this.props.index)
+                            }><IconFolderOpened/></IconButton>
+                {I18n.t('Mark')} {this.props.index + 1}{this.props.mark.text ? ' - ' + this.props.mark.text : ''}
+                <IconButton
+                    className={this.props.classes.deleteButtonFull}
+                    aria-label="Delete"
+                    title={I18n.t('Delete')}
+                    onClick={() => this.props.deleteMark(this.props.index)}>
+                    <IconDelete/>
+                </IconButton>
+            </div>
+            <div className={this.props.classes.shortFields}>
+                <p className={this.props.classes.title}>{I18n.t('Limits')}</p>
+                <IOSelect      formData={this.props.mark} updateValue={this.updateField} name="lineId"         label="Line ID" options={lines} colors={colors}/>
+
+                {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
+                    <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} /> : null }
+
+                {this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
+                    <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} /> : null }
+            </div>
+
+            {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
+            (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
+                <div className={this.props.classes.shortFields}>
+                    <p className={this.props.classes.title}>{I18n.t('Style')}</p>
+                    {this.renderColorField(this.props.mark, this.updateField, 'Color', 'color')}
+
+                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number"/>
+
+                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number"/>
+
+                    <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
+                        'solid': 'solid',
+                        'dashed': 'dashed',
+                        'dotted': 'dotted',
+                    }}/>
+
+                    {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') &&
+                    (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
+                        <IOSlider formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)"/> : null}
+                </div> : null}
+
+            {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
+            (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
+                <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+                    <p className={this.props.classes.title}>{I18n.t('Label')}</p>
+                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
+                    {this.props.mark.text ?
+                        <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
+                            'l': 'Left',
+                            'r': 'Right',
+                        }}/> : null}
+                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/> : null}
+                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
+                    {this.props.mark.text ? this.renderColorField(this.props.mark, this.updateField, 'Text color', 'textColor') : null}
+                </div> : null }
+        </>;
+    }
+
     render() {
         let lines = {};
         let colors = {};
@@ -271,69 +366,11 @@ class Mark extends React.Component {
             lines[index] = index + ' - ' + (line.id || I18n.t('No ID yet'));
             colors[index] = line.color;
         });
-        return <Card className={this.props.classes.card}><CardContent className={this.props.classes.cardContent}>
-            { this.props.opened ? <>
-                <div>
-                    <IconButton title={ I18n.t('Edit') }
-                        onClick={() => this.props.markOpenToggle(this.props.index)
-                    }><IconFolderOpened/></IconButton>
-                    {I18n.t('Mark')} {this.props.index + 1}{this.props.mark.text ? ' - ' + this.props.mark.text : ''}
-                    <IconButton
-                        className={this.props.classes.deleteButtonFull}
-                        aria-label="Delete"
-                        title={I18n.t('Delete')}
-                        onClick={() => this.props.deleteMark(this.props.index)}>
-                        <IconDelete/>
-                    </IconButton>
-                </div>
-                <div className={this.props.classes.shortFields}>
-                    <p className={this.props.classes.title}>{I18n.t('Limits')}</p>
-                    <IOSelect      formData={this.props.mark} updateValue={this.updateField} name="lineId"         label="Line ID" options={lines} colors={colors}/>
-
-                    {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
-                        <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} /> : null }
-
-                    {this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
-                        <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="lowerValueOrId" label="Lower value or ID" socket={this.props.socket} /> : null }
-                </div>
-
-                {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
-                 (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
-                    <div className={this.props.classes.shortFields}>
-                        <p className={this.props.classes.title}>{I18n.t('Style')}</p>
-                        <IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="color" label="Color" />
-
-                        <IOTextField formData={this.props.mark} updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number"/>
-
-                        <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number"/>
-
-                        <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
-                            'solid': 'solid',
-                            'dashed': 'dashed',
-                            'dotted': 'dotted',
-                        }}/>
-
-                        {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') &&
-                         (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
-                            <IOSlider formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)"/> : null}
-                    </div> : null}
-
-                {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
-                 (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
-                    <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
-                        <p className={this.props.classes.title}>{I18n.t('Label')}</p>
-                        <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
-                        {this.props.mark.text ?
-                            <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
-                                'l': 'Left',
-                                'r': 'Right',
-                            }}/> : null}
-                        {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/> : null}
-                        {this.props.mark.text ?<IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
-                        {this.props.mark.text ?<IOColorPicker formData={this.props.mark} updateValue={this.updateField} name="textColor" label="Text color" /> : null}
-                    </div> : null }
-            </> : this.renderClosedLine(lines, colors)}
-        </CardContent></Card>
+        return <Card className={this.props.classes.card}>
+            <CardContent className={this.props.classes.cardContent}>
+                { this.props.opened ? this.renderOpenedCard(lines, colors) : this.renderClosedLine(lines, colors)}
+            </CardContent>
+        </Card>
     }
 }
 
@@ -345,6 +382,7 @@ Mark.propTypes = {
     opened: PropTypes.bool,
     instances: PropTypes.array,
     markOpenToggle: PropTypes.func,
+    onSelectColor: PropTypes.func,
 };
 
 export default withStyles(styles)(Mark);

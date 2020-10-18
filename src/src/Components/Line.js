@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -14,8 +13,11 @@ import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
 
 import Utils from '@iobroker/adapter-react/Components/Utils';
 import I18n from '@iobroker/adapter-react/i18n';
+import ColorPicker from '@iobroker/adapter-react/Components/ColorPicker';
 
-import {IOTextField, IOCheckbox, IOColorPicker, IOSelect, IOObjectField, IOSlider} from './Fields';
+import {IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider} from './Fields';
+import TextField from '@material-ui/core/TextField';
+import ClearIcon from '@material-ui/icons/Close';
 
 const WIDTHS = {
     instance: 100,
@@ -152,8 +154,11 @@ class Line extends React.Component {
         };
     }
     updateField = (name, value) => {
-        let newLine = update(this.props.line, {[name]: {$set: value}});
+        let line = JSON.parse(JSON.stringify(this.props.line));
+        line[name] = value;
+
         if (name === 'id') {
+            // If ID changed => read unit and name
             if (this.props.line.id !== value) {
                 return this.props.socket.getObject(value)
                     .then(obj => {
@@ -164,7 +169,7 @@ class Line extends React.Component {
                             name = _name.length ? _name[_name.length - 1] : '';
                         }
                         if (obj && obj.common && obj.common.unit) {
-                            newLine = update(newLine, {unit: {$set: obj.common.unit}});
+                            line.unit = obj.common.unit;
                         }
                     })
                     .catch(e => {
@@ -173,12 +178,12 @@ class Line extends React.Component {
                         name = _name.length ? _name[_name.length - 1] : '';
                     })
                     .then(() => {
-                        newLine = update(newLine, {name: {$set: name}});
-                        this.props.updateLine(this.props.index, newLine);
+                        line.name = name;
+                        this.props.updateLine(this.props.index, line);
                     });
             }
         }
-        this.props.updateLine(this.props.index, newLine);
+        this.props.updateLine(this.props.index, line);
     };
 
     static getDerivedStateFromProps(props, state) {
@@ -283,15 +288,7 @@ class Line extends React.Component {
                 }}
                 classes={{fieldContainer: this.props.classes.shortDataTypeField}}
             /> : null}
-
-            {visible.color ? <IOColorPicker
-                minWidth={WIDTHS.color}
-                formData={this.props.line}
-                updateValue={this.updateField}
-                name="color"
-                label="Color"
-                classes={{fieldContainer: this.props.classes.shortColorField, colorPicker: this.props.classes.shortColorField}}
-            /> : null}
+            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, this.props.classes.shortColorField) : null}
             {visible.name ? <IOTextField
                 width={WIDTHS.name}
                 formData={this.props.line}
@@ -307,6 +304,40 @@ class Line extends React.Component {
                 onClick={() => this.props.deleteLine(this.props.index)}>
                 <IconDelete/>
             </IconButton>
+        </div>;
+    }
+
+    renderColorField(formData, onUpdate, label, name, minWidth, className) {
+        const textColor = Utils.invertColor(formData[name], true);
+        return <div className={className}>
+            <TextField
+                style={{minWidth, width: '100%', color: textColor}}
+                label={I18n.t(label)}
+                value={formData[name]}
+                onClick={() =>
+                    this.props.onSelectColor(this.state['_' + name], color =>
+                        this.setState({['_' + name]: color}, () =>
+                            onUpdate(name, ColorPicker.getColor(color))))}
+                onChange={e => {
+                    const color = e.target.value;
+                    this.setState({['_' + name]: color}, () =>
+                        onUpdate(name, color));
+                }}
+                inputProps={{style: {backgroundColor: formData[name]}}}
+                InputProps={{
+                    endAdornment: formData[name] ?
+                        <IconButton
+                            size="small"
+                            onClick={e => {
+                                e.stopPropagation();
+                                this.setState({['_' + name]: ''}, () => onUpdate(name, ''));
+                            }}>
+                            <ClearIcon />
+                        </IconButton>
+                        : undefined,
+                }}
+                InputLabelProps={{shrink: true}}
+            />
         </div>;
     }
 
@@ -362,7 +393,7 @@ class Line extends React.Component {
                         </div>
                         <div className={this.props.classes.shortFields}>
                             <p className={this.props.classes.title}>{I18n.t('Main')}</p>
-                            <IOColorPicker formData={this.props.line} updateValue={this.updateField} name="color" label="Color" />
+                            {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
                             <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
                                 minmax: 'minmax',
                                 average: 'average',
@@ -498,6 +529,7 @@ Line.propTypes = {
     lineOpenToggle: PropTypes.func,
     width: PropTypes.number,
     theme: PropTypes.object,
+    onSelectColor: PropTypes.func,
 };
 
 export default withStyles(styles)(Line);
