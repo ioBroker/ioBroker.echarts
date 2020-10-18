@@ -7,6 +7,10 @@ gulpfileEdit.js.js
 gulpfile.js
 !/admin/**/*
 !/admin/*
+!/widgets/**/*
+!/widgets/*
+!/www/**/*
+!/www/*
 !/io-package.json
 !/package.json
 !/LICENSE

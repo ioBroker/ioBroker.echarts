@@ -114,7 +114,7 @@ function getDefaultPreset(systemSettings, instance, obj, language) {
     preset.useComma = systemSettings.common.isFloatComma || false;
 
     if (systemSettings.common.dateFormat) {
-        preset.timeFormat = 'HH:mm:ss ' + systemSettings.common.dateFormat;
+        //preset.timeFormat = 'HH:mm:ss ' + systemSettings.common.dateFormat;
     }
 
     preset.lines.push({

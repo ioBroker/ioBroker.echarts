@@ -33,6 +33,7 @@
   "scripts": {
     "test:package": "mocha test/package --exit",
     "test": "npm run test:package",
+    "prepublishOnly": "node node_modules/gulp/bin/gulp.js",
     "build": "node node_modules/gulp/bin/gulp.js",
     "release": "node node_modules/@alcalzone/release-script/bin/release.js"
   },
