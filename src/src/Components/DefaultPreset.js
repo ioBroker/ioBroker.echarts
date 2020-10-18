@@ -120,8 +120,9 @@ function getDefaultPreset(systemSettings, instance, obj, language) {
     preset.lines.push({
         name: (obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '',
         id: obj ? obj._id : '',
-        color: (obj && obj.common && obj.common.color) || '#144578',
+        color: (obj && obj.common && obj.common.color) || '',
         instance: instance || systemSettings.common.defaultHistory,
+        thickness: 2,
         chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
         aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
         unit: (obj && obj.common && obj.common.unit) || '',

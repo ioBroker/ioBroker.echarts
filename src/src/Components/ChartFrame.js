@@ -17,7 +17,7 @@ const styles = theme => ({
     }
 });
 
-function deParam(params, coerce) {
+/*function deParam(params, coerce) {
     const obj = {};
     const coerceTypes = {'true': true, 'false': false, 'null': null};
 
@@ -104,17 +104,27 @@ function deParam(params, coerce) {
     });
 
     return obj;
-}
+}*/
 
 class ChartFrame extends React.Component {
     render() {
         if (window.location.port === '3000') {
+            const parts = this.props.src.split('&');
+            if (parts[0].includes('data=')) {
+                parts[0] = parts[0].replace(/^.*data=/, '');
+                parts[0] = decodeURIComponent(parts[0]);
+                try {
+                    parts[0] = JSON.parse(parts[0]);
+                } catch (e) {
+
+                }
+            }
             return <Paper className={this.props.classes.iframe} style={{background: '#333'}}>
-                <pre>{this.props.src.split('&').join('\n')}</pre>
+                <pre>{parts.join('\n')}</pre>
                 <br/>
                 <hr/>
                 <br/>
-                <pre>{JSON.stringify(deParam(this.props.src.split('?')[1]), null, 2)}</pre>
+                <pre>{JSON.stringify(parts[0], null, 2)}</pre>
             </Paper>;
         } else {
             return <iframe

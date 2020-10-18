@@ -169,7 +169,20 @@ class MainChart extends React.Component {
                 url.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
             }
         }*/
-        url.push('data=' + encodeURIComponent(JSON.stringify(this.props.presetData)));
+        // If fast view mode
+        const presetData = JSON.parse(JSON.stringify(this.props.presetData));
+        if (this.props.presetMode) {
+            delete presetData.chartType;
+            delete presetData.aggregate;
+        } else {
+            if (presetData.chartType) {
+                presetData.lines[0].chartType = presetData.chartType;
+            }
+            if (presetData.aggregate) {
+                presetData.lines[0].aggregate = presetData.aggregate;
+            }
+        }
+        url.push('data=' + encodeURIComponent(JSON.stringify(presetData)));
         url.push('noLoader=true');
 
         return url.join('&');

@@ -130,6 +130,8 @@ function normalizeConfig(config) {
             if (config.instance && !config.l[j].instance) {
                 config.l[j].instance = config.instance;
             }
+            config.l[j].yOffset = parseFloat(config.l[j].yOffset) || 0;
+            config.l[j].offset  = parseFloat(config.l[j].offset)  || 0;
         }
     }
 
@@ -166,7 +168,7 @@ function normalizeConfig(config) {
     // Set default values
     config.width        = config.width                   || '100%';
     config.height       = config.height                  || '100%';
-    config.timeFormat   = config.timeFormat              || '%H:%M:%S %e.%m.%y';
+    config.timeFormat   = config.timeFormat              || '';
     config.useComma     = config.useComma    === 'true'  || config.useComma    === true;
     config.zoom         = config.zoom        === 'true'  || config.zoom        === true;
     config.export       = config.export      === 'true'  || config.export      === true;
@@ -261,6 +263,7 @@ class ChartModel {
                     _config.noLoader = query.noLoader === true || query.noLoader === 'true' || query.noLoader === 1 || query.noLoader === '1';
                 }
                 this.config = normalizeConfig(_config);
+                //console.log(this.config);
             }
         }
 
@@ -607,7 +610,6 @@ class ChartModel {
         const option = this.getStartStop(index);
         option.instance  = instance;
         option.sessionId = this.sessionId;
-        this.config.l[index].yOffset = parseFloat(this.config.l[index].yOffset) || 0;
 
         //console.log(JSON.stringify(option));
         this.debug && console.log('[ChartModel] ' + new Date(option.start) + ' - ' + new Date(option.end));

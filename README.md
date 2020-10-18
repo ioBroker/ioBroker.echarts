@@ -11,8 +11,7 @@
 **Tests:**: [![Travis-CI](http://img.shields.io/travis/ioBroker/ioBroker.echarts/master.svg)](https://travis-ci.org/ioBroker/ioBroker.echarts)
 
 ## echarts adapter for ioBroker
-
-Build useful charts in ioBroker
+Build useful charts in ioBroker:
 
 ![Screenshot](img/screenshot1.png)
 
@@ -22,9 +21,14 @@ You can debug view charts locally with:
 - npm run start
 - Browser: http://localhost:8081/adapter/echarts/tab.html?dev=true
 
+## Todo
+- widget for vis (button)
+- widget for material
+- generate chart.png
+
 ## Changelog
 
-### 0.0.1
+### 0.0.1 (2020-10-18)
 * (bluefox) initial release
 
 ## License

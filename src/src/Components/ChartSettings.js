@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
 
 import Toolbar from '@material-ui/core/Toolbar';
@@ -175,12 +174,12 @@ class ChartSettings extends React.Component {
     };
 
     updateField = (name, value, time) => {
-        let updateObject = {[name]: {$set: value}};
+        const presetData = JSON.parse(JSON.stringify(this.props.presetData));
+        presetData[name] = value;
         if (time) {
-            updateObject[name + '_time'] = {$set: time};
-            window.localStorage.setItem('Chart.' + name + '_time', time);
+            presetData[name + '_time'] = time;
         }
-        this.props.onChange(update(this.props.presetData, updateObject));
+        this.props.onChange(presetData);
         window.localStorage.setItem('Chart.' + name, value);
     };
 
@@ -257,12 +256,12 @@ class ChartSettings extends React.Component {
                             label="Chart type"
                             options={CHART_TYPES}
                         />
-                        <IOSelect
+                        {this.props.presetData.chartType !== 'auto' ? <IOSelect
                             formData={this.props.presetData}
                             updateValue={this.updateField}
                             name="aggregate"
                             label="Aggregate"
-                            options={AGGREGATES}/>
+                            options={AGGREGATES}/> : null}
                         {this.props.presetData.aggregate !== 'onchange' ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
                             'count': 'counts',
                             'step': 'seconds',

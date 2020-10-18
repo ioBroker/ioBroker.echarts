@@ -72,7 +72,9 @@ let IOSelect = function (props) {
             >{
                 props.options ?
                     Object.keys(props.options).map(key =>
-                        <MenuItem key={key} value={key} style={{color: props.colors ? props.colors[key] || undefined : undefined}}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
+                        <MenuItem key={key} value={key} style={{color: props.colors ? props.colors[key] || undefined : undefined}}>{
+                            props.noTranslate ? props.options[key] : (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined? I18n.t(props.options[key]) : '')
+                        }</MenuItem>)
                      : null
             }
             </Select>

@@ -188,22 +188,28 @@ class Mark extends React.Component {
     };
 
     renderColorField(formData, onUpdate, label, name, minWidth, className) {
-        const textColor = Utils.invertColor(formData[name], true);
+        let textColor = Utils.isUseBright(formData[name], null);
+        if (textColor === null) {
+            textColor = undefined;
+        }
+
         return <div className={className}>
             <TextField
-                style={{minWidth, width: '100%', color: textColor}}
+                style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}
                 value={formData[name]}
                 onClick={() =>
-                    this.props.onSelectColor(this.state['_' + name], color =>
-                        this.setState({['_' + name]: color}, () =>
-                            onUpdate(name, ColorPicker.getColor(color))))}
+                    this.setState({['_' + name]: formData[name]}, () =>
+                        this.props.onSelectColor(this.state['_' + name], color =>
+                            this.setState({['_' + name]: color}, () =>
+                                onUpdate(name, ColorPicker.getColor(color, true)))))
+                }
                 onChange={e => {
                     const color = e.target.value;
                     this.setState({['_' + name]: color}, () =>
                         onUpdate(name, color));
                 }}
-                inputProps={{style: {backgroundColor: formData[name]}}}
+                inputProps={{style: {paddingLeft: 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000'}}}
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton
@@ -230,6 +236,7 @@ class Mark extends React.Component {
                     <IconFolderClosed/>
                 </IconButton>
                 <IOSelect
+                    noTranslate={true}
                     formData={this.props.mark}
                     updateValue={this.updateField}
                     name="lineId"
@@ -312,7 +319,7 @@ class Mark extends React.Component {
             </div>
             <div className={this.props.classes.shortFields}>
                 <p className={this.props.classes.title}>{I18n.t('Limits')}</p>
-                <IOSelect      formData={this.props.mark} updateValue={this.updateField} name="lineId"         label="Line ID" options={lines} colors={colors}/>
+                <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineId" noTranslate={true} label="Line ID" options={lines} colors={colors}/>
 
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
                     <IOObjectField formData={this.props.mark} updateValue={this.updateField} name="upperValueOrId" label="Upper value or ID" socket={this.props.socket} /> : null }

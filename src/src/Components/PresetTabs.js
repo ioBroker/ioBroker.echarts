@@ -558,6 +558,7 @@ class PresetTabs extends React.Component {
                 <>
                     {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" />*/}
                     {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity (0-1)" name="legBgOpacity" />*/}
+                    {this.renderColorField(this.props.presetData, this.updateField, 'Legend text color', 'legColor')}
                     {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
                 </> : null}
             </div>
@@ -568,51 +569,6 @@ class PresetTabs extends React.Component {
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />
                 {/*<IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />*/}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show export button'} name="export" />
-            </div>
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Time format')}</p>
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Custom time format" name="timeFormatCustom" />
-                {!this.props.presetData.timeFormatCustom ?
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
-                        '': 'Default',
-                        'HH:mm DD.MM': 'HH:MM dd.mm',
-                        'HH:mm DD.MM.': 'HH:MM dd.mm.',
-                        'HH:mm <br/> DD.MM': 'HH:MM / dd.mm',
-                        'HH:mm <br/> DD.MM.': 'HH:MM / dd.mm.',
-                        'HH:mm <br/> DD.MM.YY': 'HH:MM / dd.mm.yy',
-                        'HH:mm:ss DD.MM.YY': 'HH:MM:SS dd.mm.yy',
-                        'HH:mm DD.MM.YY': 'HH:MM dd.mm.yy',
-                        'hh:mm:ss MM/DD/YY a': 'HH:MM:SS mm/dd/yy am (US)',
-                        'HH:mm:ss DD/MM/YY': 'HH:MM:SS dd/mm/yy (UK)',
-                        'HH:mm:ss MM.DD.YY': 'HH:MM:SS mm.dd.yy',
-                        'HH:mm ddd': 'HH:MM dow',
-                        'HH:mm:ss ddd': 'HH:MM:SS dow',
-                        'HH:mm MM.DD': 'HH:MM mm.dd',
-                        'HH:mm:ss': 'HH:MM:SS',
-                        'HH:mm': 'HH:MM',
-                        'DD.MM': 'dd.mm',
-                        'DD.MM.': 'dd.mm.',
-                        'MM/DD': 'mm/dd',
-                        'DD': 'dd',
-                        'MM': 'mm',
-                        'YY': 'y',
-                        'HH': 'HH',
-                        'mm': 'MM',
-                        'ddd': 'dow',
-                        'DD.MM.YY': 'dd.mm.yy',
-                    }}/> :
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" helperLink="https://momentjs.com/docs/#/displaying/format/"/>
-                }
-                {/*<IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Animation" name="animation" options={{
-                                '0': 'no',
-                                '300': '300ms',
-                                '500': '500ms',
-                                '1000': '1 second',
-                                '2000': '2 seconds',
-                                '3000': '3 seconds',
-                                '5000': '5 seconds',
-                                '10000': '10 seconds',
-                            }}/>*/}
             </div>
         </TabPanel>;
     }
@@ -640,7 +596,7 @@ class PresetTabs extends React.Component {
                             'bottom:-5;left:50': 'Bottom, center, outside',*/
                         }}/>
                         {this.renderColorField(this.props.presetData, this.updateField, 'Title color', 'titleColor')}
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" min="0" type="number" />
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" min={0} type="number" />
                     </>
                     : null}
             </div>
@@ -651,9 +607,31 @@ class PresetTabs extends React.Component {
         return <TabPanel value="5" classes={{root: this.props.classes.tabContent}}>
                 {/*<h4>{I18n.t('Appearance')}</h4>*/}
                 <div className={this.props.classes.group}>
+                    <p className={this.props.classes.title}>{I18n.t('Theme')}</p>
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="theme" label="Theme" noTranslate={true} options={{
+                        '': 'auto',
+                        'default': 'default',
+                        'dark': 'dark',
+                        'vintage': 'vintage',
+                        'macarons': 'macarons',
+                        'infographic': 'infographic',
+                        'shine': 'shine',
+                        'roma': 'roma',
+                        'azul': 'azul',
+                        'bee-inspired': '',
+                        'blue': 'blue',
+                        'royal': 'royal',
+                        'dark-blue': 'dark-blue',
+                        'tech-blue': 'tech-blue',
+                        'red': 'red',
+                        'red-velvet': 'red-velvet',
+                        'green': 'green',
+                    }}/>
+                </div>
+                <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Chart size')}</p>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width"  label="Width"  type="number" classes={{fieldContainer: this.props.classes.marginTop}}/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" type="number" classes={{fieldContainer: this.props.classes.marginTop}} />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width"  label="Width"  classes={{fieldContainer: this.props.classes.marginTop}}/>
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" classes={{fieldContainer: this.props.classes.marginTop}} />
                 </div>
                 <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Backgrounds')}</p>
@@ -719,22 +697,26 @@ class PresetTabs extends React.Component {
     }
 
     renderColorField(formData, onUpdate, label, name, minWidth, className) {
-        const textColor = Utils.invertColor(formData[name], true);
+        let textColor = Utils.isUseBright(formData[name], null);
+        if (textColor === null) {
+            textColor = undefined;
+        }
         return <div className={className}>
             <TextField
-                style={{minWidth, width: '100%', color: textColor}}
+                style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}
                 value={formData[name]}
                 onClick={() =>
-                    this.showColorPicker(this.state['_c_' + name], color =>
-                        this.setState({['_c_' + name]: color}, () =>
-                            onUpdate(name, ColorPicker.getColor(color))))}
+                    this.setState({['_c_' + name]: formData[name]}, () =>
+                        this.showColorPicker(this.state['_' + name], color =>
+                            this.setState({['_c_' + name]: color}, () =>
+                                onUpdate(name, ColorPicker.getColor(color, true)))))}
                 onChange={e => {
                     const color = e.target.value;
                     this.setState({['_c_' + name]: color}, () =>
                         onUpdate(name, color));
                 }}
-                inputProps={{style: {backgroundColor: formData[name]}}}
+                inputProps={{style: {paddingLeft: 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000'}}}
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton

@@ -288,7 +288,7 @@ class Line extends React.Component {
                 }}
                 classes={{fieldContainer: this.props.classes.shortDataTypeField}}
             /> : null}
-            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, this.props.classes.shortColorField) : null}
+            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, this.props.classes.shortColorField, true) : null}
             {visible.name ? <IOTextField
                 width={WIDTHS.name}
                 formData={this.props.line}
@@ -307,23 +307,28 @@ class Line extends React.Component {
         </div>;
     }
 
-    renderColorField(formData, onUpdate, label, name, minWidth, className) {
-        const textColor = Utils.invertColor(formData[name], true);
+    renderColorField(formData, onUpdate, label, name, minWidth, className, noPadding) {
+        let textColor = Utils.isUseBright(formData[name], null);
+        if (textColor === null) {
+            textColor = undefined;
+        }
         return <div className={className}>
             <TextField
-                style={{minWidth, width: '100%', color: textColor}}
+                style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}
                 value={formData[name]}
                 onClick={() =>
-                    this.props.onSelectColor(this.state['_' + name], color =>
-                        this.setState({['_' + name]: color}, () =>
-                            onUpdate(name, ColorPicker.getColor(color))))}
+                    this.setState({['_' + name]: formData[name]}, () =>
+                        this.props.onSelectColor(this.state['_' + name], color =>
+                            this.setState({['_' + name]: color}, () =>
+                                onUpdate(name, ColorPicker.getColor(color, true)))))
+                }
                 onChange={e => {
                     const color = e.target.value;
                     this.setState({['_' + name]: color}, () =>
                         onUpdate(name, color));
                 }}
-                inputProps={{style: {backgroundColor: formData[name]}}}
+                inputProps={{style: {paddingLeft: noPadding ? 0 : 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000'}}}
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton
@@ -341,9 +346,9 @@ class Line extends React.Component {
         </div>;
     }
 
-    render() {
+    renderOpenedLine() {
         const xAxisOptions = {
-            '': 'own axis'
+            '': I18n.t('own axis')
         };
         for (let i = 0; i < this.props.maxLines; i++) {
             if (i !== this.props.index) {
@@ -351,166 +356,166 @@ class Line extends React.Component {
             }
         }
         const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
+        return <>
+            <div>
+                {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : null }
+                <IconButton title={ I18n.t('Edit') }
+                            onClick={() => this.props.lineOpenToggle(this.props.index)
+                            }><IconFolderOpened/></IconButton>
+                {I18n.t('Line')} {this.props.index + 1}{this.props.line.name ? ' - ' + this.props.line.name : ''}
+                <IconButton
+                    className={this.props.classes.deleteButtonFull}
+                    aria-label="Delete"
+                    title={I18n.t('Delete')}
+                    onClick={() => this.props.deleteLine(this.props.index)}>
+                    <IconDelete/>
+                </IconButton>
+            </div>
+            <div className={this.props.classes.shortFields}>
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" noTranslate={true} options={
+                    (() => {
+                        let result = {};
+                        this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
+                        return result;
+                    })()
+                }/>
+                <IOObjectField
+                    formData={this.props.line}
+                    classes={{objectContainer: this.props.classes.fullWidth}}
+                    updateValue={this.updateField}
+                    name="id"
+                    label="ID"
+                    width={'calc(100% - 250px)'}
+                    customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}}
+                    socket={this.props.socket}/>
+            </div>
+            <div className={this.props.classes.shortFields}>
+                <p className={this.props.classes.title}>{I18n.t('Main')}</p>
+                {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
+                    minmax: 'minmax',
+                    average: 'average',
+                    min: 'min',
+                    max: 'max',
+                    total: 'total',
+                    onchange: 'raw',
+                }}/>
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
+                    auto: 'Auto (Line or Steps)',
+                    line: 'Line',
+                    //bar: 'Bar',
+                    scatterplot: 'Scatter plot',
+                    steps: 'Steps',
+                    spline: 'Spline',
+                }}/>
+                {this.props.line.chartType === 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
+            </div>
+            <div className={this.props.classes.shortFields}>
+                <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
+            </div>
+            <div className={this.props.classes.shortFields}>
+                <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
+                <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
+                <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
+                {this.props.line.points && this.props.line.chartType !== 'scatterplot' ?
+                    <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> :
+                    null
+                }
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={1} type="number"/>
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number"/>
+            </div>
+            <div className={this.props.classes.shortFields}>
+                <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
+                {!this.props.index ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis position" options={{
+                    '': 'bottom',
+                    'top': 'top',
+                    'off': 'off',
+                    /*off: 'off',
+                    left: 'left',
+                    right: 'right',
+                    topColor: 'top colored',
+                    bottomColor: 'bottom colored',*/
+                }}/> : null }
+                {!this.props.index ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number"/> : null }
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="offset" label="X-Offset" options={{
+                    '0': '0 seconds',
+                    '10': '10 seconds',
+                    '30': '30 seconds',
+                    '60': '60 seconds',
+                    '120': '2 minutes',
+                    '180': '3 minutes',
+                    '240': '4 minutes',
+                    '300': '5 minutes',
+                    '600': '10 minutes',
+                    '900': '15 minutes',
+                    '1800': '30 minutes',
+                    '2700': '45 minutes',
+                    '3600': '1 hour',
+                    '7200': '2 hours',
+                    '21600': '6 hours',
+                    '43200': '12 hours',
+                    '86400': '1 day',
+                    '172800': '2 days',
+                    '259200': '3 days',
+                    '345600': '4 days',
+                    '604800': '1 week',
+                    '1209600': '2 weeks',
+                    '1m': '1 month',
+                    '2m': '2 months',
+                    '3m': '3 months',
+                    '6m': '6 months',
+                    '1y': '1 year',
+                    '2y': '2 years',
+                }}/>
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number"/>
 
+                <br/>
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" noTranslate={true} options={xAxisOptions}/>
+
+                {ownYAxis ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis position" options={{
+                    '': '',
+                    off: 'off',
+                    left: 'left',
+                    right: 'right',
+                    leftColor: 'left colored',
+                    rightColor: 'right colored',
+                }}/> : null}
+                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null }
+                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null }
+                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number"/> : null }
+            </div>
+            <div className={this.props.classes.shortFields}>
+                <p className={this.props.classes.title}>{I18n.t('Others')}</p>
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
+                    'false': 'default',
+                    'true': 'ignore null values',
+                    '0': 'use 0 instead of null values',
+                }}/>
+                {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0}/>*/}
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0}/>
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
+                    'solid': 'solid',
+                    'dashed': 'dashed',
+                    'dotted': 'dotted',
+                }}/>
+            </div>
+            {/*<div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+                            <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
+                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" min={1} type="number"/> : null}
+                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" min={1} type="number"/> : null}
+                        </div>*/}
+        </>
+    }
+
+    render() {
         return <Card
             className={this.props.classes.card}
             style={{background: this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined}}
         >
             <CardContent className={this.props.classes.cardContent}>
-                { this.props.opened ?
-                    <>
-                        <div>
-                            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : null }
-                            <IconButton title={ I18n.t('Edit') }
-                                        onClick={() => this.props.lineOpenToggle(this.props.index)
-                                        }><IconFolderOpened/></IconButton>
-                            {I18n.t('Line')} {this.props.index + 1}{this.props.line.name ? ' - ' + this.props.line.name : ''}
-                            <IconButton
-                                className={this.props.classes.deleteButtonFull}
-                                aria-label="Delete"
-                                title={I18n.t('Delete')}
-                                onClick={() => this.props.deleteLine(this.props.index)}>
-                                <IconDelete/>
-                            </IconButton>
-                        </div>
-                        <div className={this.props.classes.shortFields}>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" noTranslate={true} options={
-                                (() => {
-                                    let result = {};
-                                    this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
-                                    return result;
-                                })()
-                            }/>
-                            <IOObjectField
-                                formData={this.props.line}
-                                classes={{objectContainer: this.props.classes.fullWidth}}
-                                updateValue={this.updateField}
-                                name="id"
-                                label="ID"
-                                width={'calc(100% - 250px)'}
-                                customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}}
-                                socket={this.props.socket}/>
-                        </div>
-                        <div className={this.props.classes.shortFields}>
-                            <p className={this.props.classes.title}>{I18n.t('Main')}</p>
-                            {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
-                                minmax: 'minmax',
-                                average: 'average',
-                                min: 'min',
-                                max: 'max',
-                                total: 'total',
-                                onchange: 'raw',
-                            }}/>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
-                                auto: 'Auto (Line or Steps)',
-                                line: 'Line',
-                                //bar: 'Bar',
-                                scatterplot: 'Scatter plot',
-                                steps: 'Steps',
-                                spline: 'Spline',
-                            }}/>
-                            {this.props.line.chartType === 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
-                        </div>
-                        <div className={this.props.classes.shortFields}>
-                            <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
-                        </div>
-                        <div className={this.props.classes.shortFields}>
-                            <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
-                            {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />*/}
-                            <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
-                            <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
-                            {this.props.line.points && this.props.line.chartType !== 'scatterplot' ?
-                                <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> :
-                                null
-                            }
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={1} type="number"/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number"/>
-                        </div>
-                        <div className={this.props.classes.shortFields}>
-                            <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
-                            {!this.props.index ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis position" options={{
-                                '': '',
-                                off: 'off',
-                                left: 'left',
-                                right: 'right',
-                                topColor: 'top colored',
-                                bottomColor: 'bottom colored',
-                            }}/> : null }
-                            {!this.props.index ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number"/> : null }
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="offset" label="X-Offset" options={{
-                                '0': '0 seconds',
-                                '10': '10 seconds',
-                                '30': '30 seconds',
-                                '60': '60 seconds',
-                                '120': '2 minutes',
-                                '180': '3 minutes',
-                                '240': '4 minutes',
-                                '300': '5 minutes',
-                                '600': '10 minutes',
-                                '900': '15 minutes',
-                                '1800': '30 minutes',
-                                '2700': '45 minutes',
-                                '3600': '1 hour',
-                                '7200': '2 hours',
-                                '21600': '6 hours',
-                                '43200': '12 hours',
-                                '86400': '1 day',
-                                '172800': '2 days',
-                                '259200': '3 days',
-                                '345600': '4 days',
-                                '604800': '1 week',
-                                '1209600': '2 weeks',
-                                '1m': '1 month',
-                                '2m': '2 months',
-                                '3m': '3 months',
-                                '6m': '6 months',
-                                '1y': '1 year',
-                                '2y': '2 years',
-                            }}/>
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number"/>
-
-                            <br/>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" options={xAxisOptions}/>
-
-                            {ownYAxis ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis position" options={{
-                                '': '',
-                                off: 'off',
-                                left: 'left',
-                                right: 'right',
-                                leftColor: 'left colored',
-                                rightColor: 'right colored',
-                            }}/> : null}
-                            {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null }
-                            {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null }
-                            {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number"/> : null }
-                        </div>
-                        <div className={this.props.classes.shortFields}>
-                            <p className={this.props.classes.title}>{I18n.t('Others')}</p>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
-                                'false': 'default',
-                                'true': 'ignore null values',
-                                '0': 'use 0 instead of null values',
-                            }}/>
-                            {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0}/>*/}
-                            <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0}/>
-                            <IOSelect formData={this.props.line} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
-                                'solid': 'solid',
-                                'dashed': 'dashed',
-                                'dotted': 'dotted',
-                            }}/>
-                        </div>
-                        {/*<div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
-                            <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
-                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" min={1} type="number"/> : null}
-                            {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" min={1} type="number"/> : null}
-                        </div>*/}
-                    </>
-                    :
-                    this.renderClosedLine()
-                }
+                { this.props.opened ? this.renderOpenedLine() : this.renderClosedLine()}
             </CardContent>
         </Card>
     }

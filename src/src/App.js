@@ -1,5 +1,4 @@
 import React from 'react';
-import update from 'immutability-helper';
 import {withStyles} from '@material-ui/core/styles';
 import { withTheme } from '@material-ui/core/styles';
 import withWidth from '@material-ui/core/withWidth';
@@ -362,7 +361,7 @@ class App extends GenericApp {
     getAllCustoms(instances) {
         return new Promise(resolve =>
             this.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
-                console.log(objs);
+                // console.log(objs);
                 const ids = ((objs && objs.rows) || []).map(item => item.id);
                 this.getObjects(ids, objs => {
                     const ids = instances.map(obj => obj._id.substring('system.adapter.'.length));
@@ -393,7 +392,7 @@ class App extends GenericApp {
                         }
                     });
 
-                    console.log(insts);
+                    // console.log(insts);
                     resolve();
                 });
             }));
@@ -411,7 +410,7 @@ class App extends GenericApp {
     }
 
     buildTree(presets) {
-        console.log(presets);
+        // console.log(presets);
         presets = Object.values(presets);
 
         let folders = {subFolders: {}, presets: {}, id: '', prefix: ''};
@@ -595,16 +594,11 @@ class App extends GenericApp {
             .catch(e => this.showError(e));
     };
 
-    toggleChartFolder = (id) => {
-        let newState = update(this.state, {
-            chartFolders: {
-                [id]: {
-                    $set : !(this.state.chartFolders[id])
-                }
-            }
-        });
-
-        this.setState(newState);
+    toggleChartFolder = id => {
+        const chartFolders = JSON.parse(JSON.stringify(this.state.chartFolders));
+        chartFolders[id] = !chartFolders[id];
+        window.localStorage.setItem('Charts.opened', JSON.stringify(chartFolders));
+        const newState = {chartFolders};
 
         if (this.state.selectedChartId) {
             let selectedInstance = this.state.instances.find(instance =>
@@ -632,7 +626,7 @@ class App extends GenericApp {
             }
         }
 
-        window.localStorage.setItem('Charts.opened', JSON.stringify(newState.chartFolders));
+        this.setState(newState);
     };
 
     renderSimpleHistory() {
@@ -944,15 +938,14 @@ class App extends GenericApp {
                 aggregate: 'minmax',
                 color: '#1868a8',
                 chartType: 'auto',
-                thickness: 1,
-                shadowsize: 1,
-                smoothing: 0,
+                thickness: 2,
+                shadowsize: 0,
                 afterComma: 0,
                 ignoreNull: false,
             }],
             zoom: true,
-            axeX: 'lines',
-            axeY: 'inside',
+            //axeX: 'lines',
+            //axeY: 'inside',
             hoverDetail: true,
             aggregate: this.loadChartParam('aggregate', 'minmax'),
             chartType: this.loadChartParam('chartType', 'auto'),
@@ -968,9 +961,9 @@ class App extends GenericApp {
             start_time: this.loadChartParam('start_time', ''),
             end_time: this.loadChartParam('end_time', ''),
             noBorder: 'noborder',
-            bg: '#00000000',
-            timeFormat: '%H:%M',
-            useComma: undefined,
+            //bg: '#00000000',
+            //timeFormat: '',
+            //useComma: undefined,
             noedit: false,
             animation: 0
         };
@@ -1419,7 +1412,7 @@ class App extends GenericApp {
                         createPreset={(id, parent, instance, stateId) => this.createPreset(id, parent, instance, stateId)}
                     /> : null}
                     {
-                        this.state.presetMode && this.state.presetData? <SettingsEditor
+                        this.state.presetMode && this.state.presetData ? <SettingsEditor
                             socket={this.socket}
                             key="Editor"
                             width={window.innerWidth - this.menuSize}

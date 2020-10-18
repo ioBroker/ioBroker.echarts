@@ -30,6 +30,23 @@ import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/grid';
 import 'echarts/lib/component/markLine';
 import 'echarts/lib/component/markArea';
+// Themes
+import 'echarts/theme/azul';
+import 'echarts/theme/bee-inspired';
+import 'echarts/theme/blue';
+import 'echarts/theme/infographic';
+import 'echarts/theme/vintage';
+import 'echarts/theme/dark';
+import 'echarts/theme/macarons';
+import 'echarts/theme/shine';
+import 'echarts/theme/roma';
+import 'echarts/theme/royal';
+import 'echarts/theme/blue';
+import 'echarts/theme/dark-blue';
+import 'echarts/theme/tech-blue';
+import 'echarts/theme/red';
+import 'echarts/theme/red-velvet';
+import 'echarts/theme/green';
 
 import 'echarts/lib/component/toolbox';
 import 'echarts/lib/component/title';
@@ -153,25 +170,27 @@ class ChartView extends React.Component {
             return [];
         }
 
-        if (this.chart.xMin === null || this.chart.xMin > values[0].value[0]) {
-            this.chart.xMin = values[0].value[0];
-        }
-        if (this.chart.xMax === null || this.chart.xMax < values[values.length - 1].value[0]) {
-            this.chart.xMax = values[values.length - 1].value[0];
-        }
-
-        const yAxis = this.chart.yAxis[yAxisIndex] || {min: null, max: null};
+        const yAxis = this.chart.yAxis[yAxisIndex] || {max: null, min: null};
         this.chart.yAxis[yAxisIndex] = yAxis;
+
         for (let i = 0; i < values.length; i++) {
             if (values[i].value[1] === null) {
                 continue;
             }
+
             if (yAxis.min === null || yAxis.min > values[i].value[1]) {
                 yAxis.min = values[i].value[1];
             }
             if (yAxis.max === null || yAxis.max < values[i].value[1]) {
                 yAxis.max = values[i].value[1];
             }
+        }
+
+        if (this.chart.xMin === null || this.chart.xMin > values[0].value[0]) {
+            this.chart.xMin = values[0].value[0];
+        }
+        if (this.chart.xMax === null || this.chart.xMax < values[values.length - 1].value[0]) {
+            this.chart.xMax = values[values.length - 1].value[0];
         }
 
         return values;
@@ -219,10 +238,47 @@ class ChartView extends React.Component {
         });
     }
 
+    getXAxis(props) {
+        return [
+            {
+                type: 'time',
+                splitLine: {
+                    show: !props.config.grid_hideX,
+                    lineStyle: props.config.l[0].xaxe === 'off' ? {color: 'rgba(0,0,0,0)', type: 'dashed'} : props.config.grid_color ? {
+                        color: props.config.grid_color,
+                        type: 'dashed',
+                    } : {type: 'dashed'},
+                },
+                splitNumber: parseInt(props.config.l[0].xticks, 10) || undefined,
+                position: props.config.l[0].xaxe === 'top' ? 'top' : 'bottom',
+                min: this.chart.xMin,
+                max: this.chart.xMax,
+                axisTick: {
+                    alignWithLabel: true,
+                    lineStyle: props.config.l[0].xaxe === 'off' ? {color: 'rgba(0,0,0,0)'} : undefined,
+                },
+                axisLabel: {
+                    formatter: (value, index) => {
+                        const date = new Date(value);
+                        if (props.config.timeFormat) {
+                            return moment(date).format(props.config.timeFormat).replace('<br/>', '\n');
+                        } else
+                        if (this.chart.withSeconds) {
+                            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds());
+                        } else if (this.chart.withTime) {
+                            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + '\n' + padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1);
+                        } else {
+                            return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
+                        }
+                    },
+                    color: props.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : (props.config.x_labels_color || undefined),
+                }
+            }
+        ];
+    }
+
     getYAxis(props) {
         props = props || this.props;
-        this.chart.xMin = null;
-        this.chart.xMax = null;
 
         return props.config.l.map((oneLine, i) => {
             if (oneLine.commonYAxis !== '' && oneLine.commonYAxis !== undefined) {
@@ -278,24 +334,36 @@ class ChartView extends React.Component {
                 }
             }
 
+            let color = oneLine.yaxe === 'off' ? 'rgba(0,0,0,0)' : (props.config.grid_color || undefined);
+            if (oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor') {
+                color = oneLine.color;
+            }
+
             return {
                 type: 'value',
                 min: yMin,
                 max: yMax,
-                position: oneLine.yaxe || (!i ? 'left' : 'right'), // by default only first line is on the left
+                position: (oneLine.yaxe === 'left' || oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor') ?
+                    'left' :
+                    (oneLine.yaxe === 'right' || oneLine.yaxe === 'rightColor' ?
+                        'right' :
+                        (!i ? 'left' : 'right')
+                    ), // by default only first line is on the left
                 splitLine: !i ? { // grid has only first line
                     show: !props.config.grid_hideY,
-                    lineStyle: props.config.grid_color ? {
-                        color: props.config.grid_color,
-                    } : undefined,
+                    lineStyle: {
+                        color: color || undefined,
+                        type: 'dashed',
+                    },
                 } : undefined,
-                //splitNumber: Math.round(this.state.chartHeight / 100),
+                splitNumber: parseInt(oneLine.yticks, 10) || undefined,
                 axisLabel: {
                     formatter: value => this.yFormatter(value, i, props, true),
-                    color: props.config.y_labels_color || undefined,
+                    color: oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor' ? color : (props.config.y_labels_color || undefined),
                 },
                 axisTick: {
                     alignWithLabel: true,
+                    lineStyle: color ? {color} : undefined
                 }
             };
         });
@@ -459,6 +527,7 @@ class ChartView extends React.Component {
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
 
         const yAxis = this.getYAxis(props);
+        const xAxis = this.getXAxis(props);
 
         const options = {
             backgroundColor: 'transparent',
@@ -492,39 +561,7 @@ class ChartView extends React.Component {
                     animation: true
                 }
             } : undefined,
-            xAxis: [
-                {
-                    type: 'time',
-                    splitLine: {
-                        show: !props.config.grid_hideX,
-                        lineStyle: props.config.grid_color ? {
-                            color: props.config.grid_color,
-                        } : undefined,
-                    },
-                    //splitNumber: Math.round((this.state.chartWidth - this.chart.padRight - this.chart.padLeft) / 50),
-                    min: this.chart.xMin,
-                    max: this.chart.xMax,
-                    axisTick: {
-                        alignWithLabel: true,
-                    },
-                    axisLabel: {
-                        formatter: (value, index) => {
-                            const date = new Date(value);
-                            if (props.config.timeFormat) {
-                                return moment(date).format(props.config.timeFormat).replace('<br/>', '\n');
-                            } else
-                            if (this.chart.withSeconds) {
-                                return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds());
-                            } else if (this.chart.withTime) {
-                                return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + '\n' + padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1);
-                            } else {
-                                return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
-                            }
-                        },
-                        color: props.config.x_labels_color || undefined,
-                    }
-                }
-            ],
+            xAxis,
             yAxis,
             toolbox: props.config.export === true || props.config.export === 'true' ? {
                 left: 'right',
@@ -577,9 +614,12 @@ class ChartView extends React.Component {
             let maxTick = this.yFormatter(options.yAxis[ser.yAxisIndex].max, i, props, true);
 
             const position = options.yAxis[ser.yAxisIndex].position;
+            if (position === 'off') {
+                return;
+            }
             let wMin = calcTextWidth(minTick);
             let wMax = calcTextWidth(maxTick);
-            if (position === 'left') {
+            if (position === 'left' || position === 'leftColor') {
                 if (wMin > padLeft) {
                     padLeft = wMin;
                 }
@@ -611,7 +651,8 @@ class ChartView extends React.Component {
             right:  props.config.legend === 'ne' || props.config.legend === 'se' ?  this.chart.padRight + 1 : undefined,
             top:    props.config.legend === 'nw' || props.config.legend === 'ne' ?  10 : undefined,
             bottom: props.config.legend === 'sw' || props.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
-            backgroundColor: props.config.legBg || undefined
+            backgroundColor: props.config.legBg || undefined,
+            color: props.config.legColor || undefined,
         };
 
         if (!props.config.grid_color) {
@@ -696,14 +737,15 @@ class ChartView extends React.Component {
             if (this.divResetButton.current && this.divResetButton.current.style.display !== 'block') {
                  this.divResetButton.current.style.display = 'block';
             }
-            const moved = this.chart.lastX - (e.offsetX - this.chart.padLeft);
-            this.chart.lastX = e.offsetX - this.chart.padLeft;
-            const diff = this.chart.xMax - this.chart.xMin;
-            const width = this.state.chartWidth - this.chart.padRight - this.chart.padLeft;
+            const chart = this.chart;
+            const moved = chart.lastX - (e.offsetX - chart.padLeft);
+            chart.lastX = e.offsetX - chart.padLeft;
+            const diff = chart.xMax - chart.xMin;
+            const width = this.state.chartWidth - chart.padRight - chart.padLeft;
 
             const shift = Math.round(moved * diff / width);
-            this.chart.xMin += shift;
-            this.chart.xMax += shift;
+            chart.xMin += shift;
+            chart.xMax += shift;
             this.setNewRange();
         }
     };
@@ -856,13 +898,18 @@ class ChartView extends React.Component {
             //console.log(JSON.stringify(option, null, 2));
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 
+            let theme = this.props.config.theme || (this.props.themeType === 'dark' ? 'dark' : '');
+            if (theme === 'default') {
+                theme = '';
+            }
+
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
                 echarts={ echarts }
                 option={ option }
                 notMerge={ true }
                 lazyUpdate={ true }
-                theme={ this.props.themeType === 'dark' ? 'dark' : '' }
+                theme={ this.props.config.theme || (this.props.themeType === 'dark' ? 'dark' : '') }
                 style={{ height: this.state.chartHeight + 'px', width: '100%' }}
                 opts={{ renderer: 'svg' }}
                 onEvents={ {
