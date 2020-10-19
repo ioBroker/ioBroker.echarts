@@ -3,6 +3,7 @@ import {withStyles} from '@material-ui/core/styles';
 import { withTheme } from '@material-ui/core/styles';
 import withWidth from '@material-ui/core/withWidth';
 import { MuiThemeProvider } from '@material-ui/core/styles';
+import MD5 from "crypto-js/md5";
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
@@ -181,6 +182,8 @@ class App extends Component {
         }
 
         const config = this.chartData.getConfig();
+        // get IDs hash
+        const hash = MD5(JSON.stringify(((config && config.l && config.l.map(item => item.id)) || []).sort())).toString();
 
         if (this.state.seriesData && config.debug) {
             console.log('seriesData: ' + JSON.stringify(this.state.seriesData));
@@ -197,6 +200,7 @@ class App extends Component {
                  }}>
                 <LinearProgress ref={this.progressRef} style={{display: 'block'}} className={this.props.classes.progress}/>
                 <ChartView
+                    key={hash}
                     socket={this.socket}
                     t={I18n.t}
                     noAnimation={this.state.noLoader}

@@ -75,7 +75,6 @@ const DEFAULT_PRESET = {
     aggregateSpan: 300,
     legend: 'ne',
     hoverDetail: true,
-    useComma: true,
     zoom: true,
     animation: 0,
     live: '15',
@@ -104,9 +103,37 @@ const DEFAULT_PRESET = {
     legColumns: '',
     legBgOpacity: '',
     legBg: '',
-    timeFormat: 'HH:mm:ss DD.MM.YY',
+    timeFormat: '',
     export: true,
 };
+
+function getDefaultLine(systemSettings, instance, obj, language) {
+    const isBoolean = obj && obj.common && obj.common.type === 'boolean';
+    const line = {
+        name:       (obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '',
+        id:         obj ? obj._id : '',
+        instance:   instance || systemSettings.common.defaultHistory,
+        thickness:  2,
+        chartType:  isBoolean ? 'steps' : 'line',
+        aggregate:  isBoolean ? 'onchange' : 'minmax',
+        symbolSize: 3,
+    };
+    if (obj && obj.common && obj.common.color) {
+        line.color = obj.common.color;
+    }
+    if (obj && obj.common && obj.common.unit) {
+        line.unit = obj.common.unit;
+    }
+    if (isBoolean) {
+        line.yaxe = 'off';
+        line.min = '0';
+        line.yticks = 1;
+        line.fill = 0.3;
+        line.symbolSize = 1;
+    }
+
+    return line;
+}
 
 function getDefaultPreset(systemSettings, instance, obj, language) {
     const preset = JSON.parse(JSON.stringify(DEFAULT_PRESET));
@@ -117,18 +144,11 @@ function getDefaultPreset(systemSettings, instance, obj, language) {
         //preset.timeFormat = 'HH:mm:ss ' + systemSettings.common.dateFormat;
     }
 
-    preset.lines.push({
-        name: (obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '',
-        id: obj ? obj._id : '',
-        color: (obj && obj.common && obj.common.color) || '',
-        instance: instance || systemSettings.common.defaultHistory,
-        thickness: 2,
-        chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
-        aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
-        unit: (obj && obj.common && obj.common.unit) || '',
-        symbolSize: 3,
-    });
+    preset.lines.push(getDefaultLine(systemSettings, instance, obj, language));
 
     return preset;
 }
-export default getDefaultPreset;
+export default {
+    getDefaultPreset,
+    getDefaultLine
+};

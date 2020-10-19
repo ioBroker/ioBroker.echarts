@@ -8,8 +8,6 @@
 
 [![NPM](https://nodei.co/npm/iobroker.echarts.png?downloads=true)](https://nodei.co/npm/iobroker.echarts/)
 
-**Tests:**: [![Travis-CI](http://img.shields.io/travis/ioBroker/ioBroker.echarts/master.svg)](https://travis-ci.org/ioBroker/ioBroker.echarts)
-
 ## echarts adapter for ioBroker
 Build useful charts in ioBroker:
 
@@ -30,7 +28,7 @@ You can debug view charts locally with:
 
 ## Changelog
 
-### 0.0.1 (2020-10-18)
+### 0.1.0 (2020-10-19)
 * (bluefox) initial release
 
 ## License

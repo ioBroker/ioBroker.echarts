@@ -81,7 +81,6 @@ class SettingsEditor extends React.Component {
                     selectedPresetId={this.props.selectedPresetId}
                     selectedPresetChanged={this.props.selectedPresetChanged}
                     savePreset={this.props.savePreset}
-                    PREDEFINED_COLORS={this.props.PREDEFINED_COLORS}
                     theme={this.props.theme}
                 />
             </div>
@@ -100,7 +99,6 @@ SettingsEditor.propTypes = {
     savePreset: PropTypes.func,
     selectedPresetChanged: PropTypes.bool,
     width: PropTypes.number,
-    PREDEFINED_COLORS: PropTypes.array,
     theme: PropTypes.object,
 };
 

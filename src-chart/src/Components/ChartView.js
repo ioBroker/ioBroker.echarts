@@ -30,6 +30,7 @@ import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/grid';
 import 'echarts/lib/component/markLine';
 import 'echarts/lib/component/markArea';
+
 // Themes
 import 'echarts/theme/azul';
 import 'echarts/theme/bee-inspired';
@@ -41,12 +42,13 @@ import 'echarts/theme/macarons';
 import 'echarts/theme/shine';
 import 'echarts/theme/roma';
 import 'echarts/theme/royal';
-import 'echarts/theme/blue';
 import 'echarts/theme/dark-blue';
 import 'echarts/theme/tech-blue';
 import 'echarts/theme/red';
 import 'echarts/theme/red-velvet';
 import 'echarts/theme/green';
+import 'echarts/theme/gray';
+import 'echarts/theme/dark-bold';
 
 import 'echarts/lib/component/toolbox';
 import 'echarts/lib/component/title';
@@ -55,6 +57,215 @@ import 'echarts/lib/component/legend';
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/timeline';
 import 'zrender/lib/svg/svg';
+
+const THEMES = {
+    azul: [
+        '#f2385a',
+        '#f5a503',
+        '#4ad9d9',
+        '#f7879c',
+        '#c1d7a8',
+        '#4dffd2',
+        '#fccfd7',
+        '#d5f6f6'
+    ],
+    'bee-inspired': [
+        '#001727',
+        '#805500',
+        '#ffff00',
+        '#ffd11a',
+        '#f2d71f',
+        '#f2be19',
+        '#f3a81a',
+        '#fff5cc'
+    ],
+    'blue': [
+        '#1790cf',
+        '#1bb2d8',
+        '#99d2dd',
+        '#88b0bb',
+        '#1c7099',
+        '#038cc4',
+        '#75abd0',
+        '#afd6dd'
+    ],
+    infographic: [
+        '#C1232B',
+        '#27727B',
+        '#FCCE10',
+        '#E87C25',
+        '#B5C334',
+        '#FE8463',
+        '#9BCA63',
+        '#FAD860',
+        '#F3A43B',
+        '#60C0DD',
+        '#D7504B',
+        '#C6E579',
+        '#F4E001',
+        '#F0805A',
+        '#26C0C0'
+    ],
+    vintage: [
+        '#d87c7c',
+        '#919e8b',
+        '#d7ab82',
+        '#6e7074',
+        '#61a0a8',
+        '#efa18d',
+        '#787464',
+        '#cc7e63',
+        '#724e58',
+        '#4b565b'
+    ],
+    dark: [
+        '#dd6b66',
+        '#759aa0',
+        '#e69d87',
+        '#8dc1a9',
+        '#ea7e53',
+        '#eedd78',
+        '#73a373',
+        '#73b9bc',
+        '#7289ab',
+        '#91ca8c',
+        '#f49f42'
+    ],
+    macarons: [
+        '#2ec7c9',
+        '#b6a2de',
+        '#5ab1ef',
+        '#ffb980',
+        '#d87a80',
+        '#8d98b3',
+        '#e5cf0d',
+        '#97b552',
+        '#95706d',
+        '#dc69aa',
+        '#07a2a4',
+        '#9a7fd1',
+        '#588dd5',
+        '#f5994e',
+        '#c05050',
+        '#59678c',
+        '#c9ab00',
+        '#7eb00a',
+        '#6f5553',
+        '#c14089'
+    ],
+    shine: [
+        '#c12e34',
+        '#e6b600',
+        '#0098d9',
+        '#2b821d',
+        '#005eaa',
+        '#339ca8',
+        '#cda819',
+        '#32a487'
+    ],
+    roma: [
+        '#E01F54',
+        '#001852',
+        '#f5e8c8',
+        '#b8d2c7',
+        '#c6b38e',
+        '#a4d8c2',
+        '#f3d999',
+        '#d3758f',
+        '#dcc392',
+        '#2e4783',
+        '#82b6e9',
+        '#ff6347',
+        '#a092f1',
+        '#0a915d',
+        '#eaf889',
+        '#6699FF',
+        '#ff6666',
+        '#3cb371',
+        '#d5b158',
+        '#38b6b6'
+    ],
+    royal: [
+        '#3f7ea6',
+        '#993366',
+        '#408000',
+        '#8c6f56',
+        '#a65149',
+        '#731f17',
+        '#adc2eb',
+        '#d9c3b0'
+    ],
+    'dark-blue': [
+        '#00305a',
+        '#004b8d',
+        '#0074d9',
+        '#4192d9',
+        '#7abaf2',
+        '#99cce6',
+        '#d6ebf5',
+        '#eeeeee'
+    ],
+    'tech-blue': [
+        '#4d4d4d',
+        '#3a5897',
+        '#007bb6',
+        '#7094db',
+        '#0080ff',
+        '#b3b3ff',
+        '#00bdec',
+        '#33ccff',
+        '#ccddff',
+        '#eeeeee'
+    ],
+    red: [
+        '#d8361b',
+        '#f16b4c',
+        '#f7b4a9',
+        '#d26666',
+        '#99311c',
+        '#c42703',
+        '#d07e75'
+    ],
+    'red-velvet': [
+        '#8b1a2d',
+        '#a7314b',
+        '#e6004c',
+        '#ff8066',
+        '#8e5c4e',
+        '#ff1a66',
+        '#d6c582',
+        '#f0d4af'
+    ],
+    green: [
+        '#408829',
+        '#68a54a',
+        '#a9cba2',
+        '#86b379',
+        '#397b29',
+        '#8abb6f',
+        '#759c6a',
+        '#bfd3b7'
+    ],
+    light: ['#37A2DA', '#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C', '#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5', '#8378EA', '#96BFFF'],
+    gray: [
+        '#757575',
+        '#c7c7c7',
+        '#dadada',
+        '#8b8b8b',
+        '#b5b5b5',
+        '#e9e9e9'
+    ],
+    'dark-bold': [
+        '#458c6b',
+        '#f2da87',
+        '#d9a86c',
+        '#d94436',
+        '#a62424',
+        '#76bc9b',
+        '#cce6da',
+        '#eeeeee'
+    ]
+};
 
 function padding2(num) {
     return num.toString().padStart(2, '0');
@@ -68,6 +279,14 @@ const styles = theme => ({
         height: '100%',
         overflow: 'hidden',
         position: 'relative',
+    },
+    divExportButton: {
+        position: 'absolute',
+        top: 40,
+        right: 25,
+        zIndex: 2,
+        opacity: 0.7
+        //background: '#00000000',
     },
     resetButton: {
         position: 'absolute',
@@ -109,6 +328,9 @@ class ChartView extends React.Component {
 
         this.chart = {yAxis: []};
         moment.locale(I18n.getLanguage());
+
+        this.lastIds = (this.props.config && this.props.config.l && this.props.config.l.map(item => item.id)) || [];
+        this.lastIds.sort();
     }
 
     componentDidMount() {
@@ -121,11 +343,20 @@ class ChartView extends React.Component {
 
     updateProperties = props => {
         this.updatePropertiesTimeout = null;
-        if (typeof this.echartsReact.getEchartsInstance === 'function') {
-            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties`);
+        if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
             const chartInstance = this.echartsReact.getEchartsInstance();
-            chartInstance.clear();  // may be it is not required
-            chartInstance.setOption(this.getOptions(props));
+            const lastIds = (props.config && props.config.l && props.config.l.map(item => item.id)) || [];
+            lastIds.sort();
+            const changed = JSON.stringify(lastIds) !== JSON.stringify(this.lastIds);
+            // If list of IDs changed => clear all settings
+            if (changed)  {
+                this.lastIds = lastIds;
+                chartInstance.clear();
+            }
+
+            this.option = this.getOptions(props);
+            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties: {min: ${this.option.xAxis[0].min}, ${this.option.xAxis[0].max}}`);
+            chartInstance.setOption(this.option, changed);
         }
     };
 
@@ -196,12 +427,17 @@ class ChartView extends React.Component {
         return values;
     }
 
-    getSeries(props) {
+    getSeries(props, theme) {
         props = props || this.props;
         this.chart.xMin = null;
         this.chart.xMax = null;
+        let colorCount = 0;
 
         return props.config.l.map((oneLine, i) => {
+            const color = oneLine.color || (THEMES[theme] ? THEMES[theme][colorCount % THEMES[theme].length] : '');
+            if (!oneLine.color) {
+                colorCount++;
+            }
             const yAxisIndex = oneLine.commonYAxis === '' || oneLine.commonYAxis === undefined ? i : parseInt(oneLine.commonYAxis) || 0;
             const cfg = {
                 name: oneLine.name,
@@ -214,22 +450,20 @@ class ChartView extends React.Component {
                 step: oneLine.chartType === 'steps' ? 'start' : undefined,
                 smooth: oneLine.chartType === 'spline',
                 data: this.convertData(props, i, yAxisIndex),
-                itemStyle: {
-                    color: oneLine.color
-                },
+                itemStyle: {color},
                 symbolSize: oneLine.chartType === 'scatterplot' || oneLine.points ? oneLine.symbolSize || 3 : undefined,
                 symbol: 'circle',
                 lineStyle: {
                     width:          oneLine.thickness || 1,
                     shadowBlur:     oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                     shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
-                    shadowColor:    oneLine.color,
+                    shadowColor:    color,
                     type:           oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
                 }
             };
-            if (oneLine.fill) {
+            if (parseFloat(oneLine.fill)) {
                 cfg.areaStyle = {
-                    color: oneLine.color,
+                    color: color,
                     opacity: parseFloat(oneLine.fill),
                 };
             }
@@ -255,7 +489,10 @@ class ChartView extends React.Component {
                 max: this.chart.xMax,
                 axisTick: {
                     alignWithLabel: true,
-                    lineStyle: props.config.l[0].xaxe === 'off' ? {color: 'rgba(0,0,0,0)'} : undefined,
+                    lineStyle: props.config.l[0].xaxe === 'off' ?
+                        {color: 'rgba(0,0,0,0)'}
+                        :
+                        (props.config.x_ticks_color ? {color: props.config.x_ticks_color} : undefined),
                 },
                 axisLabel: {
                     formatter: (value, index) => {
@@ -277,7 +514,7 @@ class ChartView extends React.Component {
         ];
     }
 
-    getYAxis(props) {
+    getYAxis(props, theme, series) {
         props = props || this.props;
 
         return props.config.l.map((oneLine, i) => {
@@ -336,7 +573,7 @@ class ChartView extends React.Component {
 
             let color = oneLine.yaxe === 'off' ? 'rgba(0,0,0,0)' : (props.config.grid_color || undefined);
             if (oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor') {
-                color = oneLine.color;
+                color = series[i].itemStyle.color;
             }
 
             return {
@@ -363,7 +600,7 @@ class ChartView extends React.Component {
                 },
                 axisTick: {
                     alignWithLabel: true,
-                    lineStyle: color ? {color} : undefined
+                    lineStyle: color ? {color} : (props.config.y_ticks_color ? {color: props.config.y_ticks_color} : undefined)
                 }
             };
         });
@@ -497,6 +734,11 @@ class ChartView extends React.Component {
 
     getOptions(props) {
         props = props || this.props;
+        let theme = this.props.config.theme;
+        if (!theme || theme === 'default') {
+            theme = this.props.themeType === 'light' ? 'roma' : 'dark-bold';
+        }
+
         this.debug = props.config && props.config.debug;
 
         this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] ${JSON.stringify(props.config, null, 2)}`);
@@ -511,7 +753,7 @@ class ChartView extends React.Component {
 
         const xAxisHeight = 20;
 
-        const series = this.getSeries(props);
+        const series = this.getSeries(props, theme);
 
         if (props.config.start) {
             if (this.chart.xMax < props.config.end) {
@@ -526,10 +768,11 @@ class ChartView extends React.Component {
         this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
 
-        const yAxis = this.getYAxis(props);
+        const yAxis = this.getYAxis(props, theme, series);
         const xAxis = this.getXAxis(props);
 
         const options = {
+            theme,
             backgroundColor: 'transparent',
             animation: !props.config.noAnimation && !props.config.noLoader,
             title: {
@@ -563,7 +806,7 @@ class ChartView extends React.Component {
             } : undefined,
             xAxis,
             yAxis,
-            toolbox: props.config.export === true || props.config.export === 'true' ? {
+            toolbox: false && (props.config.export === true || props.config.export === 'true') ? {
                 left: 'right',
                 feature: {
                     /*dataZoom: {
@@ -652,7 +895,9 @@ class ChartView extends React.Component {
             top:    props.config.legend === 'nw' || props.config.legend === 'ne' ?  10 : undefined,
             bottom: props.config.legend === 'sw' || props.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
             backgroundColor: props.config.legBg || undefined,
-            color: props.config.legColor || undefined,
+            textStyle: {
+                color: props.config.legColor || undefined
+            },
         };
 
         if (!props.config.grid_color) {
@@ -715,14 +960,17 @@ class ChartView extends React.Component {
         this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
 
-        this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] setNewRange: ${!!updateChart}`);
+        console.log(`[ChartView ] [${new Date().toISOString()}] setNewRange: ${!!updateChart}, {min: ${this.chart.xMin}, max: ${this.chart.xMax}}`);
         if (updateChart) {
             this.updateDataTimer && clearTimeout(this.updateDataTimer);
             this.updateDataTimer = null;
-
             this.props.onRangeChange && this.props.onRangeChange({start: this.chart.xMin, end: this.chart.xMax});
         } else {
-            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
+            console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
+            this.option.xAxis[0].min = this.chart.xMin;
+            this.option.xAxis[0].max = this.chart.xMax;
+
+            this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function' &&
             this.echartsReact.getEchartsInstance().setOption({
                 xAxis: {
                     min: this.chart.xMin,
@@ -860,7 +1108,7 @@ class ChartView extends React.Component {
     };
 
     installEventHandlers() {
-        this.zr = this.echartsReact.getEchartsInstance().getZr();
+        this.zr = this.echartsReact && this.echartsReact.getEchartsInstance && this.echartsReact.getEchartsInstance().getZr();
 
         if (this.zr && this.props.config.zoom && !this.zr._iobInstalled) {
             this.zr._iobInstalled = true;
@@ -893,23 +1141,21 @@ class ChartView extends React.Component {
 
     renderChart() {
         if (this.props.data) {
-            const option = this.getOptions();
-
-            //console.log(JSON.stringify(option, null, 2));
-            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
-
-            let theme = this.props.config.theme || (this.props.themeType === 'dark' ? 'dark' : '');
-            if (theme === 'default') {
-                theme = '';
+            if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                const chartInstance = this.echartsReact.getEchartsInstance();
+                console.log(chartInstance._theme);
             }
+            this.option = this.option || this.getOptions();
+
+            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
                 echarts={ echarts }
-                option={ option }
+                option={ this.option }
                 notMerge={ true }
                 lazyUpdate={ true }
-                theme={ this.props.config.theme || (this.props.themeType === 'dark' ? 'dark' : '') }
+                theme={ this.option.theme }
                 style={{ height: this.state.chartHeight + 'px', width: '100%' }}
                 opts={{ renderer: 'svg' }}
                 onEvents={ {
@@ -958,6 +1204,41 @@ class ChartView extends React.Component {
         </Fab>;
     }
 
+    renderExportButton() {
+        if (this.props.config.export) {
+            return <Fab
+                ref={ this.divExportButton }
+                size="small"
+                color="default"
+                style={{display: 'none'}}
+                className={this.props.classes.resetButton}
+                title={I18n.t('Reset pan and zoom')}
+                onClick={() => {
+                    if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                        const chartInstance = this.echartsReact.getEchartsInstance();
+                        const base64 = chartInstance.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: this.props.config.window_bg || '#FFF',
+                        });
+
+                        const linkSource = `data:image/png;base64,${base64}`;
+                        const downloadLink = document.createElement('a');
+                        document.body.appendChild(downloadLink);
+
+                        downloadLink.href = linkSource;
+                        downloadLink.target = '_self';
+                        downloadLink.download = 'chart.svg';
+                        downloadLink.click();
+                    }
+                }}
+            >
+                <IconReset className={this.props.classes.resetButtonIcon}/>
+            </Fab>;
+        } else {
+            return null;
+        }
+    }
+
     render() {
         if (!this.divRef.current) {
             setTimeout(() => this.forceUpdate(), 10);
@@ -978,6 +1259,7 @@ class ChartView extends React.Component {
                 borderStyle:    this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',
                 padding:        borderPadding || 0,
             }}>
+            { this.renderExportButton() }
             { this.renderResetButton() }
             { this.renderChart() }
         </div>;

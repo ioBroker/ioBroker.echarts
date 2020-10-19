@@ -52,25 +52,16 @@ import GenericApp from '@iobroker/adapter-react/GenericApp';
 import Utils from '@iobroker/adapter-react/Components/Utils';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
+import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 import '@iobroker/adapter-react/index.css';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
 import getUrlQuery from './utils/getUrlQuery';
-import getDefaultPreset from './Components/DefaultPreset';
+import DefaultPreset from './Components/DefaultPreset';
 
 const LEVEL_PADDING = 16;
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
-const PREDEFINED_COLORS = [
-    '#144578',
-    '#1868A8',
-    '#665191',
-    '#a05195',
-    '#d45087',
-    '#f95d6a',
-    '#ff7c43',
-    '#ffa600',
-];
 
 const styles = theme => ({
     root: {
@@ -196,6 +187,18 @@ function getFolderList(folder) {
     return result;
 }
 
+function sortObj(a, b) {
+    const aid = typeof a === 'object' ? a._id.replace('system.adapter.', '') : a.replace('system.adapter.', '');
+    const bid = typeof b === 'object' ? b._id.replace('system.adapter.', '') : b.replace('system.adapter.', '');
+    if (aid > bid) {
+        return 1;
+    } else if (aid < bid) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
 class App extends GenericApp {
     constructor(props) {
         let settings = {socket: {}};
@@ -273,7 +276,7 @@ class App extends GenericApp {
         this.socket.getSystemConfig()
             .then(systemConfig => {
                 newState.systemConfig = systemConfig;
-                newState.presetData = getDefaultPreset(systemConfig);
+                newState.presetData = DefaultPreset.getDefaultPreset(systemConfig);
                 this.setState(newState);
                 return Promise.resolve();
             })
@@ -378,11 +381,16 @@ class App extends GenericApp {
 
                     const insts = Object.values(_instances).map(obj => {
                         const enabledDP = {};
-                        Object.keys(obj.enabledDP).sort().forEach(id => {enabledDP[id] = obj.enabledDP[id]; enabledDP[id].group = obj._id});
+                        Object.keys(obj.enabledDP).forEach(id => {
+                            enabledDP[id] = obj.enabledDP[id];
+                            enabledDP[id].group = obj._id;
+                        });
                         obj.enabledDP = enabledDP;
                         chartFolders[obj._id] = typeof this.state.chartFolders[obj._id] !== 'undefined' ? this.state.chartFolders[obj._id] : true;
                         return obj;
                     });
+
+                    insts.sort(sortObj);
 
                     let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
 
@@ -561,7 +569,7 @@ class App extends GenericApp {
                     },
                     native: {
                         url: '',
-                        data: getDefaultPreset(this.state.systemConfig, historyInstance, obj, I18n.getLanguage()),
+                        data: DefaultPreset.getDefaultPreset(this.state.systemConfig, historyInstance, obj, I18n.getLanguage()),
                     },
                     type: 'chart'
                 };
@@ -637,6 +645,13 @@ class App extends GenericApp {
                     <List className={ this.props.classes.scroll }>
                         {this.state.instances.map((group, index) => {
                             let opened = this.state.chartFolders[group._id];
+                            let ids = null;
+                            if (opened) {
+                                ids = Object.keys(group.enabledDP)
+                                    .filter(id => !this.state.search || id.includes(this.state.search));
+                                ids.sort(sortObj);
+                            }
+
                             return <React.Fragment key={index}>
                                 <ListItem
                                     key={index}
@@ -647,21 +662,23 @@ class App extends GenericApp {
                                         <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
                                         <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
                                     }</ListItemIcon>
-                                    <ListItemText>{ group._id.replace('system.adapter.', '') }</ListItemText>
+                                    <ListItemText primary={group._id.replace('system.adapter.', '')}/>
                                     <ListItemSecondaryAction>
+                                        {opened ? <IconButton
+                                            onClick={() => this.setState({showAddStateDialog: group._id})}
+                                            title={ I18n.t('Enable logging for new state') }
+                                        ><IconAdd/></IconButton> : null}
                                         <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
                                             { opened ? <IconCollapse/> : <IconExpand/> }
                                         </IconButton>
                                     </ListItemSecondaryAction>
                                 </ListItem>
                                 {
-                                    opened ? Object.values(group.enabledDP)
-                                        .filter(chart => !this.state.search || chart._id.includes(this.state.search))
-                                        .map((chart, index) =>
+                                    ids ? ids.map(id=>
                                             <Draggable
                                                 isDragDisabled={!this.state.presetMode}
-                                                key={group._id + '_' + chart._id}
-                                                draggableId={group._id + '***' + chart._id}
+                                                key={group._id + '_' + id}
+                                                draggableId={group._id + '***' + id}
                                                 index={gIndex++}>
                                                 {(provided, snapshot) =>
                                                     <>
@@ -673,16 +690,16 @@ class App extends GenericApp {
                                                             className="drag-items"
                                                             >
                                                             <ListItem
-                                                                key={group._id + '_' + chart._id}
+                                                                key={group._id + '_' + id}
                                                                 button
                                                                 style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
-                                                                selected={this.state.selectedChartId === chart._id}
+                                                                selected={this.state.selectedChartId === id}
                                                                 onClick={() => this.state.presetMode && this.state.selectedPresetChanged ?
                                                                     this.setState({
-                                                                        loadChartDialog: chart._id,
+                                                                        loadChartDialog: id,
                                                                         loadChartDialogInstance: group._id
                                                                     }) :
-                                                                    this.loadChart(chart._id, group._id)
+                                                                    this.loadChart(id, group._id, group.enabledDP[id])
                                                                 }
                                                             >
                                                                 <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}><IconChart
@@ -692,7 +709,8 @@ class App extends GenericApp {
                                                                         primary: this.props.classes.listItemTitle,
                                                                         secondary: this.props.classes.listItemSubTitle
                                                                     }}
-                                                                    primary={chart._id.replace('system.adapter.', '')}
+                                                                    primary={Utils.getObjectNameFromObj(group.enabledDP[id], null, {language: I18n.getLanguage()})}
+                                                                    secondary={id.replace('system.adapter.', '')}
                                                                 />
                                                             </ListItem>
 
@@ -700,9 +718,9 @@ class App extends GenericApp {
                                                         {snapshot.isDragging ?
                                                             <div className="react-beatiful-dnd-copy">
                                                                 <ListItem
-                                                                    key={group._id + '_' + chart._id + 'copy'}
+                                                                    key={group._id + '_' + id + 'copy'}
                                                                     style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
-                                                                    selected={this.state.selectedChartId === chart._id}
+                                                                    selected={this.state.selectedChartId === id}
                                                                 >
                                                                     <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
                                                                         <IconChart className={this.props.classes.itemIcon}/>
@@ -712,7 +730,8 @@ class App extends GenericApp {
                                                                             primary: this.props.classes.listItemTitle,
                                                                             secondary: this.props.classes.listItemSubTitle
                                                                         }}
-                                                                        primary={chart._id.replace('system.adapter.', '')}
+                                                                        primary={Utils.getObjectNameFromObj(group.enabledDP[id], null, {language: I18n.getLanguage()})}
+                                                                        secondary={id.replace('system.adapter.', '')}
                                                                     />
                                                                 </ListItem>
                                                             </div>: null}
@@ -754,17 +773,6 @@ class App extends GenericApp {
                 classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
                 primary={ <>
                     { Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
-                    <IconButton
-                        size="small"
-                        aria-label="Rename"
-                        title={ I18n.t('Rename') }
-                        onClick={ (e) => {
-                            e.stopPropagation();
-                            this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name})
-                        }}
-                    >
-                        <IconEdit/>
-                    </IconButton>
                 </>}
                 secondary={ Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}, true) }
                 />
@@ -773,6 +781,17 @@ class App extends GenericApp {
                     <CircularProgress size={ 24 }/>
                     :
                     <>
+                        <IconButton
+                            size="small"
+                            aria-label="Rename"
+                            title={ I18n.t('Rename') }
+                            onClick={ (e) => {
+                                e.stopPropagation();
+                                this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name})
+                            }}
+                        >
+                            <IconEdit/>
+                        </IconButton>
                         {level || anySubFolders ?
                             <IconButton size="small" aria-label="Move to folder" title={ I18n.t('Move to folder') } onClick={ () => this.setState({moveDialog: preset._id, newFolder: getFolderPrefix(preset._id)}) }><IconMoveToFolder/></IconButton>
                             :
@@ -929,9 +948,15 @@ class App extends GenericApp {
     }
 
     loadChart(id, instance) {
+        const instances = this.state.instances;
+        const inst = instances.find(item => item._id === instance);
+        const obj = inst.enabledDP[id];
+
+        const line = DefaultPreset.getDefaultLine(this.state.systemConfig, instance, obj, I18n.getLanguage());
+
         let presetData = {
             marks: [],
-            lines: [{
+            lines: [line/*{
                 id,
                 instance,
                 offset: 0,
@@ -942,7 +967,7 @@ class App extends GenericApp {
                 shadowsize: 0,
                 afterComma: 0,
                 ignoreNull: false,
-            }],
+            }*/],
             zoom: true,
             //axeX: 'lines',
             //axeY: 'inside',
@@ -972,7 +997,14 @@ class App extends GenericApp {
         window.localStorage.setItem('App.selectedChartInstance', instance);
         window.localStorage.setItem('App.selectedPresetId', '');
 
-        this.setState({presetData, presetMode: false, selectedChartId: id, selectedChartInstance: instance, selectedPresetId: null, selectedPresetChanged: false});
+        this.setState({
+            presetData,
+            presetMode: false,
+            selectedChartId: id,
+            selectedChartInstance: instance,
+            selectedPresetId: null,
+            selectedPresetChanged: false
+        });
     }
 
     enablePresetMode = () => {
@@ -1352,9 +1384,7 @@ class App extends GenericApp {
             onClose={ () => this.setState({savePresetDialog: ''}) }>
                 <DialogTitle>{ I18n.t('Are you sure for rewrite preset and lost previous settings?') }</DialogTitle>
                 <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() => {
-                        this.setState({savePresetDialog: ''});
-                    }}>
+                    <Button variant="contained" onClick={() => this.setState({savePresetDialog: ''})}>
                         <IconCancel className={ this.props.classes.buttonIcon }/> { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
@@ -1427,7 +1457,6 @@ class App extends GenericApp {
                             systemConfig={this.state.systemConfig}
                             selectedPresetId={this.state.selectedPresetId}
                             selectedPresetChanged={this.state.selectedPresetChanged}
-                            PREDEFINED_COLORS={PREDEFINED_COLORS}
                             savePreset={this.savePreset}
                         /> : null
                     }
@@ -1454,21 +1483,21 @@ class App extends GenericApp {
             const [instance, stateId] = draggableId.split('***');
             this.socket.getObject(stateId)
                 .then(obj => {
-                    const len = this.state.presetData.lines.length;
-                    const color = (obj && obj.common && obj.common.color) || PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
-
+                    //const len = this.state.presetData.lines.length;
+                    //const color = (obj && obj.common && obj.common.color) || PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
                     const presetData = JSON.parse(JSON.stringify(this.state.presetData));
-                    const newLine = {
-                        instance,
-                        name: (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim(),
-                        color,
-                        id: stateId,
-                        unit: (obj && obj.common && obj.common.unit) || '',
-                        xaxe: !len ? undefined : 'off',
-                        chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
-                        aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
-                    };
+                    const newLine = DefaultPreset.getDefaultLine(this.state.systemConfig, instance, obj, I18n.getLanguage());
                     if (!destination) {
+                        /*const newLine = {
+                            instance,
+                            name: (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim(),
+                            color,
+                            id: stateId,
+                            unit: (obj && obj.common && obj.common.unit) || '',
+                            xaxe: !len ? undefined : 'off',
+                            chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
+                            aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
+                        };*/
                         presetData.lines.push(newLine);
                     } else {
                         presetData.lines.splice(destination.index, 0, newLine);
@@ -1483,6 +1512,50 @@ class App extends GenericApp {
             this.onUpdatePreset(presetData);
         }
     };
+
+    renderSelectIdDialog() {
+        if (!this.state.showAddStateDialog) {
+            return null;
+        } else {
+            return <DialogSelectID
+                key={'selectDialog_add'}
+                socket={ this.socket }
+                dialogName={'Add'}
+                type={'state'}
+                title={ I18n.t('Enable logging for state')}
+                onOk={id => {
+                    console.log('Selected ' + id);
+                    const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
+                    if (id) {
+                        this.socket.getObject(id)
+                            .then(obj => {
+                                if (!obj || !obj.common) {
+                                    return this.showError(I18n.t('Invalid object'));
+                                }
+                                if (obj.common.custom && obj.common.custom[instance]) {
+                                    return this.showToast(I18n.t('Already enabled'));
+                                } else {
+                                    obj.common.custom = obj.common.custom || {};
+                                    obj.common.custom[instance] = {
+                                        enabled: true,
+                                    };
+                                    this.socket.setObject(id, obj)
+                                        .then(() => {
+                                            const instances = JSON.parse(JSON.stringify(this.state.instances));
+                                            const inst = instances.find(item => item._id === 'system.adapter.' + instance);
+                                            inst.enabledDP = inst.enabledDP || {};
+                                            inst.enabledDP[obj._id] = obj;
+                                            this.setState({instances});
+                                        });
+                                }
+                            })
+                    }
+                    this.setState({showAddStateDialog: false});
+                } }
+                onClose={ () => this.setState({showAddStateDialog: false}) }
+            />;
+        }
+    }
 
     render() {
         const {classes} = this.props;
@@ -1529,6 +1602,7 @@ class App extends GenericApp {
                     { this.renderToast() }
                     { this.renderSavePresetDialog() }
                     { this.renderCloseFolderDialog() }
+                    { this.renderSelectIdDialog() }
                 </React.Fragment>
             </MuiThemeProvider>
         );

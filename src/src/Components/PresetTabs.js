@@ -17,11 +17,13 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
+import TextField from '@material-ui/core/TextField';
 
 import {MdAdd as IconAdd} from 'react-icons/md';
 import {MdSave as IconSave} from 'react-icons/md';
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
 import {MdExpandMore as IconExpand} from 'react-icons/md';
+import ClearIcon from '@material-ui/icons/Close';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import Utils from '@iobroker/adapter-react/Components/Utils';
@@ -29,10 +31,8 @@ import Utils from '@iobroker/adapter-react/Components/Utils';
 import {IOTextField, IOCheckbox, IOSelect, IODateTimeField} from './Fields';
 import Line from './Line';
 import Mark from './Mark';
-import getDefaultPreset from './DefaultPreset';
+import DefaultPreset from './DefaultPreset';
 import ColorPicker from '@iobroker/adapter-react/Components/ColorPicker';
-import TextField from '@material-ui/core/TextField';
-import ClearIcon from '@material-ui/icons/Close';
 
 const styles = theme => ({
     tabsBody: {
@@ -140,7 +140,7 @@ class PresetTabs extends React.Component {
         super(props);
 
         this.state = {
-            presetData: getDefaultPreset(this.props.systemConfig),
+            presetData: DefaultPreset.getDefaultPreset(this.props.systemConfig),
             selectedTab: window.localStorage.getItem('PresetTabs.selectedTab') !== null ? window.localStorage.getItem('PresetTabs.selectedTab') : '0',
             linesOpened: window.localStorage.getItem('Lines.opened') !== null ? JSON.parse(window.localStorage.getItem('Lines.opened')) : [],
             marksOpened: window.localStorage.getItem('Marks.opened') !== null ? JSON.parse(window.localStorage.getItem('Marks.opened')) : [],
@@ -228,15 +228,9 @@ class PresetTabs extends React.Component {
 
     addLine = () => {
         const len = this.props.presetData.lines.length;
-        const color = this.props.PREDEFINED_COLORS[len % this.props.PREDEFINED_COLORS.length];
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
-        presetData.lines.push({
-            instance: 'system.adapter.' + this.props.systemConfig.common.defaultHistory,
-            color,
-            xaxe: !len ? undefined : 'off',
-            chartType: 'auto',
-            aggregate: 'minmax'
-        });
+        const line = DefaultPreset.getDefaultLine(this.props.systemConfig);
+        line.xaxe = !len ? undefined : 'off';
         this.props.onChange(presetData);
     };
 
@@ -612,6 +606,9 @@ class PresetTabs extends React.Component {
                         '': 'auto',
                         'default': 'default',
                         'dark': 'dark',
+                        'dark-bold': 'dark-bold',
+                        'dark-blue': 'dark-blue',
+                        'gray': 'gray',
                         'vintage': 'vintage',
                         'macarons': 'macarons',
                         'infographic': 'infographic',
@@ -621,7 +618,6 @@ class PresetTabs extends React.Component {
                         'bee-inspired': '',
                         'blue': 'blue',
                         'royal': 'royal',
-                        'dark-blue': 'dark-blue',
                         'tech-blue': 'tech-blue',
                         'red': 'red',
                         'red-velvet': 'red-velvet',
@@ -641,7 +637,9 @@ class PresetTabs extends React.Component {
                 <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Labels')}</p>
                     {this.renderColorField(this.props.presetData, this.updateField, 'X labels color', 'x_labels_color', undefined, this.props.classes.marginTop)}
+                    {this.renderColorField(this.props.presetData, this.updateField, 'X ticks color', 'x_ticks_color', undefined, this.props.classes.marginTop)}
                     {this.renderColorField(this.props.presetData, this.updateField, 'Y labels color', 'y_labels_color', undefined, this.props.classes.marginTop)}
+                    {this.renderColorField(this.props.presetData, this.updateField, 'Y ticks color', 'y_ticks_color', undefined, this.props.classes.marginTop)}
                 </div>
                 <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Grid')}</p>
@@ -787,7 +785,6 @@ PresetTabs.propTypes = {
     savePreset: PropTypes.func,
     selectedPresetChanged: PropTypes.bool,
     width: PropTypes.number,
-    PREDEFINED_COLORS: PropTypes.array,
     theme: PropTypes.object,
     systemConfig: PropTypes.object,
 };
