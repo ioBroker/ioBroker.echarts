@@ -29,7 +29,7 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### __WORK IN PROGRESS__
+### 0.1.2 (2020-10-21)
 * (bluefox) Added support of multiple charts
 
 ### 0.1.1 (2020-10-21)

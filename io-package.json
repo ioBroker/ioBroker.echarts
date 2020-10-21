@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "news": {
+            "0.1.2": {
+                "en": "Added support of multiple charts",
+                "de": "Unterstützung für mehrere Diagramme hinzugefügt",
+                "ru": "Добавлена поддержка нескольких графиков",
+                "pt": "Adicionado suporte para vários gráficos",
+                "nl": "Ondersteuning toegevoegd voor meerdere grafieken",
+                "fr": "Ajout de la prise en charge de plusieurs graphiques",
+                "it": "Aggiunto il supporto di più grafici",
+                "es": "Soporte agregado de múltiples gráficos",
+                "pl": "Dodano obsługę wielu wykresów",
+                "zh-cn": "增加了对多个图表的支持"
+            },
             "0.1.1": {
                 "en": "initial release",
                 "de": "Erstveröffentlichung",
@@ -48,7 +60,7 @@
             "charts",
             "diagram"
         ],
-		"adminTab": {
+        "adminTab": {
             "singleton": true,
             "name": "ECharts"
         },
