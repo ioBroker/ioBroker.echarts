@@ -19,6 +19,7 @@ import ClearIcon from '@material-ui/icons/Close';
 import I18n from '@iobroker/adapter-react/i18n';
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from "./Components/ChartsTree";
+import MainChart from "./MainChart";
 
 const TOOLBAR_HEIGHT = 48;
 
@@ -117,7 +118,7 @@ class MenuList extends Component {
                 <PresetsTree
                     socket={this.props.socket}
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
-                    onCreatePreset={this.props.onCreatePreset}
+                    onCreatePreset={(name, parentId, historyInstance, stateId) => this.props.onCreatePreset(name, parentId, historyInstance, stateId)}
                     adapterName={this.props.adapterName}
                     selectedPresetChanged={this.state.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}

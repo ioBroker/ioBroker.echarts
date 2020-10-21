@@ -24,8 +24,13 @@ You can debug view charts locally with:
 - widget for material
 - generate chart.png
 - Combine by functions/rooms
-
+<!--
+	Placeholder for the next version (at the beginning of the line):
+	### __WORK IN PROGRESS__
+-->
 ## Changelog
+### __WORK IN PROGRESS__
+* (bluefox) Added support of multiple charts
 
 ### 0.1.1 (2020-10-21)
 * (bluefox) initial release

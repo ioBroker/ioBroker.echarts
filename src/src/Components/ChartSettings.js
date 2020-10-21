@@ -295,7 +295,7 @@ class ChartSettings extends React.Component {
                 variant="contained"
                 color="primary"
                 className={this.props.classes.hintButton}
-                onClick={() => this.props.onCreatePreset(null, null, this.props.selectedId.instance, this.props.selectedId.id)}
+                onClick={() => this.props.onCreatePreset(true)}
             >
                 <IconPlus className={this.props.classes.buttonIcon}/>
                 {I18n.t('Create preset')}
@@ -308,7 +308,6 @@ ChartSettings.propTypes = {
     onChange: PropTypes.func,
     presetData: PropTypes.object,
     onCreatePreset: PropTypes.func,
-    selectedId: PropTypes.object,
 };
 
 export default withStyles(styles)(ChartSettings)

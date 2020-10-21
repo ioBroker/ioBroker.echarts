@@ -196,6 +196,38 @@ class App extends GenericApp {
     }
 
     onCreatePreset = (name, parentId, historyInstance, stateId) => {
+        if (name === true) {
+            const chartsList = JSON.parse(JSON.stringify(this.state.chartsList || []));
+            if (!chartsList.find(item => item.id === this.state.selectedId.id && item.instance === this.state.selectedId.instance)) {
+                chartsList.push(this.state.selectedId);
+            }
+
+            if (this.state.chartsList && this.state.chartsList.length > 1) {
+                // create from list selectedId
+                return this.getNewPresetName()
+                    .then(name => {
+                        let template = {
+                            common: {
+                                name,
+                            },
+                            native: {
+                                url: '',
+                                data: this.state.presetData,
+                            },
+                            type: 'chart'
+                        };
+                        let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+
+                        return this.socket.setObject(id, template)
+                            .then(() => this.loadChartOrPreset(id));
+                    });
+            } else {
+                // create from selectedId
+                historyInstance = this.state.selectedId.instance;
+                stateId = this.state.selectedId.id;
+                name = null;
+            }
+        }
         return new Promise(resolve => {
             if (stateId) {
                 return this.socket.getObject(stateId)
@@ -248,15 +280,14 @@ class App extends GenericApp {
         }
     };
 
-    loadChartOrPreset(selectedId, chartsList) {
+    loadChartOrPreset(selectedId) {
         window.localStorage.setItem('App.selectedId', JSON.stringify(selectedId));
 
         if (selectedId && typeof selectedId === 'object') {
             // load chart
             const promises = [];
-            chartsList = chartsList || this.state.chartsList;
-            if (chartsList) {
-                chartsList.forEach(item => !this.objects[item.id] && promises.push(this.socket.getObject(item.id)));
+            if (this.state.chartsList) {
+                this.state.chartsList.forEach(item => !this.objects[item.id] && promises.push(this.socket.getObject(item.id)));
                 !this.objects[selectedId.id] && !this.state.chartsList.find(item => item.id === selectedId.id) && promises.push(this.socket.getObject(selectedId.id));
             } else {
                 this.objects = {};
@@ -266,8 +297,8 @@ class App extends GenericApp {
             return Promise.all(promises)
                 .then(results => {
                     results.forEach(obj => this.objects[obj._id] = obj);
-                    const lines = (chartsList || []).map(item => DefaultPreset.getDefaultLine(this.state.systemConfig, item.instance, this.objects[item.id], I18n.getLanguage()));
-                    (!chartsList || !chartsList.find(item => item.id === selectedId.id && item.instance === selectedId.instance)) &&
+                    const lines = (this.state.chartsList || []).map(item => DefaultPreset.getDefaultLine(this.state.systemConfig, item.instance, this.objects[item.id], I18n.getLanguage()));
+                    (!this.state.chartsList || !this.state.chartsList.find(item => item.id === selectedId.id && item.instance === selectedId.instance)) &&
                         lines.push(DefaultPreset.getDefaultLine(this.state.systemConfig, selectedId.instance, this.objects[selectedId.id], I18n.getLanguage()));
 
                     let presetData = {
@@ -294,7 +325,6 @@ class App extends GenericApp {
                     };
 
                     this.setState({
-                        chartsList,
                         presetData,
                         originalPresetData: '',
                         selectedPresetChanged: false,
@@ -313,10 +343,6 @@ class App extends GenericApp {
                             selectedPresetChanged: false,
                             selectedId,
                         };
-
-                        if (chartsList) {
-                            newState.chartsList = chartsList;
-                        }
 
                         this.setState(newState);
                     }
@@ -395,9 +421,8 @@ class App extends GenericApp {
                         onChange={presetData => this.setState({presetData})}
                         presetData={this.state.presetData}
                         selectedId={this.state.selectedId}
-                        onCreatePreset={this.onCreatePreset}
                         chartsList={this.state.chartsList}
-                        createPreset={() => this.setState({addPresetDialog: this.state.selectedId})}
+                        onCreatePreset={(name, parentId, historyInstance, stateId) => this.onCreatePreset(name, parentId, historyInstance, stateId)}
                     /> : null}
                     {
                         this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? <SettingsEditor
@@ -491,8 +516,8 @@ class App extends GenericApp {
                                 selectedPresetChanged={this.state.selectedPresetChanged}
                                 chartsList={this.state.chartsList}
                                 selectedId={this.state.selectedId}
-                                onCreatePreset={this.onCreatePreset}
-                                onChangeList={chartsList => this.loadChartOrPreset(this.state.selectedId, chartsList)}
+                                onCreatePreset={(name, parentId, historyInstance, stateId) => this.onCreatePreset(name, parentId, historyInstance, stateId)}
+                                onChangeList={chartsList => this.setState({chartsList}, () => this.loadChartOrPreset(this.state.selectedId))}
                                 onSelectedChanged={(selectedId, cb) => {
                                     if (cb && this.state.selectedPresetChanged) {
                                         this.confirmCB = confirmed => {
