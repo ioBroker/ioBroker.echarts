@@ -6,6 +6,9 @@ import {withStyles, withTheme} from "@material-ui/core/styles";
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 
 // icons
 import {MdAdd as IconAdd} from 'react-icons/md';
@@ -17,12 +20,22 @@ import I18n from '@iobroker/adapter-react/i18n';
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from "./Components/ChartsTree";
 
+const TOOLBAR_HEIGHT = 48;
+
 const styles = theme => ({
+    mainListDiv: {
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+    },
     mainToolbar: {
         background: theme.palette.primary.main,
     },
+    secondaryToolbar: {
+        background: '#888',
+    },
     heightMinusToolbar: {
-        height: 'calc(100% - 38px)',
+        height: 'calc(100% - ' + (TOOLBAR_HEIGHT * 2) + 'px)',
         overflow: 'auto'
     },
 });
@@ -33,6 +46,7 @@ class MenuList extends Component {
 
         this.state = {
             search: null,
+            multiple: false,
             showSearch: null,
             addPresetFolderDialog: false,
             addPresetDialog: false,
@@ -74,6 +88,28 @@ class MenuList extends Component {
         </Toolbar>;
     }
 
+    renderFooter() {
+        return <Toolbar key="toolbarBottom" variant="dense" className={ this.props.classes.secondaryToolbar }>
+            <FormGroup row>
+                {!this.props.selectedPresetChanged ? <FormControlLabel
+                    control={<Switch checked={this.state.multiple} onChange={e => {
+                        if (e.target.checked) {
+                            const selectedId = this.props.selectedId;
+                            if (selectedId && typeof selectedId === 'object') {
+                                this.setState({multiple: true}, () => this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]));
+                            } else {
+                                this.setState({multiple: true}, () => this.props.onChangeList([]));
+                            }
+                        } else {
+                            this.setState({multiple: false}, () => this.props.onChangeList(null));
+                        }
+                    }} />}
+                    label={I18n.t('Multiple')}
+                /> : null}
+            </FormGroup>
+        </Toolbar>;
+    }
+
     render() {
         return <div className={this.props.classes.mainListDiv} key="mainMenuDiv">
             {this.renderListToolbar()}
@@ -81,12 +117,12 @@ class MenuList extends Component {
                 <PresetsTree
                     socket={this.props.socket}
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
-                    addPresetDialog={this.state.addPresetDialog}
-                    onAddDialogDone={() => (this.state.addPresetFolderDialog || this.state.addPresetDialog) && this.setState({addPresetFolderDialog: false, addPresetDialog: false})}
+                    onCreatePreset={this.props.onCreatePreset}
                     adapterName={this.props.adapterName}
                     selectedPresetChanged={this.state.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}
                     onShowError={toast => this.props.onShowToast(toast)}
+                    selectedId={this.props.selectedId}
                     systemConfig={this.props.systemConfig}
                     onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}
                 />
@@ -96,10 +132,15 @@ class MenuList extends Component {
                     adapterName={this.props.adapterName}
                     onShowToast={toast => this.props.onShowToast(toast)}
                     onShowError={toast => this.props.onShowToast(toast)}
+                    multiple={this.state.multiple && !this.props.selectedPresetChanged}
                     theme={this.props.theme}
+                    selectedId={this.props.selectedId}
+                    onChangeList={this.props.onChangeList}
+                    chartsList={this.props.chartsList}
                     onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}
                 />
             </div>
+            {this.renderFooter()}
         </div>;
     }
 }
@@ -113,6 +154,13 @@ MenuList.propTypes = {
     onSelectedChanged: PropTypes.func.isRequired,
     onShowToast: PropTypes.func.isRequired,
     systemConfig: PropTypes.object,
+    onChangeList: PropTypes.func,
+    chartsList: PropTypes.array,
+    onCreatePreset: PropTypes.func,
+    selectedId: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.string
+    ]),
     selectedPresetChanged: PropTypes.bool,
 };
 

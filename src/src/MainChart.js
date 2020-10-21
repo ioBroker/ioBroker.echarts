@@ -101,11 +101,11 @@ class MainChart extends React.Component {
     renderToolbar() {
         return this.props.selectedId && typeof this.props.selectedId === 'string' ? null :
             <ChartSettings
+                selectedId={this.props.selectedId}
                 onChange={this.props.onChange}
                 enablePresetMode={this.props.enablePresetMode}
                 presetData={this.props.presetData}
-                selectedId={this.props.selectedId}
-                createPreset={this.props.createPreset}
+                onCreatePreset={this.props.onCreatePreset}
             />;
     }
 
@@ -212,10 +212,11 @@ MainChart.propTypes = {
     visible: PropTypes.bool,
     runningInstances: PropTypes.object,
     presetData: PropTypes.object,
+    chartsList: PropTypes.array,
     selectedId: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.object]),
-    createPreset: PropTypes.func,
+    onCreatePreset: PropTypes.func,
     theme: PropTypes.object
 };
 

@@ -11,6 +11,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Switch from '@material-ui/core/Switch';
 
 // icons
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
@@ -71,24 +72,14 @@ class ChartsTree extends Component {
             chartsOpened = {};
         }
 
-        let selectedId = window.localStorage.getItem('App.selectedId') || null;
-        if (selectedId) {
-            try {
-                selectedId = JSON.parse(selectedId)
-            } catch (e) {
-                selectedId = null;
-            }
-        }
-
         this.state = {
             instances: [], // chart folders
-            chartsOpened,
-            selectedId: typeof selectedId === 'object' && selectedId ? selectedId : null,
+            chartsOpened
         };
 
         this.getAllCharts()
             .then(newState => this.setState(newState, () =>
-                this.state.selectedId && this.props.onSelectedChanged(this.state.selectedId)));
+                this.props.selectedId && this.props.onSelectedChanged(this.props.selectedId)));
     }
 
     getAllCharts() {
@@ -122,16 +113,15 @@ class ChartsTree extends Component {
 
                     insts.sort(sortObj);
 
-                    const newState = {instances: insts, chartsOpened};
-                    if (!this.state.selectedId) {
+                    if (!this.props.selectedId) {
                         // find first chart
                         let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
                         if (selectedChartId) {
-                            newState.selectedId = {id: selectedChartId, instance: insts[0]._id};
+                            setTimeout(() => this.props.onSelectedChanged({id: selectedChartId, instance: insts[0]._id}), 500);
                         }
                     }
 
-                    resolve(newState);
+                    resolve({instances: insts, chartsOpened});
                 });
             }));
     }
@@ -179,13 +169,11 @@ class ChartsTree extends Component {
 
         let loadChart = null;
 
-        if (!chartsOpened[id] && this.state.selectedId && typeof this.state.selectedId === 'object' && this.state.selectedId.instance === id) {
+        if (!chartsOpened[id] && this.props.selectedId && typeof this.props.selectedId === 'object' && this.props.selectedId.instance === id) {
             // TODO: Take next nearest opened chart folder
-            newState.selectedId = null;
-            loadChart = null;
         }
 
-        this.setState(newState, () => loadChart && this.props.onSelectedChanged(loadChart));
+        this.setState(newState, () => this.props.onSelectedChanged(loadChart));
     };
 
     renderSelectIdDialog() {
@@ -273,7 +261,7 @@ class ChartsTree extends Component {
                                         {
                                             ids ? ids.map(id=>
                                                 <Draggable
-                                                    isDragDisabled={!this.state.selectedId || typeof this.state.selectedId === 'object'}
+                                                    isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
                                                     key={group._id + '_' + id}
                                                     draggableId={group._id + '***' + id}
                                                     index={gIndex++}>
@@ -291,13 +279,12 @@ class ChartsTree extends Component {
                                                                     button
                                                                     style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
                                                                     selected={
-                                                                        this.state.selectedId &&
-                                                                        typeof this.state.selectedId === 'object' &&
-                                                                        this.state.selectedId.id === id &&
-                                                                        this.state.selectedId.instance === group._id
+                                                                        this.props.selectedId &&
+                                                                        typeof this.props.selectedId === 'object' &&
+                                                                        this.props.selectedId.id === id &&
+                                                                        this.props.selectedId.instance === group._id
                                                                     }
-                                                                    onClick={() => this.props.onSelectedChanged({id, instance: group._id}, selectedId =>
-                                                                        selectedId !== false && this.setState({selectedId}))}
+                                                                    onClick={() => this.props.onSelectedChanged({id, instance: group._id})}
                                                                 >
                                                                     <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
                                                                         <IconChart className={this.props.classes.itemIcon}/>
@@ -310,6 +297,21 @@ class ChartsTree extends Component {
                                                                         primary={Utils.getObjectNameFromObj(group.enabledDP[id], null, {language: I18n.getLanguage()})}
                                                                         secondary={id.replace('system.adapter.', '')}
                                                                     />
+                                                                    {this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction>
+                                                                        <Switch
+                                                                            edge="end"
+                                                                            onChange={e => {
+                                                                                const chartsList = JSON.parse(JSON.stringify(this.props.chartsList));
+                                                                                const item = chartsList.find(item => item.id === id && item.instance === group._id);
+                                                                                if (e.target.checked && !item) {
+                                                                                    chartsList.push({id, instance: group._id});
+                                                                                } else if (!e.target.checked && item) {
+                                                                                    chartsList.splice(chartsList.indexOf(item), 1);
+                                                                                }
+                                                                                this.props.onChangeList(chartsList);
+                                                                            }}
+                                                                            checked={!!this.props.chartsList.find(item => item.id === id && item.instance === group._id)}
+                                                                        /> </ListItemSecondaryAction>: null}
                                                                 </ListItem>
 
                                                             </div>
@@ -319,10 +321,10 @@ class ChartsTree extends Component {
                                                                         key={group._id + '_' + id + 'copy'}
                                                                         style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
                                                                         selected={
-                                                                            this.state.selectedId &&
-                                                                            typeof this.state.selectedId === 'object' &&
-                                                                            this.state.selectedId.id === id &&
-                                                                            this.state.selectedId.instance === group._id
+                                                                            this.props.selectedId &&
+                                                                            typeof this.props.selectedId === 'object' &&
+                                                                            this.props.selectedId.id === id &&
+                                                                            this.props.selectedId.instance === group._id
                                                                         }
                                                                     >
                                                                         <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
@@ -360,7 +362,14 @@ ChartsTree.propTypes = {
     adapterName: PropTypes.string.isRequired,
     onShowToast: PropTypes.func,
     onShowError: PropTypes.func,
+    onChangeList: PropTypes.func,
+    chartsList: PropTypes.array,
     theme: PropTypes.object,
+    multiple: PropTypes.bool,
+    selectedId: PropTypes.oneOfType([
+        PropTypes.object,
+        PropTypes.string
+    ]),
     onSelectedChanged: PropTypes.func.isRequired,
 };
 

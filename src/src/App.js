@@ -30,6 +30,7 @@ import MainChart from './MainChart';
 import getUrlQuery from './utils/getUrlQuery';
 import DefaultPreset from './Components/DefaultPreset';
 import MenuList from './MenuList';
+import Utils from "@iobroker/adapter-react/Components/Utils";
 
 const styles = theme => ({
     root: {
@@ -98,6 +99,8 @@ const styles = theme => ({
     },
 });
 
+const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
+
 function loadChartParam(name, defaultValue) {
     return window.localStorage.getItem('Chart.' + name) ? window.localStorage.getItem('Chart.' + name) : defaultValue;
 }
@@ -124,16 +127,25 @@ class App extends GenericApp {
     }
 
     onConnectionReady() {
+        let selectedId = window.localStorage.getItem('App.selectedId') || null;
+        if (selectedId) {
+            try {
+                selectedId = JSON.parse(selectedId)
+            } catch (e) {
+                selectedId = null;
+            }
+        }
+
         const newState = {
             ready: false,
-            changingPreset: '',
             instances: [],
 
-            selectedId: null,
+            selectedId,
             selectedPresetChanged: false,
             presetData: null,
             originalPresetData: null,
-
+            chartsList: null,
+            addPresetDialog: null,
             progress: 0,
 
             discardChangesConfirmDialog: false,
@@ -146,6 +158,8 @@ class App extends GenericApp {
 
         this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.settingsSize')) || 150 : 150;
         this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
+
+        this.objects = {};
 
         this.socket.getSystemConfig()
             .then(systemConfig => {
@@ -160,6 +174,60 @@ class App extends GenericApp {
             .then(instances => this.setState({ready: true, instances}))
             .catch(e => this.showError(e));
     }
+
+    getNewPresetName(prefix, index) {
+        index  = index  || (prefix ? '' : '1');
+        prefix = prefix || 'preset_';
+
+        return this.socket.getObject(prefix + index)
+            .then(obj => {
+                if (!obj) {
+                    return prefix + index;
+                } else {
+                    if (!index) {
+                        index = 2;
+                    } else {
+                        index++;
+                    }
+                    return this.getNewPresetName(prefix, index);
+                }
+            })
+            .catch(e => prefix + index);
+    }
+
+    onCreatePreset = (name, parentId, historyInstance, stateId) => {
+        return new Promise(resolve => {
+            if (stateId) {
+                return this.socket.getObject(stateId)
+                    .then(obj => resolve(obj));
+            } else {
+                resolve(null);
+            }
+        })
+            .then(obj => {
+                name = (name || (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '')).trim();
+
+                this.getNewPresetName(name)
+                    .then(name => {
+                        let template = {
+                            common: {
+                                name,
+                            },
+                            native: {
+                                url: '',
+                                data: DefaultPreset.getDefaultPreset(this.state.systemConfig, historyInstance, obj, I18n.getLanguage()),
+                            },
+                            type: 'chart'
+                        };
+
+                        let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+
+                        return this.socket.setObject(id, template)
+                            .then(() => this.loadChartOrPreset(id));
+                    })
+                    .catch(e => this.showError(e));
+            });
+    };
 
     savePreset = () => {
         if (!this.state.presetData) {
@@ -180,16 +248,31 @@ class App extends GenericApp {
         }
     };
 
-    loadChartOrPreset(selectedId) {
+    loadChartOrPreset(selectedId, chartsList) {
+        window.localStorage.setItem('App.selectedId', JSON.stringify(selectedId));
+
         if (selectedId && typeof selectedId === 'object') {
             // load chart
-            return this.socket.getObject(selectedId.id)
-                .then(obj => {
-                    const line = DefaultPreset.getDefaultLine(this.state.systemConfig, selectedId.instance, obj, I18n.getLanguage());
+            const promises = [];
+            chartsList = chartsList || this.state.chartsList;
+            if (chartsList) {
+                chartsList.forEach(item => !this.objects[item.id] && promises.push(this.socket.getObject(item.id)));
+                !this.objects[selectedId.id] && !this.state.chartsList.find(item => item.id === selectedId.id) && promises.push(this.socket.getObject(selectedId.id));
+            } else {
+                this.objects = {};
+                promises.push(this.socket.getObject(selectedId.id));
+            }
+
+            return Promise.all(promises)
+                .then(results => {
+                    results.forEach(obj => this.objects[obj._id] = obj);
+                    const lines = (chartsList || []).map(item => DefaultPreset.getDefaultLine(this.state.systemConfig, item.instance, this.objects[item.id], I18n.getLanguage()));
+                    (!chartsList || !chartsList.find(item => item.id === selectedId.id && item.instance === selectedId.instance)) &&
+                        lines.push(DefaultPreset.getDefaultLine(this.state.systemConfig, selectedId.instance, this.objects[selectedId.id], I18n.getLanguage()));
 
                     let presetData = {
                         marks:          [],
-                        lines:          [line],
+                        lines:          lines,
                         zoom:           true,
                         hoverDetail:    true,
                         aggregate:      loadChartParam('aggregate', 'minmax'),
@@ -210,14 +293,12 @@ class App extends GenericApp {
                         animation:      0
                     };
 
-                    window.localStorage.setItem('App.selectedChartId', JSON.stringify(selectedId));
-                    window.localStorage.setItem('App.selectedPresetId', '');
-
                     this.setState({
+                        chartsList,
                         presetData,
-                        selectedPresetChanged: false,
                         originalPresetData: '',
-                        selectedId,
+                        selectedPresetChanged: false,
+                        selectedId: selectedId,
                     });
                 });
         } else if (selectedId) {
@@ -225,15 +306,19 @@ class App extends GenericApp {
             return this.socket.getObject(selectedId)
                 .then(obj => {
                     if (obj && obj.native && obj.native.data) {
-                        window.localStorage.setItem('App.selectedPresetId', selectedId);
-                        window.localStorage.setItem('App.selectedChartId', '');
 
-                        this.setState({
+                        const newState = {
                             presetData: obj.native.data,
                             originalPresetData: JSON.stringify(obj.native.data),
                             selectedPresetChanged: false,
                             selectedId,
-                        });
+                        };
+
+                        if (chartsList) {
+                            newState.chartsList = chartsList;
+                        }
+
+                        this.setState(newState);
                     }
                 });
         } else {
@@ -310,9 +395,9 @@ class App extends GenericApp {
                         onChange={presetData => this.setState({presetData})}
                         presetData={this.state.presetData}
                         selectedId={this.state.selectedId}
-                        createPreset={() => {
-                            //this.createPreset(id, parent, instance, stateId);
-                        }}
+                        onCreatePreset={this.onCreatePreset}
+                        chartsList={this.state.chartsList}
+                        createPreset={() => this.setState({addPresetDialog: this.state.selectedId})}
                     /> : null}
                     {
                         this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? <SettingsEditor
@@ -404,6 +489,10 @@ class App extends GenericApp {
                                 systemConfig={this.state.systemConfig}
                                 onShowToast={toast => this.showToast(toast)}
                                 selectedPresetChanged={this.state.selectedPresetChanged}
+                                chartsList={this.state.chartsList}
+                                selectedId={this.state.selectedId}
+                                onCreatePreset={this.onCreatePreset}
+                                onChangeList={chartsList => this.loadChartOrPreset(this.state.selectedId, chartsList)}
                                 onSelectedChanged={(selectedId, cb) => {
                                     if (cb && this.state.selectedPresetChanged) {
                                         this.confirmCB = confirmed => {
