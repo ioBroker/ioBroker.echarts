@@ -28,7 +28,7 @@ You can debug view charts locally with:
 
 ## Changelog
 
-### 0.1.0 (2020-10-19)
+### 0.1.1 (2020-10-21)
 * (bluefox) initial release
 
 ## License

@@ -31,7 +31,7 @@ function build() {
 }
 
 // if not local development
-if (window.location.host !== 'localhost:3000' && false) {
+if (window.location.host !== 'localhost:3000') {
     Sentry.init({
         dsn: 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95',
         release: 'iobroker.' + window.adapterName + '@' + version,

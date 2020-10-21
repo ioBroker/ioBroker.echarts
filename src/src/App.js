@@ -896,12 +896,16 @@ class App extends GenericApp {
     };
 
     savePreset = id => {
-        let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
-        preset.native.data = JSON.parse(JSON.stringify(this.state.presetData));
-        this.setState({loadedPresetData: this.state.presetData, selectedPresetChanged: false});
-        this.socket.setObject(id, preset)
-            .then(() => this.refreshData())
-            .catch(e => this.showError(e));
+        if (!this.state.presets[id]) {
+            this.showError(I18n.t('Empty preset cannot be saved!'));
+        } else {
+            let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
+            preset.native.data = JSON.parse(JSON.stringify(this.state.presetData));
+            this.setState({loadedPresetData: this.state.presetData, selectedPresetChanged: false});
+            this.socket.setObject(id, preset)
+                .then(() => this.refreshData())
+                .catch(e => this.showError(e));
+        }
     };
 
     renamePreset(id, newTitle) {
