@@ -167,11 +167,14 @@ const AGGREGATES = {
 };
 
 class ChartSettings extends React.Component {
-    state = {
-        timeSpanOpened: false,
-        aggregateOpened: false,
-        refreshOpened: false
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            timeSpanOpened: false,
+            aggregateOpened: false,
+            refreshOpened: false
+        };
+    }
 
     updateField = (name, value, time) => {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
@@ -288,7 +291,12 @@ class ChartSettings extends React.Component {
                 }
             /> : null }
             <div className={this.props.classes.grow1}/>
-            <Button variant="contained" color="primary" className={this.props.classes.hintButton} onClick={() => this.props.createPreset(null, null, this.props.selectedChartInstance, this.props.selectedChartId)}>
+            <Button
+                variant="contained"
+                color="primary"
+                className={this.props.classes.hintButton}
+                onClick={() => this.props.createPreset()}
+            >
                 <IconPlus className={this.props.classes.buttonIcon}/>
                 {I18n.t('Create preset')}
             </Button>
@@ -299,11 +307,7 @@ class ChartSettings extends React.Component {
 ChartSettings.propTypes = {
     onChange: PropTypes.func,
     presetData: PropTypes.object,
-    socket: PropTypes.object,
-    instances: PropTypes.array,
     createPreset: PropTypes.func,
-    selectedChartId: PropTypes.string,
-    selectedChartInstance: PropTypes.string,
 };
 
 export default withStyles(styles)(ChartSettings)

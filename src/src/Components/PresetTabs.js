@@ -187,14 +187,6 @@ class PresetTabs extends React.Component {
         this.updateField('lines', lines);
     };
 
-    addMark = () => {
-        const len = this.props.presetData.marks.length;
-        const color = PREDEFINED_COLORS_MARKS[len % PREDEFINED_COLORS_MARKS.length];
-        let presetData = JSON.parse(JSON.stringify(this.props.presetData));
-        presetData.marks.push({color});
-        this.props.onChange(presetData);
-    };
-
     expandAllLines = () => {
         const linesOpened = this.props.presetData.lines.map(() => true);
         window.localStorage.setItem('Lines.opened', JSON.stringify(linesOpened));
@@ -217,6 +209,14 @@ class PresetTabs extends React.Component {
         this.setState({marksOpened: []});
     };
 
+    addMark = () => {
+        const len = this.props.presetData.marks.length;
+        const color = PREDEFINED_COLORS_MARKS[len % PREDEFINED_COLORS_MARKS.length];
+        let presetData = JSON.parse(JSON.stringify(this.props.presetData));
+        presetData.marks.push({color});
+        this.props.onChange(presetData);
+    };
+
     deleteMark = index => {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
         presetData.marks.splice(index, 1);
@@ -231,6 +231,7 @@ class PresetTabs extends React.Component {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
         const line = DefaultPreset.getDefaultLine(this.props.systemConfig);
         line.xaxe = !len ? undefined : 'off';
+        presetData.lines.push(line);
         this.props.onChange(presetData);
     };
 
@@ -321,7 +322,7 @@ class PresetTabs extends React.Component {
                     }}
                 >
                     <TabPanel value="0" classes={{root: this.props.classes.tabContent}}>
-                        <Fab onClick={this.addLine}     size="small" color="secondary" className={this.props.classes.buttonAdd}         title={I18n.t('Add line to chart')}><IconAdd/></Fab>
+                        <Fab onClick={this.addLine} size="small" color="secondary" className={this.props.classes.buttonAdd}         title={I18n.t('Add line to chart')}><IconAdd/></Fab>
                         {anyClosed ? <Fab onClick={this.expandAllLines}   size="small" color="default" className={this.props.classes.buttonExpandAll}  title={I18n.t('Expand all lines')}><IconExpand/></Fab> : null}
                         {anyOpened ? <Fab onClick={this.collapseAllLines} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all lines')}><IconCollapse/></Fab> : null}
                         {this.props.presetData.lines.length ? this.props.presetData.lines.map((line, index) =>
@@ -733,46 +734,43 @@ class PresetTabs extends React.Component {
     }
 
     render() {
-        return <>
-            <TabContext value={this.state.selectedTab}>
-                <AppBar position="static" className={this.props.classes.tabsContainer}>
-                    <IconButton
-                        className={this.props.classes.buttonSave}
-                        style={{visibility: this.props.selectedPresetChanged ? 'visible' : 'hidden'}}
-                        onClick={() =>
-                            this.props.savePreset(this.props.selectedPresetId)}
-                    >
-                        <IconSave/>
-                    </IconButton>
-                    <TabList
-                        onChange={(event, newValue)=>{
-                            window.localStorage.setItem('PresetTabs.selectedTab', newValue);
-                            this.setState({selectedTab: newValue})
-                        }}
-                        variant="scrollable"
-                        scrollButtons="on"
-                    >
-                        <Tab label={I18n.t('Data')} value="0"/>
-                        <Tab label={I18n.t('Markings')} value="1"/>
-                        <Tab label={I18n.t('Time')} value="2"/>
-                        <Tab label={I18n.t('Options')} value="3"/>
-                        <Tab label={I18n.t('Title')} value="4"/>
-                        <Tab label={I18n.t('Appearance')} value="5"/>
-                    </TabList>
-                </AppBar>
-                <div className={this.props.classes.tabsBody}>
-                    {this.state.selectedTab === '0' ? this.renderTabLines()      : null}
-                    {this.state.selectedTab === '1' ? this.renderTabMarkings()   : null}
-                    {this.state.selectedTab === '2' ? this.renderTabTime()       : null}
-                    {this.state.selectedTab === '3' ? this.renderTabOptions()    : null}
-                    {this.state.selectedTab === '4' ? this.renderTabTitle()      : null}
-                    {this.state.selectedTab === '5' ? this.renderTabAppearance() : null}
-                </div>
-            </TabContext>
+        return <TabContext value={this.state.selectedTab}>
+            <AppBar position="static" className={this.props.classes.tabsContainer}>
+                <IconButton
+                    className={this.props.classes.buttonSave}
+                    style={{visibility: this.props.selectedPresetChanged ? 'visible' : 'hidden'}}
+                    onClick={() => this.props.savePreset()}
+                >
+                    <IconSave/>
+                </IconButton>
+                <TabList
+                    onChange={(event, newValue)=>{
+                        window.localStorage.setItem('PresetTabs.selectedTab', newValue);
+                        this.setState({selectedTab: newValue})
+                    }}
+                    variant="scrollable"
+                    scrollButtons="on"
+                >
+                    <Tab label={I18n.t('Data')} value="0"/>
+                    <Tab label={I18n.t('Markings')} value="1"/>
+                    <Tab label={I18n.t('Time')} value="2"/>
+                    <Tab label={I18n.t('Options')} value="3"/>
+                    <Tab label={I18n.t('Title')} value="4"/>
+                    <Tab label={I18n.t('Appearance')} value="5"/>
+                </TabList>
+            </AppBar>
+            <div className={this.props.classes.tabsBody}>
+                {this.state.selectedTab === '0' ? this.renderTabLines()      : null}
+                {this.state.selectedTab === '1' ? this.renderTabMarkings()   : null}
+                {this.state.selectedTab === '2' ? this.renderTabTime()       : null}
+                {this.state.selectedTab === '3' ? this.renderTabOptions()    : null}
+                {this.state.selectedTab === '4' ? this.renderTabTitle()      : null}
+                {this.state.selectedTab === '5' ? this.renderTabAppearance() : null}
+            </div>
             {this.renderDeleteLineDialog()}
             {this.renderDeleteMarkDialog()}
             {this.renderColorDialog()}
-        </>
+        </TabContext>
     }
 }
 
@@ -781,7 +779,6 @@ PresetTabs.propTypes = {
     presetData: PropTypes.object,
     socket: PropTypes.object,
     instances: PropTypes.array,
-    selectedPresetId: PropTypes.string,
     savePreset: PropTypes.func,
     selectedPresetChanged: PropTypes.bool,
     width: PropTypes.number,

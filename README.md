@@ -23,8 +23,7 @@ You can debug view charts locally with:
 - widget for vis (button)
 - widget for material
 - generate chart.png
-- binary charts
-- area color must be equal with line
+- Combine by functions/rooms
 
 ## Changelog
 

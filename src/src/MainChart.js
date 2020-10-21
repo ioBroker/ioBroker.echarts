@@ -99,14 +99,12 @@ const styles = theme => ({
 
 class MainChart extends React.Component {
     renderToolbar() {
-        return this.props.presetMode ? null :
+        return this.props.selectedId && typeof this.props.selectedId === 'string' ? null :
             <ChartSettings
                 onChange={this.props.onChange}
                 enablePresetMode={this.props.enablePresetMode}
                 presetData={this.props.presetData}
-                selectedChartId={this.props.selectedChartId}
-                selectedChartInstance={this.props.selectedChartInstance}
-                socket={this.props.socket}
+                selectedId={this.props.selectedId}
                 createPreset={this.props.createPreset}
             />;
     }
@@ -213,13 +211,10 @@ MainChart.propTypes = {
     onChange: PropTypes.func.isRequired,
     visible: PropTypes.bool,
     runningInstances: PropTypes.object,
-    socket: PropTypes.object,
     presetData: PropTypes.object,
-    presetMode: PropTypes.bool,
-    selectedPresetId: PropTypes.string,
-    selectedChartId: PropTypes.string,
-    selectedChartInstance: PropTypes.string,
-    enablePresetMode: PropTypes.func,
+    selectedId: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.object]),
     createPreset: PropTypes.func,
     theme: PropTypes.object
 };

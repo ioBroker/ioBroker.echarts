@@ -5,63 +5,31 @@ import withWidth from '@material-ui/core/withWidth';
 import clsx from 'clsx';
 import SplitterLayout from 'react-splitter-layout';
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext} from "react-beautiful-dnd";
 
-import IconButton from '@material-ui/core/IconButton';
-import ListItemText from '@material-ui/core/ListItemText';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Toolbar from '@material-ui/core/Toolbar';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 
 // icons
-import {MdExpandLess as IconCollapse} from 'react-icons/md';
-import {MdExpandMore as IconExpand} from 'react-icons/md';
-import {MdAdd as IconAdd} from 'react-icons/md';
-import {MdModeEdit as IconEdit} from 'react-icons/md';
-import {RiFolderAddLine as IconFolderAdd} from 'react-icons/ri';
 import {MdClose as IconCancel} from 'react-icons/md';
-import {MdCheck as IconCheck} from 'react-icons/md';
 import {MdSave as IconSave} from 'react-icons/md';
-import {MdDelete as IconDelete} from 'react-icons/md';
-import {FaScroll as IconScript} from 'react-icons/all';
-import {FaFolder as IconFolderClosed} from 'react-icons/all';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
 import {MdMenu as IconMenuClosed} from 'react-icons/md';
 import {MdArrowBack as IconMenuOpened} from 'react-icons/md';
-import SearchIcon from '@material-ui/icons/Search';
-import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
-import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
-import ClearIcon from '@material-ui/icons/Close';
 
 import 'react-splitter-layout/lib/index.css';
 
 import GenericApp from '@iobroker/adapter-react/GenericApp';
-import Utils from '@iobroker/adapter-react/Components/Utils';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
-import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 import '@iobroker/adapter-react/index.css';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
 import getUrlQuery from './utils/getUrlQuery';
 import DefaultPreset from './Components/DefaultPreset';
-
-const LEVEL_PADDING = 16;
-const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
+import MenuList from './MenuList';
 
 const styles = theme => ({
     root: {
@@ -72,9 +40,6 @@ const styles = theme => ({
         background: theme.palette.background.default,
         color: theme.palette.text.primary,
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    },
-    leftMenuItem: {
-        width: '100%',
     },
     menuDiv: {
         overflow: 'hidden',
@@ -88,11 +53,6 @@ const styles = theme => ({
         '& .layout-splitter': {
             background: theme.type === 'dark' ? '#595858' : '#ccc;'
         }
-    },
-    mainListDiv: {
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
     },
     content: {
         width: '100%',
@@ -128,75 +88,18 @@ const styles = theme => ({
             color: 'white'
         }
     },
-    mainToolbar: {
-        background: theme.palette.primary.main,
-    },
-    noGutters: {
-        paddingTop: 0,
-        paddingBottom: 0,
-    },
-    heightMinusToolbar: {
-        height: 'calc(100% - 38px)',
-        overflow: 'auto'
-    },
-    itemIconFolder: {
-        cursor: 'pointer'
-    },
     buttonsContainer: {
         '& button': {
             whiteSpace: 'nowrap'
         }
     },
-    itemIconPreset: {
-        color: theme.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark
-    },
-    folderIconPreset: {
-        color: theme.type === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary.light
-    },
-    width100: {
-        width: '100%',
-    },
     buttonIcon: {
         marginRight: theme.spacing(0.5),
     },
-    itemIconRoot: {
-        minWidth: 24,
-    },
-    listItemSubTitle: {
-        fontSize: 'smaller',
-        opacity: 0.7,
-        fontStyle: 'italic'
-    }
 });
 
-function getFolderPrefix(presetId) {
-    let result = presetId.split('.');
-    result.shift();
-    result.shift();
-    result.pop();
-    result = result.join('.');
-    return result;
-}
-
-function getFolderList(folder) {
-    let result = [];
-    result.push(folder);
-    Object.values(folder.subFolders).forEach(subFolder =>
-        result = result.concat(getFolderList(subFolder)));
-
-    return result;
-}
-
-function sortObj(a, b) {
-    const aid = typeof a === 'object' ? a._id.replace('system.adapter.', '') : a.replace('system.adapter.', '');
-    const bid = typeof b === 'object' ? b._id.replace('system.adapter.', '') : b.replace('system.adapter.', '');
-    if (aid > bid) {
-        return 1;
-    } else if (aid < bid) {
-        return -1;
-    } else {
-        return 0;
-    }
+function loadChartParam(name, defaultValue) {
+    return window.localStorage.getItem('Chart.' + name) ? window.localStorage.getItem('Chart.' + name) : defaultValue;
 }
 
 class App extends GenericApp {
@@ -218,56 +121,27 @@ class App extends GenericApp {
             'zh-cn': require('./i18n/zh-cn'),
         };
         super(props, settings);
-        this.objects = {};
     }
 
     onConnectionReady() {
-        let opened;
-        try {
-            opened = JSON.parse(window.localStorage.getItem('Presets.opened')) || [];
-        } catch (e) {
-            opened = [];
-        }
-        let chartsOpened;
-        try {
-            chartsOpened = JSON.parse(window.localStorage.getItem('Charts.opened')) || {};
-        } catch (e) {
-            chartsOpened = {};
-        }
-
         const newState = {
             ready: false,
-            selectedPresetId: window.localStorage.getItem('Presets.selectedPresetId') || '',
-            opened,
-            presets: {},
-            folders: null,
-            presetMode: false,
-            chartFolders: chartsOpened,
-            search: null,
-            addFolderDialog: null,
-            addFolderDialogTitle: null,
-            editFolderDialog: null,
-            editFolderDialogTitle: null,
             changingPreset: '',
-            showSearch: null,
             instances: [],
-            selectedChartId: null,
+
+            selectedId: null,
             selectedPresetChanged: false,
-            deleteDialog: null,
-            moveDialog: null,
-            newFolder: '',
-            selectedPresetData: null,
-            loadedPresetData: null,
+            presetData: null,
+            originalPresetData: null,
 
             progress: 0,
 
+            discardChangesConfirmDialog: false,
+
             resizing: false,
-            selected: null,
             menuOpened: window.localStorage.getItem('App.menuOpened') !== 'false',
             menuSelectId: '',
             logHorzLayout: window.localStorage.getItem('App.logHorzLayout') === 'true',
-            confirm: '',
-            searchText: '',
         };
 
         this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.settingsSize')) || 150 : 150;
@@ -280,1130 +154,129 @@ class App extends GenericApp {
                 this.setState(newState);
                 return Promise.resolve();
             })
-            .then(() => this.getAllData())
-            .then(() => this.refreshData())
-            .then(() => {
-                if (window.localStorage.getItem('App.selectedPresetId')) {
-                    this.loadPreset(window.localStorage.getItem('App.selectedPresetId'))
-                } else if (window.localStorage.getItem('App.selectedChartId')) {
-                    this.loadChart(window.localStorage.getItem('App.selectedChartId'), window.localStorage.getItem('App.selectedChartInstance'))
-                }
-            })
-            .catch(e => this.showError(e));
-    }
-
-    getData() {
-        let presets = {};
-        return new Promise((resolve, reject) =>
-            this.socket._socket.emit('getObjectView', 'chart', 'chart', {
-                startkey: this.adapterName + '.',
-                endkey: this.adapterName + '.\u9999'
-            }, (err, res) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    res && res.rows && res.rows.forEach(preset => presets[preset.value._id] = preset.value);
-                    resolve({presets, folders: this.buildTree(presets)});
-                }
-            }));
-    }
-
-    refreshData(changingPreset) {
-        return new Promise(resolve => {
-            if (changingPreset) {
-                this.setState({changingPreset}, () => resolve());
-            } else {
-                //this.setState({ready: false}, () => resolve());
-                resolve();
-            }
-        })
-            .then(() => this.getData())
-            .then(newState => {
-                newState.ready = true;
-                newState.changingPreset = '';
-                //newState.selectedPresetChanged = false;
-
-                // Fill missing data
-                Object.keys(newState.presets).forEach(id => {
-                    const presetObj = newState.presets[id];
-                    presetObj.common = presetObj.common || {};
-                    presetObj.native = presetObj.native || {};
-                });
-
-                if ((newState.selectedPresetId || this.state.selectedPresetId) &&
-                    newState.presets[newState.selectedPresetId || this.state.selectedPresetId]) {
-                    newState.selectedPresetData = JSON.parse(JSON.stringify(newState.presets[newState.selectedPresetId || this.state.selectedPresetId]));
-                } else {
-                    newState.selectedPresetData = null;
-                }
-
-                this.setState(newState);
-            });
-    }
-
-    getObjects(ids, cb, result) {
-        result = result || {};
-        if (!ids || !ids.length) {
-            cb(result);
-        } else {
-            const id = ids.shift();
-            this.socket.getObject(id)
-                .catch(e => {
-                    console.error('Cannot read ' + id + ': ' + e);
-                    return null;
-                })
-                .then(obj => {
-                    if (obj) {
-                        result[id] = obj;
-                    }
-                    setTimeout(() => this.getObjects(ids, cb, result), 0);
-                });
-        }
-    }
-
-    getAllCustoms(instances) {
-        return new Promise(resolve =>
-            this.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
-                // console.log(objs);
-                const ids = ((objs && objs.rows) || []).map(item => item.id);
-                this.getObjects(ids, objs => {
-                    const ids = instances.map(obj => obj._id.substring('system.adapter.'.length));
-                    const _instances = {};
-                    Object.values(objs).forEach(obj => {
-                        const id = obj && obj.common && obj.common.custom && ids.find(id => Object.keys(obj.common.custom).includes(id));
-                        if (id) {
-                            _instances[id] = _instances[id] || {_id: 'system.adapter.' + id, enabledDP: {}};
-                            _instances[id].enabledDP[obj._id] = obj;
-                        }
-                    });
-
-                    let chartFolders = {};
-
-                    const insts = Object.values(_instances).map(obj => {
-                        const enabledDP = {};
-                        Object.keys(obj.enabledDP).forEach(id => {
-                            enabledDP[id] = obj.enabledDP[id];
-                            enabledDP[id].group = obj._id;
-                        });
-                        obj.enabledDP = enabledDP;
-                        chartFolders[obj._id] = typeof this.state.chartFolders[obj._id] !== 'undefined' ? this.state.chartFolders[obj._id] : true;
-                        return obj;
-                    });
-
-                    insts.sort(sortObj);
-
-                    let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
-
-                    this.setState({instances: insts, chartFolders: chartFolders}, () => {
-                        if (selectedChartId && !window.localStorage.getItem('App.selectedPresetId') && !window.localStorage.getItem('App.selectedChartId')) {
-                            this.loadChart(selectedChartId, insts[0]._id);
-                        }
-                    });
-
-                    // console.log(insts);
-                    resolve();
-                });
-            }));
-    }
-
-    getAllData() {
-        return this.socket.getAdapterInstances('')
+            .then(() => this.socket.getAdapterInstances(''))
+            // get only history adapters
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
-            .then(instances => this.getAllCustoms(instances))
-    }
-
-    toggleLogLayout() {
-        window.localStorage && window.localStorage.setItem('App.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
-        this.setState({logHorzLayout: !this.state.logHorzLayout});
-    }
-
-    buildTree(presets) {
-        // console.log(presets);
-        presets = Object.values(presets);
-
-        let folders = {subFolders: {}, presets: {}, id: '', prefix: ''};
-
-        // create missing folders
-        presets.forEach((preset) => {
-            let id = preset._id;
-            const parts = id.split('.');
-            parts.shift();
-            parts.shift();
-            let currentFolder = folders;
-            let prefix = '';
-            for (let i = 0; i < parts.length - 1; i++) {
-                if (prefix) {
-                    prefix = prefix + '.';
-                }
-                prefix = prefix + parts[i];
-                if (!currentFolder.subFolders[parts[i]]) {
-                    currentFolder.subFolders[parts[i]] = {
-                        subFolders: {},
-                        presets: {},
-                        id: parts[i],
-                        prefix,
-                    }
-                }
-                currentFolder = currentFolder.subFolders[parts[i]];
-            }
-            currentFolder.presets[id] = preset;
-        });
-
-        return folders;
-    }
-
-    findFolder(parent, folder) {
-        if (parent.prefix === folder.prefix) {
-            return parent;
-        }
-        for (let index in parent.subFolders) {
-            let result = this.findFolder(parent.subFolders[index], folder);
-            if (result) {
-                return result;
-            }
-        }
-    }
-
-    addFolder(parentFolder, id) {
-        let folders = JSON.parse(JSON.stringify(this.state.folders));
-        let _parentFolder = this.findFolder(folders, parentFolder);
-
-        let opened = JSON.parse(JSON.stringify(this.state.opened));
-
-        _parentFolder.subFolders[id] = {
-            presets: {},
-            subFolders: {},
-            id,
-            prefix: _parentFolder.prefix ? _parentFolder.prefix + '.' + id : id
-        };
-
-        opened.push(id);
-
-        this.setState({folders, opened});
-    }
-
-    addPresetToFolderPrefix = (preset, folderPrefix, noRefresh) => {
-        let oldId = preset._id;
-        let presetId = preset._id.split('.').pop();
-        preset._id = this.adapterName + '.0.' + folderPrefix + (folderPrefix ? '.' : '') + presetId;
-
-        return this.socket.delObject(oldId)
-            .then(() => {
-                console.log('Deleted ' + oldId);
-                return this.socket.setObject(preset._id, preset)
-            })
-            .then(() => {
-                console.log('Set new ID: ' + preset._id);
-                return !noRefresh && this.refreshData(presetId)
-            })
+            .then(instances => this.setState({ready: true, instances}))
             .catch(e => this.showError(e));
-    };
-
-    renameFolder(folder, newName) {
-        return new Promise(resolve => this.setState({changingPreset: folder}, () => resolve()))
-            .then(() => {
-                let newSelectedId;
-                let pos;
-                // if selected folder opened, replace its ID in this.state.opened
-                if ((pos = this.state.opened.indexOf(folder.prefix)) !== -1) {
-                    const opened = [...this.state.opened];
-                    opened.splice(pos, 1);
-                    opened.push(newName);
-                    opened.sort();
-                    this.setState({opened});
-                }
-
-                let prefix = folder.prefix.split('.');
-                prefix[prefix.length - 1] = newName;
-                prefix = prefix.join('.');
-
-                if (Object.keys(folder.presets).find(id => id === this.state.selectedPresetId)) {
-                    newSelectedId = 'preset.0.' + prefix + '.' + this.state.selectedPresetId.split('.').pop();
-                }
-
-                const promises = Object.keys(folder.presets).map(presetId =>
-                    this.addPresetToFolderPrefix(folder.presets[presetId], prefix, true));
-
-                return Promise.all(promises)
-                    .then(() => this.refreshData(folder))
-                    .then(() => newSelectedId && this.setState({selectedPresetId: newSelectedId}));
-            });
     }
 
-    isNameUnique(name) {
-        return !Object.keys(this.state.presets).find(id => this.state.presets[id].common.name === name);
-    }
-
-    getNewPresetName(prefix) {
-        let index = prefix ? '' : '1';
-        prefix = prefix || 'preset_';
-
-        while(!this.isNameUnique(prefix + index)) {
-            if (!index) {
-                index = 2;
-            } else {
-                index++;
-            }
-        }
-
-        return prefix + index;
-    };
-
-    createPreset(name, parentId, historyInstance, stateId) {
-        return new Promise(resolve => {
-            if (stateId) {
-                return this.socket.getObject(stateId)
-                    .then(obj => resolve(obj));
-            } else {
-                resolve(null);
-            }
-        })
-            .then(obj => {
-                name = (name || (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '')).trim();
-
-                name = this.getNewPresetName(name);
-
-                let template = {
-                    common: {
-                        name,
-                    },
-                    native: {
-                        url: '',
-                        data: DefaultPreset.getDefaultPreset(this.state.systemConfig, historyInstance, obj, I18n.getLanguage()),
-                    },
-                    type: 'chart'
-                };
-
-                let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
-
-                this.setState({changingPreset: id}, () =>
-                    this.socket.setObject(id, template)
-                        .then(() => this.refreshData(id))
-                        .then(() => this.loadPreset(id))
-                        .catch(e => this.showError(e))
-                );
-            });
-    };
-
-    deletePreset = (id) => {
-        return this.socket.delObject(id)
-            .then(() => {
-                window.localStorage.setItem('App.selectedPresetId', '');
-
-                this.setState({
-                    selectedPresetId: null,
-                    presetData: {},
-                    presetMode: false,
-                    selectedPresetChanged: false,
-                });
-
-                return this.refreshData(id);
-            })
-            .catch(e => this.showError(e));
-    };
-
-    toggleChartFolder = id => {
-        const chartFolders = JSON.parse(JSON.stringify(this.state.chartFolders));
-        chartFolders[id] = !chartFolders[id];
-        window.localStorage.setItem('Charts.opened', JSON.stringify(chartFolders));
-        const newState = {chartFolders};
-
-        if (this.state.selectedChartId) {
-            let selectedInstance = this.state.instances.find(instance =>
-                instance.enabledDP[this.state.selectedChartId]);
-
-            if (selectedInstance._id === id) {
-                let openedChartFolder = null;
-                for (let k in this.state.chartFolders) {
-                    if (this.state.chartFolders.hasOwnProperty(k) && k !== id && this.state.chartFolders[k]) {
-                        openedChartFolder = k;
-                        break;
-                    }
-                }
-                if (openedChartFolder) {
-                    let openedChart = this.state.instances.find(instance =>
-                        instance._id === openedChartFolder);
-
-                    openedChart = Object.values(openedChart.enabledDP)[0]._id;
-                    this.loadChart(openedChart);
-                } else {
-                    newState.presetData = {};
-                    newState.selectedChartId = null;
-                    newState.selectedChartInstance = null;
-                }
-            }
-        }
-
-        this.setState(newState);
-    };
-
-    renderSimpleHistory() {
-        let gIndex = 0;
-        return <Droppable droppableId="Lines" isDropDisabled={true}>
-            {(provided, snapshot) =>
-                <div ref={provided.innerRef}>
-                    <List className={ this.props.classes.scroll }>
-                        {this.state.instances.map((group, index) => {
-                            let opened = this.state.chartFolders[group._id];
-                            let ids = null;
-                            if (opened) {
-                                ids = Object.keys(group.enabledDP)
-                                    .filter(id => !this.state.search || id.includes(this.state.search));
-                                ids.sort(sortObj);
-                            }
-
-                            return <React.Fragment key={index}>
-                                <ListItem
-                                    key={index}
-                                    classes={ {gutters: this.props.classes.noGutters} }
-                                    className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
-                                >
-                                    <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>{ opened ?
-                                        <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
-                                        <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
-                                    }</ListItemIcon>
-                                    <ListItemText primary={group._id.replace('system.adapter.', '')}/>
-                                    <ListItemSecondaryAction>
-                                        {opened ? <IconButton
-                                            onClick={() => this.setState({showAddStateDialog: group._id})}
-                                            title={ I18n.t('Enable logging for new state') }
-                                        ><IconAdd/></IconButton> : null}
-                                        <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
-                                            { opened ? <IconCollapse/> : <IconExpand/> }
-                                        </IconButton>
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                                {
-                                    ids ? ids.map(id=>
-                                            <Draggable
-                                                isDragDisabled={!this.state.presetMode}
-                                                key={group._id + '_' + id}
-                                                draggableId={group._id + '***' + id}
-                                                index={gIndex++}>
-                                                {(provided, snapshot) =>
-                                                    <>
-                                                        <div
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                            style={provided.draggableProps.style}
-                                                            className="drag-items"
-                                                            >
-                                                            <ListItem
-                                                                key={group._id + '_' + id}
-                                                                button
-                                                                style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
-                                                                selected={this.state.selectedChartId === id}
-                                                                onClick={() => this.state.presetMode && this.state.selectedPresetChanged ?
-                                                                    this.setState({
-                                                                        loadChartDialog: id,
-                                                                        loadChartDialogInstance: group._id
-                                                                    }) :
-                                                                    this.loadChart(id, group._id, group.enabledDP[id])
-                                                                }
-                                                            >
-                                                                <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}><IconChart
-                                                                    className={this.props.classes.itemIcon}/></ListItemIcon>
-                                                                <ListItemText
-                                                                    classes={{
-                                                                        primary: this.props.classes.listItemTitle,
-                                                                        secondary: this.props.classes.listItemSubTitle
-                                                                    }}
-                                                                    primary={Utils.getObjectNameFromObj(group.enabledDP[id], null, {language: I18n.getLanguage()})}
-                                                                    secondary={id.replace('system.adapter.', '')}
-                                                                />
-                                                            </ListItem>
-
-                                                        </div>
-                                                        {snapshot.isDragging ?
-                                                            <div className="react-beatiful-dnd-copy">
-                                                                <ListItem
-                                                                    key={group._id + '_' + id + 'copy'}
-                                                                    style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
-                                                                    selected={this.state.selectedChartId === id}
-                                                                >
-                                                                    <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
-                                                                        <IconChart className={this.props.classes.itemIcon}/>
-                                                                    </ListItemIcon>
-                                                                    <ListItemText
-                                                                        classes={{
-                                                                            primary: this.props.classes.listItemTitle,
-                                                                            secondary: this.props.classes.listItemSubTitle
-                                                                        }}
-                                                                        primary={Utils.getObjectNameFromObj(group.enabledDP[id], null, {language: I18n.getLanguage()})}
-                                                                        secondary={id.replace('system.adapter.', '')}
-                                                                    />
-                                                                </ListItem>
-                                                            </div>: null}
-                                                        </>
-                                                }
-                                            </Draggable>
-                                    ) : null
-                                }
-                            </React.Fragment>
-                            }
-                        )}
-                        {provided.placeholder}
-                    </List>
-                </div> }
-        </Droppable>;
-    }
-
-    renderTreePreset = (item, level, anySubFolders) => {
-        const preset = this.state.presets[item._id];
-        if (!preset || (this.state.search && !item.common.name.includes(this.state.search))) {
-            return null;
-        }
-
-        level = level || 0;
-
-        return <ListItem
-            classes={ {gutters: this.props.classes.noGutters} }
-            style={ {paddingLeft: level * LEVEL_PADDING } }
-            key={ item._id }
-            selected={item._id === this.state.selectedPresetId}
-            button
-            onClick={ () =>
-                this.state.presetMode && this.state.selectedPresetChanged ?
-                this.setState({loadPresetDialog: preset._id}) :
-                this.loadPreset(preset._id)
-            }>
-            <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset)} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
-            <ListItemText
-                classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
-                primary={ <>
-                    { Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
-                </>}
-                secondary={ Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}, true) }
-                />
-            <ListItemSecondaryAction>
-                {this.state.changingPreset === preset._id ?
-                    <CircularProgress size={ 24 }/>
-                    :
-                    <>
-                        <IconButton
-                            size="small"
-                            aria-label="Rename"
-                            title={ I18n.t('Rename') }
-                            onClick={ (e) => {
-                                e.stopPropagation();
-                                this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name})
-                            }}
-                        >
-                            <IconEdit/>
-                        </IconButton>
-                        {level || anySubFolders ?
-                            <IconButton size="small" aria-label="Move to folder" title={ I18n.t('Move to folder') } onClick={ () => this.setState({moveDialog: preset._id, newFolder: getFolderPrefix(preset._id)}) }><IconMoveToFolder/></IconButton>
-                            :
-                            null
-                        }
-                        <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deleteDialog: preset._id}) }><IconDelete/></IconButton>
-                    </>
-                }
-            </ListItemSecondaryAction>
-        </ListItem>;
-    };
-
-    toggleFolder(folder) {
-        const opened = [...this.state.opened];
-        const pos = opened.indexOf(folder.prefix);
-        if (pos === -1) {
-            opened.push(folder.prefix);
-        } else {
-            opened.splice(pos, 1);
-
-            // If active preset is inside this folder select the first preset
-            if (Object.keys(folder.presets).includes(this.state.selectedPresetId)) {
-                // To do ask question
-                if (this.state.selectedPresetChanged) {
-                    this.setState({closeFolderDialog: folder});
-                } else {
-                    this.setState({
-                        selectedPresetId: null,
-                        presetData: {},
-                        presetMode: false,
-                        selectedPresetChanged: false,
-                    });
-                }
-            }
-        }
-
-        window.localStorage.setItem('Presets.opened', JSON.stringify(opened));
-
-        this.setState({opened});
-    }
-
-    renderTree(parent, level) {
-        let result = [];
-        level = level || 0;
-        let opened = this.state.opened ? this.state.opened.includes(parent.prefix) : false;
-
-        // Show folder item
-        parent && parent.id && result.push(<ListItem
-            key={ parent.prefix }
-            classes={ {gutters: this.props.classes.noGutters } }
-            className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
-            style={ {paddingLeft: level * LEVEL_PADDING} }
-        >
-            <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.folderIconPreset)} } onClick={ () => this.toggleFolder(parent) }>{ opened ?
-                <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
-                <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
-            }</ListItemIcon>
-            <ListItemText>{ parent.id }
-                <IconButton onClick={ () => this.setState({editFolderDialog: parent, editFolderDialogTitle: parent.id, editFolderDialogTitleOrigin: parent.id}) }
-                            title={ I18n.t('Edit folder name') }
-                ><IconEdit/></IconButton>
-            </ListItemText>
-            <ListItemSecondaryAction>
-                {parent && parent.id && opened ? <IconButton
-                    onClick={() => this.createPreset(null, parent.id) }
-                    title={ I18n.t('Create new preset') }
-                ><IconAdd/></IconButton> : null}
-                <IconButton onClick={ () => this.toggleFolder(parent) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
-                    { opened ? <IconCollapse/> : <IconExpand/> }
-                </IconButton>
-            </ListItemSecondaryAction>
-        </ListItem>);
-
-        if (parent && (opened || !parent.id)) { // root cannot be closed and have id = ''
-            const values = Object.values(parent.presets);
-            const subFolders = Object.values(parent.subFolders);
-
-            // add first sub-folders
-            result.push(subFolders.sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)).map(subFolder =>
-                this.renderTree(subFolder, level + 1)));
-
-            // Add as second the presets
-            result.push(<ListItem
-                key={ 'items_' + parent.prefix }
-                classes={ {gutters: this.props.classes.noGutters} }
-                className={ this.props.classes.width100 }>
-                <List
-                    className={ this.props.classes.list }
-                    classes={ {root: clsx(this.props.classes.leftMenuItem, this.props.classes.noGutters)} }
-                    style={ {paddingLeft: level * LEVEL_PADDING} }
-                >
-                    { values.length ?
-                        values.sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0)).map(preset => this.renderTreePreset(preset, level, subFolders.length))
-                        :
-                        (!subFolders.length ? <ListItem classes={ {gutters: this.props.classes.noGutters} }><ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText></ListItem> : '')
-                    }
-                </List>
-            </ListItem>);
-        }
-
-        return result;
-    };
-
-    savePreset = id => {
-        if (!this.state.presets[id]) {
+    savePreset = () => {
+        if (!this.state.presetData) {
             this.showError(I18n.t('Empty preset cannot be saved!'));
+            return Promise.reject();
         } else {
-            let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
-            preset.native.data = JSON.parse(JSON.stringify(this.state.presetData));
-            this.setState({loadedPresetData: this.state.presetData, selectedPresetChanged: false});
-            this.socket.setObject(id, preset)
-                .then(() => this.refreshData())
-                .catch(e => this.showError(e));
+            return this.socket.getObject(this.state.selectedId)
+                .then(obj => {
+                    if (!obj || !obj.native) {
+                        return this.showError(I18n.t('Invalid object'));
+                    } else {
+                        obj.native.data = this.state.presetData;
+                        this.socket.setObject(obj._id, obj)
+                            .then(() => this.setState({originalPresetData: JSON.stringify(this.state.presetData), selectedPresetChanged: false}))
+                            .catch(e => this.showError(e));
+                    }
+                });
         }
     };
 
-    renamePreset(id, newTitle) {
-        let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
-        preset.common.name = newTitle;
-        this.socket.delObject(id);
-        let newId = id.split('.');
-        newId.splice(-1, 1);
-        newId.push(newTitle.replace(FORBIDDEN_CHARS, '_').trim());
-        newId = newId.join('.');
-        this.socket.setObject(newId, preset)
-            .then(() => this.refreshData())
-            .then(() => {
-                if (this.state.selectedPresetId === id) {
-                    this.loadPreset(newId);
-                }
-            })
-            .catch(e => this.showError(e));
-    }
+    loadChartOrPreset(selectedId) {
+        if (selectedId && typeof selectedId === 'object') {
+            // load chart
+            return this.socket.getObject(selectedId.id)
+                .then(obj => {
+                    const line = DefaultPreset.getDefaultLine(this.state.systemConfig, selectedId.instance, obj, I18n.getLanguage());
 
-    loadPreset(id) {
-        if (!this.state.presets[id]) {
-            return;
-        }
-        let preset = JSON.parse(JSON.stringify(this.state.presets[id]));
+                    let presetData = {
+                        marks:          [],
+                        lines:          [line],
+                        zoom:           true,
+                        hoverDetail:    true,
+                        aggregate:      loadChartParam('aggregate', 'minmax'),
+                        chartType:      loadChartParam('chartType', 'auto'),
+                        live:           loadChartParam('live', '30'),
+                        timeType:       loadChartParam('timeType', 'relative'),
+                        aggregateType:  loadChartParam('aggregateType', 'step'),
+                        aggregateSpan:  loadChartParam('aggregateSpan', 300),
+                        ticks:          loadChartParam('ticks', ''),
+                        range:          loadChartParam('range', 1440),
+                        relativeEnd:    loadChartParam('relativeEnd', 'now'),
+                        start:          loadChartParam('start', ''),
+                        end:            loadChartParam('end', ''),
+                        start_time:     loadChartParam('start_time', ''),
+                        end_time:       loadChartParam('end_time', ''),
+                        noBorder:       'noborder',
+                        noedit:         false,
+                        animation:      0
+                    };
 
-        window.localStorage.setItem('App.selectedPresetId', id);
-        window.localStorage.setItem('App.selectedChartId', '');
-        window.localStorage.setItem('App.selectedChartInstance', '');
+                    window.localStorage.setItem('App.selectedChartId', JSON.stringify(selectedId));
+                    window.localStorage.setItem('App.selectedPresetId', '');
 
-        this.setState({
-            presetData: preset.native.data,
-            selectedPresetData: preset.native.data,
-            selectedPresetChanged: false,
-            presetMode: true,
-            selectedChartId: null,
-            selectedChartInstance: null,
-            selectedPresetId: id
-        });
-    }
+                    this.setState({
+                        presetData,
+                        selectedPresetChanged: false,
+                        originalPresetData: '',
+                        selectedId,
+                    });
+                });
+        } else if (selectedId) {
+            // load preset
+            return this.socket.getObject(selectedId)
+                .then(obj => {
+                    if (obj && obj.native && obj.native.data) {
+                        window.localStorage.setItem('App.selectedPresetId', selectedId);
+                        window.localStorage.setItem('App.selectedChartId', '');
 
-    loadChartParam(name, defaultValue) {
-        return window.localStorage.getItem('Chart.' + name) ? window.localStorage.getItem('Chart.' + name) : defaultValue;
-    }
-
-    loadChart(id, instance) {
-        const instances = this.state.instances;
-        const inst = instances.find(item => item._id === instance);
-        const obj = inst.enabledDP[id];
-
-        const line = DefaultPreset.getDefaultLine(this.state.systemConfig, instance, obj, I18n.getLanguage());
-
-        let presetData = {
-            marks: [],
-            lines: [line/*{
-                id,
-                instance,
-                offset: 0,
-                aggregate: 'minmax',
-                color: '#1868a8',
-                chartType: 'auto',
-                thickness: 2,
-                shadowsize: 0,
-                afterComma: 0,
-                ignoreNull: false,
-            }*/],
-            zoom: true,
-            //axeX: 'lines',
-            //axeY: 'inside',
-            hoverDetail: true,
-            aggregate: this.loadChartParam('aggregate', 'minmax'),
-            chartType: this.loadChartParam('chartType', 'auto'),
-            live: this.loadChartParam('live', '30'),
-            timeType: this.loadChartParam('timeType', 'relative'),
-            aggregateType: this.loadChartParam('aggregateType', 'step'),
-            aggregateSpan: this.loadChartParam('aggregateSpan', 300),
-            ticks: this.loadChartParam('ticks', ''),
-            range: this.loadChartParam('range', 1440),
-            relativeEnd: this.loadChartParam('relativeEnd', 'now'),
-            start: this.loadChartParam('start', ''),
-            end: this.loadChartParam('end', ''),
-            start_time: this.loadChartParam('start_time', ''),
-            end_time: this.loadChartParam('end_time', ''),
-            noBorder: 'noborder',
-            //bg: '#00000000',
-            //timeFormat: '',
-            //useComma: undefined,
-            noedit: false,
-            animation: 0
-        };
-
-        window.localStorage.setItem('App.selectedChartId', id);
-        window.localStorage.setItem('App.selectedChartInstance', instance);
-        window.localStorage.setItem('App.selectedPresetId', '');
-
-        this.setState({
-            presetData,
-            presetMode: false,
-            selectedChartId: id,
-            selectedChartInstance: instance,
-            selectedPresetId: null,
-            selectedPresetChanged: false
-        });
-    }
-
-    enablePresetMode = () => {
-        this.setState({presetMode: true, selectedChartId: null, selectedChartInstance: null});
-    };
-
-    renderListToolbar() {
-        return <Toolbar key="toolbar" variant="dense" className={ this.props.classes.mainToolbar }>
-                <IconButton
-                    onClick={ () => this.createPreset() }
-                    title={ I18n.t('Create new preset') }
-                ><IconAdd/></IconButton>
-
-                <IconButton
-                    onClick={ () => this.setState({addFolderDialog: this.state.folders, addFolderDialogTitle: ''}) }
-                    title={ I18n.t('Create new folder') }
-                ><IconFolderAdd/></IconButton>
-
-                <span className={this.props.classes.right}>
-                                            <IconButton
-                                                onClick={() =>
-                                                    this.setState({showSearch: !this.state.showSearch, search: ''})
-                                                }>
-                                                <SearchIcon/>
-                                            </IconButton>
-                                        </span>
-                {this.state.showSearch ?
-                    <TextField
-                        value={ this.state.search }
-                        className={ this.props.classes.textInput }
-                        onChange={ e => this.setState({search: e.target.value}) }
-                        InputProps={{
-                            endAdornment: this.state.search ?
-                                <IconButton
-                                    onClick={() => this.setState({ search: '' })}>
-                                    <ClearIcon />
-                                </IconButton>
-                             : undefined,
-                        }}
-                    /> : null
-                }
-            </Toolbar>;
-    }
-
-    renderAddFolderDialog() {
-        return this.state.addFolderDialog ?
-            <Dialog
-                maxWidth="md"
-                fullWidth={true}
-                open={ !!this.state.addFolderDialog }
-                onClose={ () => this.setState({addFolderDialog: null}) }
-            >
-                <DialogTitle>{I18n.t('Create folder')}</DialogTitle>
-                <DialogContent className={ this.props.classes.p }>
-                    <TextField
-                        fullWidth={true}
-                        label={ I18n.t('Title') }
-                        value={ this.state.addFolderDialogTitle }
-                        onChange={ e => this.setState({addFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()})}
-                        onKeyPress={e => {
-                            if (this.state.addFolderDialogTitle && e.which === 13) {
-                                this.addFolder(this.state.addFolderDialog, this.state.addFolderDialogTitle);
-                                this.setState({addFolderDialog: null});
-                            }
-                        }}
-                    />
-                </DialogContent>
-                <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={ () => this.setState({addFolderDialog: null}) }>
-                        <IconCancel className={ this.props.classes.buttonIcon }/>
-                        { I18n.t('Cancel') }
-                    </Button>
-                    <Button variant="contained" disabled={!this.state.addFolderDialogTitle || Object.keys(this.state.folders.subFolders).find(name => name === this.state.addFolderDialogTitle)} onClick={() => {
-                        this.addFolder(this.state.addFolderDialog, this.state.addFolderDialogTitle);
-                        this.setState({addFolderDialog: null});
-                    }} color="primary" autoFocus>
-                        <IconCheck className={ this.props.classes.buttonIcon }/>
-                        {I18n.t('Create')}
-                    </Button>
-                </DialogActions>
-            </Dialog> : null;
-    }
-
-    renderRenameFolderDialog() {
-        const isUnique = !Object.keys(this.state.folders.subFolders).find(folder => folder.id === this.state.editFolderDialogTitle);
-
-        return this.state.editFolderDialog ? <Dialog
-            maxWidth="md"
-            fullWidth={true}
-            open={ !!this.state.editFolderDialog }
-            onClose={ () => this.setState({editFolderDialog: null}) }
-        >
-            <DialogTitle>{ I18n.t('Edit folder') }</DialogTitle>
-            <DialogContent>
-                <TextField
-                    fullWidth={true}
-                    label={ I18n.t('Title') }
-                    value={ this.state.editFolderDialogTitle }
-                    onKeyPress={e => {
-                        if (this.state.editFolderDialogTitle && e.which === 13) {
-                            this.renameFolder(this.state.editFolderDialog, this.state.editFolderDialogTitle)
-                                .then(() => this.setState({editFolderDialog: null}));
-                        }
-                    }}
-                    onChange={ e => this.setState({editFolderDialogTitle: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()}) }/>
-            </DialogContent>
-            <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({editFolderDialog: null}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Cancel') }
-                </Button>
-                <Button
-                    variant="contained"
-                    disabled={ !this.state.editFolderDialogTitle || this.state.editFolderDialogTitleOrigin === this.state.editFolderDialogTitle || !isUnique}
-                    onClick={ () => {
-                        this.renameFolder(this.state.editFolderDialog, this.state.editFolderDialogTitle)
-                            .then(() => this.setState({editFolderDialog: null}));
-                    }}
-                    color="primary"
-                    autoFocus
-                >
-                    <IconCheck className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Rename') }
-                </Button>
-            </DialogActions>
-        </Dialog> : null;
-    }
-
-    renderMoveDialog() {
-        if (!this.state.moveDialog) {
-            return null;
-        }
-
-        const newFolder = this.state.newFolder === '__root__' ? '' : this.state.newFolder;
-        const presetId = this.state.moveDialog;
-        const newId = 'preset.0.' + newFolder + (newFolder ? '.' : '') + presetId;
-
-        const isIdUnique = !Object.keys(this.state.presets).find(id => id === newId);
-
-        return <Dialog
-            maxWidth="md"
-            fullWidth={true}
-            open={ true }
-            key="moveDialog"
-            onClose={ () => this.setState({moveDialog: null}) }
-        >
-            <DialogTitle>{ I18n.t('Move to folder') }</DialogTitle>
-            <DialogContent>
-                <FormControl classes={ {root: this.props.classes.width100} }>
-                    <InputLabel shrink={ true }>{ I18n.t('Folder') }</InputLabel>
-                    <Select
-                        fullWidth={true}
-                        className={ this.props.classes.width100 }
-                        value={ this.state.newFolder || '__root__' }
-                        onChange={e => this.setState({newFolder: e.target.value}) }
-                        onKeyPress={e => e.which === 13 && this.setState({moveDialog: null}, () =>
-                                    this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newFolder === '__root__' ? '' : this.state.newFolder))
-                        }
-                    >
-                        { getFolderList(this.state.folders).map(folder =>
-                            <MenuItem
-                                key={ folder.prefix }
-                                value={ folder.prefix || '__root__' }
-                            >
-                                { folder.prefix ? folder.prefix.replace('.', ' > ') : I18n.t('Root') }
-                            </MenuItem>)
-                        }
-                    </Select>
-                </FormControl>
-            </DialogContent>
-            <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({moveDialog: null}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Cancel') }
-                </Button>
-                <Button
-                    variant="contained"
-                    disabled={ !isIdUnique }
-                    color="primary" onClick={() =>
-                        this.setState({moveDialog: null}, () =>
-                            this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newFolder === '__root__' ? '' : this.state.newFolder))
+                        this.setState({
+                            presetData: obj.native.data,
+                            originalPresetData: JSON.stringify(obj.native.data),
+                            selectedPresetChanged: false,
+                            selectedId,
+                        });
                     }
-                >
-                    <IconCheck className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Move to folder') }
-                </Button>
-            </DialogActions>
-        </Dialog>;
-    }
-
-    renderRenameDialog() {
-        if (!this.state.renameDialog) {
-            return null;
+                });
+        } else {
+            this.setState({
+                presetData: null,
+                originalPresetData: '',
+                selectedPresetChanged: false,
+                selectedId: null,
+            });
         }
-
-        const presetId = this.state.renameDialog;
-
-        return <Dialog
-            maxWidth="md"
-            fullWidth={true}
-            open={ true }
-            key="renameDialog"
-            onClose={ () => this.setState({renameDialog: null}) }
-        >
-            <DialogTitle>{ I18n.t('Rename preset') }</DialogTitle>
-            <DialogContent>
-                <FormControl classes={ {root: this.props.classes.width100} }>
-                    <TextField
-                        fullWidth={true}
-                        label={ I18n.t('Name') }
-                        value={ this.state.renamePresetDialogTitle }
-                        onChange={ e => this.setState({renamePresetDialogTitle: e.target.value})}
-                        onKeyPress={e => {
-                            if (this.isNameUnique(this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle && e.which === 13) {
-                                this.setState({renameDialog: null}, () =>
-                                    this.renamePreset(presetId, this.state.renamePresetDialogTitle));
-                            }
-                        }}
-                    />
-                </FormControl>
-            </DialogContent>
-            <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({renameDialog: null}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Cancel') }
-                </Button>
-                <Button
-                    variant="contained"
-                    disabled={ !this.state.renamePresetDialogTitle || !this.isNameUnique(this.state.renamePresetDialogTitle) }
-                    color="primary" onClick={() =>
-                        this.setState({renameDialog: null}, () =>
-                            this.renamePreset(presetId, this.state.renamePresetDialogTitle))
-                    }
-                >
-                    <IconCheck className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Rename') }
-                </Button>
-            </DialogActions>
-        </Dialog>;
     }
 
-    renderDeleteDialog() {
-        return this.state.deleteDialog ? <Dialog
-            open={ true }
-            key="deleteDialog"
-            onClose={ () => this.setState({deleteDialog: false}) }
-        >
-            <DialogTitle>{ I18n.t('Are you sure for delete this preset?') }</DialogTitle>
-            <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({deleteDialog: false}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    {I18n.t('Cancel')}
-                </Button>
-                <Button variant="contained" color="secondary" onClick={() => {
-                    this.deletePreset(this.state.deleteDialog);
-                    this.setState({deleteDialog: false});
-                }}>
-                    <IconDelete className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Delete') }
-                </Button>
-            </DialogActions>
-        </Dialog> : null;
-    }
-
-    renderLoadChartDialog() {
-        return this.state.loadChartDialog ? <Dialog
+    discardChangesConfirmDialog() {
+        return this.state.discardChangesConfirmDialog ? <Dialog
             maxWidth="lg"
             fullWidth={true}
             open={ true }
-            key="loadChartDialog"
-            onClose={ () => this.setState({loadChartDialog: ''}) }>
-                <DialogTitle>{ I18n.t('Are you sure for load chart and cancel unsaved changes?') }</DialogTitle>
+            key="discardChangesConfirmDialog"
+            onClose={ () => this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(false)) }>
+                <DialogTitle>{
+                    this.state.discardChangesConfirmDialog === 'chart' ? I18n.t('Are you sure for loading the chart and discard unsaved changes?')
+                    : (this.state.discardChangesConfirmDialog === 'preset' ? I18n.t('Are you sure for loading the preset and discard unsaved changes?') :
+                        I18n.t('Are you sure for closing folder and discard unsaved changes?'))
+                }</DialogTitle>
                 <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() => {
-                        this.setState({loadChartDialog: ''});
-                    }}>
+                    <Button variant="contained" onClick={() =>
+                        this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(false))}>
                         <IconCancel className={ this.props.classes.buttonIcon }/>
                         { I18n.t('Cancel') }
                     </Button>
                     <Button variant="contained" color="secondary" onClick={() => {
-                        this.savePreset(this.state.selectedPresetId);
-                        this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
-                        this.setState({loadChartDialog: ''});
+                        this.savePreset()
+                            .then(() => this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true)));
                     }}>
                         <IconSave className={ this.props.classes.buttonIcon }/>
                         { I18n.t('Save current preset and load') }
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={() => {
-                        this.loadChart(this.state.loadChartDialog, this.state.loadChartDialogInstance);
-                        this.setState({loadChartDialog: ''});
-                    }}>
-                        { I18n.t('Load chart') }
+                    <Button variant="contained" onClick={() =>
+                        this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true))}>
+                        { I18n.t('Load without save') }
                     </Button>
                 </DialogActions>
             </Dialog> : null;
-    };
-
-    renderLoadPresetDialog() {
-        return this.state.loadPresetDialog ? <Dialog
-            maxWidth="lg"
-            fullWidth={true}
-            open={ true }
-            key="loadPresetDialog"
-            onClose={ () => this.setState({loadPresetDialog: ''}) }>
-                <DialogTitle>{ I18n.t('Are you sure for load preset and cancel unsaved changes?') }</DialogTitle>
-                <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() => {
-                        this.setState({loadPresetDialog: ''});
-                    }}>
-                        <IconCancel  className={ this.props.classes.buttonIcon }/> { I18n.t('Cancel') }
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => {
-                        this.savePreset(this.state.selectedPresetId);
-                        this.loadPreset(this.state.loadPresetDialog);
-                        this.setState({loadPresetDialog: ''});
-                    }}>
-                        <IconSave className={ this.props.classes.buttonIcon }/> { I18n.t('Save current preset and load') }
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => {
-                        this.loadPreset(this.state.loadPresetDialog);
-                        this.setState({loadPresetDialog: ''});
-                    }}>
-                        { I18n.t('Load preset') }
-                    </Button>
-                </DialogActions>
-            </Dialog> : null;
-    };
-
-    renderCloseFolderDialog() {
-        return this.state.closeFolderDialog ? <Dialog
-            maxWidth="lg"
-            fullWidth={true}
-            open={ true }
-            key="closeFolderDialog"
-            onClose={ () => this.setState({closeFolderDialog: ''}) }>
-                <DialogTitle>{ I18n.t('Are you sure for close folder and cancel unsaved changes?') }</DialogTitle>
-                <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() => {
-                        this.toggleFolder(this.state.closeFolderDialog);
-                        this.setState({closeFolderDialog: ''});
-                    }}>
-                        <IconCancel className={ this.props.classes.buttonIcon }/> { I18n.t('Cancel') }
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => {
-                        this.savePreset(this.state.selectedPresetId);
-                        this.setState({
-                            selectedPresetId: null,
-                            presetData: {},
-                            presetMode: false,
-                            selectedPresetChanged: false,
-                            closeFolderDialog: false,
-                        })
-                    }}>
-                        <IconSave className={ this.props.classes.buttonIcon }/> { I18n.t('Save current preset and close') }
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => {
-                        this.setState({
-                            selectedPresetId: null,
-                            presetData: {},
-                            presetMode: false,
-                            selectedPresetChanged: false,
-                            closeFolderDialog: false,
-                        })
-                    }}>
-                        { I18n.t('Close folder') }
-                    </Button>
-                </DialogActions>
-            </Dialog> : null;
-    };
-
-    renderSavePresetDialog() {
-        return this.state.savePresetDialog ? <Dialog
-            maxWidth="lg"
-            fullWidth={true}
-            open={ true }
-            key="savePresetDialog"
-            onClose={ () => this.setState({savePresetDialog: ''}) }>
-                <DialogTitle>{ I18n.t('Are you sure for rewrite preset and lost previous settings?') }</DialogTitle>
-                <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() => this.setState({savePresetDialog: ''})}>
-                        <IconCancel className={ this.props.classes.buttonIcon }/> { I18n.t('Cancel') }
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => {
-                        this.savePreset(this.state.savePresetDialog);
-                        this.setState({savePresetDialog: ''});
-                    }}>
-                        <IconSave className={ this.props.classes.buttonIcon }/> { I18n.t('Save preset') }
-                    </Button>
-                </DialogActions>
-            </Dialog> : null;
-    };
-
-    onUpdatePreset = presetData => {
-        this.setState({selectedPresetChanged: JSON.stringify(presetData) !== JSON.stringify(this.state.loadedPresetData)});
-        this.setState({presetData})
     };
 
     renderMain() {
@@ -1430,36 +303,30 @@ class App extends GenericApp {
                         window.localStorage && window.localStorage.setItem('App.settingsSize', this.settingsSize.toString());
                     }}
                 >
-                    { this.state.selectedPresetId || this.state.selectedChartId ? <MainChart
+                    { this.state.selectedId ? <MainChart
                         key="MainChart"
                         visible={!this.state.resizing}
                         theme={this.state.theme}
-                        themeType={this.state.themeType}
-                        onChange={this.onUpdatePreset}
+                        onChange={presetData => this.setState({presetData})}
                         presetData={this.state.presetData}
-                        enablePresetMode={this.enablePresetMode}
-                        presetMode={this.state.presetMode}
-                        selectedPresetId={this.state.selectedPresetId}
-                        selectedChartId={this.state.selectedChartId}
-                        selectedChartInstance={this.state.selectedChartInstance}
-                        socket={this.socket}
-                        createPreset={(id, parent, instance, stateId) => this.createPreset(id, parent, instance, stateId)}
+                        selectedId={this.state.selectedId}
+                        createPreset={() => {
+                            //this.createPreset(id, parent, instance, stateId);
+                        }}
                     /> : null}
                     {
-                        this.state.presetMode && this.state.presetData ? <SettingsEditor
+                        this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? <SettingsEditor
                             socket={this.socket}
                             key="Editor"
                             width={window.innerWidth - this.menuSize}
                             theme={this.state.theme}
-                            onChange={this.onUpdatePreset}
+                            onChange={presetData => this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData})}
                             presetData={this.state.presetData}
                             verticalLayout={!this.state.logHorzLayout}
                             onLayoutChange={() => this.toggleLogLayout()}
                             connection={this.socket}
-                            selected={this.state.selected}
                             instances={this.state.instances}
                             systemConfig={this.state.systemConfig}
-                            selectedPresetId={this.state.selectedPresetId}
                             selectedPresetChanged={this.state.selectedPresetChanged}
                             savePreset={this.savePreset}
                         /> : null
@@ -1467,18 +334,6 @@ class App extends GenericApp {
                 </SplitterLayout>
             </div>
         ];
-    }
-
-    renderLeftList() {
-        return <div className={this.props.classes.mainListDiv} key="mainMenuDiv">
-            {this.renderListToolbar()}
-            <div className={ this.props.classes.heightMinusToolbar }>
-                <List className={ this.props.classes.scroll }>
-                    { this.renderTree(this.state.folders) }
-                </List>
-                { this.renderSimpleHistory() }
-            </div>
-        </div>;
     }
 
     onDragEnd = result => {
@@ -1492,73 +347,24 @@ class App extends GenericApp {
                     const presetData = JSON.parse(JSON.stringify(this.state.presetData));
                     const newLine = DefaultPreset.getDefaultLine(this.state.systemConfig, instance, obj, I18n.getLanguage());
                     if (!destination) {
-                        /*const newLine = {
-                            instance,
-                            name: (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim(),
-                            color,
-                            id: stateId,
-                            unit: (obj && obj.common && obj.common.unit) || '',
-                            xaxe: !len ? undefined : 'off',
-                            chartType: (obj && obj.common && obj.common.type === 'boolean') ? 'steps' : 'line',
-                            aggregate: (obj && obj.common && obj.common.type === 'boolean') ? 'onchange' : 'minmax',
-                        };*/
                         presetData.lines.push(newLine);
                     } else {
                         presetData.lines.splice(destination.index, 0, newLine);
                     }
 
-                    this.onUpdatePreset(presetData);
+                    this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
                 });
         } else if (destination && source.droppableId === destination.droppableId) {
             const presetData = JSON.parse(JSON.stringify(this.state.presetData));
             const [removed] = presetData.lines.splice(source.index, 1);
             presetData.lines.splice(destination.index, 0, removed);
-            this.onUpdatePreset(presetData);
+            this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
         }
     };
 
-    renderSelectIdDialog() {
-        if (!this.state.showAddStateDialog) {
-            return null;
-        } else {
-            return <DialogSelectID
-                key={'selectDialog_add'}
-                socket={ this.socket }
-                dialogName={'Add'}
-                type={'state'}
-                title={ I18n.t('Enable logging for state')}
-                onOk={id => {
-                    console.log('Selected ' + id);
-                    const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
-                    if (id) {
-                        this.socket.getObject(id)
-                            .then(obj => {
-                                if (!obj || !obj.common) {
-                                    return this.showError(I18n.t('Invalid object'));
-                                }
-                                if (obj.common.custom && obj.common.custom[instance]) {
-                                    return this.showToast(I18n.t('Already enabled'));
-                                } else {
-                                    obj.common.custom = obj.common.custom || {};
-                                    obj.common.custom[instance] = {
-                                        enabled: true,
-                                    };
-                                    this.socket.setObject(id, obj)
-                                        .then(() => {
-                                            const instances = JSON.parse(JSON.stringify(this.state.instances));
-                                            const inst = instances.find(item => item._id === 'system.adapter.' + instance);
-                                            inst.enabledDP = inst.enabledDP || {};
-                                            inst.enabledDP[obj._id] = obj;
-                                            this.setState({instances});
-                                        });
-                                }
-                            })
-                    }
-                    this.setState({showAddStateDialog: false});
-                } }
-                onClose={ () => this.setState({showAddStateDialog: false}) }
-            />;
-        }
+    toggleLogLayout() {
+        window.localStorage && window.localStorage.setItem('App.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
+        this.setState({logHorzLayout: !this.state.logHorzLayout});
     }
 
     render() {
@@ -1570,46 +376,61 @@ class App extends GenericApp {
             </MuiThemeProvider>;
         }
 
-        return (
-            <MuiThemeProvider theme={this.state.theme}>
-                <React.Fragment>
-                    <div className={classes.root} key="divSide">
-                        <DragDropContext onDragEnd={this.onDragEnd}>
-                            <SplitterLayout
-                                key="sidemenuwidth"
-                                vertical={false}
-                                primaryMinSize={300}
-                                primaryIndex={1}
-                                secondaryMinSize={300}
-                                secondaryInitialSize={this.menuSize}
-                                customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
-                                onDragStart={() => this.setState({resizing: true})}
-                                onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
-                                onDragEnd={() => {
-                                    this.setState({resizing: false});
-                                    window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
+        return <MuiThemeProvider theme={this.state.theme}>
+            <React.Fragment>
+                <div className={classes.root} key="divSide">
+                    <DragDropContext onDragEnd={this.onDragEnd}>
+                        <SplitterLayout
+                            key="sidemenuwidth"
+                            vertical={false}
+                            primaryMinSize={300}
+                            primaryIndex={1}
+                            secondaryMinSize={300}
+                            secondaryInitialSize={this.menuSize}
+                            customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
+                            onDragStart={() => this.setState({resizing: true})}
+                            onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
+                            onDragEnd={() => {
+                                this.setState({resizing: false});
+                                window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
+                            }}
+                        >
+                            <MenuList
+                                key="menuList"
+                                socket={this.socket}
+                                theme={this.state.theme}
+                                adapterName={this.adapterName}
+                                instances={this.state.instances}
+                                systemConfig={this.state.systemConfig}
+                                onShowToast={toast => this.showToast(toast)}
+                                selectedPresetChanged={this.state.selectedPresetChanged}
+                                onSelectedChanged={(selectedId, cb) => {
+                                    if (cb && this.state.selectedPresetChanged) {
+                                        this.confirmCB = confirmed => {
+                                            if (confirmed) {
+                                                cb(selectedId);
+                                                this.loadChartOrPreset(selectedId);
+                                            } else {
+                                                cb(false); // cancel
+                                            }
+                                            this.confirmCB = null;
+                                        };
+                                        this.setState({discardChangesConfirmDialog: selectedId && typeof selectedId === 'object' ? 'chart' : (selectedId ? 'preset' : 'folder')});
+                                    } else {
+                                        cb && cb(selectedId);
+                                        this.loadChartOrPreset(selectedId);
+                                    }
                                 }}
-                            >
-                                {this.renderLeftList()}
-                                {this.renderMain()}
-                            </SplitterLayout>
-                        </DragDropContext>
-                    </div>
-                    { this.renderAddFolderDialog() }
-                    { this.renderRenameFolderDialog() }
-                    { this.renderDeleteDialog() }
-                    { this.renderMoveDialog() }
-                    { this.renderRenameDialog() }
-                    { this.renderLoadChartDialog() }
-                    { this.renderLoadPresetDialog() }
-                    { this.renderError() }
-                    { this.renderToast() }
-                    { this.renderSavePresetDialog() }
-                    { this.renderCloseFolderDialog() }
-                    { this.renderSelectIdDialog() }
-                </React.Fragment>
-            </MuiThemeProvider>
-        );
+                            />
+                            {this.renderMain()}
+                        </SplitterLayout>
+                    </DragDropContext>
+                </div>
+                { this.discardChangesConfirmDialog() }
+                { this.renderError() }
+                { this.renderToast() }
+            </React.Fragment>
+        </MuiThemeProvider>;
     }
 }
 
