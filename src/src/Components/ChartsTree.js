@@ -37,6 +37,17 @@ function sortObj(a, b) {
     }
 }
 
+function getEnumsForId(enums, id) {
+    const result = [];
+    Object.keys(enums).forEach(eID => {
+        const en = enums[eID];
+        if (en.common.members.includes(id) && !result.includes(eID)) {
+            result.push(eID);
+        }
+    });
+    return result;
+}
+
 const LEVEL_PADDING = 16;
 
 const styles = theme => ({
@@ -77,12 +88,33 @@ class ChartsTree extends Component {
             chartsOpened
         };
 
-        this.getAllCharts()
+        this.getAllEnums()
+            .then(newState => this.getAllCharts(newState))
             .then(newState => this.setState(newState, () =>
                 this.props.selectedId && this.props.onSelectedChanged(this.props.selectedId)));
     }
 
-    getAllCharts() {
+    getAllEnums(newState) {
+        newState = newState || {};
+        return this.props.socket.getEnums()
+            .then(enums => {
+                newState.enums = [];
+                Object.keys(enums).forEach(id => {
+                    if ((id.startsWith('enum.functions.') || id.startsWith('enum.rooms.')) && enums[id] && enums[id].common && enums[id].common.members && enums[id].common.members.length)  {
+                        newState.enums[id] = {
+                            common: {
+                                members: [...enums[id].common.members],
+                                name: Utils.getObjectNameFromObj(enums[id], null, {language: I18n.getLanguage()}),
+                            }
+                        };
+                    }
+                });
+                return newState;
+            });
+    }
+
+    getAllCharts(newState) {
+        newState = newState || {};
         return new Promise(resolve =>
             this.props.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
                 // console.log(objs);
@@ -90,15 +122,20 @@ class ChartsTree extends Component {
                 this.getObjects(ids, objs => {
                     const ids = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
                     const _instances = {};
+                    newState.enums = newState.enums || this.state.enums;
                     Object.values(objs).forEach(obj => {
                         const id = obj && obj.common && obj.common.custom && ids.find(id => Object.keys(obj.common.custom).includes(id));
                         if (id) {
-                            _instances[id] = _instances[id] || {_id: 'system.adapter.' + id, enabledDP: {}};
+                            _instances[id] = _instances[id] || {_id: 'system.adapter.' + id, enabledDP: {}, names: {}, statesEnums: {}};
                             _instances[id].enabledDP[obj._id] = obj;
+                            _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()});
+                            _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
                         }
                     });
 
-                    let chartsOpened = {};
+                    let chartsOpened = JSON.parse(JSON.stringify(this.state.chartsOpened));
+                    const funcIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.functions.'));
+                    const roomIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.rooms.'));
 
                     const insts = Object.values(_instances).map(obj => {
                         const enabledDP = {};
@@ -107,7 +144,43 @@ class ChartsTree extends Component {
                             enabledDP[id].group = obj._id;
                         });
                         obj.enabledDP = enabledDP;
-                        chartsOpened[obj._id] = typeof this.state.chartsOpened[obj._id] !== 'undefined' ? this.state.chartsOpened[obj._id] : true;
+                        chartsOpened[obj._id] = chartsOpened[obj._id] !== undefined ? (this.state.chartsOpened[obj._id] || false) : true;
+
+                        // Build for every instance the list of enums
+                        const others = [];
+                        Object.keys(newState.enums).forEach(eID => {
+                            if (Object.keys(enabledDP).find(id => newState.enums[eID].common.members.includes(id))) {
+                                obj.enums = obj.enums || [];
+                                if (!obj.enums.includes(eID)) {
+                                    obj.enums.push(eID);
+                                }
+                            }
+                        });
+
+                        // Collect all enum-loss IDs in enum
+                        const otherFuncs = {common: {members: [], name: I18n.t('Others')}};
+                        const otherRooms = {common: {members: [], name: I18n.t('Others')}};
+                        Object.keys(enabledDP).forEach(id => {
+                            if (!funcIds.find(eID => newState.enums[eID].common.members.includes(id))) {
+                                otherFuncs.common.members.push(id);
+                            }
+                            if (!roomIds.find(eID => newState.enums[eID].common.members.includes(id))) {
+                                otherRooms.common.members.push(id);
+                            }
+                        });
+                        if (otherFuncs.common.members.length) {
+                            obj.enums = obj.enums || [];
+                            obj.enums.push('enum.functions.' + obj._id);
+                            newState.enums['enum.functions.' + obj._id] = otherFuncs;
+                        }
+                        if (otherRooms.common.members.length) {
+                            obj.enums = obj.enums || [];
+                            obj.enums.push('enum.rooms.' + obj._id);
+                            newState.enums['enum.rooms.' + obj._id] = otherRooms;
+                        }
+
+                        obj.enums && obj.enums.sort((a, b) => newState.enums[a].common.name > newState.enums[b].common.name ? -1 : (newState.enums[a].common.name < newState.enums[b].common.name ? 1 : 0));
+
                         return obj;
                     });
 
@@ -120,8 +193,10 @@ class ChartsTree extends Component {
                             setTimeout(() => this.props.onSelectedChanged({id: selectedChartId, instance: insts[0]._id}), 500);
                         }
                     }
+                    newState.instances = insts;
+                    newState.chartsOpened = chartsOpened;
 
-                    resolve({instances: insts, chartsOpened});
+                    resolve(newState);
                 });
             }));
     }
@@ -169,8 +244,11 @@ class ChartsTree extends Component {
 
         let loadChart = null;
 
-        if (!chartsOpened[id] && this.props.selectedId && typeof this.props.selectedId === 'object' && this.props.selectedId.instance === id) {
-            // TODO: Take next nearest opened chart folder
+        if (!chartsOpened[id]) {
+            const instance = id.split('///')[0];
+            if (this.props.selectedId && typeof this.props.selectedId === 'object' && this.props.selectedId.instance === instance) {
+                // TODO: Take next nearest opened chart folder
+            }
         }
 
         this.setState(newState, () => this.props.onSelectedChanged(loadChart));
@@ -220,132 +298,191 @@ class ChartsTree extends Component {
         }
     }
 
+    renderListItem(group, id, dragging, level) {
+        const instance = group._id;
+        return <ListItem
+            key={instance + '_' + id}
+            classes={ {gutters: this.props.classes.noGutters} }
+            button
+            style={{paddingLeft: LEVEL_PADDING * level + this.props.theme.spacing(1)}}
+            selected={
+                this.props.selectedId &&
+                typeof this.props.selectedId === 'object' &&
+                this.props.selectedId.id === id &&
+                this.props.selectedId.instance === instance
+            }
+            onClick={dragging ? undefined : () => this.props.onSelectedChanged({id, instance})}
+        >
+            <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
+                <IconChart className={this.props.classes.itemIcon}/>
+            </ListItemIcon>
+            <ListItemText
+                classes={{
+                    primary: this.props.classes.listItemTitle,
+                    secondary: this.props.classes.listItemSubTitle
+                }}
+                primary={group.names[id]}
+                secondary={id.replace('system.adapter.', '')}
+            />
+            {!dragging && this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction>
+                <Switch
+                    edge="end"
+                    onChange={e => {
+                        const chartsList = JSON.parse(JSON.stringify(this.props.chartsList));
+                        const item = chartsList.find(item => item.id === id && item.instance === instance);
+                        if (e.target.checked && !item) {
+                            chartsList.push({id, instance: instance});
+                        } else if (!e.target.checked && item) {
+                            chartsList.splice(chartsList.indexOf(item), 1);
+                        }
+                        this.props.onChangeList(chartsList);
+                    }}
+                    checked={!!this.props.chartsList.find(item => item.id === id && item.instance === instance)}
+                /> </ListItemSecondaryAction>: null}
+        </ListItem>
+    }
+
+    renderListItems(group, ids, enumId, renderContext) {
+        renderContext.gIndex = renderContext.gIndex || 0;
+
+        if (!ids || !ids.length) {
+            return null;
+        }
+        const instance = group._id;
+
+        if (!enumId) {
+            return ids.map(id=>
+                <Draggable
+                    isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
+                    key={instance + '_' + id}
+                    draggableId={instance + '***' + id}
+                    index={renderContext.gIndex++}>
+                    {(provided, snapshot) =>
+                        [
+                            <div
+                                key={instance + '_' + id + '_item'}
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={provided.draggableProps.style}
+                                className="drag-items"
+                            >
+                                {this.renderListItem(group, id, false, 2)}
+                            </div>,
+                            snapshot.isDragging ?
+                                <div className="react-beatiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
+                                    {this.renderListItem(group, id, true)}
+                                </div>: null
+                        ]
+                    }
+                </Draggable>
+            );
+        }  else {
+            const key = instance + '///' + enumId;
+            const opened = this.state.chartsOpened[key];
+            if (opened) {
+                ids = ids.filter(id => this.state.enums[enumId].common.members.includes(id));
+            }
+            return [
+                <ListItem
+                    key={key}
+                    style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
+                    classes={ {gutters: this.props.classes.noGutters} }
+                    className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
+                >
+                    <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(key) }>{ opened ?
+                        <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
+                        <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
+                    }</ListItemIcon>
+                    <ListItemText primary={this.state.enums[enumId].common.name}/>
+                    <ListItemSecondaryAction>
+                        <IconButton onClick={ () => this.toggleChartFolder(key) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
+                            { opened ? <IconCollapse/> : <IconExpand/> }
+                        </IconButton>
+                    </ListItemSecondaryAction>
+                </ListItem>,
+                opened ? <List>
+                    {ids.map(id=>
+                        <Draggable
+                            isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
+                            key={instance + '_' + id}
+                            draggableId={instance + '***' + id}
+                            index={renderContext.gIndex++}>
+                            {(provided, snapshot) =>
+                                [
+                                    <div
+                                        key={instance + '_' + id + '_item'}
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        style={provided.draggableProps.style}
+                                        className="drag-items"
+                                    >
+                                        {this.renderListItem(group, id, false, 3)}
+                                    </div>,
+                                    snapshot.isDragging ?
+                                        <div className="react-beatiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
+                                            {this.renderListItem(group, id, true)}
+                                        </div>: null
+                                ]
+                            }
+                        </Draggable>
+                    )}
+                </List> : null
+            ]
+        }
+    }
+
     render() {
-        let gIndex = 0;
+        const renderContext = {gIndex: 0};
         return [
             this.renderSelectIdDialog(),
             <Droppable droppableId="Lines" isDropDisabled={true} key="charts">
                 {(provided, snapshot) =>
                     <div ref={provided.innerRef}>
                         <List className={ this.props.classes.scroll }>
-                            {this.state.instances.map((group, index) => {
-                                    let chartsOpened = this.state.chartsOpened[group._id];
-                                    let ids = null;
-                                    if (chartsOpened) {
-                                        ids = Object.keys(group.enabledDP)
-                                            .filter(id => !this.state.search || id.includes(this.state.search));
-                                        ids.sort(sortObj);
+                            {this.state.instances.map(group => {
+                                    let opened = this.state.chartsOpened[group._id];
+                                    let children = null;
+
+                                    // if instance opened
+                                    if (opened) {
+                                        // no groupBy
+                                        const ids = Object.keys(group.enabledDP)
+                                            .filter(id => !this.props.search || id.includes(this.props.search) || group.names[id].includes(this.props.search));
+
+                                        if (!this.props.groupBy) {
+                                            ids.sort(sortObj);
+                                            children = this.renderListItems(group, ids, null, renderContext);
+                                        } else {
+                                            children = (group.enums || []).filter(id => id.startsWith('enum.' + this.props.groupBy + '.')).map(eID =>
+                                                this.renderListItems(group, ids, eID, renderContext));
+                                        }
                                     }
 
-                                    return <React.Fragment key={index}>
+                                    return [
                                         <ListItem
-                                            key={index}
+                                            key={group._id}
                                             classes={ {gutters: this.props.classes.noGutters} }
                                             className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
                                         >
-                                            <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>{ chartsOpened ?
+                                            <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>{ opened ?
                                                 <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
                                                 <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
                                             }</ListItemIcon>
                                             <ListItemText primary={group._id.replace('system.adapter.', '')}/>
                                             <ListItemSecondaryAction>
-                                                {chartsOpened ? <IconButton
+                                                {opened ? <IconButton
                                                     onClick={() => this.setState({showAddStateDialog: group._id})}
                                                     title={ I18n.t('Enable logging for new state') }
                                                 ><IconAdd/></IconButton> : null}
-                                                <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ chartsOpened ? I18n.t('Collapse') : I18n.t('Expand')  }>
-                                                    { chartsOpened ? <IconCollapse/> : <IconExpand/> }
+                                                <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
+                                                    { opened ? <IconCollapse/> : <IconExpand/> }
                                                 </IconButton>
                                             </ListItemSecondaryAction>
-                                        </ListItem>
-                                        {
-                                            ids ? ids.map(id=>
-                                                <Draggable
-                                                    isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
-                                                    key={group._id + '_' + id}
-                                                    draggableId={group._id + '***' + id}
-                                                    index={gIndex++}>
-                                                    {(provided, snapshot) =>
-                                                        <>
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                style={provided.draggableProps.style}
-                                                                className="drag-items"
-                                                            >
-                                                                <ListItem
-                                                                    key={group._id + '_' + id}
-                                                                    button
-                                                                    style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
-                                                                    selected={
-                                                                        this.props.selectedId &&
-                                                                        typeof this.props.selectedId === 'object' &&
-                                                                        this.props.selectedId.id === id &&
-                                                                        this.props.selectedId.instance === group._id
-                                                                    }
-                                                                    onClick={() => this.props.onSelectedChanged({id, instance: group._id})}
-                                                                >
-                                                                    <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
-                                                                        <IconChart className={this.props.classes.itemIcon}/>
-                                                                    </ListItemIcon>
-                                                                    <ListItemText
-                                                                        classes={{
-                                                                            primary: this.props.classes.listItemTitle,
-                                                                            secondary: this.props.classes.listItemSubTitle
-                                                                        }}
-                                                                        primary={Utils.getObjectNameFromObj(group.enabledDP[id], null, {language: I18n.getLanguage()})}
-                                                                        secondary={id.replace('system.adapter.', '')}
-                                                                    />
-                                                                    {this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction>
-                                                                        <Switch
-                                                                            edge="end"
-                                                                            onChange={e => {
-                                                                                const chartsList = JSON.parse(JSON.stringify(this.props.chartsList));
-                                                                                const item = chartsList.find(item => item.id === id && item.instance === group._id);
-                                                                                if (e.target.checked && !item) {
-                                                                                    chartsList.push({id, instance: group._id});
-                                                                                } else if (!e.target.checked && item) {
-                                                                                    chartsList.splice(chartsList.indexOf(item), 1);
-                                                                                }
-                                                                                this.props.onChangeList(chartsList);
-                                                                            }}
-                                                                            checked={!!this.props.chartsList.find(item => item.id === id && item.instance === group._id)}
-                                                                        /> </ListItemSecondaryAction>: null}
-                                                                </ListItem>
-
-                                                            </div>
-                                                            {snapshot.isDragging ?
-                                                                <div className="react-beatiful-dnd-copy">
-                                                                    <ListItem
-                                                                        key={group._id + '_' + id + 'copy'}
-                                                                        style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
-                                                                        selected={
-                                                                            this.props.selectedId &&
-                                                                            typeof this.props.selectedId === 'object' &&
-                                                                            this.props.selectedId.id === id &&
-                                                                            this.props.selectedId.instance === group._id
-                                                                        }
-                                                                    >
-                                                                        <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
-                                                                            <IconChart className={this.props.classes.itemIcon}/>
-                                                                        </ListItemIcon>
-                                                                        <ListItemText
-                                                                            classes={{
-                                                                                primary: this.props.classes.listItemTitle,
-                                                                                secondary: this.props.classes.listItemSubTitle
-                                                                            }}
-                                                                            primary={Utils.getObjectNameFromObj(group.enabledDP[id], null, {language: I18n.getLanguage()})}
-                                                                            secondary={id.replace('system.adapter.', '')}
-                                                                        />
-                                                                    </ListItem>
-                                                                </div>: null}
-                                                        </>
-                                                    }
-                                                </Draggable>
-                                            ) : null
-                                        }
-                                    </React.Fragment>
+                                        </ListItem>,
+                                        children
+                                    ];
                                 }
                             )}
                             {provided.placeholder}
@@ -366,6 +503,8 @@ ChartsTree.propTypes = {
     chartsList: PropTypes.array,
     theme: PropTypes.object,
     multiple: PropTypes.bool,
+    search: PropTypes.string,
+    groupBy: PropTypes.string,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.string

@@ -451,7 +451,7 @@ class ChartView extends React.Component {
                 smooth: oneLine.chartType === 'spline',
                 data: this.convertData(props, i, yAxisIndex),
                 itemStyle: {color},
-                symbolSize: oneLine.chartType === 'scatterplot' || oneLine.points ? oneLine.symbolSize || 3 : undefined,
+                symbolSize: (oneLine.chartType === 'scatterplot' || oneLine.points) ? (oneLine.symbolSize || 3) : undefined,
                 symbol: 'circle',
                 lineStyle: {
                     width:          oneLine.thickness || 1,

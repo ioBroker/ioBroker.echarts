@@ -171,6 +171,10 @@ class Line extends React.Component {
                         if (obj && obj.common && obj.common.unit) {
                             line.unit = obj.common.unit;
                         }
+                        if (obj && obj.common && (obj.common.type === 'boolean' || obj.common.type === 'number')) {
+                            line.chartType = 'auto';
+                            line.aggregate = '';
+                        }
                     })
                     .catch(e => {
                         console.error(e);
@@ -272,7 +276,7 @@ class Line extends React.Component {
                 }}
                 classes={{fieldContainer: this.props.classes.shortChartTypeField}}
             /> : null}
-            {visible.dataType ? <IOSelect
+            {visible.dataType && this.props.line.chartType !== 'auto' ? <IOSelect
                 formData={this.props.line}
                 updateValue={this.updateField}
                 minWidth={WIDTHS.dataType}
@@ -372,34 +376,31 @@ class Line extends React.Component {
                 </IconButton>
             </div>
             <div className={this.props.classes.shortFields}>
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="instance" label="Instance" noTranslate={true} options={
-                    (() => {
+                <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="instance"
+                    label="Instance"
+                    noTranslate={true}
+                    options={(() => {
                         let result = {};
                         this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
                         return result;
-                    })()
-                }/>
+                    })()}
+                />
                 <IOObjectField
                     formData={this.props.line}
                     classes={{objectContainer: this.props.classes.fullWidth}}
                     updateValue={this.updateField}
                     name="id"
                     label="ID"
-                    width={'calc(100% - 250px)'}
+                    width="calc(100% - 250px)"
                     customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}}
                     socket={this.props.socket}/>
             </div>
             <div className={this.props.classes.shortFields}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
                 {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
-                    minmax: 'minmax',
-                    average: 'average',
-                    min: 'min',
-                    max: 'max',
-                    total: 'total',
-                    onchange: 'raw',
-                }}/>
                 <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
                     auto: 'Auto (Line or Steps)',
                     line: 'Line',
@@ -408,7 +409,15 @@ class Line extends React.Component {
                     steps: 'Steps',
                     spline: 'Spline',
                 }}/>
-                {this.props.line.chartType === 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
+                {this.props.line.chartType !== 'auto' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
+                    minmax: 'minmax',
+                    average: 'average',
+                    min: 'min',
+                    max: 'max',
+                    total: 'total',
+                    onchange: 'raw',
+                }}/> : null }
+                {(this.props.line.chartType !== 'auto' && this.props.line.chartType === 'scatterplot') || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
             </div>
             <div className={this.props.classes.shortFields}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>

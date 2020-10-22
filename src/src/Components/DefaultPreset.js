@@ -109,15 +109,17 @@ const DEFAULT_PRESET = {
 
 function getDefaultLine(systemSettings, instance, obj, language) {
     const isBoolean = obj && obj.common && obj.common.type === 'boolean';
+
     const line = {
-        name:       (obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '',
+        name:       ((obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '').trim(),
         id:         obj ? obj._id : '',
         instance:   instance || systemSettings.common.defaultHistory,
         thickness:  2,
-        chartType:  isBoolean ? 'steps' : 'line',
+        chartType:  isBoolean ? 'steps'    : 'line',
         aggregate:  isBoolean ? 'onchange' : 'minmax',
         symbolSize: 3,
     };
+
     if (obj && obj.common && obj.common.color) {
         line.color = obj.common.color;
     }

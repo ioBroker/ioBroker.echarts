@@ -216,12 +216,12 @@ class MenuList extends Component {
             <ListItemText>{ parent.id }</ListItemText>
             <ListItemSecondaryAction>
                 {parent && parent.id && presetsOpened ? <IconButton
-                    onClick={() => this.props.onCreatePreset(null, parent.id) }
+                    onClick={() => this.props.onCreatePreset(null, parent.id)}
                     title={ I18n.t('Create new preset') }
                 ><IconAdd/></IconButton> : null}
                 <IconButton
-                    onClick={ () => this.setState({editPresetFolderDialog: parent, editPresetFolderName: parent.id, editFolderDialogTitleOrigin: parent.id}) }
-                    title={ I18n.t('Edit folder name') }
+                    onClick={() => this.setState({editPresetFolderDialog: parent, editPresetFolderName: parent.id, editFolderDialogTitleOrigin: parent.id})}
+                    title={I18n.t('Edit folder name')}
                 ><IconEdit/></IconButton>
                 <IconButton onClick={ () => this.togglePresetsFolder(parent) } title={ presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')  }>
                     { presetsOpened ? <IconCollapse/> : <IconExpand/> }
@@ -365,7 +365,7 @@ class MenuList extends Component {
 
     renderTreePreset(item, level, anySubFolders) {
         const preset = this.state.presets[item._id];
-        if (!preset || (this.state.search && !item.common.name.includes(this.state.search))) {
+        if (!preset || (this.props.search && !item.common.name.includes(this.props.search))) {
             return null;
         }
 
@@ -789,6 +789,7 @@ MenuList.propTypes = {
     socket: PropTypes.object,
     addPresetFolderDialog: PropTypes.bool,
     onCreatePreset: PropTypes.func,
+    search: PropTypes.string,
     adapterName: PropTypes.string.isRequired,
     onShowError: PropTypes.func,
     onSelectedChanged: PropTypes.func.isRequired,

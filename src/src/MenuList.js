@@ -19,7 +19,10 @@ import ClearIcon from '@material-ui/icons/Close';
 import I18n from '@iobroker/adapter-react/i18n';
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from "./Components/ChartsTree";
-import MainChart from "./MainChart";
+import InputLabel from "@material-ui/core/InputLabel";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
 
 const TOOLBAR_HEIGHT = 48;
 
@@ -49,15 +52,15 @@ class MenuList extends Component {
             search: null,
             multiple: false,
             showSearch: null,
+            groupBy: window.localStorage.getItem('App.echarts.groupBy') || '',
             addPresetFolderDialog: false,
-            addPresetDialog: false,
         };
     }
 
     renderListToolbar() {
         return <Toolbar key="toolbar" variant="dense" className={ this.props.classes.mainToolbar }>
             <IconButton
-                onClick={ () => this.setState({addPresetDialog: true}) }
+                onClick={ () => this.props.onCreatePreset(false) }
                 title={ I18n.t('Create new preset') }
             ><IconAdd/></IconButton>
 
@@ -107,6 +110,22 @@ class MenuList extends Component {
                     }} />}
                     label={I18n.t('Multiple')}
                 /> : null}
+                <FormControl>
+                    <InputLabel shrink={true} style={{whiteSpace: 'nowrap'}}>{I18n.t('Group by') }</InputLabel>
+                    <Select
+                        label={I18n.t('Group by')}
+                        onChange={e => {
+                            window.localStorage.setItem('App.echarts.groupBy', e.target.value);
+                            this.setState({groupBy: e.target.value});
+                        }}
+                        value={this.state.groupBy || ''}
+                        displayEmpty
+                    >
+                        <MenuItem value="">{I18n.t('None')}</MenuItem>
+                        <MenuItem value="rooms">{I18n.t('Rooms')}</MenuItem>
+                        <MenuItem value="functions">{I18n.t('Functions')}</MenuItem>
+                    </Select>
+                </FormControl>
             </FormGroup>
         </Toolbar>;
     }
@@ -118,11 +137,12 @@ class MenuList extends Component {
                 <PresetsTree
                     socket={this.props.socket}
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
-                    onCreatePreset={(name, parentId, historyInstance, stateId) => this.props.onCreatePreset(name, parentId, historyInstance, stateId)}
+                    onCreatePreset={this.props.onCreatePreset}
                     adapterName={this.props.adapterName}
                     selectedPresetChanged={this.state.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}
                     onShowError={toast => this.props.onShowToast(toast)}
+                    search={this.state.search}
                     selectedId={this.props.selectedId}
                     systemConfig={this.props.systemConfig}
                     onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}
@@ -133,8 +153,10 @@ class MenuList extends Component {
                     adapterName={this.props.adapterName}
                     onShowToast={toast => this.props.onShowToast(toast)}
                     onShowError={toast => this.props.onShowToast(toast)}
+                    search={this.state.search}
                     multiple={this.state.multiple && !this.props.selectedPresetChanged}
                     theme={this.props.theme}
+                    groupBy={this.state.groupBy}
                     selectedId={this.props.selectedId}
                     onChangeList={this.props.onChangeList}
                     chartsList={this.props.chartsList}

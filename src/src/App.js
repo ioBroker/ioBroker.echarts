@@ -195,49 +195,29 @@ class App extends GenericApp {
             .catch(e => prefix + index);
     }
 
-    onCreatePreset = (name, parentId, historyInstance, stateId) => {
-        if (name === true) {
+    onCreatePreset = (isFromCurrentSelection, parentId) => {
+        if (isFromCurrentSelection === true) {
+            let name;
+
             const chartsList = JSON.parse(JSON.stringify(this.state.chartsList || []));
             if (!chartsList.find(item => item.id === this.state.selectedId.id && item.instance === this.state.selectedId.instance)) {
                 chartsList.push(this.state.selectedId);
             }
 
-            if (this.state.chartsList && this.state.chartsList.length > 1) {
-                // create from list selectedId
-                return this.getNewPresetName()
-                    .then(name => {
-                        let template = {
-                            common: {
-                                name,
-                            },
-                            native: {
-                                url: '',
-                                data: this.state.presetData,
-                            },
-                            type: 'chart'
-                        };
-                        let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+            // Todo> Detect if all ids are from one enum
 
-                        return this.socket.setObject(id, template)
-                            .then(() => this.loadChartOrPreset(id));
-                    });
-            } else {
-                // create from selectedId
-                historyInstance = this.state.selectedId.instance;
-                stateId = this.state.selectedId.id;
-                name = null;
-            }
-        }
-        return new Promise(resolve => {
-            if (stateId) {
-                return this.socket.getObject(stateId)
-                    .then(obj => resolve(obj));
-            } else {
-                resolve(null);
-            }
-        })
-            .then(obj => {
-                name = (name || (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '')).trim();
+            // create from list selectedId
+            return new Promise(resolve => {
+                if (chartsList.length === 1) {
+                    return this.socket.getObject(chartsList[0].id)
+                        .then(obj => resolve(obj));
+                } else {
+                    resolve(null);
+                }
+            }).then(obj => {
+                if (obj) {
+                    name = (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim();
+                }
 
                 this.getNewPresetName(name)
                     .then(name => {
@@ -247,18 +227,38 @@ class App extends GenericApp {
                             },
                             native: {
                                 url: '',
-                                data: DefaultPreset.getDefaultPreset(this.state.systemConfig, historyInstance, obj, I18n.getLanguage()),
+                                data: JSON.parse(JSON.stringify(this.state.presetData))
                             },
                             type: 'chart'
                         };
-
                         let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
 
                         return this.socket.setObject(id, template)
                             .then(() => this.loadChartOrPreset(id));
-                    })
-                    .catch(e => this.showError(e));
+                    });
             });
+        } else {
+            // create empty preset
+            return this.getNewPresetName()
+                .then(name => {
+                    let template = {
+                        common: {
+                            name,
+                        },
+                        native: {
+                            url: '',
+                            data: DefaultPreset.getDefaultPreset(this.state.systemConfig, null, null, I18n.getLanguage()),
+                        },
+                        type: 'chart'
+                    };
+
+                    let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+
+                    return this.socket.setObject(id, template)
+                        .then(() => this.loadChartOrPreset(id));
+                })
+                .catch(e => this.showError(e));
+        }
     };
 
     savePreset = () => {
@@ -422,7 +422,7 @@ class App extends GenericApp {
                         presetData={this.state.presetData}
                         selectedId={this.state.selectedId}
                         chartsList={this.state.chartsList}
-                        onCreatePreset={(name, parentId, historyInstance, stateId) => this.onCreatePreset(name, parentId, historyInstance, stateId)}
+                        onCreatePreset={this.onCreatePreset}
                     /> : null}
                     {
                         this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? <SettingsEditor
@@ -516,7 +516,7 @@ class App extends GenericApp {
                                 selectedPresetChanged={this.state.selectedPresetChanged}
                                 chartsList={this.state.chartsList}
                                 selectedId={this.state.selectedId}
-                                onCreatePreset={(name, parentId, historyInstance, stateId) => this.onCreatePreset(name, parentId, historyInstance, stateId)}
+                                onCreatePreset={this.onCreatePreset}
                                 onChangeList={chartsList => this.setState({chartsList}, () => this.loadChartOrPreset(this.state.selectedId))}
                                 onSelectedChanged={(selectedId, cb) => {
                                     if (cb && this.state.selectedPresetChanged) {
