@@ -280,7 +280,7 @@ class App extends GenericApp {
         }
     };
 
-    loadChartOrPreset(selectedId) {
+    loadChartOrPreset(selectedId, cb) {
         window.localStorage.setItem('App.selectedId', JSON.stringify(selectedId));
 
         if (selectedId && typeof selectedId === 'object') {
@@ -329,7 +329,7 @@ class App extends GenericApp {
                         originalPresetData: '',
                         selectedPresetChanged: false,
                         selectedId: selectedId,
-                    });
+                    }, () => cb && cb());
                 });
         } else if (selectedId) {
             // load preset
@@ -344,7 +344,9 @@ class App extends GenericApp {
                             selectedId,
                         };
 
-                        this.setState(newState);
+                        this.setState(newState, () => cb && cb());
+                    } else {
+                        cb && cb();
                     }
                 });
         } else {
@@ -353,7 +355,7 @@ class App extends GenericApp {
                 originalPresetData: '',
                 selectedPresetChanged: false,
                 selectedId: null,
-            });
+            }, () => cb && cb());
         }
     }
 
@@ -517,13 +519,12 @@ class App extends GenericApp {
                                 chartsList={this.state.chartsList}
                                 selectedId={this.state.selectedId}
                                 onCreatePreset={this.onCreatePreset}
-                                onChangeList={chartsList => this.setState({chartsList}, () => this.loadChartOrPreset(this.state.selectedId))}
+                                onChangeList={(chartsList, cb) => this.setState({chartsList}, () => this.loadChartOrPreset(this.state.selectedId, cb))}
                                 onSelectedChanged={(selectedId, cb) => {
                                     if (cb && this.state.selectedPresetChanged) {
                                         this.confirmCB = confirmed => {
                                             if (confirmed) {
-                                                cb(selectedId);
-                                                this.loadChartOrPreset(selectedId);
+                                                this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
                                             } else {
                                                 cb(false); // cancel
                                             }
@@ -531,8 +532,7 @@ class App extends GenericApp {
                                         };
                                         this.setState({discardChangesConfirmDialog: selectedId && typeof selectedId === 'object' ? 'chart' : (selectedId ? 'preset' : 'folder')});
                                     } else {
-                                        cb && cb(selectedId);
-                                        this.loadChartOrPreset(selectedId);
+                                        this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
                                     }
                                 }}
                             />

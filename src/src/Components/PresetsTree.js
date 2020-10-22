@@ -448,7 +448,7 @@ class MenuList extends Component {
                 maxWidth="md"
                 fullWidth={true}
                 open={ true }
-                onClose={ () => this.setState({addPresetFolderDialog: null}, () => this.props.onAddDialogDone())}
+                onClose={ () => this.setState({addPresetFolderDialog: null})}
             >
                 <DialogTitle>{I18n.t('Create folder')}</DialogTitle>
                 <DialogContent className={ this.props.classes.p }>
@@ -466,7 +466,7 @@ class MenuList extends Component {
                     />
                 </DialogContent>
                 <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() => this.setState({addPresetFolderDialog: null}, () => this.props.onAddDialogDone())}>
+                    <Button variant="contained" onClick={() => this.setState({addPresetFolderDialog: null})}>
                         <IconCancel className={ this.props.classes.buttonIcon }/>
                         { I18n.t('Cancel') }
                     </Button>
@@ -475,8 +475,7 @@ class MenuList extends Component {
                         disabled={!this.state.addPresetFolderName || Object.keys(this.state.presetFolders.subFolders).find(name => name === this.state.addPresetFolderName)}
                         onClick={() =>
                             this.addFolder(this.state.addPresetFolderDialog, this.state.addPresetFolderName)
-                                .then(() => this.setState({addPresetFolderDialog: null}, () =>
-                                    this.props.onAddDialogDone()))
+                                .then(() => this.setState({addPresetFolderDialog: null}))
                         }
                         color="primary" autoFocus
                     >

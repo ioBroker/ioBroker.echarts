@@ -38,6 +38,9 @@ const styles = theme => ({
     secondaryToolbar: {
         background: '#888',
     },
+    smallMargin: {
+        marginTop: '8px !important',
+    },
     heightMinusToolbar: {
         height: 'calc(100% - ' + (TOOLBAR_HEIGHT * 2) + 'px)',
         overflow: 'auto'
@@ -50,7 +53,7 @@ class MenuList extends Component {
 
         this.state = {
             search: null,
-            multiple: false,
+            multiple: window.localStorage.getItem('App.echarts.multiple') === 'true',
             showSearch: null,
             groupBy: window.localStorage.getItem('App.echarts.groupBy') || '',
             addPresetFolderDialog: false,
@@ -97,6 +100,7 @@ class MenuList extends Component {
             <FormGroup row>
                 {!this.props.selectedPresetChanged ? <FormControlLabel
                     control={<Switch checked={this.state.multiple} onChange={e => {
+                        window.localStorage.setItem('App.echarts.multiple', e.target.checked ? 'true' : 'false');
                         if (e.target.checked) {
                             const selectedId = this.props.selectedId;
                             if (selectedId && typeof selectedId === 'object') {
@@ -119,6 +123,7 @@ class MenuList extends Component {
                             this.setState({groupBy: e.target.value});
                         }}
                         value={this.state.groupBy || ''}
+                        className={this.props.classes.smallMargin}
                         displayEmpty
                     >
                         <MenuItem value="">{I18n.t('None')}</MenuItem>

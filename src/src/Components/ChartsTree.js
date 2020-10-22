@@ -179,7 +179,7 @@ class ChartsTree extends Component {
                             newState.enums['enum.rooms.' + obj._id] = otherRooms;
                         }
 
-                        obj.enums && obj.enums.sort((a, b) => newState.enums[a].common.name > newState.enums[b].common.name ? -1 : (newState.enums[a].common.name < newState.enums[b].common.name ? 1 : 0));
+                        obj.enums && obj.enums.sort((a, b) => newState.enums[a].common.name > newState.enums[b].common.name ? 1 : (newState.enums[a].common.name < newState.enums[b].common.name ? -1 : 0));
 
                         return obj;
                     });
@@ -332,10 +332,17 @@ class ChartsTree extends Component {
                         const item = chartsList.find(item => item.id === id && item.instance === instance);
                         if (e.target.checked && !item) {
                             chartsList.push({id, instance: instance});
+                            // if no charts selected => select this one
+                            if (typeof this.props.selectedId !== 'object') {
+                                this.props.onSelectedChanged({id, instance}, () =>
+                                    this.props.onChangeList(chartsList));
+                            } else {
+                                this.props.onChangeList(chartsList);
+                            }
                         } else if (!e.target.checked && item) {
                             chartsList.splice(chartsList.indexOf(item), 1);
+                            this.props.onChangeList(chartsList);
                         }
-                        this.props.onChangeList(chartsList);
                     }}
                     checked={!!this.props.chartsList.find(item => item.id === id && item.instance === instance)}
                 /> </ListItemSecondaryAction>: null}
