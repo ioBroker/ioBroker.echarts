@@ -424,5 +424,12 @@
   "Create preset": "Criar predefinição",
   "Time span": "Intervalo de tempo",
   "Auto-refresh": "Atualização automática",
-  "to": "para"
+  "to": "para",
+  "Multiple": "Múltiplo",
+  "Group by": "Grupo por",
+  "None": "Nenhum",
+  "Rooms": "quartos",
+  "Functions": "Funções",
+  "Enable logging for new state": "Ativar registro para novo estado",
+  "Rename preset": "Renomear predefinição"
 }

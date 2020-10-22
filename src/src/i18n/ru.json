@@ -424,5 +424,12 @@
   "Create preset": "Создать пресет",
   "Time span": "Промежуток времени",
   "Auto-refresh": "Автообновление",
-  "to": "до"
+  "to": "до",
+  "Multiple": "Несколько",
+  "Group by": "Группа по",
+  "None": "Нет",
+  "Rooms": "Номера",
+  "Functions": "Функции",
+  "Enable logging for new state": "Включить ведение журнала для нового состояния",
+  "Rename preset": "Переименовать пресет"
 }

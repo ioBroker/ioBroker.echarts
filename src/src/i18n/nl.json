@@ -424,5 +424,12 @@
   "Create preset": "Maak een voorinstelling",
   "Time span": "Tijdspanne",
   "Auto-refresh": "Automatisch vernieuwen",
-  "to": "naar"
+  "to": "naar",
+  "Multiple": "Meerdere",
+  "Group by": "Groeperen op",
+  "None": "Geen",
+  "Rooms": "Kamers",
+  "Functions": "Functies",
+  "Enable logging for new state": "Schakel logboekregistratie in voor nieuwe staat",
+  "Rename preset": "Hernoem preset"
 }

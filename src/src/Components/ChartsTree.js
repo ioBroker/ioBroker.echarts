@@ -147,7 +147,6 @@ class ChartsTree extends Component {
                         chartsOpened[obj._id] = chartsOpened[obj._id] !== undefined ? (this.state.chartsOpened[obj._id] || false) : true;
 
                         // Build for every instance the list of enums
-                        const others = [];
                         Object.keys(newState.enums).forEach(eID => {
                             if (Object.keys(enabledDP).find(id => newState.enums[eID].common.members.includes(id))) {
                                 obj.enums = obj.enums || [];
@@ -408,7 +407,7 @@ class ChartsTree extends Component {
                         </IconButton>
                     </ListItemSecondaryAction>
                 </ListItem>,
-                opened ? <List>
+                opened ? <List key={key + '_LIST'}>
                     {ids.map(id=>
                         <Draggable
                             isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
@@ -446,9 +445,10 @@ class ChartsTree extends Component {
             this.renderSelectIdDialog(),
             <Droppable droppableId="Lines" isDropDisabled={true} key="charts">
                 {(provided, snapshot) =>
-                    <div ref={provided.innerRef}>
-                        <List className={ this.props.classes.scroll }>
-                            {this.state.instances.map(group => {
+                    <div ref={provided.innerRef} key="chartListDiv">
+                        <List className={ this.props.classes.scroll } key="chartList">
+                            {
+                                this.state.instances.map(group => {
                                     let opened = this.state.chartsOpened[group._id];
                                     let children = null;
 

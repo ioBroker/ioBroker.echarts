@@ -242,7 +242,9 @@ class ChartSettings extends React.Component {
                 onClick={() => {this.setState({aggregateOpened: !this.state.aggregateOpened})}}
             >
                 <IconAggregate className={this.props.classes.aggregateIcon}/>
-                {I18n.t(CHART_TYPES[this.props.presetData.chartType])} / {I18n.t(AGGREGATES[this.props.presetData.aggregate])}
+                {CHART_TYPES[this.props.presetData.chartType] ? I18n.t(CHART_TYPES[this.props.presetData.chartType]) : ''}
+                /
+                {AGGREGATES[this.props.presetData.aggregate] ? I18n.t(AGGREGATES[this.props.presetData.aggregate]) : ''}
                 <IconDropDown/>
             </Button>
             <Popover

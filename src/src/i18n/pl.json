@@ -424,5 +424,12 @@
   "Create preset": "Utwórz ustawienie wstępne",
   "Time span": "Okres czasu",
   "Auto-refresh": "Automatyczne odświeżanie",
-  "to": "do"
+  "to": "do",
+  "Multiple": "Wielokrotność",
+  "Group by": "Grupuj według",
+  "None": "Żaden",
+  "Rooms": "Pokoje",
+  "Functions": "Funkcje",
+  "Enable logging for new state": "Włącz rejestrowanie dla nowego stanu",
+  "Rename preset": "Zmień nazwę ustawienia wstępnego"
 }

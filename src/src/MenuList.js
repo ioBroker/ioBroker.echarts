@@ -58,6 +58,16 @@ class MenuList extends Component {
             groupBy: window.localStorage.getItem('App.echarts.groupBy') || '',
             addPresetFolderDialog: false,
         };
+
+        if (this.state.multiple) {
+            let chartList = window.localStorage.getItem('App.chartList') || '[]';
+            try {
+                chartList = JSON.parse(chartList);
+            } catch (e) {
+                chartList = [];
+            }
+            setTimeout(() => this.props.onChangeList(chartList), 100);
+        }
     }
 
     renderListToolbar() {
@@ -163,7 +173,10 @@ class MenuList extends Component {
                     theme={this.props.theme}
                     groupBy={this.state.groupBy}
                     selectedId={this.props.selectedId}
-                    onChangeList={this.props.onChangeList}
+                    onChangeList={chartList => {
+                        window.localStorage.setItem('App.chartList', JSON.stringify(chartList));
+                        this.props.onChangeList(chartList);
+                    }}
                     chartsList={this.props.chartsList}
                     onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}
                 />

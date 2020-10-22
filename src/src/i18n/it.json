@@ -424,5 +424,12 @@
   "Create preset": "Crea preset",
   "Time span": "Arco di tempo",
   "Auto-refresh": "Auto aggiornamento",
-  "to": "per"
+  "to": "per",
+  "Multiple": "Molteplici",
+  "Group by": "Raggruppare per",
+  "None": "Nessuna",
+  "Rooms": "Camere",
+  "Functions": "Funzioni",
+  "Enable logging for new state": "Abilita la registrazione per il nuovo stato",
+  "Rename preset": "Rinomina preset"
 }

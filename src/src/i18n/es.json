@@ -424,5 +424,12 @@
   "Create preset": "Crear preajuste",
   "Time span": "Espacio de tiempo",
   "Auto-refresh": "Autorefrescar",
-  "to": "a"
+  "to": "a",
+  "Multiple": "Múltiple",
+  "Group by": "Agrupar por",
+  "None": "Ninguna",
+  "Rooms": "Habitaciones",
+  "Functions": "Funciones",
+  "Enable logging for new state": "Habilitar el registro para el nuevo estado",
+  "Rename preset": "Cambiar nombre de preset"
 }

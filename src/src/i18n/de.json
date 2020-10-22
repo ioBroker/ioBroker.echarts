@@ -424,5 +424,12 @@
   "Create preset": "Preset erstellen",
   "Time span": "Zeitspanne",
   "Auto-refresh": "Automatische Aktualisierung",
-  "to": "bis"
+  "to": "bis",
+  "Multiple": "Mehrere",
+  "Group by": "Gruppiere nach",
+  "None": "Nichts",
+  "Rooms": "Räume",
+  "Functions": "Funktionen",
+  "Enable logging for new state": "Protokollierung für einen neuen Zustand aktivieren",
+  "Rename preset": "Preset umbenennen"
 }

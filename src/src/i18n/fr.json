@@ -424,5 +424,12 @@
   "Create preset": "Créer un préréglage",
   "Time span": "Durée",
   "Auto-refresh": "Actualisation automatique",
-  "to": "à"
+  "to": "à",
+  "Multiple": "Plusieurs",
+  "Group by": "Par groupe",
+  "None": "Aucun",
+  "Rooms": "Pièces",
+  "Functions": "Les fonctions",
+  "Enable logging for new state": "Activer la journalisation pour le nouvel état",
+  "Rename preset": "Renommer le préréglage"
 }

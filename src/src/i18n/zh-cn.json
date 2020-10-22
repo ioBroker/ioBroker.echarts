@@ -424,5 +424,12 @@
   "Create preset": "创建预设",
   "Time span": "时间跨度",
   "Auto-refresh": "自动刷新",
-  "to": "至"
+  "to": "至",
+  "Multiple": "多",
+  "Group by": "通过...分组",
+  "None": "没有",
+  "Rooms": "房间数",
+  "Functions": "功能",
+  "Enable logging for new state": "启用新状态的日志记录",
+  "Rename preset": "重命名预设"
 }
