@@ -39,16 +39,23 @@ class App extends Component {
 
         const themeInstance = this.createTheme();
 
+        const query     = Utils.parseQuery(window.location.search);
+        const queryHash = Utils.parseQuery((window.location.hash || '').replace(/^#/,''));
+
         this.state = {
             connected:  false,
             seriesData: null,
-            noLoader:   Utils.parseQuery(window.location.search).noLoader || Utils.parseQuery((window.location.hash || '').replace(/^#/,'')).noLoader || false,
+            noLoader:   query.noLoader || queryHash.noLoader || false,
             theme:      themeInstance,
             themeName:  this.getThemeName(themeInstance),
             themeType:  this.getThemeType(themeInstance),
-            noBackground: Utils.parseQuery(window.location.search).noBG || Utils.parseQuery((window.location.hash || '').replace(/^#/,'')).noBG || false,
+            noBackground: query.noBG || queryHash.noBG || false,
         };
-        this.divRef = React.createRef();
+
+        this.inEdit = query.edit     === '1' || query.edit     === 1 || query.edit     === true || query.edit === 'true' ||
+            queryHash.edit === '1' || queryHash.edit === 1 || queryHash.edit === true || queryHash.edit === 'true';
+
+        this.divRef      = React.createRef();
         this.progressRef = React.createRef();
 
         // init translations
@@ -107,11 +114,18 @@ class App extends Component {
                     .then(systemConfig => {
                         this.systemLang   = systemConfig?.common?.language || 'en';
                         this.isFloatComma = systemConfig?.common?.isFloatComma || false;
-
-                        this.chartData = new ChartModel(this.socket);
-                        this.chartData.onError(err => this.showError(I18n.t(err)));
-                        this.chartData.onReading(reading => this.showProgress(reading));
-                        this.chartData.onUpdate(seriesData => this.setState({seriesData}, () => this.showProgress(false)));
+                        if (this.inEdit) {
+                            window.addEventListener('message', this.onReceiveMessage);
+                            if (window.self !== window.parent) {
+                                try {
+                                    window.parent.postMessage('chartReady');
+                                } catch (e) {
+                                    console.warn('Cannot send ready event to parent window');
+                                }
+                            }
+                        } else {
+                            this.createChartData();
+                        }
                     });
             },
             onError: err => {
@@ -121,6 +135,13 @@ class App extends Component {
         });
     }
 
+    createChartData(config) {
+        this.chartData = new ChartModel(this.socket, config);
+        this.chartData.onError(err => this.showError(I18n.t(err)));
+        this.chartData.onReading(reading => this.showProgress(reading));
+        this.chartData.onUpdate(seriesData => this.setState({seriesData}, () => this.showProgress(false)));
+    }
+
     showProgress(isShow) {
         if (this.progressRef.current) {
             this.progressRef.current.style.display = isShow ? 'block' : 'none';
@@ -128,8 +149,24 @@ class App extends Component {
     }
 
     componentWillUnmount() {
+        this.inEdit && window.removeEventListener('message', this.onReceiveMessage, false);
         this.chartData && this.chartData.destroy();
     }
+
+    onReceiveMessage = message => {
+        if (message && message.data !== 'chartReady') {
+            try {
+                const config = JSON.parse(message.data);
+                if (!this.chartData) {
+                    this.createChartData(config);
+                } else {
+                    this.chartData.setConfig(config);
+                }
+            } catch (e) {
+                return console.log('Cannot parse ' + message.data);
+            }
+        }
+    };
 
     /**
      * Get a theme

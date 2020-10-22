@@ -191,9 +191,14 @@ class MainChart extends React.Component {
     }
 
     getChartFrame() {
+        const URL = (window.location.search || '').includes('dev=true') ? 'http://localhost:3000/' : 'chart/';
+
         return <div style={{display: this.props.visible ? 'block' : 'none'}} className={!this.props.presetMode ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
-            <ChartFrame src={this.getUrl()}
-        /></div>;
+            <ChartFrame
+                src={URL + 'index.html?edit=1'}
+                presetData={this.props.presetData}
+            />
+        </div>;
     }
 
     render() {

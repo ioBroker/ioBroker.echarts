@@ -107,6 +107,30 @@ const styles = theme => ({
 }*/
 
 class ChartFrame extends React.Component {
+    constructor(props) {
+        super(props);
+        this.ready = false;
+        this.refIframe = React.createRef();
+        this.lastPresetData = '';
+    }
+
+    componentDidMount() {
+        window.addEventListener('message', this.onReceiveMessage, false);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('message', this.onReceiveMessage, false);
+    }
+
+    onReceiveMessage = message => {
+        if (message && message.data === 'chartReady') {
+            this.ready = true;
+            this.lastPresetData = JSON.stringify(this.props.presetData);
+            this.refIframe.contentWindow.postMessage(this.lastPresetData);
+            console.log('Received ready from iframe');
+        }
+    };
+
     render() {
         if (window.location.port === '3000') {
             const parts = this.props.src.split('&');
@@ -127,7 +151,12 @@ class ChartFrame extends React.Component {
                 <pre>{JSON.stringify(parts[0], null, 2)}</pre>
             </Paper>;
         } else {
-            return <iframe
+            if (this.lastPresetData !== JSON.stringify(this.props.presetData) && this.ready) {
+                this.lastPresetData = JSON.stringify(this.props.presetData);
+                this.refIframe.contentWindow.postMessage(this.lastPresetData);
+            }
+
+            return <iframe ref={el => this.refIframe = el}
                 title="iobrokerChart"
                 className={this.props.classes.iframe}
                 src={this.props.src}>
@@ -138,6 +167,7 @@ class ChartFrame extends React.Component {
 
 ChartFrame.propTypes = {
     src: PropTypes.string,
+    presetData: PropTypes.object,
 };
 
 export default withStyles(styles)(ChartFrame);

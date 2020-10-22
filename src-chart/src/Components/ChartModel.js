@@ -229,7 +229,7 @@ class ChartModel {
             if (typeof config === 'string') {
                 this.preset = config;
             } else {
-                this.config = config;
+                this.config = normalizeConfig(config);
             }
         } else {
             const query = Utils.parseQuery(window.location.search); // Utils.parseQuery
@@ -284,7 +284,7 @@ class ChartModel {
                     if (!obj || !obj.native || !obj.native.data || obj.type !== 'chart') {
                         return console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
                     }
-                    this.config = normalizeConfig(obj.native.data);
+                    this.config          = normalizeConfig(obj.native.data);
                     this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
                     this.config.lang     = this.systemConfig.language;
                     this.config.live     = parseInt(this.config.live, 10) || 0;
@@ -434,6 +434,10 @@ class ChartModel {
 
     getConfig() {
         return this.config;
+    }
+
+    setConfig(config) {
+        this.analyseAndLoadConfig(config);
     }
 
     getStartStop(index, step) {
