@@ -29,7 +29,7 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### __WORK IN PROGRESS__
+### 0.2.0 (2020-10-22)
 * (bluefox) Implemented the grouping by category.
 
 ### 0.1.2 (2020-10-21)

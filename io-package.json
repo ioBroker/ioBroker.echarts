@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "news": {
+            "0.2.0": {
+                "en": "Implemented the grouping by category.",
+                "de": "Die Gruppierung nach Kategorien wurde implementiert.",
+                "ru": "Реализована группировка по категориям.",
+                "pt": "Implementado o agrupamento por categoria.",
+                "nl": "Implementeerde de groepering op categorie.",
+                "fr": "Implémentation du regroupement par catégorie.",
+                "it": "Implementato il raggruppamento per categoria.",
+                "es": "Implementado la agrupación por categoría.",
+                "pl": "Zaimplementowano grupowanie według kategorii.",
+                "zh-cn": "实施了按类别分组。"
+            },
             "0.1.2": {
                 "en": "Added support of multiple charts",
                 "de": "Unterstützung für mehrere Diagramme hinzugefügt",
