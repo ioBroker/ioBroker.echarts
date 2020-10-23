@@ -108,92 +108,10 @@ class MainChart extends React.Component {
             />;
     }
 
-    getUrlParameters() {
-        let url = [];
-        /*let translate = {
-            'lines': 'l',
-            'marks': 'm'
-        };
-        let translateObject = {
-            'lines': {},
-            'marks': {
-                'lineId': 'l',
-                'upperValueOrId': 'v',
-                'lowerValueOrId': 'vl',
-                'color': 'c',
-                'fill': 'f',
-                'ol': 't',
-                'os': 's',
-                'text': 'd',
-                'textPosition': 'p',
-                'textOffset': 'py',
-                'textColor': 'fc',
-                'textSize': 'fs',
-            },
-        };
-        for (let k in this.props.presetData) {
-            let v = this.props.presetData[k];
-            let translateCurrentObject = translateObject[k];
-
-            if (k === 'chartType' || k === 'aggregate') {
-                continue;
-            }
-
-            if (translate[k]) {
-                k = translate[k];
-            }
-            if (Array.isArray(v)) {
-                for (let i = 0; i < v.length; i++) {
-                    const arrayObject = v[i];
-                    for (let k2 in arrayObject) {
-                        if (arrayObject.hasOwnProperty(k2)) {
-                            let v2 = arrayObject[k2];
-                            if (v2 !== undefined && v2 !== null && v2 !== '') {
-                                if (!this.props.presetMode && (k2 === 'chartType' || k2 === 'aggregate') && this.props.presetData[k2]) {
-                                    v2 = this.props.presetData[k2];
-                                }
-
-                                if (translateCurrentObject[k2]) {
-                                    k2 = translateCurrentObject[k2];
-                                }
-
-                                url.push(encodeURIComponent(k + '[' + i + '][' + k2 + ']') + '=' + encodeURIComponent(v2));
-                            }
-                        }
-                    }
-                }
-            } else if (v !== undefined && v !== null && v !== '') {
-                url.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
-            }
-        }*/
-        // If fast view mode
-        const presetData = JSON.parse(JSON.stringify(this.props.presetData));
-        if (this.props.presetMode) {
-            delete presetData.chartType;
-            delete presetData.aggregate;
-        } else {
-            if (presetData.chartType) {
-                presetData.lines[0].chartType = presetData.chartType;
-            }
-            if (presetData.aggregate) {
-                presetData.lines[0].aggregate = presetData.aggregate;
-            }
-        }
-        url.push('data=' + encodeURIComponent(JSON.stringify(presetData)));
-        url.push('noLoader=true');
-
-        return url.join('&');
-    }
-
-    getUrl() {
-        const URL = (window.location.search || '').includes('dev=true') ? 'http://localhost:3000/' : 'chart/';
-        return URL + 'index.html#' + this.getUrlParameters();
-    }
-
     getChartFrame() {
         const URL = (window.location.search || '').includes('dev=true') ? 'http://localhost:3000/' : 'chart/';
 
-        return <div style={{display: this.props.visible ? 'block' : 'none'}} className={!this.props.presetMode ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
+        return <div style={{display: this.props.visible ? 'block' : 'none'}} className={typeof this.props.selectedId !== 'string' ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
             <ChartFrame
                 src={URL + 'index.html?edit=1'}
                 presetData={this.props.presetData}

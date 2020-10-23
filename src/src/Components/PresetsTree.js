@@ -115,7 +115,7 @@ class MenuList extends Component {
 
         let presetsOpened;
         try {
-            presetsOpened = JSON.parse(window.localStorage.getItem('Presets.opened')) || [];
+            presetsOpened = JSON.parse(window.localStorage.getItem('App.echarts.presets.opened')) || [];
         } catch (e) {
             presetsOpened = [];
         }
@@ -430,14 +430,14 @@ class MenuList extends Component {
             if (Object.keys(folder.presets).includes(this.props.selectedId)) {
                 return this.props.onSelectedChanged(null, allowedId => {
                     if (allowedId !== false) {
-                        window.localStorage.setItem('Presets.opened', JSON.stringify(presetsOpened));
+                        window.localStorage.setItem('App.echarts.presets.opened', JSON.stringify(presetsOpened));
                         this.setState({presetsOpened});
                     }
                 });
             }
         }
 
-        window.localStorage.setItem('Presets.opened', JSON.stringify(presetsOpened));
+        window.localStorage.setItem('App.echarts.presets.opened', JSON.stringify(presetsOpened));
 
         this.setState({presetsOpened});
     }
@@ -718,7 +718,6 @@ class MenuList extends Component {
     deletePreset = id => {
         return this.props.socket.delObject(id)
             .then(() => {
-                window.localStorage.setItem('App.selectedPresetId', '');
                 this.getAllPresets()
                     .then(newState =>
                         this.setState(newState, () =>

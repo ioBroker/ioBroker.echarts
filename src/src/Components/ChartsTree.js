@@ -78,7 +78,7 @@ class ChartsTree extends Component {
 
         let chartsOpened;
         try {
-            chartsOpened = JSON.parse(window.localStorage.getItem('Charts.opened')) || {};
+            chartsOpened = JSON.parse(window.localStorage.getItem('App.echarts.opened')) || {};
         } catch (e) {
             chartsOpened = {};
         }
@@ -238,7 +238,7 @@ class ChartsTree extends Component {
     toggleChartFolder = id => {
         const chartsOpened = JSON.parse(JSON.stringify(this.state.chartsOpened));
         chartsOpened[id] = !chartsOpened[id];
-        window.localStorage.setItem('Charts.opened', JSON.stringify(chartsOpened));
+        window.localStorage.setItem('App.echarts.opened', JSON.stringify(chartsOpened));
         const newState = {chartsOpened};
 
         let loadChart = null;

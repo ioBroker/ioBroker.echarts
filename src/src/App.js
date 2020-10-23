@@ -102,7 +102,7 @@ const styles = theme => ({
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
 
 function loadChartParam(name, defaultValue) {
-    return window.localStorage.getItem('Chart.' + name) ? window.localStorage.getItem('Chart.' + name) : defaultValue;
+    return window.localStorage.getItem('App.echarts.__' + name) ? window.localStorage.getItem('App.echarts.__' + name) : defaultValue;
 }
 
 class App extends GenericApp {
@@ -127,7 +127,7 @@ class App extends GenericApp {
     }
 
     onConnectionReady() {
-        let selectedId = window.localStorage.getItem('App.selectedId') || null;
+        let selectedId = window.localStorage.getItem('App.echarts.selectedId') || null;
         if (selectedId) {
             try {
                 selectedId = JSON.parse(selectedId)
@@ -147,17 +147,18 @@ class App extends GenericApp {
             chartsList: null,
             addPresetDialog: null,
             progress: 0,
+            autoSave: window.localStorage.getItem('App.echarts.autoSave') === 'true',
 
             discardChangesConfirmDialog: false,
 
             resizing: false,
-            menuOpened: window.localStorage.getItem('App.menuOpened') !== 'false',
+            menuOpened: window.localStorage.getItem('App.echarts.menuOpened') !== 'false',
             menuSelectId: '',
-            logHorzLayout: window.localStorage.getItem('App.logHorzLayout') === 'true',
+            logHorzLayout: window.localStorage.getItem('App.echarts.logHorzLayout') === 'true',
         };
 
-        this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.settingsSize')) || 150 : 150;
-        this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.menuSize')) || 500 : 500;
+        this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.echarts.settingsSize')) || 150 : 150;
+        this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.echarts.menuSize')) || 500 : 500;
 
         this.objects = {};
 
@@ -272,7 +273,7 @@ class App extends GenericApp {
                         return this.showError(I18n.t('Invalid object'));
                     } else {
                         obj.native.data = this.state.presetData;
-                        this.socket.setObject(obj._id, obj)
+                        return this.socket.setObject(obj._id, obj)
                             .then(() => this.setState({originalPresetData: JSON.stringify(this.state.presetData), selectedPresetChanged: false}))
                             .catch(e => this.showError(e));
                     }
@@ -281,7 +282,7 @@ class App extends GenericApp {
     };
 
     loadChartOrPreset(selectedId, cb) {
-        window.localStorage.setItem('App.selectedId', JSON.stringify(selectedId));
+        window.localStorage.setItem('App.echarts.selectedId', JSON.stringify(selectedId));
 
         if (selectedId && typeof selectedId === 'object') {
             // load chart
@@ -298,8 +299,40 @@ class App extends GenericApp {
                 .then(results => {
                     results.forEach(obj => this.objects[obj._id] = obj);
                     const lines = (this.state.chartsList || []).map(item => DefaultPreset.getDefaultLine(this.state.systemConfig, item.instance, this.objects[item.id], I18n.getLanguage()));
+
                     (!this.state.chartsList || !this.state.chartsList.find(item => item.id === selectedId.id && item.instance === selectedId.instance)) &&
                         lines.push(DefaultPreset.getDefaultLine(this.state.systemConfig, selectedId.instance, this.objects[selectedId.id], I18n.getLanguage()));
+
+                    // combine same units together: e.g. if line1 and line2 are in percent => use same yAxis
+                    if (lines.length > 1) {
+                        // Find first non empty
+                        // ignore all booleans
+                        const first = lines.find(item => !item.isBoolean);
+                        if (first) {
+                            const iFirst = lines.indexOf(first);
+                            // set it to left
+                            first.yaxe = 'left';
+                            // find all lines with the same unit and place them to left
+                            if (first.unit) {
+                                for (let k = iFirst + 1; k < lines.length; k++) {
+                                    if (lines[k].unit === first.unit) {
+                                        lines[k].commonYAxis = iFirst;
+                                    }
+                                }
+                            }
+                            for (let k = iFirst + 1; k < lines.length; k++) {
+                                if (lines[k].unit && lines[k].unit !== first.unit) {
+                                    first.yaxe = 'right';
+                                    // combine all following lines to one axis
+                                    for (let j = k + 1; j < lines.length; j++) {
+                                        if (lines[k].unit === lines[j].unit && lines[j].commonYAxis === undefined) {
+                                            lines[k].commonYAxis = j;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     let presetData = {
                         marks:          [],
@@ -321,7 +354,8 @@ class App extends GenericApp {
                         end_time:       loadChartParam('end_time', ''),
                         noBorder:       'noborder',
                         noedit:         false,
-                        animation:      0
+                        animation:      0,
+                        legend:         lines.length > 1 ? 'nw' : ''
                     };
 
                     this.setState({
@@ -397,7 +431,7 @@ class App extends GenericApp {
         return [
             <div className={clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
                 <div key="confirmdiv" className={classes.menuOpenCloseButton} onClick={() => {
-                    window.localStorage && window.localStorage.setItem('App.menuOpened', this.state.menuOpened ? 'false' : 'true');
+                    window.localStorage && window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
                     this.setState({menuOpened: !this.state.menuOpened, resizing: true});
                     setTimeout(() => this.setState({resizing: false}), 300);
                 }}>
@@ -413,7 +447,7 @@ class App extends GenericApp {
                     onSecondaryPaneSizeChange={size => this.settingsSize = parseFloat(size)}
                     onDragEnd={() => {
                         this.setState({resizing: false});
-                        window.localStorage && window.localStorage.setItem('App.settingsSize', this.settingsSize.toString());
+                        window.localStorage && window.localStorage.setItem('App.echarts.settingsSize', this.settingsSize.toString());
                     }}
                 >
                     { this.state.selectedId ? <MainChart
@@ -432,7 +466,13 @@ class App extends GenericApp {
                             key="Editor"
                             width={window.innerWidth - this.menuSize}
                             theme={this.state.theme}
-                            onChange={presetData => this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData})}
+                            onChange={presetData => {
+                                if (this.state.autoSave) {
+                                    this.setState({presetData}, () => this.savePreset());
+                                } else {
+                                    this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
+                                }
+                            }}
                             presetData={this.state.presetData}
                             verticalLayout={!this.state.logHorzLayout}
                             onLayoutChange={() => this.toggleLogLayout()}
@@ -441,6 +481,17 @@ class App extends GenericApp {
                             systemConfig={this.state.systemConfig}
                             selectedPresetChanged={this.state.selectedPresetChanged}
                             savePreset={this.savePreset}
+                            autoSave={this.state.autoSave}
+                            onAutoSave={autoSave => {
+                                window.localStorage.setItem('App.echarts.autoSave', autoSave ? 'true' : 'false');
+                                if (autoSave && this.state.selectedPresetChanged) {
+                                    this.savePreset()
+                                        .then(() => this.setState({autoSave}));
+                                } else {
+                                    this.setState({autoSave});
+                                }
+
+                            }}
                         /> : null
                     }
                 </SplitterLayout>
@@ -475,7 +526,7 @@ class App extends GenericApp {
     };
 
     toggleLogLayout() {
-        window.localStorage && window.localStorage.setItem('App.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
+        window.localStorage && window.localStorage.setItem('App.echarts.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
         this.setState({logHorzLayout: !this.state.logHorzLayout});
     }
 
@@ -504,7 +555,7 @@ class App extends GenericApp {
                             onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
                             onDragEnd={() => {
                                 this.setState({resizing: false});
-                                window.localStorage && window.localStorage.setItem('App.menuSize', this.menuSize.toString());
+                                window.localStorage && window.localStorage.setItem('App.echarts.menuSize', this.menuSize.toString());
                             }}
                         >
                             <MenuList
@@ -519,7 +570,17 @@ class App extends GenericApp {
                                 chartsList={this.state.chartsList}
                                 selectedId={this.state.selectedId}
                                 onCreatePreset={this.onCreatePreset}
-                                onChangeList={(chartsList, cb) => this.setState({chartsList}, () => this.loadChartOrPreset(this.state.selectedId, cb))}
+                                onChangeList={(chartsList, cb) => {
+                                    // if some deselected
+                                    if (false && chartsList && this.state.chartsList && chartsList.length && chartsList.length < this.state.chartsList.length) {
+                                        const removedLine = this.state.chartsList.find(item => !chartsList.find(it => it.id === item.id && it.instance === item.instance));
+                                        const index = this.state.chartList.indexOf(removedLine);
+                                        // select next
+                                        this.setState({chartsList}, () => this.loadChartOrPreset(chartsList[0], cb));
+                                    } else {
+                                        this.setState({chartsList}, () => this.loadChartOrPreset(this.state.selectedId, cb));
+                                    }
+                                }}
                                 onSelectedChanged={(selectedId, cb) => {
                                     if (cb && this.state.selectedPresetChanged) {
                                         this.confirmCB = confirmed => {
@@ -530,6 +591,7 @@ class App extends GenericApp {
                                             }
                                             this.confirmCB = null;
                                         };
+
                                         this.setState({discardChangesConfirmDialog: selectedId && typeof selectedId === 'object' ? 'chart' : (selectedId ? 'preset' : 'folder')});
                                     } else {
                                         this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));

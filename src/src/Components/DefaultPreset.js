@@ -117,6 +117,7 @@ function getDefaultLine(systemSettings, instance, obj, language) {
         thickness:  2,
         chartType:  isBoolean ? 'steps'    : 'line',
         aggregate:  isBoolean ? 'onchange' : 'minmax',
+        isBoolean:  isBoolean,
         symbolSize: 3,
     };
 

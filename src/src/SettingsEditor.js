@@ -81,6 +81,8 @@ class SettingsEditor extends React.Component {
                     selectedPresetChanged={this.props.selectedPresetChanged}
                     savePreset={this.props.savePreset}
                     theme={this.props.theme}
+                    onAutoSave={autoSave => this.props.onAutoSave(autoSave)}
+                    autoSave={this.props.autoSave}
                 />
             </div>
         </div>;
@@ -98,6 +100,8 @@ SettingsEditor.propTypes = {
     selectedPresetChanged: PropTypes.bool,
     width: PropTypes.number,
     theme: PropTypes.object,
+    onAutoSave: PropTypes.func,
+    autoSave: PropTypes.bool,
 };
 
 export default withStyles(styles)(SettingsEditor);

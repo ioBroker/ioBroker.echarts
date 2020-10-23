@@ -534,7 +534,9 @@ class ChartView extends React.Component {
                     if (yMin > 0) {
                         yMin = 0;
                     } else {
-                        if (diff > 5000) {
+                        if (diff > 25000) {
+                            yMin = Math.floor(yMin / 10000) * 10000;
+                        } else if (diff > 5000) {
                             yMin = Math.floor(yMin / 1000) * 1000;
                         } else if (diff > 200) {
                             yMin = Math.floor(yMin / 100) * 100;
@@ -550,7 +552,9 @@ class ChartView extends React.Component {
                 if (isNaN(yMax)) {
                     // auto calculate
                     yMax = yAxis[i].max + diff * 0.1; // max + 10%
-                    if (diff > 5000) {
+                    if (diff > 25000) {
+                        yMax = Math.ceil(yMax / 10000) * 10000;
+                    } else if (diff > 5000) {
                         yMax = Math.ceil(yMax / 1000) * 1000;
                     } else if (diff > 200) {
                         yMax = Math.ceil(yMax / 100) * 100;
@@ -646,7 +650,7 @@ class ChartView extends React.Component {
                             show: !!oneMark.text,
                             formatter: oneMark.text || '',
                             position: oneMark.textPosition === 'r' ? 'end' : 'start',
-                            distance: oneMark.textOffset || -35,
+                            distance: (-1 * oneMark.textOffset) || -35,
                             textStyle: {
                                 color: oneMark.textColor || '#FFF',
                                 fontStyle: 'normal',
@@ -717,22 +721,64 @@ class ChartView extends React.Component {
         const date = new Date(params[0].value[0]);
 
         const values = params.filter(param => !param.seriesName.startsWith('__markings__')).map(param => {
-            let val = param.value[1] === null ?
+            const val = param.value[1] === null ?
                 'null' :
                 this.yFormatter(param.value[1], param.seriesIndex, props);
 
-            return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${props.config.l[param.seriesIndex].color}">` +
-                `<div style="display: flex;">${props.config.l[param.seriesIndex].name}:</div>` +
+            return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${param.color}">` +
+                `<div style="display: flex;">${param.seriesName}:</div>` +
                 `<div style="display: flex; flex-grow: 1"></div>` +
                 `<div style="display: flex;"><b>${val}</b>${param.value[1] !== null ? props.config.l[param.seriesIndex].unit : ''}</div>` +
                 `</div>`
         });
 
-        const format = props.config.timeFormat || 'dddd, MMMM Do YYYY, h:mm:ss.SSS';
+        const format = props.config.timeFormat || 'dd, MM Do YYYY, h:mm:ss.SSS';
         return `<b>${moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
     }
 
+    getLegend(props, xAxisHeight) {
+        return !props.config.legend || props.config.legend === 'none' ? undefined : {
+            data:   props.config.l.map(oneLine => oneLine.name),
+            show:   true,
+            left:   props.config.legend === 'nw' || props.config.legend === 'sw' ?  this.chart.padLeft  + 1 : undefined,
+            right:  props.config.legend === 'ne' || props.config.legend === 'se' ?  this.chart.padRight + 1 : undefined,
+            top:    props.config.legend === 'nw' || props.config.legend === 'ne' ?  10 : undefined,
+            bottom: props.config.legend === 'sw' || props.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
+            backgroundColor: props.config.legBg || undefined,
+            textStyle: {
+                color: props.config.legColor || (this.props.themeType === 'light' ? '#000' : '#FFF')
+            },
+        }
+    }
+
+    getTitle(props, xAxisHeight) {
+        if (!props.config.title) {
+            return undefined;
+        }
+        let titlePos = {};
+        (props.config.titlePos || 'top:35;left:65').split(';').forEach(a => {
+            const parts = a.split(':');
+            titlePos[parts[0].trim()] = parseInt(parts[1].trim(), 10);
+        });
+
+        return {
+            text: props.config.title,
+            textStyle: {
+                fontSize: props.config.titleSize ? parseInt(props.config.titleSize, 10) : 20,
+                color:    props.config.titleColor || (this.props.themeType === 'light' ? '#000' : '#FFF')
+            },
+            textVerticalAlign: titlePos.bottom      ? 'bottom' : 'top',
+            textAlign:         titlePos.left === 50 ? 'center' : (titlePos.right === -5 ? 'right' : 'left'),
+            top:               titlePos.top  === 35 ? 5        : (titlePos.top   === 50 ? '50%'   : undefined),
+            left:              titlePos.left === 50 ? '50%'    : (titlePos.left  === 65 ? this.chart.padLeft : undefined),
+            bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight - 10 : titlePos.bottom) : undefined,
+            right:             titlePos.right === 5 ? this.chart.padRight : undefined,
+        };
+    }
+
     getOptions(props) {
+        const xAxisHeight = 20;
+
         props = props || this.props;
         let theme = this.props.config.theme;
         if (!theme || theme === 'default') {
@@ -742,16 +788,6 @@ class ChartView extends React.Component {
         this.debug = props.config && props.config.debug;
 
         this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] ${JSON.stringify(props.config, null, 2)}`);
-
-        let titlePos = {};
-        if (props.config.titlePos) {
-            props.config.titlePos.split(';').forEach(a => {
-                const parts = a.split(':');
-                titlePos[parts[0].trim()] = parseInt(parts[1].trim(), 10);
-            });
-        }
-
-        const xAxisHeight = 20;
 
         const series = this.getSeries(props, theme);
 
@@ -775,19 +811,6 @@ class ChartView extends React.Component {
             theme,
             backgroundColor: 'transparent',
             animation: !props.config.noAnimation && !props.config.noLoader,
-            title: {
-                text: props.config.title || '',
-                textStyle: {
-                    fontSize: props.config.titleSize ? parseInt(props.config.titleSize, 10) : undefined,
-                    color: props.config.titleColor || undefined
-                },
-                textVerticalAlign: titlePos.bottom      ? 'bottom' : 'top',
-                textAlign:         titlePos.left === 50 ? 'center' : (titlePos.right === -5 ? 'right' : 'left'),
-                top:               titlePos.top  === 35 ? 5 : (titlePos.top === 50 ? '50%' : undefined),
-                left:              titlePos.left === 50 ? '50%' : (titlePos.left === 65 ? 15 : undefined),
-                bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight - 10 : titlePos.bottom) : undefined,
-                right:             titlePos.right === 5 ? this.chart.padRight : undefined,
-            },
             grid: {
                 backgroundColor: props.config.bg_custom || 'transparent',
                 show: !!props.config.bg_custom,
@@ -887,18 +910,8 @@ class ChartView extends React.Component {
         // 'ne': 'Top, right',
         // 'sw': 'Bottom, left',
         // 'se': 'Bottom, right',
-        options.legend = !props.config.legend || props.config.legend === 'none' ? undefined : {
-            data:   props.config.l.map(oneLine => oneLine.name),
-            show:   true,
-            left:   props.config.legend === 'nw' || props.config.legend === 'sw' ?  this.chart.padLeft  + 1 : undefined,
-            right:  props.config.legend === 'ne' || props.config.legend === 'se' ?  this.chart.padRight + 1 : undefined,
-            top:    props.config.legend === 'nw' || props.config.legend === 'ne' ?  10 : undefined,
-            bottom: props.config.legend === 'sw' || props.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
-            backgroundColor: props.config.legBg || undefined,
-            textStyle: {
-                color: props.config.legColor || undefined
-            },
-        };
+        options.legend = this.getLegend(props, xAxisHeight);
+        options.title  = this.getTitle(props, xAxisHeight);
 
         if (!props.config.grid_color) {
             options.yAxis.forEach(axis => axis.splitLine && delete axis.splitLine.lineStyle);

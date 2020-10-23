@@ -133,22 +133,8 @@ class ChartFrame extends React.Component {
 
     render() {
         if (window.location.port === '3000') {
-            const parts = this.props.src.split('&');
-            if (parts[0].includes('data=')) {
-                parts[0] = parts[0].replace(/^.*data=/, '');
-                parts[0] = decodeURIComponent(parts[0]);
-                try {
-                    parts[0] = JSON.parse(parts[0]);
-                } catch (e) {
-
-                }
-            }
             return <Paper className={this.props.classes.iframe} style={{background: '#333'}}>
-                <pre>{parts.join('\n')}</pre>
-                <br/>
-                <hr/>
-                <br/>
-                <pre>{JSON.stringify(parts[0], null, 2)}</pre>
+                <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
             </Paper>;
         } else {
             if (this.lastPresetData !== JSON.stringify(this.props.presetData) && this.ready) {

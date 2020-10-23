@@ -11,13 +11,14 @@ import IconButton from '@material-ui/core/IconButton';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import {withStyles} from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
-import ColorPicker from "@iobroker/adapter-react/Components/ColorPicker";
-import TextField from "@material-ui/core/TextField";
-import ClearIcon from "@material-ui/icons/Close";
-import Utils from "@iobroker/adapter-react/Components/Utils";
+import ClearIcon from '@material-ui/icons/Close';
+
+import ColorPicker from '@iobroker/adapter-react/Components/ColorPicker';
+import Utils from '@iobroker/adapter-react/Components/Utils';
 
 const WIDTHS = {
     lineId: 100,

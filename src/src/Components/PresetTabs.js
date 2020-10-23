@@ -18,6 +18,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import TextField from '@material-ui/core/TextField';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import {MdAdd as IconAdd} from 'react-icons/md';
 import {MdSave as IconSave} from 'react-icons/md';
@@ -141,9 +142,9 @@ class PresetTabs extends React.Component {
 
         this.state = {
             presetData: DefaultPreset.getDefaultPreset(this.props.systemConfig),
-            selectedTab: window.localStorage.getItem('PresetTabs.selectedTab') !== null ? window.localStorage.getItem('PresetTabs.selectedTab') : '0',
-            linesOpened: window.localStorage.getItem('Lines.opened') !== null ? JSON.parse(window.localStorage.getItem('Lines.opened')) : [],
-            marksOpened: window.localStorage.getItem('Marks.opened') !== null ? JSON.parse(window.localStorage.getItem('Marks.opened')) : [],
+            selectedTab: window.localStorage.getItem('App.echarts.presetTabs.selectedTab') !== null ? window.localStorage.getItem('App.echarts.presetTabs.selectedTab') : '0',
+            linesOpened: window.localStorage.getItem('App.echarts.Lines.opened') !== null ? JSON.parse(window.localStorage.getItem('App.echarts.Lines.opened')) : [],
+            marksOpened: window.localStorage.getItem('App.echarts.Marks.opened') !== null ? JSON.parse(window.localStorage.getItem('App.echarts.Marks.opened')) : [],
             deleteLineDialog: null,
             deleteMarkDialog: null,
             showColorDialog: false,
@@ -156,14 +157,14 @@ class PresetTabs extends React.Component {
         let linesOpened = JSON.parse(JSON.stringify(this.state.linesOpened));
         linesOpened[index] = !this.state.linesOpened[index];
         this.setState({linesOpened});
-        window.localStorage.setItem('Lines.opened', JSON.stringify(linesOpened));
+        window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify(linesOpened));
     };
 
     markOpenToggle = index => {
         let marksOpened = JSON.parse(JSON.stringify(this.state.marksOpened));
         marksOpened[index] = !this.state.marksOpened[index];
         this.setState({marksOpened});
-        window.localStorage.setItem('Marks.opened', JSON.stringify(marksOpened));
+        window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify(marksOpened));
     };
 
     updateField = (name, value, time) => {
@@ -189,23 +190,23 @@ class PresetTabs extends React.Component {
 
     expandAllLines = () => {
         const linesOpened = this.props.presetData.lines.map(() => true);
-        window.localStorage.setItem('Lines.opened', JSON.stringify(linesOpened));
+        window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify(linesOpened));
         this.setState({linesOpened});
     };
 
     collapseAllLines = () => {
-        window.localStorage.setItem('Lines.opened', JSON.stringify([]));
+        window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify([]));
         this.setState({linesOpened: []});
     };
 
     expandAllMarks = () => {
         const marksOpened = this.props.presetData.marks.map(() => true);
-        window.localStorage.setItem('Marks.opened', JSON.stringify([]));
+        window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify([]));
         this.setState({marksOpened});
     };
 
     collapseAllMarks = () => {
-        window.localStorage.setItem('Marks.opened', JSON.stringify([]));
+        window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify([]));
         this.setState({marksOpened: []});
     };
 
@@ -576,7 +577,7 @@ class PresetTabs extends React.Component {
                 {this.props.presetData.title ?
                     <>
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="titlePos" label="Title position" options={{
-                            '': 'none',
+                            '': 'default',
                             'top:35;left:65': 'Top, left, inside',
                             'top:35;right:5': 'Top, right, inside',
                             'top:35;left:50': 'Top, center, inside',
@@ -736,16 +737,22 @@ class PresetTabs extends React.Component {
     render() {
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static" className={this.props.classes.tabsContainer}>
-                <IconButton
+                {this.props.selectedPresetChanged || this.props.autoSave ? <Checkbox
+                    checked={this.props.autoSave}
+                    title={I18n.t('Auto save')}
+                    onChange={e => this.props.onAutoSave(e.target.checked)}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                /> : null}
+                {!this.props.autoSave ? <IconButton
                     className={this.props.classes.buttonSave}
                     style={{visibility: this.props.selectedPresetChanged ? 'visible' : 'hidden'}}
                     onClick={() => this.props.savePreset()}
                 >
                     <IconSave/>
-                </IconButton>
+                </IconButton> : null}
                 <TabList
                     onChange={(event, newValue)=>{
-                        window.localStorage.setItem('PresetTabs.selectedTab', newValue);
+                        window.localStorage.setItem('App.echarts.presetTabs.selectedTab', newValue);
                         this.setState({selectedTab: newValue})
                     }}
                     variant="scrollable"
@@ -784,6 +791,8 @@ PresetTabs.propTypes = {
     width: PropTypes.number,
     theme: PropTypes.object,
     systemConfig: PropTypes.object,
+    onAutoSave: PropTypes.func,
+    autoSave: PropTypes.bool,
 };
 
 export default withStyles(styles)(PresetTabs)

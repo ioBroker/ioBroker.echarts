@@ -35,8 +35,9 @@ const styles = theme => ({
     mainToolbar: {
         background: theme.palette.primary.main,
     },
-    secondaryToolbar: {
+    secondaryColors: {
         background: '#888',
+        color: theme.palette.type === 'dark' ? '#000' : '#FFF',
     },
     smallMargin: {
         marginTop: '8px !important',
@@ -60,7 +61,7 @@ class MenuList extends Component {
         };
 
         if (this.state.multiple) {
-            let chartList = window.localStorage.getItem('App.chartList') || '[]';
+            let chartList = window.localStorage.getItem('App.echarts.chartList') || '[]';
             try {
                 chartList = JSON.parse(chartList);
             } catch (e) {
@@ -106,10 +107,14 @@ class MenuList extends Component {
     }
 
     renderFooter() {
-        return <Toolbar key="toolbarBottom" variant="dense" className={ this.props.classes.secondaryToolbar }>
+        return <Toolbar key="toolbarBottom" variant="dense" className={ this.props.classes.secondaryColors }>
             <FormGroup row>
                 {!this.props.selectedPresetChanged ? <FormControlLabel
-                    control={<Switch checked={this.state.multiple} onChange={e => {
+                    classes={{root: this.props.secondaryColors}}
+                    control={<Switch
+                        checked={this.state.multiple}
+                        classes={{root: this.props.secondaryColors}}
+                        onChange={e => {
                         window.localStorage.setItem('App.echarts.multiple', e.target.checked ? 'true' : 'false');
                         if (e.target.checked) {
                             const selectedId = this.props.selectedId;
@@ -154,7 +159,7 @@ class MenuList extends Component {
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
                     onCreatePreset={this.props.onCreatePreset}
                     adapterName={this.props.adapterName}
-                    selectedPresetChanged={this.state.selectedPresetChanged}
+                    selectedPresetChanged={this.props.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}
                     onShowError={toast => this.props.onShowToast(toast)}
                     search={this.state.search}
@@ -174,7 +179,7 @@ class MenuList extends Component {
                     groupBy={this.state.groupBy}
                     selectedId={this.props.selectedId}
                     onChangeList={chartList => {
-                        window.localStorage.setItem('App.chartList', JSON.stringify(chartList));
+                        window.localStorage.setItem('App.echarts.chartList', JSON.stringify(chartList));
                         this.props.onChangeList(chartList);
                     }}
                     chartsList={this.props.chartsList}

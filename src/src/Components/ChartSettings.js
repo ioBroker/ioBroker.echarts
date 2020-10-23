@@ -183,7 +183,7 @@ class ChartSettings extends React.Component {
             presetData[name + '_time'] = time;
         }
         this.props.onChange(presetData);
-        window.localStorage.setItem('Chart.' + name, value);
+        window.localStorage.setItem('App.echarts.__' + name, value);
     };
 
     render() {
