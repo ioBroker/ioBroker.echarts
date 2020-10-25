@@ -7,6 +7,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Fab from '@material-ui/core/Fab';
 
 import {FaRedoAlt as IconReset}  from 'react-icons/fa'
+import {FaDownload as IconExport}  from 'react-icons/fa'
 
 import moment from 'moment';
 import 'moment/locale/en-gb';
@@ -280,12 +281,15 @@ const styles = theme => ({
         overflow: 'hidden',
         position: 'relative',
     },
-    divExportButton: {
+    exportButton: {
         position: 'absolute',
         top: 40,
-        right: 25,
+        right: 5,
+        width: 20,
+        height: 20,
         zIndex: 2,
-        opacity: 0.7
+        opacity: 0.7,
+        cursor: 'pointer'
         //background: '#00000000',
     },
     resetButton: {
@@ -876,10 +880,22 @@ class ChartView extends React.Component {
         let padLeft  = 0;
         let padRight = 0;
         series.forEach((ser, i) => {
-            let minTick = this.yFormatter(options.yAxis[ser.yAxisIndex].min, i, props, true);
-            let maxTick = this.yFormatter(options.yAxis[ser.yAxisIndex].max, i, props, true);
+            let yAxis = options.yAxis[ser.yAxisIndex];
+            if (!yAxis) {
+                // seems this axis is defined something else
+                const cY = props.config.l[ser.yAxisIndex].commonYAxis;
+                if (cY !== undefined) {
+                    yAxis = options.yAxis[cY];
+                } else {
+                    console.log('Cannot find Y axis for line ' + i);
+                    return;
+                }
+            }
 
-            const position = options.yAxis[ser.yAxisIndex].position;
+            let minTick = this.yFormatter(yAxis.min, i, props, true);
+            let maxTick = this.yFormatter(yAxis.max, i, props, true);
+
+            const position = yAxis.position;
             if (position === 'off') {
                 return;
             }
@@ -1219,34 +1235,39 @@ class ChartView extends React.Component {
 
     renderExportButton() {
         if (this.props.config.export) {
-            return <Fab
-                ref={ this.divExportButton }
+            return <IconExport
                 size="small"
                 color="default"
-                style={{display: 'none'}}
-                className={this.props.classes.resetButton}
-                title={I18n.t('Reset pan and zoom')}
+                className={this.props.classes.exportButton}
+                title={I18n.t('Save chart as svg')}
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                         const chartInstance = this.echartsReact.getEchartsInstance();
                         const base64 = chartInstance.getDataURL({
-                            pixelRatio: 2,
-                            backgroundColor: this.props.config.window_bg || '#FFF',
+                            pixelRatio: 2, // only for png
+                            backgroundColor: this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF'),
                         });
 
-                        const linkSource = `data:image/png;base64,${base64}`;
                         const downloadLink = document.createElement('a');
                         document.body.appendChild(downloadLink);
 
-                        downloadLink.href = linkSource;
+                        downloadLink.href = base64;
                         downloadLink.target = '_self';
-                        downloadLink.download = 'chart.svg';
+                        let name = '';
+                        if (this.props.config.l.length === 1) {
+                            name = this.props.config.l[0].name;
+                        } else {
+                            name = 'chart';
+                        }
+                        const option = this.option;
+                        const date = new Date(option.xAxis[0].max || option.series[0].data[option.series[0].data.length - 1].value[0]);
+                        downloadLink.download =
+                            `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
+                            `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.svg`;
                         downloadLink.click();
                     }
                 }}
-            >
-                <IconReset className={this.props.classes.resetButtonIcon}/>
-            </Fab>;
+            />
         } else {
             return null;
         }

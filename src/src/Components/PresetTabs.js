@@ -340,6 +340,7 @@ class PresetTabs extends React.Component {
                                             theme={this.props.theme}
                                             instances={this.props.instances}
                                             line={line}
+                                            presetData={this.props.presetData}
                                             width={this.props.width}
                                             updateLine={this.updateLine}
                                             deleteLine={index => this.setState({deleteLineDialog: index})}
@@ -705,7 +706,7 @@ class PresetTabs extends React.Component {
             <TextField
                 style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}
-                value={formData[name]}
+                value={formData[name] || ''}
                 onClick={() =>
                     this.setState({['_c_' + name]: formData[name]}, () =>
                         this.showColorPicker(this.state['_' + name], color =>
@@ -738,7 +739,7 @@ class PresetTabs extends React.Component {
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static" className={this.props.classes.tabsContainer}>
                 {this.props.selectedPresetChanged || this.props.autoSave ? <Checkbox
-                    checked={this.props.autoSave}
+                    checked={!!this.props.autoSave}
                     title={I18n.t('Auto save')}
                     onChange={e => this.props.onAutoSave(e.target.checked)}
                     inputProps={{ 'aria-label': 'primary checkbox' }}

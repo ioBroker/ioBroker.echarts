@@ -330,7 +330,22 @@ class ChartsTree extends Component {
                         const chartsList = JSON.parse(JSON.stringify(this.props.chartsList));
                         const item = chartsList.find(item => item.id === id && item.instance === instance);
                         if (e.target.checked && !item) {
-                            chartsList.push({id, instance: instance});
+                            chartsList.push({id, instance});
+                            chartsList.sort((a, b) => {
+                                if (a.instance > b.instance) {
+                                    return 1;
+                                } else if (a.instance < b.instance) {
+                                    return -1;
+                                } else {
+                                    if (a.id > b.id) {
+                                        return 1;
+                                    } else if (a.id < b.id) {
+                                        return -1;
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+                            });
                             // if no charts selected => select this one
                             if (typeof this.props.selectedId !== 'object') {
                                 this.props.onSelectedChanged({id, instance}, () =>

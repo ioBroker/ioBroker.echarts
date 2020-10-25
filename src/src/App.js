@@ -514,6 +514,17 @@ class App extends GenericApp {
                     } else {
                         presetData.lines.splice(destination.index, 0, newLine);
                     }
+                    if (presetData.lines.length > 1) {
+                        // combine new unit with existing one
+                        if (newLine.unit) {
+                            for (let i = 0; i < presetData.lines.length; i++) {
+                                if (newLine !== presetData.lines[i] && presetData.lines[i].unit === newLine.unit) {
+                                    newLine.commonYAxis = i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
                     this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
                 });
@@ -572,14 +583,19 @@ class App extends GenericApp {
                                 onCreatePreset={this.onCreatePreset}
                                 onChangeList={(chartsList, cb) => {
                                     // if some deselected
-                                    if (false && chartsList && this.state.chartsList && chartsList.length && chartsList.length < this.state.chartsList.length) {
+                                    let selectedId = this.state.selectedId;
+                                    if (chartsList && this.state.chartsList && chartsList.length && chartsList.length < this.state.chartsList.length) {
                                         const removedLine = this.state.chartsList.find(item => !chartsList.find(it => it.id === item.id && it.instance === item.instance));
-                                        const index = this.state.chartList.indexOf(removedLine);
-                                        // select next
-                                        this.setState({chartsList}, () => this.loadChartOrPreset(chartsList[0], cb));
-                                    } else {
-                                        this.setState({chartsList}, () => this.loadChartOrPreset(this.state.selectedId, cb));
+                                        const index = this.state.chartsList.indexOf(removedLine);
+                                        if (this.state.chartsList[index + 1]) {
+                                            selectedId = this.state.chartsList[index + 1];
+                                        } else if (this.state.chartsList[index - 1]) {
+                                            selectedId = this.state.chartsList[index - 1];
+                                        } else {
+                                            selectedId = chartsList[0];
+                                        }
                                     }
+                                    this.setState({chartsList}, () => this.loadChartOrPreset(selectedId, cb));
                                 }}
                                 onSelectedChanged={(selectedId, cb) => {
                                     if (cb && this.state.selectedPresetChanged) {

@@ -356,7 +356,9 @@ class Line extends React.Component {
         };
         for (let i = 0; i < this.props.maxLines; i++) {
             if (i !== this.props.index) {
-                xAxisOptions[i] = I18n.t('From line %s', i + 1);
+                if (this.props.presetData.lines[i].commonYAxis === undefined || this.props.presetData.lines[i].commonYAxis === '') {
+                    xAxisOptions[i] = I18n.t('From line %s', i + 1);
+                }
             }
         }
         const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
@@ -543,6 +545,7 @@ Line.propTypes = {
     lineOpenToggle: PropTypes.func,
     width: PropTypes.number,
     theme: PropTypes.object,
+    presetData: PropTypes.object,
     onSelectColor: PropTypes.func,
 };
 

@@ -22,13 +22,17 @@ You can debug view charts locally with:
 ## Todo
 - widget for vis (button)
 - widget for material
-- generate chart.png
-- Combine by functions/rooms
+- generate chart.png with messagebox on server
+- show enum icons on folders or near it
+
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### __WORK IN PROGRESS__
+* (bluefox) GUI fixes
+
 ### 0.2.0 (2020-10-22)
 * (bluefox) Implemented the grouping by category.
 
