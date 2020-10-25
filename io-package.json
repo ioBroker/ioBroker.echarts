@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.2.0",
+        "version": "0.2.1",
         "news": {
+            "0.2.1": {
+                "en": "GUI fixes",
+                "de": "GUI-Korrekturen",
+                "ru": "Исправления GUI",
+                "pt": "Correções de GUI",
+                "nl": "GUI-oplossingen",
+                "fr": "Correctifs de l'interface graphique",
+                "it": "Correzioni della GUI",
+                "es": "Correcciones de GUI",
+                "pl": "GUI fixes",
+                "zh-cn": "GUI修复"
+            },
             "0.2.0": {
                 "en": "Implemented the grouping by category.",
                 "de": "Die Gruppierung nach Kategorien wurde implementiert.",
