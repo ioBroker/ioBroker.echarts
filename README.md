@@ -13,6 +13,34 @@ Build useful charts in ioBroker:
 
 ![Screenshot](img/screenshot1.png)
 
+## Usage
+Add after restart the tab in admin:
+![Admin](img/admin.png)
+
+### Server side rendering
+You can render the presets on server and get it as base64 URL or save it on disk on in ioBroker DB:
+
+```
+sendTo('echarts.0', {
+    renderer: 'svg',         // svg | png | jpg | pdf, default: svg
+    width: 1024,             // default 1024
+    height: 300,             // default 300
+    height: 300,             // default 300
+    title: 'ioBroker Chart', // Title of PDF document 
+    quality: 0.8,            // quality of JPG
+    compressionLevel: 3,     // Compression level of PNG
+    filters: 8,              // Filters of PNG (Bit combination https://github.com/Automattic/node-canvas/blob/master/types/index.d.ts#L10)
+    fileOnDisk: '',          // Path on disk to save the file
+    fileName: '',            // Path in ioBroker DB to save the files on 'echarts.0'
+}, result => {
+    if (result.error) {
+        console.error(result.error);
+    } else {
+        console.log(result.data);
+    }
+});
+```
+
 ## Developer manual
 You can debug view charts locally with: 
 - cd iobroker.echarts/src-chart
@@ -22,7 +50,6 @@ You can debug view charts locally with:
 ## Todo
 - widget for vis (button)
 - widget for material
-- generate chart.png with messagebox on server
 - show enum icons on folders or near it
 
 <!--
@@ -30,9 +57,10 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### __WORK IN PROGRESS__
+### 0.3.0 (2020-10-30)
 * (bluefox) Added the color of export button 
 * (bluefox) The interpolated values are shown now
+* (bluefox) Server-side rendering is implemented
 
 ### 0.2.1 (2020-10-25)
 * (bluefox) GUI fixes

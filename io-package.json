@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.2.1",
+        "version": "0.3.0",
         "news": {
+            "0.3.0": {
+                "en": "Added the color of export button \nThe interpolated values are shown now\nServer-side rendering is implemented",
+                "de": "Die Farbe der Exportschaltfläche wurde hinzugefügt\nDie interpolierten Werte werden jetzt angezeigt\nServerseitiges Rendern ist implementiert",
+                "ru": "Добавлен цвет кнопки экспорта\nТеперь отображаются интерполированные значения.\nРеализован рендеринг на стороне сервера",
+                "pt": "Adicionada a cor do botão de exportação\nOs valores interpolados são mostrados agora\nA renderização do lado do servidor é implementada",
+                "nl": "De kleur van de exportknop toegevoegd\nDe geïnterpoleerde waarden worden nu weergegeven\nServer-side rendering is geïmplementeerd",
+                "fr": "Ajout de la couleur du bouton d'exportation\nLes valeurs interpolées sont maintenant affichées\nLe rendu côté serveur est implémenté",
+                "it": "Aggiunto il colore del pulsante di esportazione\nI valori interpolati vengono ora visualizzati\nViene implementato il rendering lato server",
+                "es": "Se agregó el color del botón de exportación.\nLos valores interpolados se muestran ahora\nSe implementa la representación del lado del servidor",
+                "pl": "Dodano kolor przycisku eksportu\nWyświetlane są teraz interpolowane wartości\nZaimplementowano renderowanie po stronie serwera",
+                "zh-cn": "添加了导出按钮的颜色\n现在显示插值\n服务器端渲染已实现"
+            },
             "0.2.1": {
                 "en": "GUI fixes",
                 "de": "GUI-Korrekturen",
@@ -105,8 +117,6 @@
         ]
     },
     "native": {
-        "option1": true,
-        "option2": "42"
     },
     "objects": [
         {

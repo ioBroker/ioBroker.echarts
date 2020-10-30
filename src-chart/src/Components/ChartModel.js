@@ -242,15 +242,18 @@ class ChartModel {
         this.onReadingFunc    = null;
         this.onErrorFunc      = null;
         this.objectPromises   = {};
-
-        this.lastHash         = window.location.hash;
-
         this.debug            = false;
         this.zoomData         = null;
 
-        if (!config) {
-            this.onHashInstalled = true;
-            window.addEventListener('hashchange', this.onHashChange, false);
+        if (!this.serverSide) {
+            this.lastHash         = window.location.hash;
+
+            if (!config) {
+                this.onHashInstalled = true;
+                this.onHashChangeBound = this.onHashChange.bind(this);
+                window.addEventListener('hashchange', this.onHashChangeBound, false);
+            }
+            this.onPresetUpdateBound = this.onPresetUpdate.bind(this);
         }
 
         this.socket.getSystemConfig()
@@ -330,9 +333,9 @@ class ChartModel {
 
                     // subscribe on preset changes
                     if (!this.serverSide && this.presetSubscribed !== this.preset) {
-                        this.presetSubscribed && this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
+                        this.presetSubscribed && this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdateBound);
                         this.presetSubscribed = this.preset;
-                        this.socket.subscribeObject(this.preset, this.onPresetUpdate);
+                        this.socket.subscribeObject(this.preset, this.onPresetUpdateBound);
                     }
                     if (!this.serverSide && this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
                         this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
@@ -350,14 +353,14 @@ class ChartModel {
         }
     }
 
-    onHashChange = () => {
+    onHashChange() {
         if (this.lastHash !== window.location.hash) {
             this.lastHash = window.location.hash;
             this.analyseAndLoadConfig();
         }
     };
 
-    onPresetUpdate = (id, obj) => {
+    onPresetUpdate(id, obj) {
         if (id !== this.preset) {
             return;
         }
@@ -446,15 +449,17 @@ class ChartModel {
             this.presetUpdateTimeout = null;
         }
         if (this.presetSubscribed) {
-            this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
+            this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdateBound);
             this.presetSubscribed = null;
         }
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = null;
         }
-        this.onHashInstalled && window.removeEventListener('hashchange', this.onHashChange, false);
-        this.onHashInstalled = false;
+        if (!this.serverSide) {
+            this.onHashInstalled && window.removeEventListener('hashchange', this.onHashChangeBound, false);
+            this.onHashInstalled = false;
+        }
     }
 
     onUpdate(cb) {
@@ -471,6 +476,10 @@ class ChartModel {
 
     getConfig() {
         return this.config;
+    }
+
+    getSystemConfig() {
+        return this.systemConfig;
     }
 
     setConfig(config) {
@@ -1030,4 +1039,4 @@ class ChartModel {
     }
 }
 
-export default ChartModel;
+module.exports = ChartModel;
