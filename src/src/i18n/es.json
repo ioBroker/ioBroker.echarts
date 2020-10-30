@@ -431,5 +431,7 @@
   "Rooms": "Habitaciones",
   "Functions": "Funciones",
   "Enable logging for new state": "Habilitar el registro para el nuevo estado",
-  "Rename preset": "Cambiar nombre de preset"
+  "Rename preset": "Cambiar nombre de preset",
+  "Auto save": "Auto guardar",
+  "Export button color": "Exportar color del botón"
 }

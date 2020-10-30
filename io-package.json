@@ -96,11 +96,10 @@
         "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
         "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
         "loglevel": "info",
-        "onlyWWW": true,
         "noConfig": true,
         "singleton": true,
         "type": "visualization",
-        "mode": "once",
+        "mode": "daemon",
         "dependencies": [
             "web"
         ]

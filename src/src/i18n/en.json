@@ -431,5 +431,7 @@
   "Rooms": "Rooms",
   "Functions": "Functions",
   "Enable logging for new state": "Enable logging for new state",
-  "Rename preset": "Rename preset"
+  "Rename preset": "Rename preset",
+  "Auto save": "Auto save",
+  "Export button color": "Export button color"
 }

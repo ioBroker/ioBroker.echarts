@@ -75,6 +75,7 @@ class SettingsEditor extends React.Component {
                     width={this.props.width}
                     socket={this.props.socket}
                     presetData={this.props.presetData}
+                    selectedId={this.props.selectedId}
                     onChange={this.props.onChange}
                     instances={this.props.instances}
                     systemConfig={this.props.systemConfig}
@@ -91,6 +92,7 @@ class SettingsEditor extends React.Component {
 
 SettingsEditor.propTypes = {
     socket: PropTypes.object,
+    selectedId: PropTypes.string,
     presetData: PropTypes.object,
     instances: PropTypes.array,
     onLayoutChange: PropTypes.func,

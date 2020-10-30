@@ -431,5 +431,7 @@
   "Rooms": "Pièces",
   "Functions": "Les fonctions",
   "Enable logging for new state": "Activer la journalisation pour le nouvel état",
-  "Rename preset": "Renommer le préréglage"
+  "Rename preset": "Renommer le préréglage",
+  "Auto save": "Sauvegarde automatique",
+  "Export button color": "Couleur du bouton d'exportation"
 }

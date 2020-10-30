@@ -120,6 +120,7 @@ let IOTextField = function (props) {
             onChange={e => props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             type={props.type}
+            title={props.title || ''}
             InputProps={{
                 startAdornment: props.helperLink ? <IconButton
                     size="small"

@@ -431,5 +431,7 @@
   "Rooms": "Kamers",
   "Functions": "Functies",
   "Enable logging for new state": "Schakel logboekregistratie in voor nieuwe staat",
-  "Rename preset": "Hernoem preset"
+  "Rename preset": "Hernoem preset",
+  "Auto save": "Automatisch opslaan",
+  "Export button color": "Kleur van knop exporteren"
 }

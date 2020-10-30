@@ -431,5 +431,7 @@
   "Rooms": "Camere",
   "Functions": "Funzioni",
   "Enable logging for new state": "Abilita la registrazione per il nuovo stato",
-  "Rename preset": "Rinomina preset"
+  "Rename preset": "Rinomina preset",
+  "Auto save": "Salvataggio automatico",
+  "Export button color": "Colore pulsante di esportazione"
 }

@@ -25,6 +25,7 @@ import {MdSave as IconSave} from 'react-icons/md';
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
 import {MdExpandMore as IconExpand} from 'react-icons/md';
 import ClearIcon from '@material-ui/icons/Close';
+import {MdFullscreen as IconNewWindow} from 'react-icons/md';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import Utils from '@iobroker/adapter-react/Components/Utils';
@@ -86,6 +87,10 @@ const styles = theme => ({
     },
     marginTop: {
         marginTop: theme.spacing(2),
+    },
+    noPaddingOnSide: {
+        //paddingRight: 0,
+        //paddingLeft: 0,
     },
     group: {
         display: 'block',
@@ -566,6 +571,7 @@ class PresetTabs extends React.Component {
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />
                 {/*<IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />*/}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show export button'} name="export" />
+                {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Export button color', 'exportColor') : null}
             </div>
         </TabPanel>;
     }
@@ -744,9 +750,14 @@ class PresetTabs extends React.Component {
                     onChange={e => this.props.onAutoSave(e.target.checked)}
                     inputProps={{ 'aria-label': 'primary checkbox' }}
                 /> : null}
-                {!this.props.autoSave ? <IconButton
+                {!this.props.selectedPresetChanged ? <IconButton
+                    classes={{root: this.props.classes.noPaddingOnSide}}
+                    onClick={ () => window.open('chart/index.html?preset=' + this.props.selectedId, 'own-preset-echarts') }
+                    title={ I18n.t('Open chart in own window') }
+                ><IconNewWindow/></IconButton> : null}
+                {!this.props.autoSave && this.props.selectedPresetChanged ? <IconButton
+                    classes={{root: this.props.classes.noPaddingOnSide}}
                     className={this.props.classes.buttonSave}
-                    style={{visibility: this.props.selectedPresetChanged ? 'visible' : 'hidden'}}
                     onClick={() => this.props.savePreset()}
                 >
                     <IconSave/>
@@ -785,6 +796,7 @@ class PresetTabs extends React.Component {
 PresetTabs.propTypes = {
     onChange: PropTypes.func,
     presetData: PropTypes.object,
+    selectedId: PropTypes.string,
     socket: PropTypes.object,
     instances: PropTypes.array,
     savePreset: PropTypes.func,

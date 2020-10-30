@@ -15,6 +15,7 @@ import {MdAdd as IconAdd} from 'react-icons/md';
 import {RiFolderAddLine as IconFolderAdd} from 'react-icons/ri';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Close';
+import {MdFullscreen as IconNewWindow} from 'react-icons/md';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import PresetsTree from './Components/PresetsTree';
@@ -60,6 +61,12 @@ class MenuList extends Component {
             addPresetFolderDialog: false,
         };
 
+        try {
+            this.isIFrame = window.self !== window.top;
+        } catch (e) {
+            this.isIFrame = true;
+        }
+
         if (this.state.multiple) {
             let chartList = window.localStorage.getItem('App.echarts.chartList') || '[]';
             try {
@@ -103,6 +110,11 @@ class MenuList extends Component {
                     }}
                 /> : null
             }
+            <div style={{flexGrow: 1}}/>
+            {!this.state.showSearch && this.isIFrame ? <IconButton
+                onClick={ () => window.open(window.location.href, 'own-echarts') }
+                title={ I18n.t('Open in own window') }
+            ><IconNewWindow/></IconButton> : null}
         </Toolbar>;
     }
 

@@ -431,5 +431,7 @@
   "Rooms": "Номера",
   "Functions": "Функции",
   "Enable logging for new state": "Включить ведение журнала для нового состояния",
-  "Rename preset": "Переименовать пресет"
+  "Rename preset": "Переименовать пресет",
+  "Auto save": "Автосохранение",
+  "Export button color": "Цвет кнопки экспорта"
 }

@@ -474,6 +474,7 @@ class App extends GenericApp {
                                 }
                             }}
                             presetData={this.state.presetData}
+                            selectedId={this.state.selectedId}
                             verticalLayout={!this.state.logHorzLayout}
                             onLayoutChange={() => this.toggleLogLayout()}
                             connection={this.socket}

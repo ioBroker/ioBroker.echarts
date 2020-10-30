@@ -30,6 +30,10 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### __WORK IN PROGRESS__
+* (bluefox) Added the color of export button 
+* (bluefox) The interpolated values are shown now
+
 ### 0.2.1 (2020-10-25)
 * (bluefox) GUI fixes
 

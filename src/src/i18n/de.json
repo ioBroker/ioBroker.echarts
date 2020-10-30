@@ -431,5 +431,7 @@
   "Rooms": "Räume",
   "Functions": "Funktionen",
   "Enable logging for new state": "Protokollierung für einen neuen Zustand aktivieren",
-  "Rename preset": "Preset umbenennen"
+  "Rename preset": "Preset umbenennen",
+  "Auto save": "Automatisch speichern",
+  "Export button color": "Export-Knopf-Farbe"
 }

@@ -1,4 +1,38 @@
-import Utils from '@iobroker/adapter-react/Components/Utils';
+/**
+ * Parse a query string into its parts.
+ * Copied from @iobroker/adapter-react/Components/Utils
+ * @param {string} query
+ * @returns {Record<string, string | boolean | number>}
+ */
+function parseQuery(query) {
+    query = (query || '').toString().replace(/^\?/, '');
+    /** @type {Record<string, string | boolean | number>} */
+    const result = {};
+    query.split('&').forEach(part => {
+        part = part.trim();
+        if (part) {
+            const parts = part.split('=');
+            const attr = decodeURIComponent(parts[0]).trim();
+            if (parts.length > 1) {
+                result[attr] = decodeURIComponent(parts[1]);
+                if (result[attr] === 'true') {
+                    result[attr] = true;
+                } else if (result[attr] === 'false') {
+                    result[attr] = false;
+                } else {
+                    const f = parseFloat(result[attr]);
+                    if (f.toString() === result[attr]) {
+                        result[attr] = f;
+                    }
+                }
+            } else {
+                result[attr] = true;
+            }
+        }
+    });
+    return result;
+}
+
 /*
 function deParam(params, coerce) {
     const obj = {};
@@ -91,7 +125,7 @@ function deParam(params, coerce) {
 */
 function normalizeConfig(config) {
     if (config.lines) {
-        config.l = JSON.parse(JSON.stringify(config.lines));
+        config.l = config.lines;
         delete config.lines;
     }
 
@@ -120,7 +154,7 @@ function normalizeConfig(config) {
         config.relativeEnd   = 'now';
     }
 
-    // convert art to aggregate
+    // convert art to aggregate (from flot)
     if (config.l) {
         for (let j = 0; j < config.l.length; j++) {
             if (config.l[j].art) {
@@ -130,8 +164,9 @@ function normalizeConfig(config) {
             if (config.instance && !config.l[j].instance) {
                 config.l[j].instance = config.instance;
             }
-            config.l[j].yOffset = parseFloat(config.l[j].yOffset) || 0;
-            config.l[j].offset  = parseFloat(config.l[j].offset)  || 0;
+            config.l[j].yOffset   = parseFloat(config.l[j].yOffset)   || 0;
+            config.l[j].offset    = parseFloat(config.l[j].offset)    || 0;
+            config.l[j].validTime = parseFloat(config.l[j].validTime) || 0;
         }
     }
 
@@ -189,6 +224,7 @@ class ChartModel {
         this.socket = socket;
 
         this.updateTimeout    = options.updateTimeout || 300; // how often the new data will be requested by zoom and pan
+        this.serverSide       = options.serverSide || false; // if rendering is serverside
 
         this.seriesData       = [];
         this.ticks            = null;
@@ -232,14 +268,14 @@ class ChartModel {
                 this.config = normalizeConfig(config);
             }
         } else {
-            const query = Utils.parseQuery(window.location.search); // Utils.parseQuery
+            const query = parseQuery(window.location.search); // Utils.parseQuery
 
             this.debug = query.debug === true || query.debug === 'true' || query.debug === 1 || query.debug === '1';
 
             if (query.preset) {
                 this.preset = query.preset;
             } else {
-                const hQuery = Utils.parseQuery((window.location.hash || '').toString().replace(/^#/, '')); // Utils.parseQuery
+                const hQuery = parseQuery((window.location.hash || '').toString().replace(/^#/, '')); // Utils.parseQuery
                 if (hQuery.data) {
                     try {
                         hQuery.data = JSON.parse(hQuery.data);
@@ -275,7 +311,7 @@ class ChartModel {
         }
 
         if (this.preset) {
-            if (!this.preset.startsWith('echarts.') || !this.preset.startsWith('flot.') || !this.preset.includes('.')) {
+            if ((!this.preset.startsWith('echarts.') && !this.preset.startsWith('flot.')) || !this.preset.includes('.')) {
                 this.preset = 'echarts.0.' + this.preset;
             }
 
@@ -291,13 +327,14 @@ class ChartModel {
                     this.config.debug    = this.debug;
 
                     this.readData();
+
                     // subscribe on preset changes
-                    if (this.presetSubscribed !== this.preset) {
+                    if (!this.serverSide && this.presetSubscribed !== this.preset) {
                         this.presetSubscribed && this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
                         this.presetSubscribed = this.preset;
                         this.socket.subscribeObject(this.preset, this.onPresetUpdate);
                     }
-                    if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
+                    if (!this.serverSide && this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
                         this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                     }
                 });
@@ -307,7 +344,7 @@ class ChartModel {
             this.config.live     = parseInt(this.config.live, 10) || 0;
             this.config.debug    = this.debug;
             this.readData();
-            if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
+            if (!this.serverSide && this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
         }
@@ -633,11 +670,6 @@ class ChartModel {
                     const _series = this.seriesData[index];
 
                     for (let i = 0; i < values.length; i++) {
-                        // if less 2000.01.01 00:00:00
-                        //if (values[i].ts < 946681200000) {
-                        //    values[i].ts = values[i].ts * 1000;
-                        //}
-
                         // Convert boolean values to numbers
                         if (values[i].val === 'true' || values[i].val === true) {
                             values[i].val = 1;
@@ -653,15 +685,25 @@ class ChartModel {
 
                     // add start and end
                     if (_series.length) {
-                        if (_series[0][0] > option.start) {
-                            _series.unshift({value: [option.start, null]});
+                        if (_series[0].value[0] > option.start) {
+                            _series.unshift({value: [option.start, null], exact: false});
                         }
-                        if (_series[_series.length - 1][0] < option.end) {
-                            _series.push({value: [option.end, null]});
+                        const last = _series[_series.length - 1];
+                        if (last.value[0] < option.end) {
+                            if (this.config.l[index].validTime) {
+                                // If last value is not older than X seconds, assume it is still the same
+                                if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
+                                    _series.push({value: [option.end, last.value[1]], exact: false});
+                                } else {
+                                    _series.push({value: [option.end, null], exact: false});
+                                }
+                            } else {
+                                _series.push({value: [option.end, null], exact: false});
+                            }
                         }
                     } else {
-                        _series.push({value: [option.start, null]});
-                        _series.push({value: [option.end,   null]});
+                        _series.push({value: [option.start, null], exact: false});
+                        _series.push({value: [option.end,   null], exact: false});
                     }
 
                     // free memory
@@ -942,6 +984,7 @@ class ChartModel {
         }
 
         this.now = Date.now();
+        console.log('Read till ' + new Date(this.now));
         this.sessionId = this.sessionId || 0;
         this.sessionId++;
         if (this.sessionId > 0xFFFFFF) {

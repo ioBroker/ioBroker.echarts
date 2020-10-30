@@ -119,6 +119,7 @@ function getDefaultLine(systemSettings, instance, obj, language) {
         aggregate:  isBoolean ? 'onchange' : 'minmax',
         isBoolean:  isBoolean,
         symbolSize: 3,
+        validTime:  35, // 35 seconds
     };
 
     if (obj && obj.common && obj.common.color) {

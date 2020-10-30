@@ -431,5 +431,7 @@
   "Rooms": "Pokoje",
   "Functions": "Funkcje",
   "Enable logging for new state": "Włącz rejestrowanie dla nowego stanu",
-  "Rename preset": "Zmień nazwę ustawienia wstępnego"
+  "Rename preset": "Zmień nazwę ustawienia wstępnego",
+  "Auto save": "Automatyczne zapisywanie",
+  "Export button color": "Kolor przycisku eksportu"
 }

@@ -431,5 +431,7 @@
   "Rooms": "房间数",
   "Functions": "功能",
   "Enable logging for new state": "启用新状态的日志记录",
-  "Rename preset": "重命名预设"
+  "Rename preset": "重命名预设",
+  "Auto save": "自动保存",
+  "Export button color": "导出按钮颜色"
 }

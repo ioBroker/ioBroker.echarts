@@ -431,5 +431,7 @@
   "Rooms": "quartos",
   "Functions": "Funções",
   "Enable logging for new state": "Ativar registro para novo estado",
-  "Rename preset": "Renomear predefinição"
+  "Rename preset": "Renomear predefinição",
+  "Auto save": "Salvamento automático",
+  "Export button color": "Cor do botão de exportação"
 }
