@@ -207,10 +207,10 @@ function processMessage(adapter, obj) {
 }
 
 function main(adapter) {
-    /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png'})
+    /*renderImage({preset: 'Test', theme: 'dark', renderer: 'svg'})
         .then(data => {
             const base64 = Buffer.from(data.split(',')[1], 'base64');
-            require('fs').writeFileSync('image.png', base64);
+            require('fs').writeFileSync('image.svg', base64);
         });*/
 }
 

@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.0",
+        "version": "0.3.1",
         "news": {
-            "0.3.0": {
+            "0.3.1": {
                 "en": "Added the color of export button \nThe interpolated values are shown now\nServer-side rendering is implemented",
                 "de": "Die Farbe der Exportschaltfläche wurde hinzugefügt\nDie interpolierten Werte werden jetzt angezeigt\nServerseitiges Rendern ist implementiert",
                 "ru": "Добавлен цвет кнопки экспорта\nТеперь отображаются интерполированные значения.\nРеализован рендеринг на стороне сервера",
@@ -111,10 +111,7 @@
         "noConfig": true,
         "singleton": true,
         "type": "visualization",
-        "mode": "daemon",
-        "dependencies": [
-            "web"
-        ]
+        "mode": "daemon"
     },
     "native": {
     },

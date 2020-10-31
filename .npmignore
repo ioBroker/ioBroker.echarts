@@ -5,6 +5,10 @@ gulpfileChart.js.js
 gulpfileEdit.js.js
 /gulpfile.js
 gulpfile.js
+!/img/**/*
+!/img/*
+!/src-chart/src/Components/ChartModel.js
+!/src-chart/src/Components/ChartOption.js
 !/admin/**/*
 !/admin/*
 !/widgets/**/*
@@ -15,3 +19,4 @@ gulpfile.js
 !/package.json
 !/LICENSE
 !/README.md
+/src-chart/package.json

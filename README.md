@@ -31,7 +31,9 @@ sendTo('echarts.0', {
     compressionLevel: 3,     // Compression level of PNG
     filters: 8,              // Filters of PNG (Bit combination https://github.com/Automattic/node-canvas/blob/master/types/index.d.ts#L10)
     fileOnDisk: '',          // Path on disk to save the file
-    fileName: '',            // Path in ioBroker DB to save the files on 'echarts.0'
+    fileName: '',            // Path in ioBroker DB to save the files on 'echarts.0',
+    background: '',          // Background color
+    theme: 'light',          // Theme type: 'light', 'dark'
 }, result => {
     if (result.error) {
         console.error(result.error);
@@ -57,7 +59,7 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### 0.3.0 (2020-10-30)
+### 0.3.1 (2020-10-31)
 * (bluefox) Added the color of export button 
 * (bluefox) The interpolated values are shown now
 * (bluefox) Server-side rendering is implemented
