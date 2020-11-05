@@ -22,18 +22,18 @@ You can render the presets on server and get it as base64 URL or save it on disk
 
 ```
 sendTo('echarts.0', {
+    preset:   'echarts.0.myPreset', // the only mandatory attribute
     renderer: 'svg',         // svg | png | jpg | pdf, default: svg
     width: 1024,             // default 1024
-    height: 300,             // default 300
     height: 300,             // default 300
     title: 'ioBroker Chart', // Title of PDF document 
     quality: 0.8,            // quality of JPG
     compressionLevel: 3,     // Compression level of PNG
     filters: 8,              // Filters of PNG (Bit combination https://github.com/Automattic/node-canvas/blob/master/types/index.d.ts#L10)
-    fileOnDisk: '',          // Path on disk to save the file
-    fileName: '',            // Path in ioBroker DB to save the files on 'echarts.0',
     background: '',          // Background color
     theme: 'light',          // Theme type: 'light', 'dark'
+    fileOnDisk: '',          // Path on disk to save the file
+    fileName: '',            // Path in ioBroker DB to save the files on 'echarts.0',
 }, result => {
     if (result.error) {
         console.error(result.error);

@@ -104,6 +104,7 @@
         "platform": "Javascript/Node.js",
         "main": "main.js",
         "icon": "echarts.png",
+        "messagebox": true,
         "enabled": true,
         "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
         "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",

@@ -164,7 +164,6 @@ function renderImage(options) {
             }
             chart.dispose();
 
-
             if (options.fileOnDisk) {
                 fs.writeFileSync(options.fileOnDisk, Buffer.from(data.split(',')[1], 'base64'));
             }
