@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "news": {
+            "0.3.2": {
+                "en": "Corrected server-side rendering of PNG",
+                "de": "Serverseitiges Rendern von PNG korrigiert",
+                "ru": "Исправленный рендеринг PNG на стороне сервера.",
+                "pt": "Renderização do lado do servidor corrigida de PNG",
+                "nl": "Gecorrigeerde server-side rendering van PNG",
+                "fr": "Correction du rendu côté serveur du PNG",
+                "it": "Corretto il rendering lato server di PNG",
+                "es": "Representación corregida del lado del servidor de PNG",
+                "pl": "Poprawione renderowanie PNG po stronie serwera",
+                "zh-cn": "修正了PNG的服务器端渲染"
+            },
             "0.3.1": {
                 "en": "Added the color of export button \nThe interpolated values are shown now\nServer-side rendering is implemented",
                 "de": "Die Farbe der Exportschaltfläche wurde hinzugefügt\nDie interpolierten Werte werden jetzt angezeigt\nServerseitiges Rendern ist implementiert",
@@ -114,8 +126,7 @@
         "type": "visualization",
         "mode": "daemon"
     },
-    "native": {
-    },
+    "native": {},
     "objects": [
         {
             "_id": "_design/chart",

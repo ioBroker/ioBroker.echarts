@@ -20,6 +20,7 @@ import {MdAdd as IconAdd} from 'react-icons/md';
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
 import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
+import {FaWaveSquare as IconBooleanChart} from 'react-icons/fa';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
@@ -62,6 +63,11 @@ const styles = theme => ({
     width100: {
         width: '100%',
     },
+    itemIcon: {
+        width: 32,
+        height: 32,
+        marginRight: 4,
+    },
     itemIconRoot: {
         minWidth: 24,
     },
@@ -69,6 +75,11 @@ const styles = theme => ({
         fontSize: 'smaller',
         opacity: 0.7,
         fontStyle: 'italic'
+    },
+    adapterIcon: {
+        width: 20,
+        height: 20,
+        borderRadius: 2,
     }
 });
 
@@ -87,6 +98,8 @@ class ChartsTree extends Component {
             instances: [], // chart folders
             chartsOpened
         };
+
+        this.adapterPromises = {};
 
         this.getAllEnums()
             .then(newState => this.getAllCharts(newState))
@@ -113,6 +126,100 @@ class ChartsTree extends Component {
             });
     }
 
+    getAdapterIcon(groupId, id) {
+        const p = id.split('.');
+
+        if (p.length < 2 || (p[0] === '0_userdata')) {
+            return Promise.resolve();
+        } else {
+            let instanceId;
+            if (p[0] === 'system') {
+                p.splice(4);
+                instanceId = p.join('.')
+            } else {
+                p.splice(2);
+                instanceId = 'system.adapter.' + p.join('.')
+            }
+
+            this.adapterPromises[instanceId] = this.adapterPromises[instanceId] || this.props.socket.getObject(instanceId);
+
+            return this.adapterPromises[instanceId]
+                .then(obj => {
+                    if (obj && obj.common && obj.common.icon) {
+                        return Promise.resolve({groupId, id, img: Utils.getObjectIcon(obj)});
+                    } else {
+                        return Promise.resolve();
+                    }
+                });
+        }
+    }
+
+    getChartIcon(groupId, obj) {
+        if (!obj) {
+            return Promise.resolve();
+        } else
+        if (obj.common && obj.common.icon) {
+            return Promise.resolve({groupId, id: obj._id, img: Utils.getObjectIcon(obj)});
+        } else {
+            // try to read parent
+            const id = obj._id;
+            const channelID = Utils.getParentId(obj._id);
+            if (channelID && channelID.split('.').length > 2) {
+                return this.props.socket.getObject(channelID)
+                    .then(obj => {
+                        if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
+                            return Promise.resolve({groupId, id, img: Utils.getObjectIcon(obj)});
+                        } else {
+                            const deviceID = Utils.getParentId(channelID);
+                            if (deviceID && deviceID.split('.').length > 2) {
+                                return this.props.socket.getObject(deviceID)
+                                    .then(obj => {
+                                        if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
+                                            return Promise.resolve({
+                                                groupId,
+                                                id,
+                                                img: Utils.getObjectIcon(obj)
+                                            });
+                                        } else {
+                                            const adapterID = Utils.getParentId(deviceID);
+                                            if (adapterID && adapterID.split('.').length > 2) {
+                                                return this.props.socket.getObject(adapterID)
+                                                    .then(obj => {
+                                                        if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
+                                                            return Promise.resolve({
+                                                                groupId,
+                                                                id,
+                                                                img: Utils.getObjectIcon(obj)
+                                                            });
+                                                        } else {
+                                                            // get Adapter Icon
+                                                            if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
+                                                                return Promise.resolve({
+                                                                    groupId,
+                                                                    id,
+                                                                    img: Utils.getObjectIcon(obj)
+                                                                });
+                                                            } else {
+                                                                return this.getAdapterIcon(groupId, id);
+                                                            }
+                                                        }
+                                                    });
+                                            } else {
+                                                return this.getAdapterIcon(groupId, id);
+                                            }
+                                        }
+                                    });
+                            } else {
+                                return this.getAdapterIcon(groupId, id);
+                            }
+                        }
+                    });
+            } else {
+                return this.getAdapterIcon(groupId, id);
+            }
+        }
+    }
+
     getAllCharts(newState) {
         newState = newState || {};
         return new Promise(resolve =>
@@ -123,13 +230,17 @@ class ChartsTree extends Component {
                     const ids = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
                     const _instances = {};
                     newState.enums = newState.enums || this.state.enums;
+                    const iconPromises = [];
                     Object.values(objs).forEach(obj => {
                         const id = obj && obj.common && obj.common.custom && ids.find(id => Object.keys(obj.common.custom).includes(id));
                         if (id) {
-                            _instances[id] = _instances[id] || {_id: 'system.adapter.' + id, enabledDP: {}, names: {}, statesEnums: {}};
+                            const instanceObj = this.props.instances.find(obj => obj._id.endsWith(id));
+                            _instances[id] = _instances[id] || {_id: 'system.adapter.' + id, enabledDP: {}, names: {}, statesEnums: {}, icon: instanceObj.common.icon, name: instanceObj.common.name || '', types: {}, icons: {}};
                             _instances[id].enabledDP[obj._id] = obj;
                             _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()});
+                            _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
                             _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
+                            iconPromises.push(this.getChartIcon(id, obj));
                         }
                     });
 
@@ -194,6 +305,25 @@ class ChartsTree extends Component {
                     }
                     newState.instances = insts;
                     newState.chartsOpened = chartsOpened;
+
+                    // update icons asynchronous
+                    setTimeout(() => {
+                        Promise.all(iconPromises)
+                            .then(result => {
+                                const instances = JSON.parse(JSON.stringify(this.state.instances));
+                                let changed = false;
+                                result.forEach(res => {
+                                    if (res && res.groupId) {
+                                        const inst = instances.find(ins => ins._id === 'system.adapter.' + res.groupId);
+                                        if (inst) {
+                                            inst.icons[res.id] = res.img;
+                                            changed = true;
+                                        }
+                                    }
+                                });
+                                changed && this.setState({instances});
+                            });
+                    }, 100);
 
                     resolve(newState);
                 });
@@ -313,14 +443,23 @@ class ChartsTree extends Component {
             onClick={dragging ? undefined : () => this.props.onSelectedChanged({id, instance})}
         >
             <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
-                <IconChart className={this.props.classes.itemIcon}/>
+                {group.types[id] === 'boolean' ?
+                    <IconBooleanChart className={this.props.classes.itemIcon}/>
+                    :
+                    <IconChart className={this.props.classes.itemIcon}/>
+                }
             </ListItemIcon>
             <ListItemText
                 classes={{
                     primary: this.props.classes.listItemTitle,
                     secondary: this.props.classes.listItemSubTitle
                 }}
-                primary={group.names[id]}
+                primary={
+                    <span>
+                        {Utils.getIcon({icon: group.icons[id], prefix: '../../'}, {width: 20, height: 20, borderRadius: 2})}
+                        {group.names[id]}
+                    </span>
+                }
                 secondary={id.replace('system.adapter.', '')}
             />
             {!dragging && this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction>
@@ -488,16 +627,23 @@ class ChartsTree extends Component {
                                             classes={ {gutters: this.props.classes.noGutters} }
                                             className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
                                         >
-                                            <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>{ opened ?
-                                                <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
-                                                <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
-                                            }</ListItemIcon>
-                                            <ListItemText primary={group._id.replace('system.adapter.', '')}/>
-                                            <ListItemSecondaryAction>
+                                            <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>
+                                                { opened ?
+                                                    <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
+                                                    <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
+                                                }
+                                            </ListItemIcon>
+                                            <ListItemText primary={
+                                                <span>
+                                                    <img className={ this.props.classes.adapterIcon } alt="" src={`../../adapter/${group.name}/${group.icon}`}/>
+                                                    {group._id.replace('system.adapter.', '')}
+                                                </span>
+                                            }/>
+                                                <ListItemSecondaryAction>
                                                 {opened ? <IconButton
-                                                    onClick={() => this.setState({showAddStateDialog: group._id})}
-                                                    title={ I18n.t('Enable logging for new state') }
-                                                ><IconAdd/></IconButton> : null}
+                                                        onClick={() => this.setState({showAddStateDialog: group._id})}
+                                                        title={ I18n.t('Enable logging for new state') }
+                                                    ><IconAdd/></IconButton> : null}
                                                 <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
                                                     { opened ? <IconCollapse/> : <IconExpand/> }
                                                 </IconButton>

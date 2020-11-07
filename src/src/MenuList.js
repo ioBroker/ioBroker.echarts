@@ -1,7 +1,7 @@
-import React, {Component} from "react";
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import withWidth from "@material-ui/core/withWidth";
-import {withStyles, withTheme} from "@material-ui/core/styles";
+import withWidth from '@material-ui/core/withWidth';
+import {withStyles, withTheme} from '@material-ui/core/styles';
 
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
@@ -9,21 +9,21 @@ import Toolbar from '@material-ui/core/Toolbar';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
 // icons
 import {MdAdd as IconAdd} from 'react-icons/md';
-import {RiFolderAddLine as IconFolderAdd} from 'react-icons/ri';
+import {MdCreateNewFolder as IconFolderAdd} from 'react-icons/md';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Close';
 import {MdFullscreen as IconNewWindow} from 'react-icons/md';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import PresetsTree from './Components/PresetsTree';
-import ChartsTree from "./Components/ChartsTree";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
+import ChartsTree from './Components/ChartsTree';
+
 
 const TOOLBAR_HEIGHT = 48;
 
@@ -59,6 +59,7 @@ class MenuList extends Component {
             showSearch: null,
             groupBy: window.localStorage.getItem('App.echarts.groupBy') || '',
             addPresetFolderDialog: false,
+            reorder: false,
         };
 
         try {
@@ -169,12 +170,14 @@ class MenuList extends Component {
                 <PresetsTree
                     socket={this.props.socket}
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
+                    onClosePresetFolderDialog={() => this.setState({addPresetFolderDialog: false})}
                     onCreatePreset={this.props.onCreatePreset}
                     adapterName={this.props.adapterName}
                     selectedPresetChanged={this.props.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}
                     onShowError={toast => this.props.onShowToast(toast)}
                     search={this.state.search}
+                    reorder={this.state.reorder}
                     selectedId={this.props.selectedId}
                     systemConfig={this.props.systemConfig}
                     onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}

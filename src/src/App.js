@@ -322,7 +322,7 @@ class App extends GenericApp {
                             }
                             for (let k = iFirst + 1; k < lines.length; k++) {
                                 if (lines[k].unit && lines[k].unit !== first.unit) {
-                                    first.yaxe = 'right';
+                                    lines[k].yaxe = 'right';
                                     // combine all following lines to one axis
                                     for (let j = k + 1; j < lines.length; j++) {
                                         if (lines[k].unit === lines[j].unit && lines[j].commonYAxis === undefined) {

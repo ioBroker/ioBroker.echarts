@@ -335,19 +335,7 @@ class ChartOption {
                         (this.config.x_ticks_color ? {color: this.config.x_ticks_color} : undefined),
                 },
                 axisLabel: {
-                    formatter: (value, index) => {
-                        const date = new Date(value);
-                        if (this.config.timeFormat) {
-                            return this.moment(date).format(this.config.timeFormat).replace('<br/>', '\n');
-                        } else
-                        if (this.chart.withSeconds) {
-                            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds());
-                        } else if (this.chart.withTime) {
-                            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + '\n' + padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1);
-                        } else {
-                            return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
-                        }
-                    },
+                    formatter: this.xFormatter.bind(this),
                     color: this.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : (this.config.x_labels_color || undefined),
                 }
             }
@@ -558,6 +546,33 @@ class ChartOption {
         }
     }
 
+    isXLabelHasBreak() {
+        if (this.config.timeFormat) {
+            return this.config.timeFormat.replace('<br/>', '\n').includes('\n');
+        } else
+        if (this.chart.withSeconds) {
+            return false;
+        } else if (this.chart.withTime) {
+            return true;
+        } else {
+            return true;
+        }
+    }
+
+    xFormatter(value, _index) {
+        const date = new Date(value);
+        if (this.config.timeFormat) {
+            return this.moment(date).format(this.config.timeFormat).replace('<br/>', '\n');
+        } else
+        if (this.chart.withSeconds) {
+            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds());
+        } else if (this.chart.withTime) {
+            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + '\n' + padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1);
+        } else {
+            return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
+        }
+    }
+
     // result.val === null => start and end are null
     // result === null => no start or no end
     getInterpolatedValue(i, ts, type) {
@@ -701,9 +716,9 @@ class ChartOption {
                 backgroundColor: this.config.bg_custom || 'transparent',
                 show: !!this.config.bg_custom,
                 left:   0,
-                top:    8,
+                top:    4,
                 right:  0,
-                bottom: 40,
+                bottom: this.isXLabelHasBreak() ? 40 : 24,
             },
             tooltip: this.config.hoverDetail ? {
                 trigger: 'axis',
@@ -768,14 +783,14 @@ class ChartOption {
             }
 
             let minTick = this.yFormatter(yAxis.min, i, true);
-            let maxTick = this.yFormatter(yAxis.max, i, true);
+            let maxTick = this.yFormatter(!yAxis.min && yAxis.max === yAxis.min ? 0.8 : yAxis.max, i, true);
 
             const position = yAxis.position;
-            if (position === 'off') {
+            if (position === 'off' || yAxis.axisLabel.color === 'rgba(0,0,0,0)') {
                 return;
             }
-            let wMin = this.calcTextWidth(minTick);
-            let wMax = this.calcTextWidth(maxTick);
+            let wMin = this.calcTextWidth(minTick) + 4;
+            let wMax = this.calcTextWidth(maxTick) + 4;
             if (position === 'left' || position === 'leftColor') {
                 if (wMin > padLeft) {
                     padLeft = wMin;

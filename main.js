@@ -117,6 +117,9 @@ function renderImage(options) {
                 canvas.width  = options.width;
                 canvas.height = options.height;
                 chart = echarts.init(canvas);
+                if (options.background) {
+                    option.backgroundColor = options.background;
+                }
             } else {
                 root = global.document.createElement('div');
                 root.style.cssText = `width: ${options.width}px; height: ${options.height}px;${
@@ -162,7 +165,8 @@ function renderImage(options) {
                     reject('Unsupported format');
                     return;
             }
-            chart.dispose();
+
+            chart && chart.dispose();
 
             if (options.fileOnDisk) {
                 fs.writeFileSync(options.fileOnDisk, Buffer.from(data.split(',')[1], 'base64'));
@@ -195,21 +199,26 @@ function processMessage(adapter, obj) {
         adapter.log.error('Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "png/svg"}');
         obj.callback && adapter.sendTo(obj.from, 'send', {error: 'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "svg/png"}'}, obj.callback);
     } else {
-        if (obj.message.renderer === 'svg' || !obj.message.renderer) {
-            renderImage(obj.message)
-                .then(data => obj.callback && adapter.sendTo(obj.from, 'send', {data}, obj.callback))
-                .catch(error => obj.callback && adapter.sendTo(obj.from, 'send', {error}, obj.callback));
-        } else {
-            obj.callback && adapter.sendTo(obj.from, 'send', {error: 'Unsupported renderer'}, obj.callback)
-        }
+        renderImage(obj.message)
+            .then(data => obj.callback && adapter.sendTo(obj.from, 'send', {data}, obj.callback))
+            .catch(error => obj.callback && adapter.sendTo(obj.from, 'send', {error}, obj.callback));
     }
 }
 
 function main(adapter) {
-    /*renderImage({preset: 'Test', theme: 'dark', renderer: 'svg'})
+    // enabled mode daemon and message box
+    adapter.getForeignObject('system.adapter.' + adapter.namespace, (err, obj) => {
+        if (obj && obj.common && (obj.common.mode !== 'daemon' || !obj.common.messagebox)) {
+            obj.common.mode = 'daemon';
+            obj.common.messagebox = true;
+            adapter.setForeignObject(obj._id, obj);
+        }
+    });
+
+    /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
         .then(data => {
             const base64 = Buffer.from(data.split(',')[1], 'base64');
-            require('fs').writeFileSync('image.svg', base64);
+            require('fs').writeFileSync('image.png', base64);
         });*/
 }
 
