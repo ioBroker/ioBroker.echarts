@@ -716,7 +716,7 @@ class ChartOption {
                 backgroundColor: this.config.bg_custom || 'transparent',
                 show: !!this.config.bg_custom,
                 left:   0,
-                top:    4,
+                top:    8,
                 right:  0,
                 bottom: this.isXLabelHasBreak() ? 40 : 24,
             },
