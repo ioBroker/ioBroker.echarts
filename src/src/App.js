@@ -297,7 +297,11 @@ class App extends GenericApp {
 
             return Promise.all(promises)
                 .then(results => {
-                    results.forEach(obj => this.objects[obj._id] = obj);
+                    results.forEach(obj => {
+                        if (obj) {
+                            this.objects[obj._id] = obj
+                        }
+                    });
                     const lines = (this.state.chartsList || []).map(item => DefaultPreset.getDefaultLine(this.state.systemConfig, item.instance, this.objects[item.id], I18n.getLanguage()));
 
                     (!this.state.chartsList || !this.state.chartsList.find(item => item.id === selectedId.id && item.instance === selectedId.instance)) &&

@@ -64,7 +64,7 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### 0.3.2 (2020-11-07)
+### 0.3.3 (2020-11-08)
 * (bluefox) Corrected server-side rendering of PNG 
 
 ### 0.3.1 (2020-10-31)

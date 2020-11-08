@@ -1,9 +1,9 @@
 {
   "name": "echarts.index",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "private": true,
   "dependencies": {
-    "@iobroker/adapter-react": "^1.4.3",
+    "@iobroker/adapter-react": "^1.4.7",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "@sentry/browser": "^5.27.2",
