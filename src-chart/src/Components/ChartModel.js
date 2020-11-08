@@ -275,7 +275,7 @@ class ChartModel {
 
             this.debug = query.debug === true || query.debug === 'true' || query.debug === 1 || query.debug === '1';
 
-            if (query.preset) {
+            if (query.preset && typeof query.preset === 'string') {
                 this.preset = query.preset;
             } else {
                 const hQuery = parseQuery((window.location.hash || '').toString().replace(/^#/, '')); // Utils.parseQuery
@@ -621,7 +621,7 @@ class ChartModel {
             if (this.config.aggregateType === 'step') {
                 option.step = this.config.aggregateSpan * 1000;
             } else if (this.config.aggregateType === 'count') {
-                option.count = this.config.aggregateSpan || (this.chartRef.current.clientWidth / 10);
+                option.count = this.config.aggregateSpan || 300;
             }
 
             this.config.start = start;

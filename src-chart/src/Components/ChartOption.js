@@ -344,7 +344,7 @@ class ChartOption {
 
     getYAxis(theme, series) {
         return this.config.l.map((oneLine, i) => {
-            if (oneLine.commonYAxis !== '' && oneLine.commonYAxis !== undefined) {
+            if (!oneLine || (oneLine.commonYAxis !== '' && oneLine.commonYAxis !== undefined)) {
                 return {};
             }
 
@@ -493,19 +493,22 @@ class ChartOption {
                         },
                         data: []
                     };
+
                     series.markLine.data.push({yAxis: limitFloat});
 
-                    // if minimum not set
-                    let yMin = parseFloat(this.config.l[oneMark.lineId].min);
-                    if (isNaN(yMin)) {
-                        if (this.chart.yAxis[oneMark.lineId].min > limitFloat && limitFloat < 0) {
-                            options.yAxis[0].min = limitFloat;
+                    if (this.config.l[oneMark.lineId]) {
+                        // if minimum not set
+                        let yMin = parseFloat(this.config.l[oneMark.lineId].min);
+                        if (isNaN(yMin)) {
+                            if (this.chart.yAxis[oneMark.lineId].min > limitFloat && limitFloat < 0) {
+                                options.yAxis[0].min = limitFloat;
+                            }
                         }
-                    }
-                    let yMax = parseFloat(this.config.l[oneMark.lineId].min);
-                    if (isNaN(yMax)) {
-                        if (this.chart.yAxis[oneMark.lineId].max < limitFloat) {
-                            options.yAxis[0].max = limitFloat;
+                        let yMax = parseFloat(this.config.l[oneMark.lineId].min);
+                        if (isNaN(yMax)) {
+                            if (this.chart.yAxis[oneMark.lineId].max < limitFloat) {
+                                options.yAxis[0].max = limitFloat;
+                            }
                         }
                     }
                 }
@@ -773,7 +776,7 @@ class ChartOption {
             let yAxis = option.yAxis[ser.yAxisIndex];
             if (!yAxis) {
                 // seems this axis is defined something else
-                const cY = this.config.l[ser.yAxisIndex].commonYAxis;
+                const cY = this.config.l[ser.yAxisIndex] ? this.config.l[ser.yAxisIndex].commonYAxis : undefined;
                 if (cY !== undefined) {
                     yAxis = option.yAxis[cY];
                 } else {

@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.3",
+        "version": "0.3.4",
         "news": {
-            "0.3.3": {
+            "0.3.4": {
                 "en": "Corrected server-side rendering of PNG",
                 "de": "Serverseitiges Rendern von PNG korrigiert",
                 "ru": "Исправленный рендеринг PNG на стороне сервера.",
