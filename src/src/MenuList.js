@@ -19,6 +19,7 @@ import {MdCreateNewFolder as IconFolderAdd} from 'react-icons/md';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Close';
 import {MdFullscreen as IconNewWindow} from 'react-icons/md';
+import {MdSwapVert as IconReorder} from 'react-icons/md';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import PresetsTree from './Components/PresetsTree';
@@ -60,6 +61,7 @@ class MenuList extends Component {
             groupBy: window.localStorage.getItem('App.echarts.groupBy') || '',
             addPresetFolderDialog: false,
             reorder: false,
+            showReorder: false,
         };
 
         try {
@@ -81,21 +83,21 @@ class MenuList extends Component {
 
     renderListToolbar() {
         return <Toolbar key="toolbar" variant="dense" className={ this.props.classes.mainToolbar }>
-            <IconButton
+            {!this.state.reorder ? <IconButton
                 onClick={ () => this.props.onCreatePreset(false) }
                 title={ I18n.t('Create new preset') }
-            ><IconAdd/></IconButton>
+            ><IconAdd/></IconButton> : null}
 
-            <IconButton
+                {!this.state.reorder ? <IconButton
                 onClick={ () => this.setState({addPresetFolderDialog: true}) }
                 title={ I18n.t('Create new folder') }
-            ><IconFolderAdd/></IconButton>
+            ><IconFolderAdd/></IconButton> : null}
 
-            <span className={this.props.classes.right}>
+            {!this.state.reorder ? <span className={this.props.classes.right}>
                 <IconButton onClick={() => this.setState({showSearch: !this.state.showSearch, search: ''})}>
                     <SearchIcon/>
                 </IconButton>
-            </span>
+            </span> : null}
             {this.state.showSearch ?
                 <TextField
                     value={ this.state.search }
@@ -112,9 +114,20 @@ class MenuList extends Component {
                 /> : null
             }
             <div style={{flexGrow: 1}}/>
+
+            {!this.state.showSearch && this.state.showReorder ? <IconButton
+                key="reorder"
+                title={I18n.t('Reorder presets in folders')}
+                className={this.props.classes.toolbarButtons}
+                style={{color: this.state.reorder ? 'red' : 'inherit', float: 'right'}}
+                onClick={e => {
+                    e.stopPropagation();
+                    this.setState({reorder: !this.state.reorder});
+                }}
+            ><IconReorder/></IconButton> : null }
             {!this.state.showSearch && this.isIFrame ? <IconButton
-                onClick={ () => window.open(window.location.href, 'own-echarts') }
-                title={ I18n.t('Open in own window') }
+            onClick={ () => window.open(window.location.href, 'own-echarts') }
+            title={ I18n.t('Open in own window') }
             ><IconNewWindow/></IconButton> : null}
         </Toolbar>;
     }
@@ -176,32 +189,38 @@ class MenuList extends Component {
                     selectedPresetChanged={this.props.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}
                     onShowError={toast => this.props.onShowToast(toast)}
+                    onShowReorder={showReorder => {
+                        if (showReorder !== this.props.showReorder) {
+                            this.setState({showReorder});
+                        }
+                    }}
                     search={this.state.search}
                     reorder={this.state.reorder}
                     selectedId={this.props.selectedId}
                     systemConfig={this.props.systemConfig}
                     onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}
                 />
-                <ChartsTree
-                    socket={this.props.socket}
-                    instances={this.props.instances}
-                    adapterName={this.props.adapterName}
-                    onShowToast={toast => this.props.onShowToast(toast)}
-                    onShowError={toast => this.props.onShowToast(toast)}
-                    search={this.state.search}
-                    multiple={this.state.multiple && !this.props.selectedPresetChanged}
-                    theme={this.props.theme}
-                    groupBy={this.state.groupBy}
-                    selectedId={this.props.selectedId}
-                    onChangeList={chartList => {
-                        window.localStorage.setItem('App.echarts.chartList', JSON.stringify(chartList));
-                        this.props.onChangeList(chartList);
-                    }}
-                    chartsList={this.props.chartsList}
-                    onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}
-                />
+                {!this.state.reorder ?
+                    <ChartsTree
+                        socket={this.props.socket}
+                        instances={this.props.instances}
+                        adapterName={this.props.adapterName}
+                        onShowToast={toast => this.props.onShowToast(toast)}
+                        onShowError={toast => this.props.onShowToast(toast)}
+                        search={this.state.search}
+                        multiple={this.state.multiple && !this.props.selectedPresetChanged}
+                        theme={this.props.theme}
+                        groupBy={this.state.groupBy}
+                        selectedId={this.props.selectedId}
+                        onChangeList={chartList => {
+                            window.localStorage.setItem('App.echarts.chartList', JSON.stringify(chartList));
+                            this.props.onChangeList(chartList);
+                        }}
+                        chartsList={this.props.chartsList}
+                        onSelectedChanged={(selectedId, cb) => this.props.onSelectedChanged(selectedId, cb)}
+                    /> : null }
             </div>
-            {this.renderFooter()}
+            {!this.state.reorder ? this.renderFooter() : null}
         </div>;
     }
 }

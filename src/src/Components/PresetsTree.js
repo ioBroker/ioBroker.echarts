@@ -35,20 +35,20 @@ import {MdDelete as IconDelete} from 'react-icons/md';
 import {FaScroll as IconScript} from 'react-icons/all';
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
-import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
+//import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
 import Utils from '@iobroker/adapter-react/Components/Utils';
 
-function getFolderPrefix(presetId) {
+/*function getFolderPrefix(presetId) {
     let result = presetId.split('.');
     result.shift();
     result.shift();
     result.pop();
     result = result.join('.');
     return result;
-}
+}*/
 
 function getFolderList(folder) {
     let result = [];
@@ -63,7 +63,7 @@ export const Droppable = (props) => {
     const { onDrop} = props;
 
     const [{ isOver, isOverAny}, drop] = useDrop({
-        accept: ['script'],
+        accept: ['item'],
         drop: e => isOver ? onDrop(e) : undefined,
         collect: monitor => ({
             isOver: monitor.isOver({ shallow: true }),
@@ -81,7 +81,7 @@ export const Draggable = (props) => {
     const [{ opacity }, drag] = useDrag({
         item: {
             name,
-            type: 'script'
+            type: 'item'
         },
         collect: (monitor) => ({
             opacity: monitor.isDragging() ? 0.3 : 1,
@@ -146,6 +146,17 @@ const styles = theme => ({
         fontSize: 'smaller',
         opacity: 0.7,
         fontStyle: 'italic'
+    },
+    mainList: {
+        '& .js-folder-dragover>li>.folder-reorder': {
+            background: '#40adff'
+        },
+        '& .js-folder-dragging .folder-reorder': {
+            opacity: 1,
+        },
+        '& .js-folder-dragging .item-reorder': {
+            opacity: 0.3,
+        }
     }
 });
 
@@ -205,6 +216,8 @@ class MenuList extends Component {
 
         if (changed) {
             const newState = {presets, changingPreset: '', presetFolders: this.buildPresetTree(presets)};
+            const showReorder = !!Object.keys(newState.presetFolders.subFolders).length;
+            setTimeout(() => this.props.onShowReorder(showReorder), 200);
             this.setState(newState);
         }
     };
@@ -232,6 +245,8 @@ class MenuList extends Component {
                     });
 
                     newState.presetFolders = this.buildPresetTree(presets);
+                    const showReorder = !!Object.keys(newState.presetFolders.subFolders).length;
+                    setTimeout(() => this.props.onShowReorder(showReorder), 200);
                     resolve(newState);
                 }
             }));
@@ -239,10 +254,11 @@ class MenuList extends Component {
 
     renderPresetsTree(parent, level) {
         let result = [];
-        level = level || 0;
-        let presetsOpened = this.state.presetsOpened && parent ? this.state.presetsOpened.includes(parent.prefix) : false;
 
-        //const depthPx = level * LEVEL_PADDING;
+        level = level || 0;
+        let presetsOpened = this.props.reorder || (this.state.presetsOpened && parent ? this.state.presetsOpened.includes(parent.prefix) : false);
+
+        const depthPx = level * LEVEL_PADDING + (this.props.reorder ? LEVEL_PADDING : 0);
 
         const reactChildren = [];
         if (parent && (presetsOpened || !parent.id)) { // root cannot be closed and have id = ''
@@ -259,6 +275,7 @@ class MenuList extends Component {
                 classes={ {gutters: this.props.classes.noGutters} }
                 className={ this.props.classes.width100 }>
                 <List
+                    style={ {paddingLeft: depthPx} }
                     className={ this.props.classes.list }
                     classes={ {root: clsx(this.props.classes.leftMenuItem, this.props.classes.noGutters)} }
                     //style={ {paddingLeft: depthPx} }
@@ -275,51 +292,53 @@ class MenuList extends Component {
         }
 
         // Show folder item
-        if (parent && parent.id) {
-            const depthPx = level * LEVEL_PADDING;
-
+        if (parent && (parent.id || this.props.reorder)) {
             const folder = <ListItem
                 key={ parent.prefix }
                 classes={ {gutters: this.props.classes.noGutters } }
-                className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
+                className={ clsx(
+                    this.props.classes.width100,
+                    this.props.classes.folderItem,
+                    this.props.reorder && 'folder-reorder'
+                ) }
                 style={ {paddingLeft: depthPx} }
             >
                 <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.folderIconPreset)} } onClick={ () => this.togglePresetsFolder(parent) }>{ presetsOpened ?
                     <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
                     <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
                 }</ListItemIcon>
-                <ListItemText>{ parent.id }</ListItemText>
+                <ListItemText>{ parent.id || I18n.t('Root')}</ListItemText>
                 <ListItemSecondaryAction>
-                    {parent && parent.id && presetsOpened ? <IconButton
+                    {!this.props.reorder && parent && parent.id && presetsOpened ? <IconButton
                         onClick={() => this.props.onCreatePreset(null, parent.id)}
                         title={ I18n.t('Create new preset') }
                     ><IconAdd/></IconButton> : null}
-                    <IconButton
+                    {!this.props.reorder ? <IconButton
                         onClick={() => this.setState({editPresetFolderDialog: parent, editPresetFolderName: parent.id, editFolderDialogTitleOrigin: parent.id})}
                         title={I18n.t('Edit folder name')}
-                    ><IconEdit/></IconButton>
-                    <IconButton onClick={ () => this.togglePresetsFolder(parent) } title={ presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')  }>
+                    ><IconEdit/></IconButton> : null}
+                        {!this.props.reorder ? <IconButton onClick={ () => this.togglePresetsFolder(parent) } title={ presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')  }>
                         { presetsOpened ? <IconCollapse/> : <IconExpand/> }
-                    </IconButton>
+                    </IconButton> : null}
                 </ListItemSecondaryAction>
             </ListItem>;
 
-            if (this.props.reorder) {
+            if (!this.props.reorder) {
                 result.push(folder);
-                result.push(reactChildren);
+                //reactChildren && result.push(reactChildren);
             } else {
                 result.push(<Droppable key={'droppable_' + parent.prefix}
+                                       name={parent.prefix}
                                        onDrop={e => {
-                                           console.log('Drop ' + e.name + ' to '+  parent.prefix)
-                                           /*this.onDragFinish(e.name, item.id)*/
+                                           this.onDragFinish(e.name, 'echarts.0' + (parent.prefix ? '.' : '') + parent.prefix)
                                        }}
                 >
                     {folder}
-                    {reactChildren || null}
                 </Droppable>);
             }
+            reactChildren && reactChildren.forEach(r => result.push(r));
         } else {
-            reactChildren.forEach(r => result.push(r));
+            reactChildren && reactChildren.forEach(r => result.push(r));
         }
 
         return result;
@@ -441,6 +460,7 @@ class MenuList extends Component {
             classes={ {gutters: clsx(this.props.classes.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && this.props.classes.changed)} }
             style={ {paddingLeft: level * LEVEL_PADDING } }
             key={ item._id }
+            className={ clsx(this.props.reorder && 'item-reorder') }
             selected={this.props.selectedId === item._id}
             button
             onClick={() => this.props.onSelectedChanged(preset._id)}
@@ -457,7 +477,7 @@ class MenuList extends Component {
                 {this.state.changingPreset === preset._id ?
                     <CircularProgress size={ 24 }/>
                     :
-                    <>
+                    (!this.props.reorder ? <>
                         {this.props.selectedId !== preset._id || !this.props.selectedPresetChanged ? <IconButton
                             size="small"
                             aria-label="Rename"
@@ -469,16 +489,16 @@ class MenuList extends Component {
                         >
                             <IconEdit/>
                         </IconButton> : null }
-                        {level || anySubFolders ?
+                        {/*level || anySubFolders ?
                             <IconButton
                                 size="small"
                                 aria-label="Move to folder"
                                 title={ I18n.t('Move to folder') }
                                 onClick={ () => this.setState({movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id)}) }>
                                 <IconMoveToFolder/>
-                            </IconButton> : null}
+                            </IconButton> : null*/}
                         <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deletePresetDialog: preset._id}) }><IconDelete/></IconButton>
-                    </>
+                    </> : null)
                 }
             </ListItemSecondaryAction>
         </ListItem>;
@@ -670,6 +690,26 @@ class MenuList extends Component {
         </Dialog>;
     }
 
+    onDragFinish(source, target) {
+        // new Id
+        let newId = target + '.' + source.split('.').pop();
+        if (newId !== source) {
+            // Check if source yet exists
+            if (this.state.presets[newId]) {
+                newId += '_' + I18n.t('copy');
+            }
+            this.props.socket.getObject(source)
+                .then(obj => {
+                    if (obj) {
+                        this.props.socket.delObject(source)
+                            .then(() => this.props.socket.setObject(newId, obj))
+                            .then(() => this.getAllPresets())
+                            .then(newState => this.setState(newState));
+                    }
+                });
+        }
+    }
+
     renderRenameDialog() {
         if (!this.state.renameDialog) {
             return null;
@@ -845,14 +885,14 @@ class MenuList extends Component {
 
     render() {
         return <DragDropContext backend={HTML5Backend}>
-            <List className={ this.props.classes.scroll }>
+            <List className={ clsx(this.props.classes.scroll, this.props.classes.mainList) }>
                 { this.renderPresetsTree(this.state.presetFolders) }
-                { this.renderAddFolderDialog() }
-                { this.renderRenameFolderDialog() }
-                { this.renderDeleteDialog() }
-                { this.renderMoveDialog() }
-                { this.renderRenameDialog() }
             </List>
+            { this.renderAddFolderDialog() }
+            { this.renderRenameFolderDialog() }
+            { this.renderDeleteDialog() }
+            { this.renderMoveDialog() }
+            { this.renderRenameDialog() }
         </DragDropContext>;
     }
 }
@@ -863,6 +903,7 @@ MenuList.propTypes = {
     addPresetFolderDialog: PropTypes.bool,
     onClosePresetFolderDialog: PropTypes.func,
     onCreatePreset: PropTypes.func,
+    onShowReorder: PropTypes.func,
     search: PropTypes.string,
     reorder: PropTypes.bool,
     adapterName: PropTypes.string.isRequired,

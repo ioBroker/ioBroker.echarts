@@ -433,5 +433,10 @@
   "Enable logging for new state": "Abilita la registrazione per il nuovo stato",
   "Rename preset": "Rinomina preset",
   "Auto save": "Salvataggio automatico",
-  "Export button color": "Colore pulsante di esportazione"
+  "Export button color": "Colore pulsante di esportazione",
+  "Open chart in own window": "Apri il grafico nella propria finestra",
+  "If the current value is not older than X seconds, assume it is still the same.": "Se il valore corrente non è più vecchio di X secondi, supponi che sia sempre lo stesso.",
+  "Valid time (sec)": "Tempo valido (sec)",
+  "X Axis position": "Posizione dell'asse X.",
+  "Reorder presets in folders": "Riordina i preset nelle cartelle"
 }

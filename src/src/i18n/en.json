@@ -433,5 +433,10 @@
   "Enable logging for new state": "Enable logging for new state",
   "Rename preset": "Rename preset",
   "Auto save": "Auto save",
-  "Export button color": "Export button color"
+  "Export button color": "Export button color",
+  "Open chart in own window": "Open chart in own window",
+  "If the current value is not older than X seconds, assume it is still the same.": "If the current value is not older than X seconds, assume it is still the same.",
+  "Valid time (sec)": "Valid time (sec)",
+  "X Axis position": "X Axis position",
+  "Reorder presets in folders": "Reorder presets in folders"
 }

@@ -433,5 +433,10 @@
   "Enable logging for new state": "Włącz rejestrowanie dla nowego stanu",
   "Rename preset": "Zmień nazwę ustawienia wstępnego",
   "Auto save": "Automatyczne zapisywanie",
-  "Export button color": "Kolor przycisku eksportu"
+  "Export button color": "Kolor przycisku eksportu",
+  "Open chart in own window": "Otwórz wykres we własnym oknie",
+  "If the current value is not older than X seconds, assume it is still the same.": "Jeśli bieżąca wartość nie jest starsza niż X sekund, załóżmy, że nadal jest taka sama.",
+  "Valid time (sec)": "Ważny czas (s)",
+  "X Axis position": "Położenie osi X.",
+  "Reorder presets in folders": "Zmień kolejność ustawień wstępnych w folderach"
 }

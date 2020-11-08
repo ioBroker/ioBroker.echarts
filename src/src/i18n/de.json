@@ -433,5 +433,10 @@
   "Enable logging for new state": "Protokollierung für einen neuen Zustand aktivieren",
   "Rename preset": "Preset umbenennen",
   "Auto save": "Automatisch speichern",
-  "Export button color": "Export-Knopf-Farbe"
+  "Export button color": "Export-Knopf-Farbe",
+  "Open chart in own window": "Öffnen Sie das Diagramm in einem eigenen Fenster",
+  "If the current value is not older than X seconds, assume it is still the same.": "Wenn der aktuelle Wert nicht älter als X Sekunden ist, nehmen Sie an, dass er immer noch derselbe ist.",
+  "Valid time (sec)": "Gültige Zeit (Sek.)",
+  "X Axis position": "X Achsenposition",
+  "Reorder presets in folders": "Presets in Ordnern neu anordnen"
 }

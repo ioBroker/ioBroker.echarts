@@ -433,5 +433,10 @@
   "Enable logging for new state": "Включить ведение журнала для нового состояния",
   "Rename preset": "Переименовать пресет",
   "Auto save": "Автосохранение",
-  "Export button color": "Цвет кнопки экспорта"
+  "Export button color": "Цвет кнопки экспорта",
+  "Open chart in own window": "Открыть график в собственном окне",
+  "If the current value is not older than X seconds, assume it is still the same.": "Если текущее значение не старше X секунд, предположим, что оно осталось прежним.",
+  "Valid time (sec)": "Действительное время (сек)",
+  "X Axis position": "Положение оси X",
+  "Reorder presets in folders": "Изменить порядок пресетов в папках"
 }
