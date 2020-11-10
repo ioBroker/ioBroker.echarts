@@ -520,10 +520,15 @@ class ChartView extends React.Component {
                         }
                         const option = this.option;
                         const date = new Date(option.xAxis[0].max || option.series[0].data[option.series[0].data.length - 1].value[0]);
-                        downloadLink.download =
-                            `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
-                            `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.svg`;
-                        downloadLink.click();
+                        try {
+                            downloadLink.download =
+                                `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
+                                `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.svg`;
+                            downloadLink.click();
+                        } catch (e) {
+                            console.error('Cannot access download: ' + e);
+                            window.alert(I18n.t('Unfortunately your browser does not support this feature'));
+                        }
                     }
                 }}
             />

@@ -1,6 +1,6 @@
 {
   "name": "echarts.index",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "private": true,
   "dependencies": {
     "@iobroker/adapter-react": "^1.4.7",

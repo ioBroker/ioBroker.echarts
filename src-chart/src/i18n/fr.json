@@ -1,5 +1,6 @@
 {
   "Save as image": "Enregistrer comme image",
   "Reset pan and zoom": "Réinitialiser le panoramique et le zoom",
-  "Save chart as svg": "Enregistrer le graphique au format SVG"
+  "Save chart as svg": "Enregistrer le graphique au format SVG",
+  "Unfortunately your browser does not support this feature": "Malheureusement, votre navigateur ne prend pas en charge cette fonctionnalité"
 }

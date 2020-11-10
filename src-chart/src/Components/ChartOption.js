@@ -208,7 +208,14 @@ const THEMES = {
 };
 
 function padding2(num) {
-    return num.toString().padStart(2, '0');
+    // on safari 9.0 it is unknown
+    // return num.toString().padStart(2, '0');
+    num = (num || '').toString();
+    if (num.length < 2) {
+        return '0' + num;
+    } else {
+        return num;
+    }
 }
 
 class ChartOption {
@@ -499,13 +506,13 @@ class ChartOption {
                     if (this.config.l[oneMark.lineId]) {
                         // if minimum not set
                         let yMin = parseFloat(this.config.l[oneMark.lineId].min);
-                        if (isNaN(yMin)) {
+                        if (isNaN(yMin) && this.chart.yAxis[oneMark.lineId]) {
                             if (this.chart.yAxis[oneMark.lineId].min > limitFloat && limitFloat < 0) {
                                 options.yAxis[0].min = limitFloat;
                             }
                         }
                         let yMax = parseFloat(this.config.l[oneMark.lineId].min);
-                        if (isNaN(yMax)) {
+                        if (isNaN(yMax) && this.chart.yAxis[oneMark.lineId]) {
                             if (this.chart.yAxis[oneMark.lineId].max < limitFloat) {
                                 options.yAxis[0].max = limitFloat;
                             }
@@ -789,7 +796,7 @@ class ChartOption {
             let maxTick = this.yFormatter(!yAxis.min && yAxis.max === yAxis.min ? 0.8 : yAxis.max, i, true);
 
             const position = yAxis.position;
-            if (position === 'off' || yAxis.axisLabel.color === 'rgba(0,0,0,0)') {
+            if (position === 'off' || (yAxis.axisLabel && yAxis.axisLabel.color === 'rgba(0,0,0,0)')) {
                 return;
             }
             let wMin = this.calcTextWidth(minTick) + 4;

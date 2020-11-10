@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.4",
+        "version": "0.3.5",
         "news": {
+            "0.3.5": {
+                "en": "Corrected SENTRY errors",
+                "de": "SENTRY-Fehler wurden korrigiert",
+                "ru": "Исправлены ошибки SENTRY.",
+                "pt": "Erros SENTRY corrigidos",
+                "nl": "SENTRY-fouten gecorrigeerd",
+                "fr": "Erreurs SENTRY corrigées",
+                "it": "Errori SENTRY corretti",
+                "es": "Errores de SENTRY corregidos",
+                "pl": "Poprawione błędy SENTRY",
+                "zh-cn": "更正了SENTRY错误"
+            },
             "0.3.4": {
                 "en": "Corrected server-side rendering of PNG",
                 "de": "Serverseitiges Rendern von PNG korrigiert",
@@ -138,5 +150,15 @@
             }
         }
     ],
-    "instanceObjects": []
+    "instanceObjects": [
+        {
+            "_id": "",
+            "type": "meta",
+            "common": {
+                "name": "user files and images for echart",
+                "type": "meta.user"
+            },
+            "native": {}
+        }
+    ]
 }
