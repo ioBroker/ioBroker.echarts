@@ -87,7 +87,8 @@ export const Draggable = (props) => {
             opacity: monitor.isDragging() ? 0.3 : 1,
         }),
     });
-    return <div ref={drag} style={{ opacity }}>
+    // About transform: https://github.com/react-dnd/react-dnd/issues/832#issuecomment-442071628
+    return <div ref={drag} style={{ opacity, transform: 'translate3d(0, 0, 0)' }}>
         {props.children}
     </div>;
 };
@@ -148,6 +149,8 @@ const styles = theme => ({
         fontStyle: 'italic'
     },
     mainList: {
+        width: 'calc(100% - ' + theme.spacing(1) + 'px)',
+        marginLeft: theme.spacing(1),
         '& .js-folder-dragover>li>.folder-reorder': {
             background: '#40adff'
         },
@@ -258,7 +261,7 @@ class MenuList extends Component {
         level = level || 0;
         let presetsOpened = this.props.reorder || (this.state.presetsOpened && parent ? this.state.presetsOpened.includes(parent.prefix) : false);
 
-        const depthPx = level * LEVEL_PADDING + (this.props.reorder ? LEVEL_PADDING : 0);
+        const depthPx = (this.props.reorder ? level : level - 1) * LEVEL_PADDING;
 
         const reactChildren = [];
         if (parent && (presetsOpened || !parent.id)) { // root cannot be closed and have id = ''
@@ -266,29 +269,22 @@ class MenuList extends Component {
             const subFolders = Object.values(parent.subFolders);
 
             // add first sub-folders
-            reactChildren.push(subFolders.sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)).map(subFolder =>
-                this.renderPresetsTree(subFolder, level + 1)));
+            subFolders
+                .sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0))
+                .forEach(subFolder =>
+                    reactChildren.push(this.renderPresetsTree(subFolder, level + 1)));
 
             // Add as second the presets
-            const preset = <ListItem
-                key={ 'items_' + parent.prefix }
-                classes={ {gutters: this.props.classes.noGutters} }
-                className={ this.props.classes.width100 }>
-                <List
-                    style={ {paddingLeft: depthPx} }
-                    className={ this.props.classes.list }
-                    classes={ {root: clsx(this.props.classes.leftMenuItem, this.props.classes.noGutters)} }
-                    //style={ {paddingLeft: depthPx} }
-                >
-                    { values.length ?
-                        values.sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0)).map(preset => this.renderTreePreset(preset, level, subFolders.length))
-                        :
-                        (!subFolders.length ? <ListItem classes={ {gutters: this.props.classes.noGutters} }><ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText></ListItem> : '')
-                    }
-                </List>
-            </ListItem>;
-
-            reactChildren.push(preset);
+            if (values.length || subFolders.length) {
+                values
+                    .sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0))
+                    .forEach(preset =>
+                        reactChildren.push(this.renderTreePreset(preset, level + 1, subFolders.length)));
+            } else {
+                reactChildren.push(<ListItem classes={ {gutters: this.props.classes.noGutters} }>
+                    <ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText>
+                </ListItem>);
+            }
         }
 
         // Show folder item
@@ -325,21 +321,17 @@ class MenuList extends Component {
 
             if (!this.props.reorder) {
                 result.push(folder);
-                //reactChildren && result.push(reactChildren);
             } else {
-                result.push(<Droppable key={'droppable_' + parent.prefix}
-                                       name={parent.prefix}
-                                       onDrop={e => {
-                                           this.onDragFinish(e.name, 'echarts.0' + (parent.prefix ? '.' : '') + parent.prefix)
-                                       }}
+                result.push(<Droppable
+                    key={'droppable_' + parent.prefix}
+                   name={parent.prefix}
+                   onDrop={e => this.onDragFinish(e.name, 'echarts.0' + (parent.prefix ? '.' : '') + parent.prefix)}
                 >
                     {folder}
                 </Droppable>);
             }
-            reactChildren && reactChildren.forEach(r => result.push(r));
-        } else {
-            reactChildren && reactChildren.forEach(r => result.push(r));
         }
+        reactChildren && reactChildren.forEach(r => result.push(r));
 
         return result;
     };
@@ -456,9 +448,11 @@ class MenuList extends Component {
 
         level = level || 0;
 
+        const depthPx = (this.props.reorder ? level : level - 1) * LEVEL_PADDING;
+
         const listItem = <ListItem
             classes={ {gutters: clsx(this.props.classes.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && this.props.classes.changed)} }
-            style={ {paddingLeft: level * LEVEL_PADDING } }
+            style={ {paddingLeft: depthPx } }
             key={ item._id }
             className={ clsx(this.props.reorder && 'item-reorder') }
             selected={this.props.selectedId === item._id}
@@ -508,7 +502,6 @@ class MenuList extends Component {
         } else {
             return  listItem;
         }
-
     }
 
     togglePresetsFolder(folder) {
@@ -884,16 +877,18 @@ class MenuList extends Component {
     };
 
     render() {
-        return <DragDropContext backend={HTML5Backend}>
-            <List className={ clsx(this.props.classes.scroll, this.props.classes.mainList) }>
-                { this.renderPresetsTree(this.state.presetFolders) }
-            </List>
+        return <>
+            <DragDropContext backend={HTML5Backend}>
+                <List className={ clsx(this.props.classes.scroll, this.props.classes.mainList) }>
+                    { this.renderPresetsTree(this.state.presetFolders) }
+                </List>
+            </DragDropContext>
             { this.renderAddFolderDialog() }
             { this.renderRenameFolderDialog() }
             { this.renderDeleteDialog() }
             { this.renderMoveDialog() }
             { this.renderRenameDialog() }
-        </DragDropContext>;
+        </>;
     }
 }
 

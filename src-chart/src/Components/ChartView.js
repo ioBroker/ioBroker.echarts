@@ -150,7 +150,11 @@ class ChartView extends React.Component {
 
             this.option = this.chartOption.getOption(props.data, props.config);
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties: {min: ${this.option.xAxis[0].min}, ${this.option.xAxis[0].max}}`);
-            chartInstance.setOption(this.option, changed);
+            try {
+                chartInstance.setOption(this.option, changed);
+            } catch (e) {
+                console.error('Cannot apply options: ' + JSON.stringify(this.option));
+            }
         }
     };
 
@@ -251,13 +255,17 @@ class ChartView extends React.Component {
             this.option.xAxis[0].min = chart.xMin;
             this.option.xAxis[0].max = chart.xMax;
 
-            this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function' &&
-            this.echartsReact.getEchartsInstance().setOption({
-                xAxis: {
-                    min: chart.xMin,
-                    max: chart.xMax,
-                }
-            });
+            try {
+                this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function' &&
+                this.echartsReact.getEchartsInstance().setOption({
+                    xAxis: {
+                        min: chart.xMin,
+                        max: chart.xMax,
+                    }
+                });
+            } catch (e) {
+                console.error('Cannot apply options 1: ' + JSON.stringify(this.option));
+            }
         }
     }
 

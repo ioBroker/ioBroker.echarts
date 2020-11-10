@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import withWidth from "@material-ui/core/withWidth";
 import {withStyles, withTheme} from "@material-ui/core/styles";
 import clsx from 'clsx';
-import { Droppable, Draggable } from "react-beautiful-dnd";
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 import IconButton from '@material-ui/core/IconButton';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -55,6 +55,7 @@ const styles = theme => ({
     noGutters: {
         paddingTop: 0,
         paddingBottom: 0,
+        paddingLeft: 0,
         width: '100%'
     },
     itemIconFolder: {
@@ -80,7 +81,11 @@ const styles = theme => ({
         width: 20,
         height: 20,
         borderRadius: 2,
-    }
+    },
+    mainList: {
+        width: 'calc(100% - ' + theme.spacing(1) + 'px)',
+        marginLeft: theme.spacing(1),
+    },
 });
 
 class ChartsTree extends Component {
@@ -433,7 +438,7 @@ class ChartsTree extends Component {
             key={instance + '_' + id}
             classes={ {gutters: this.props.classes.noGutters} }
             button
-            style={{paddingLeft: LEVEL_PADDING * level + this.props.theme.spacing(1)}}
+            style={{paddingLeft: LEVEL_PADDING * level}}
             selected={
                 this.props.selectedId &&
                 typeof this.props.selectedId === 'object' &&
@@ -510,6 +515,8 @@ class ChartsTree extends Component {
         }
         const instance = group._id;
 
+        const level = 1;
+
         if (!enumId) {
             return ids.map(id=>
                 <Draggable
@@ -527,7 +534,7 @@ class ChartsTree extends Component {
                                 style={provided.draggableProps.style}
                                 className="drag-items"
                             >
-                                {this.renderListItem(group, id, false, 2)}
+                                {this.renderListItem(group, id, false, level)}
                             </div>,
                             snapshot.isDragging ?
                                 <div className="react-beatiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
@@ -546,7 +553,7 @@ class ChartsTree extends Component {
             return [
                 <ListItem
                     key={key}
-                    style={{paddingLeft: LEVEL_PADDING * 2 + this.props.theme.spacing(1)}}
+                    style={{paddingLeft: LEVEL_PADDING * level}}
                     classes={ {gutters: this.props.classes.noGutters} }
                     className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
                 >
@@ -578,7 +585,7 @@ class ChartsTree extends Component {
                                         style={provided.draggableProps.style}
                                         className="drag-items"
                                     >
-                                        {this.renderListItem(group, id, false, 3)}
+                                        {this.renderListItem(group, id, false, 2)}
                                     </div>,
                                     snapshot.isDragging ?
                                         <div className="react-beatiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
@@ -600,7 +607,7 @@ class ChartsTree extends Component {
             <Droppable droppableId="Lines" isDropDisabled={true} key="charts">
                 {(provided, snapshot) =>
                     <div ref={provided.innerRef} key="chartListDiv">
-                        <List className={ this.props.classes.scroll } key="chartList">
+                        <List className={ clsx(this.props.classes.scroll, this.props.classes.mainList) } key="chartList">
                             {
                                 this.state.instances.map(group => {
                                     let opened = this.state.chartsOpened[group._id];
@@ -616,8 +623,9 @@ class ChartsTree extends Component {
                                             ids.sort(sortObj);
                                             children = this.renderListItems(group, ids, null, renderContext);
                                         } else {
-                                            children = (group.enums || []).filter(id => id.startsWith('enum.' + this.props.groupBy + '.')).map(eID =>
-                                                this.renderListItems(group, ids, eID, renderContext));
+                                            children = (group.enums || []).filter(id => id.startsWith('enum.' + this.props.groupBy + '.'))
+                                                .map(eID =>
+                                                    this.renderListItems(group, ids, eID, renderContext));
                                         }
                                     }
 
