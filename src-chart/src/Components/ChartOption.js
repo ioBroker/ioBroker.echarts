@@ -364,22 +364,18 @@ class ChartOption {
                 if (isNaN(yMin)) {
                     // auto calculate
                     yMin = yAxis[i].min - diff * 0.1; // min - 10%
-                    if (yMin > 0) {
-                        yMin = 0;
-                    } else {
-                        if (diff > 25000) {
-                            yMin = Math.floor(yMin / 10000) * 10000;
-                        } else if (diff > 5000) {
-                            yMin = Math.floor(yMin / 1000) * 1000;
-                        } else if (diff > 200) {
-                            yMin = Math.floor(yMin / 100) * 100;
-                        } else if (diff > 30) {
-                            yMin = Math.floor(yMin / 10) * 10;
-                        } else if (diff > 10) {
-                            yMin = Math.floor(yMin);
-                        } else if (diff > 1) {
-                            yMin = Math.floor(yMin * 10) / 10;
-                        }
+                    if (diff > 25000) {
+                        yMin = Math.floor(yMin / 10000) * 10000;
+                    } else if (diff > 5000) {
+                        yMin = Math.floor(yMin / 1000) * 1000;
+                    } else if (diff > 200) {
+                        yMin = Math.floor(yMin / 100) * 100;
+                    } else if (diff > 30) {
+                        yMin = Math.floor(yMin / 10) * 10;
+                    } else if (diff > 10) {
+                        yMin = Math.floor(yMin);
+                    } else if (diff > 1) {
+                        yMin = Math.floor(yMin * 10) / 10;
                     }
                 }
                 if (isNaN(yMax)) {
@@ -452,6 +448,7 @@ class ChartOption {
             const isUpperNumber   = upperLimitFloat !== null && !isNaN(upperLimitFloat);
 
             const series = options.series[oneMark.lineId];
+
             if (isLowerNumber && isUpperNumber) {
                 // area
                 series.markArea = series.markArea || {
@@ -479,17 +476,12 @@ class ChartOption {
                     const limitFloat = i ? lowerLimitFloat : upperLimitFloat;
                     series.markLine = series.markLine || {
                         symbol: ['none', 'none'],
-                        label: {
-                            show: !!oneMark.text,
-                            formatter: oneMark.text || '',
-                            position: oneMark.textPosition === 'r' ? 'end' : 'start',
-                            distance: (-1 * oneMark.textOffset) || -35,
-                            textStyle: {
-                                color: oneMark.textColor || '#FFF',
-                                fontStyle: 'normal',
-                                fontSize: oneMark.textSize || undefined,
-                            }
-                        },
+                        data: []
+                    };
+
+                    series.markLine.data.push({
+                        yAxis: limitFloat,
+                        name: oneMark.text,
                         lineStyle: {
                             color:          oneMark.color || series.itemStyle.color,
                             width:          parseFloat(oneMark.ol) || 1,
@@ -498,10 +490,18 @@ class ChartOption {
                             shadowColor:    oneMark.color,
                             type:           oneMark.lineStyle || 'solid',
                         },
-                        data: []
-                    };
-
-                    series.markLine.data.push({yAxis: limitFloat});
+                        label: {
+                            show: !!oneMark.text,
+                            formatter: param => param.name,
+                            position: oneMark.textPosition === 'r' ? 'end' : 'start',
+                            distance: (-1 * oneMark.textOffset) || -35,
+                            textStyle: {
+                                color: oneMark.textColor || '#FFF',
+                                fontStyle: 'normal',
+                                fontSize: oneMark.textSize || undefined,
+                            }
+                        },
+                    });
 
                     if (this.config.l[oneMark.lineId]) {
                         // if minimum not set

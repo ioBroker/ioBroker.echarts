@@ -196,6 +196,39 @@ class App extends GenericApp {
             .catch(e => prefix + index);
     }
 
+    getUniqueId(id, name, cb, _count) {
+        _count = _count || 0;
+        const newId = id + '_' + I18n.t('copy');
+        const newName = name + ' ' + I18n.t('copy');
+        this.socket.getObject(newId)
+            .then(obj => {
+                if (obj) {
+                    setTimeout(() => this.getUniqueId(newId, newName, cb, _count + 1));
+                } else {
+                    cb(null, newId, newName);
+                }
+            })
+            .catch(e => {
+                if (_count > 10) {
+                    cb(I18n.t('Cannot create unique ID'));
+                } else {
+                    setTimeout(() => this.getUniqueId(newId, newName, cb, _count + 1));
+                }
+            })
+    }
+
+    onCopyPreset = presetId => {
+        this.socket.getObject(presetId)
+            .then(obj => {
+                this.getUniqueId(presetId, obj.common.name, (err, newId, newName) => {
+                    obj._id = newId;
+                    obj.common.name = newName;
+                    this.socket.setObject(newId, obj)
+                        .then(() => this.loadChartOrPreset(newId));
+                });
+            });
+    };
+
     onCreatePreset = (isFromCurrentSelection, parentId) => {
         if (isFromCurrentSelection === true) {
             let name;
@@ -463,6 +496,7 @@ class App extends GenericApp {
                         selectedId={this.state.selectedId}
                         chartsList={this.state.chartsList}
                         onCreatePreset={this.onCreatePreset}
+                        onCopyPreset={this.onCopyPreset}
                     /> : null}
                     {
                         this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? <SettingsEditor
@@ -585,6 +619,7 @@ class App extends GenericApp {
                                 selectedPresetChanged={this.state.selectedPresetChanged}
                                 chartsList={this.state.chartsList}
                                 selectedId={this.state.selectedId}
+                                onCopyPreset={this.onCopyPreset}
                                 onCreatePreset={this.onCreatePreset}
                                 onChangeList={(chartsList, cb) => {
                                     // if some deselected

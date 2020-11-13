@@ -185,6 +185,7 @@ class MenuList extends Component {
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
                     onClosePresetFolderDialog={() => this.setState({addPresetFolderDialog: false})}
                     onCreatePreset={this.props.onCreatePreset}
+                    onCopyPreset={this.props.onCopyPreset}
                     adapterName={this.props.adapterName}
                     selectedPresetChanged={this.props.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}
@@ -237,6 +238,7 @@ MenuList.propTypes = {
     onChangeList: PropTypes.func,
     chartsList: PropTypes.array,
     onCreatePreset: PropTypes.func,
+    onCopyPreset: PropTypes.func,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.string

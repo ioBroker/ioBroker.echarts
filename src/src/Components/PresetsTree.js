@@ -35,7 +35,7 @@ import {MdDelete as IconDelete} from 'react-icons/md';
 import {FaScroll as IconScript} from 'react-icons/all';
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
-//import {BsFolderSymlink as IconMoveToFolder} from 'react-icons/bs';
+import IconCopy from '@iobroker/adapter-react/Components/CopyIcon';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
@@ -160,6 +160,9 @@ const styles = theme => ({
         '& .js-folder-dragging .item-reorder': {
             opacity: 0.3,
         }
+    },
+    iconCopy: {
+        width: 16,
     }
 });
 
@@ -229,9 +232,9 @@ class MenuList extends Component {
         newState = newState || {};
         let presets = {};
         return new Promise((resolve, reject) =>
-            this.props.socket._socket.emit('getObjectView', 'chart', 'chart', {
+            this.props.socket.getRawSocket().emit('getObjectView', 'chart', 'chart', {
                 startkey: this.props.adapterName + '.',
-                endkey: this.props.adapterName + '.\u9999'
+                endkey:   this.props.adapterName + '.\u9999'
             }, (err, res) => {
                 if (err) {
                     reject(err);
@@ -253,6 +256,71 @@ class MenuList extends Component {
                     resolve(newState);
                 }
             }));
+    }
+
+    renderTreePreset(item, level, anySubFolders) {
+        const preset = this.state.presets[item._id];
+        if (!preset || (this.props.search && !item.common.name.includes(this.props.search))) {
+            return null;
+        }
+
+        level = level || 0;
+
+        const depthPx = (this.props.reorder ? level : level - 1) * LEVEL_PADDING;
+
+        const listItem = <ListItem
+            classes={ {gutters: clsx(this.props.classes.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && this.props.classes.changed)} }
+            style={ {paddingLeft: depthPx } }
+            key={ item._id }
+            className={ clsx(this.props.reorder && 'item-reorder') }
+            selected={this.props.selectedId === item._id}
+            button
+            onClick={() => this.props.onSelectedChanged(preset._id)}
+        >
+            <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset)} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
+            <ListItemText
+                classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
+                primary={ <>
+                    { Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
+                </>}
+                secondary={ Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}, true) }
+            />
+            <ListItemSecondaryAction>
+                {this.state.changingPreset === preset._id ?
+                    <CircularProgress size={ 24 }/>
+                    :
+                    (!this.props.reorder ? <>
+                        {this.props.selectedId !== preset._id || !this.props.selectedPresetChanged ? <IconButton
+                            size="small"
+                            aria-label="Rename"
+                            title={ I18n.t('Rename') }
+                            onClick={ (e) => {
+                                e.stopPropagation();
+                                this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name})
+                            }}
+                        >
+                            <IconEdit/>
+                        </IconButton> : null }
+                        {/*level || anySubFolders ?
+                            <IconButton
+                                size="small"
+                                aria-label="Move to folder"
+                                title={ I18n.t('Move to folder') }
+                                onClick={ () => this.setState({movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id)}) }>
+                                <IconMoveToFolder/>
+                            </IconButton> : null*/}
+                        <IconButton size="small" aria-label="Copy" title={ I18n.t('Copy') } onClick={ () => this.props.onCopyPreset(preset._id) }><IconCopy className={this.props.classes.iconCopy}/></IconButton>
+                        <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deletePresetDialog: preset._id}) }><IconDelete/></IconButton>
+                    </> : null)
+                }
+            </ListItemSecondaryAction>
+        </ListItem>;
+
+        if (this.props.reorder) {
+            return <Draggable key={'draggable_' + item._id} name={item._id}>{listItem}</Draggable>;
+        } else {
+            return  listItem;
+        }
     }
 
     renderPresetsTree(parent, level) {
@@ -440,70 +508,6 @@ class MenuList extends Component {
             this.setState({presetFolders, presetsOpened}, () => resolve()));
     }
 
-    renderTreePreset(item, level, anySubFolders) {
-        const preset = this.state.presets[item._id];
-        if (!preset || (this.props.search && !item.common.name.includes(this.props.search))) {
-            return null;
-        }
-
-        level = level || 0;
-
-        const depthPx = (this.props.reorder ? level : level - 1) * LEVEL_PADDING;
-
-        const listItem = <ListItem
-            classes={ {gutters: clsx(this.props.classes.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && this.props.classes.changed)} }
-            style={ {paddingLeft: depthPx } }
-            key={ item._id }
-            className={ clsx(this.props.reorder && 'item-reorder') }
-            selected={this.props.selectedId === item._id}
-            button
-            onClick={() => this.props.onSelectedChanged(preset._id)}
-        >
-            <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset)} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
-            <ListItemText
-                classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
-                primary={ <>
-                    { Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
-                </>}
-                secondary={ Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}, true) }
-            />
-            <ListItemSecondaryAction>
-                {this.state.changingPreset === preset._id ?
-                    <CircularProgress size={ 24 }/>
-                    :
-                    (!this.props.reorder ? <>
-                        {this.props.selectedId !== preset._id || !this.props.selectedPresetChanged ? <IconButton
-                            size="small"
-                            aria-label="Rename"
-                            title={ I18n.t('Rename') }
-                            onClick={ (e) => {
-                                e.stopPropagation();
-                                this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name})
-                            }}
-                        >
-                            <IconEdit/>
-                        </IconButton> : null }
-                        {/*level || anySubFolders ?
-                            <IconButton
-                                size="small"
-                                aria-label="Move to folder"
-                                title={ I18n.t('Move to folder') }
-                                onClick={ () => this.setState({movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id)}) }>
-                                <IconMoveToFolder/>
-                            </IconButton> : null*/}
-                        <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deletePresetDialog: preset._id}) }><IconDelete/></IconButton>
-                    </> : null)
-                }
-            </ListItemSecondaryAction>
-        </ListItem>;
-
-        if (this.props.reorder) {
-            return <Draggable key={'draggable_' + item._id} name={item._id}>{listItem}</Draggable>;
-        } else {
-            return  listItem;
-        }
-    }
-
     togglePresetsFolder(folder) {
         const presetsOpened = [...this.state.presetsOpened];
         const pos = presetsOpened.indexOf(folder.prefix);
@@ -558,7 +562,7 @@ class MenuList extends Component {
                     </Button>
                     <Button
                         variant="contained"
-                        disabled={!this.state.addPresetFolderName || Object.keys(this.state.presetFolders.subFolders).find(name => name === this.state.addPresetFolderName)}
+                        disabled={!this.state.addPresetFolderName || Object.keys(this.state.presetFolders.subFolders || {}).find(name => name === this.state.addPresetFolderName)}
                         onClick={() =>
                             this.addFolder(null, this.state.addPresetFolderName)
                                 .then(() => this.props.onClosePresetFolderDialog())
@@ -898,6 +902,7 @@ MenuList.propTypes = {
     addPresetFolderDialog: PropTypes.bool,
     onClosePresetFolderDialog: PropTypes.func,
     onCreatePreset: PropTypes.func,
+    onCopyPreset: PropTypes.func,
     onShowReorder: PropTypes.func,
     search: PropTypes.string,
     reorder: PropTypes.bool,

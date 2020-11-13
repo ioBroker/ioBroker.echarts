@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.5",
+        "version": "0.3.6",
         "news": {
+            "0.3.6": {
+                "en": "The copy of charts is implemented",
+                "de": "Die Kopie der Diagramme ist implementiert",
+                "ru": "Реализована копия графиков.",
+                "pt": "A cópia dos gráficos é implementada",
+                "nl": "De kopie van grafieken is geïmplementeerd",
+                "fr": "La copie des graphiques est implémentée",
+                "it": "Viene implementata la copia dei grafici",
+                "es": "Se implementa la copia de gráficos",
+                "pl": "Zaimplementowano kopię wykresów",
+                "zh-cn": "图表副本已实施"
+            },
             "0.3.5": {
                 "en": "Corrected SENTRY errors",
                 "de": "SENTRY-Fehler wurden korrigiert",
