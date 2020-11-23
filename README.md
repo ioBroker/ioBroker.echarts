@@ -17,6 +17,11 @@ Build useful charts in ioBroker:
 Add after the restart the tab in the admin:
 ![Admin](img/admin.png)
 
+### Tooltip
+Lower case `i` indicates that the value was interpolated from the 2 neighbour values, and it does not exist at this time stamp.
+
+![Tooltipt](img/tooltip.png) 
+
 ### Server side rendering
 You can render the presets on the server and get it as base64 URL or save it on disk on in ioBroker DB:
 
