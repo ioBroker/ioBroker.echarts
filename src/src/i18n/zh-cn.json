@@ -438,5 +438,6 @@
   "If the current value is not older than X seconds, assume it is still the same.": "如果当前值不超过X秒，则假定它仍然相同。",
   "Valid time (sec)": "有效时间（秒）",
   "X Axis position": "X轴位置",
-  "Reorder presets in folders": "重新排序文件夹中的预设"
+  "Reorder presets in folders": "重新排序文件夹中的预设",
+  "Hide nulls in tooltip": "在工具提示中隐藏空值"
 }

@@ -438,5 +438,6 @@
   "If the current value is not older than X seconds, assume it is still the same.": "Если текущее значение не старше X секунд, предположим, что оно осталось прежним.",
   "Valid time (sec)": "Действительное время (сек)",
   "X Axis position": "Положение оси X",
-  "Reorder presets in folders": "Изменить порядок пресетов в папках"
+  "Reorder presets in folders": "Изменить порядок пресетов в папках",
+  "Hide nulls in tooltip": "Скрыть нули в подсказке"
 }

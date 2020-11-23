@@ -438,5 +438,6 @@
   "If the current value is not older than X seconds, assume it is still the same.": "If the current value is not older than X seconds, assume it is still the same.",
   "Valid time (sec)": "Valid time (sec)",
   "X Axis position": "X Axis position",
-  "Reorder presets in folders": "Reorder presets in folders"
+  "Reorder presets in folders": "Reorder presets in folders",
+  "Hide nulls in tooltip": "Hide nulls in tooltip"
 }

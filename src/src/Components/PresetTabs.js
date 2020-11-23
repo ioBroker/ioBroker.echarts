@@ -568,6 +568,7 @@ class PresetTabs extends React.Component {
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Options')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hover details'} name="hoverDetail" />
+                {this.props.presetData.hoverDetail ? <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide nulls in tooltip'} name="hoverNoNulls" /> : null}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Use comma'} name="useComma" />
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />
                 {/*<IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />*/}

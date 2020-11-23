@@ -438,5 +438,6 @@
   "If the current value is not older than X seconds, assume it is still the same.": "Se il valore corrente non è più vecchio di X secondi, supponi che sia sempre lo stesso.",
   "Valid time (sec)": "Tempo valido (sec)",
   "X Axis position": "Posizione dell'asse X.",
-  "Reorder presets in folders": "Riordina i preset nelle cartelle"
+  "Reorder presets in folders": "Riordina i preset nelle cartelle",
+  "Hide nulls in tooltip": "Nascondi i valori nulli nella descrizione comando"
 }

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.6",
+        "version": "0.3.7",
         "news": {
+            "0.3.7": {
+                "en": "Hide nulls in the hover details",
+                "de": "Blenden Sie Nullen in den Hover-Details aus",
+                "ru": "Скрыть нули в деталях наведения",
+                "pt": "Ocultar nulos nos detalhes do foco",
+                "nl": "Verberg null-waarden in de hover-details",
+                "fr": "Masquer les valeurs nulles dans les détails du survol",
+                "it": "Nascondi i valori nulli nei dettagli al passaggio del mouse",
+                "es": "Ocultar nulos en los detalles de desplazamiento",
+                "pl": "Ukryj wartości null w szczegółach po najechaniu",
+                "zh-cn": "在悬停详细信息中隐藏空值"
+            },
             "0.3.6": {
                 "en": "The copy of charts is implemented",
                 "de": "Die Kopie der Diagramme ist implementiert",

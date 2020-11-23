@@ -585,7 +585,7 @@ class ChartOption {
 
     // result.val === null => start and end are null
     // result === null => no start or no end
-    getInterpolatedValue(i, ts, type) {
+    getInterpolatedValue(i, ts, type, hoverNoNulls) {
         const data = this.option.series[i].data;
         if (!data || !data[0] || data[0].value[0] > ts || data[data.length - 1].value[0] < ts) {
             return null;
@@ -599,7 +599,7 @@ class ChartOption {
                 const y1 = data[k].value[1];
                 const y2 = data[k + 1].value[1];
                 if (y2 === null || y2 === undefined || y1 === null || y1 === undefined) {
-                    return {exact: false, val: null};
+                    return hoverNoNulls ? null : {exact: false, val: null};
                 }
                 if (type === 'boolean') {
                     return {exact: false, val: y1};
@@ -611,12 +611,13 @@ class ChartOption {
                 return {exact: false, val: (1 - kk) * (y2 - y1) + y1};
             }
         }
-        return {exact: false, val: null};
+        return hoverNoNulls ? null : {exact: false, val: null};
     }
 
     renderTooltip(params) {
         const ts = params[0].value[0];
         const date = new Date(ts);
+        const hoverNoNulls = this.config.hoverNoNulls === true || this.config.hoverNoNulls === 'true';
 
         const values = this.option.series.map((line, i) => {
             const p = params.find(param => param.seriesIndex === i);
@@ -625,7 +626,7 @@ class ChartOption {
                 interpolated = {exact: p.data.exact !== undefined ? p.data.exact : true, val: p.value[1]};
             }
 
-            interpolated = interpolated || this.getInterpolatedValue(i, ts, this.config.l[i].type);
+            interpolated = interpolated || this.getInterpolatedValue(i, ts, this.config.l[i].type, hoverNoNulls);
             if (!interpolated) {
                 return '';
             }
