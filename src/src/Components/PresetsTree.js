@@ -206,6 +206,9 @@ class MenuList extends Component {
     }
 
     onPresetChange = (id, obj) => {
+        if (!id || !id.startsWith('echarts.')) {
+            return;
+        }
         const presets = JSON.parse(JSON.stringify(this.state.presets));
         let changed = false;
         if (obj) {

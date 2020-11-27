@@ -345,6 +345,7 @@ class PresetTabs extends React.Component {
                                             snapshot={snapshot}
                                             theme={this.props.theme}
                                             instances={this.props.instances}
+                                            systemConfig={this.props.systemConfig}
                                             line={line}
                                             presetData={this.props.presetData}
                                             width={this.props.width}

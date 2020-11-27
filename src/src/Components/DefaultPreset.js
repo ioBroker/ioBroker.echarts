@@ -113,7 +113,7 @@ function getDefaultLine(systemSettings, instance, obj, language) {
     const line = {
         name:       ((obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '').trim(),
         id:         obj ? obj._id : '',
-        instance:   instance || systemSettings.common.defaultHistory,
+        instance:   instance === systemSettings.common.defaultHistory ? '' : instance || '',
         thickness:  2,
         chartType:  isBoolean ? 'steps'    : 'line',
         aggregate:  isBoolean ? 'onchange' : 'minmax',

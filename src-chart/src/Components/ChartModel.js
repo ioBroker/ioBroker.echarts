@@ -123,6 +123,7 @@ function deParam(params, coerce) {
     return obj;
 }
 */
+// Do not forget to change normalizeConfig in src/utils/flotConverter.js too
 function normalizeConfig(config) {
     if (config.lines) {
         config.l = config.lines;
@@ -238,6 +239,8 @@ class ChartModel {
         this.updateInterval   = null; // update interval by time
         this.presetSubscribed = false; // Is preset subscribed yet or not
 
+        this.defaultHistory   = '';
+
         this.onUpdateFunc     = null;
         this.onReadingFunc    = null;
         this.onErrorFunc      = null;
@@ -259,6 +262,7 @@ class ChartModel {
         this.socket.getSystemConfig()
             .then(systemConfig => {
                 this.systemConfig = systemConfig && systemConfig.common ? systemConfig.common : {};
+                this.defaultHistory = this.systemConfig.defaultHistory;
                 return this.analyseAndLoadConfig(config);
             });
     }
@@ -745,6 +749,7 @@ class ChartModel {
                         this.config.l[index].aggregate = obj.common.type === 'boolean' ? 'onchange' : 'minmax';
                     }
                 }
+
                 return Promise.resolve();
             })
             .catch(e => {
@@ -761,7 +766,7 @@ class ChartModel {
                 if (typeof this.config.l[index].name === 'object') {
                     this.config.l[index].name = this.config.l[index].name[this.systemConfig.language] || this.config.l[index].name.en;
                 }
-                this.readOneChart(this.config.l[index].id, this.config.l[index].instance, index, cb);
+                this.readOneChart(this.config.l[index].id, this.config.l[index].instance || this.defaultHistory, index, cb);
             });
     }
 
@@ -785,7 +790,7 @@ class ChartModel {
         } else {
             const index = 0;
             const option = JSON.parse(JSON.stringify(this.getStartStop(index)));
-            option.instance  = this.config.l[index].instance;
+            option.instance  = this.config.l[index].instance || this.defaultHistory;
             option.sessionId = this.sessionId;
             option.aggregate = 'onchange';
 

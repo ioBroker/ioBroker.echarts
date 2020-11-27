@@ -153,6 +153,7 @@ class Line extends React.Component {
             width: this.props.width
         };
     }
+
     updateField = (name, value) => {
         let line = JSON.parse(JSON.stringify(this.props.line));
         line[name] = value;
@@ -243,7 +244,7 @@ class Line extends React.Component {
                 label="Instance"
                 noTranslate={true}
                 options={(() => {
-                    let result = {};
+                    let result = {'': I18n.t('standard')};
                     this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
                     return result;
                 })()}
@@ -256,7 +257,7 @@ class Line extends React.Component {
                 name="id"
                 width={idWidth}
                 label="ID"
-                customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}}
+                customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
                 classes={{fieldContainer: this.props.classes.shortIdField}}
                 socket={this.props.socket}
             />
@@ -397,7 +398,7 @@ class Line extends React.Component {
                     name="id"
                     label="ID"
                     width="calc(100% - 250px)"
-                    customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : true}}}
+                    customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
                     socket={this.props.socket}/>
             </div>
             <div className={this.props.classes.shortFields}>
@@ -548,6 +549,7 @@ Line.propTypes = {
     theme: PropTypes.object,
     presetData: PropTypes.object,
     onSelectColor: PropTypes.func,
+    systemConfig: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Line);

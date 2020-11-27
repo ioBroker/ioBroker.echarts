@@ -104,6 +104,7 @@ SettingsEditor.propTypes = {
     theme: PropTypes.object,
     onAutoSave: PropTypes.func,
     autoSave: PropTypes.bool,
+    systemConfig: PropTypes.object,
 };
 
 export default withStyles(styles)(SettingsEditor);

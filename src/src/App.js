@@ -24,13 +24,14 @@ import GenericApp from '@iobroker/adapter-react/GenericApp';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
 import '@iobroker/adapter-react/index.css';
+import Utils from '@iobroker/adapter-react/Components/Utils';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
 import getUrlQuery from './utils/getUrlQuery';
 import DefaultPreset from './Components/DefaultPreset';
 import MenuList from './MenuList';
-import Utils from "@iobroker/adapter-react/Components/Utils";
+import flotConverter from './utils/flotConverter';
 
 const styles = theme => ({
     root: {
@@ -167,7 +168,7 @@ class App extends GenericApp {
                 newState.systemConfig = systemConfig;
                 newState.presetData = DefaultPreset.getDefaultPreset(systemConfig);
                 this.setState(newState);
-                return Promise.resolve();
+                return flotConverter(this.socket, this.instance);
             })
             .then(() => this.socket.getAdapterInstances(''))
             // get only history adapters
@@ -258,9 +259,9 @@ class App extends GenericApp {
                         let template = {
                             common: {
                                 name,
+                                expert: true,
                             },
                             native: {
-                                url: '',
                                 data: JSON.parse(JSON.stringify(this.state.presetData))
                             },
                             type: 'chart'
@@ -335,6 +336,7 @@ class App extends GenericApp {
                             this.objects[obj._id] = obj
                         }
                     });
+
                     const lines = (this.state.chartsList || []).map(item => DefaultPreset.getDefaultLine(this.state.systemConfig, item.instance, this.objects[item.id], I18n.getLanguage()));
 
                     (!this.state.chartsList || !this.state.chartsList.find(item => item.id === selectedId.id && item.instance === selectedId.instance)) &&
