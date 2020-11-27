@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.7",
+        "version": "0.3.8",
         "news": {
+            "0.3.8": {
+                "en": "Implemented the conversion of the flot presets into echarts.",
+                "de": "Implementierung der Konvertierung der Flot-Presets in Echarts.",
+                "ru": "Реализована конвертация пресетов флота в электронные диаграммы.",
+                "pt": "Implementou a conversão dos presets de flot em echarts.",
+                "nl": "De conversie van de flot-presets naar echarts geïmplementeerd.",
+                "fr": "Implémentation de la conversion des préréglages de flot en echarts.",
+                "it": "Implementata la conversione dei preset flot in echart.",
+                "es": "Se implementó la conversión de los presets de flot en echarts.",
+                "pl": "Zaimplementowano konwersję ustawień flot na echarty.",
+                "zh-cn": "实现了将flot预设转换为echarts。"
+            },
             "0.3.7": {
                 "en": "Hide nulls in the hover details",
                 "de": "Blenden Sie Nullen in den Hover-Details aus",

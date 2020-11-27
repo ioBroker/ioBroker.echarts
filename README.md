@@ -69,7 +69,7 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### __WORK IN PROGRESS__
+### 0.3.8 (2020-11-27)
 * (bluefox) Implemented the conversion of the flot presets into echarts. 
 
 ### 0.3.7 (2020-11-17)
