@@ -1045,3 +1045,4 @@ class ChartModel {
 }
 
 module.exports = ChartModel;
+export default ChartModel;

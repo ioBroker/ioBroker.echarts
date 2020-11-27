@@ -12,8 +12,32 @@
 const utils = require('@iobroker/adapter-core'); // Get common adapter utils
 const adapterName = require('./package.json').name.split('.').pop();
 const fs = require('fs');
-const ChartModel = require('./src-chart/src/Components/ChartModel');
-const ChartOption = require('./src-chart/src/Components/ChartOption');
+
+let _chartModel = fs.readFileSync(__dirname + '/src-chart/src/Components/ChartModel.js').toString('utf8');
+let _chartOption = fs.readFileSync(__dirname + '/src-chart/src/Components/ChartOption.js').toString('utf8');
+_chartModel = _chartModel.replace('export default ChartModel;', '');
+_chartOption = _chartOption.replace('export default ChartOption;', '');
+
+if (fs.existsSync(__dirname + '/_helpers/ChartModel.js')) {
+    if (fs.readFileSync(__dirname + '/_helpers/ChartModel.js').toString('utf8') !== _chartModel) {
+        fs.writeFileSync(__dirname + '/_helpers/ChartModel.js', _chartModel);
+    }
+} else {
+    !fs.existsSync(__dirname + '/_helpers') && fs.mkdirSync(__dirname + '/_helpers');
+    fs.writeFileSync(__dirname + '/_helpers/ChartModel.js', _chartModel);
+}
+
+if (fs.existsSync(__dirname + '/_helpers/ChartOption.js')) {
+    if (fs.readFileSync(__dirname + '/_helpers/ChartOption.js').toString('utf8') !== _chartOption) {
+        fs.writeFileSync(__dirname + '/_helpers/ChartOption.js', _chartModel);
+    }
+} else {
+    !fs.existsSync(__dirname + '/_helpers') && fs.mkdirSync(__dirname + '/_helpers');
+    fs.writeFileSync(__dirname + '/_helpers/ChartOption.js', _chartOption);
+}
+
+const ChartModel = require(__dirname + '/_helpers/ChartModel');
+const ChartOption = require(__dirname + '/_helpers/ChartOption');
 
 const moment = require('moment');
 require('moment/locale/en-gb');
