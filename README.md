@@ -54,6 +54,7 @@ sendTo('echarts.0', {
 
 ## Developer manual
 **For non-developer this link does not work!**
+
 You can debug view charts locally with: 
 - cd iobroker.echarts/src-chart
 - npm run start
