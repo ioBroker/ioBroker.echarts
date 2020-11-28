@@ -433,6 +433,7 @@ class ChartsTree extends Component {
     }
 
     renderListItem(group, id, dragging, level) {
+        level = level || 0;
         const instance = group._id;
         return <ListItem
             key={instance + '_' + id}

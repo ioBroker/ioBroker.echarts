@@ -552,7 +552,7 @@ class ChartView extends React.Component {
                 borderWidth,
                 width:          borderWidth || borderPadding ? 'calc(100% - ' + ((borderWidth + borderPadding) * 2 + 1) + 'px' : undefined,
                 height:         borderWidth || borderPadding ? 'calc(100% - ' + (borderWidth + borderPadding) * 2 + 'px' : undefined,
-                background:     this.props.config.window_bg || undefined,
+                background:     this.props.config.noBackground ? undefined : this.props.config.window_bg || undefined,
                 borderColor:    this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
                 borderStyle:    this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',
                 padding:        borderPadding || 0,

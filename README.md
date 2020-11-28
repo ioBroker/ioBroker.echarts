@@ -70,6 +70,9 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### 0.4.0 (2020-11-28)
+* (bluefox) Added new option: no background
+
 ### 0.3.9 (2020-11-28)
 * (bluefox) Corrected error with the chart. 
 

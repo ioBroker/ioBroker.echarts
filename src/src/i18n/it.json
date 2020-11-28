@@ -439,5 +439,13 @@
   "Valid time (sec)": "Tempo valido (sec)",
   "X Axis position": "Posizione dell'asse X.",
   "Reorder presets in folders": "Riordina i preset nelle cartelle",
-  "Hide nulls in tooltip": "Nascondi i valori nulli nella descrizione comando"
+  "Hide nulls in tooltip": "Nascondi i valori nulli nella descrizione comando",
+  "X ticks color": "Colore delle zecche X.",
+  "Y ticks color": "Y fa il colore",
+  "Border width": "Larghezza del bordo",
+  "Border padding": "Imbottitura del bordo",
+  "Copy": "copia",
+  "No background": "Nessuno sfondo",
+  "standard": "standard",
+  "Open in own window": "Apri nella propria finestra"
 }

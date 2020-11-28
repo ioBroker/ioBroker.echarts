@@ -439,5 +439,13 @@
   "Valid time (sec)": "Действительное время (сек)",
   "X Axis position": "Положение оси X",
   "Reorder presets in folders": "Изменить порядок пресетов в папках",
-  "Hide nulls in tooltip": "Скрыть нули в подсказке"
+  "Hide nulls in tooltip": "Скрыть нули в подсказке",
+  "X ticks color": "Цвет меток X",
+  "Y ticks color": "Цвет отметок Y",
+  "Border width": "Ширина рамки",
+  "Border padding": "Отступы границы",
+  "Copy": "Копировать",
+  "No background": "Без фона",
+  "standard": "стандарт",
+  "Open in own window": "Открыть в собственном окне"
 }

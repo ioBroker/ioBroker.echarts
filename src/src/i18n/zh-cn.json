@@ -439,5 +439,13 @@
   "Valid time (sec)": "有效时间（秒）",
   "X Axis position": "X轴位置",
   "Reorder presets in folders": "重新排序文件夹中的预设",
-  "Hide nulls in tooltip": "在工具提示中隐藏空值"
+  "Hide nulls in tooltip": "在工具提示中隐藏空值",
+  "X ticks color": "X刻度颜色",
+  "Y ticks color": "Y刻度颜色",
+  "Border width": "边框宽度",
+  "Border padding": "边框填充",
+  "Copy": "复制",
+  "No background": "没有背景",
+  "standard": "标准",
+  "Open in own window": "在自己的窗口中打开"
 }

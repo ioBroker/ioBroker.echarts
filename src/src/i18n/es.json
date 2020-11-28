@@ -439,5 +439,13 @@
   "Valid time (sec)": "Tiempo válido (seg)",
   "X Axis position": "Posición del eje X",
   "Reorder presets in folders": "Reordenar los ajustes preestablecidos en carpetas",
-  "Hide nulls in tooltip": "Ocultar nulos en la información sobre herramientas"
+  "Hide nulls in tooltip": "Ocultar nulos en la información sobre herramientas",
+  "X ticks color": "X ticks color",
+  "Y ticks color": "Y ticks color",
+  "Border width": "Ancho del borde",
+  "Border padding": "Relleno de borde",
+  "Copy": "Copiar",
+  "No background": "Sin antecedentes",
+  "standard": "estándar",
+  "Open in own window": "Abrir en su propia ventana"
 }

@@ -439,5 +439,13 @@
   "Valid time (sec)": "Tempo válido (s)",
   "X Axis position": "Posição do eixo X",
   "Reorder presets in folders": "Reordenar predefinições em pastas",
-  "Hide nulls in tooltip": "Ocultar nulos na dica de ferramenta"
+  "Hide nulls in tooltip": "Ocultar nulos na dica de ferramenta",
+  "X ticks color": "Cor X carrapatos",
+  "Y ticks color": "Cor dos carrapatos Y",
+  "Border width": "Largura da borda",
+  "Border padding": "Preenchimento de borda",
+  "Copy": "cópia de",
+  "No background": "Sem fundo",
+  "standard": "padrão",
+  "Open in own window": "Abra na própria janela"
 }

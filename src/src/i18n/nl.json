@@ -439,5 +439,13 @@
   "Valid time (sec)": "Geldige tijd (sec)",
   "X Axis position": "X-as positie",
   "Reorder presets in folders": "Voorinstellingen in mappen opnieuw ordenen",
-  "Hide nulls in tooltip": "Verberg null-waarden in tooltip"
+  "Hide nulls in tooltip": "Verberg null-waarden in tooltip",
+  "X ticks color": "X tikt kleur",
+  "Y ticks color": "Y tikt kleur",
+  "Border width": "Grensbreedte",
+  "Border padding": "Rand opvulling",
+  "Copy": "Kopiëren",
+  "No background": "Geen achtergrond",
+  "standard": "standaard-",
+  "Open in own window": "Openen in eigen raam"
 }

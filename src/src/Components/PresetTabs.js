@@ -611,98 +611,99 @@ class PresetTabs extends React.Component {
 
     renderTabAppearance() {
         return <TabPanel value="5" classes={{root: this.props.classes.tabContent}}>
-                {/*<h4>{I18n.t('Appearance')}</h4>*/}
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Theme')}</p>
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="theme" label="Theme" noTranslate={true} options={{
-                        '': 'auto',
-                        'default': 'default',
-                        'dark': 'dark',
-                        'dark-bold': 'dark-bold',
-                        'dark-blue': 'dark-blue',
-                        'gray': 'gray',
-                        'vintage': 'vintage',
-                        'macarons': 'macarons',
-                        'infographic': 'infographic',
-                        'shine': 'shine',
-                        'roma': 'roma',
-                        'azul': 'azul',
-                        'bee-inspired': '',
-                        'blue': 'blue',
-                        'royal': 'royal',
-                        'tech-blue': 'tech-blue',
-                        'red': 'red',
-                        'red-velvet': 'red-velvet',
-                        'green': 'green',
-                    }}/>
-                </div>
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Chart size')}</p>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width"  label="Width"  classes={{fieldContainer: this.props.classes.marginTop}}/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" classes={{fieldContainer: this.props.classes.marginTop}} />
-                </div>
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Backgrounds')}</p>
-                    {this.renderColorField(this.props.presetData, this.updateField, 'Window background', 'window_bg', undefined, this.props.classes.marginTop)}
-                    {this.renderColorField(this.props.presetData, this.updateField, 'Chart background', 'bg_custom', undefined, this.props.classes.marginTop)}
-                </div>
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Labels')}</p>
-                    {this.renderColorField(this.props.presetData, this.updateField, 'X labels color', 'x_labels_color', undefined, this.props.classes.marginTop)}
-                    {this.renderColorField(this.props.presetData, this.updateField, 'X ticks color', 'x_ticks_color', undefined, this.props.classes.marginTop)}
-                    {this.renderColorField(this.props.presetData, this.updateField, 'Y labels color', 'y_labels_color', undefined, this.props.classes.marginTop)}
-                    {this.renderColorField(this.props.presetData, this.updateField, 'Y ticks color', 'y_ticks_color', undefined, this.props.classes.marginTop)}
-                </div>
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Grid')}</p>
-                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideX" label="Hide X grid" />
-                    <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideY" label="Hide Y grid" />
-                    {!this.props.presetData.grid_hideX || !this.props.presetData.grid_hideY ?
-                        this.renderColorField(this.props.presetData, this.updateField, 'Grid color', 'grid_color')
-                        : null }
-                </div>
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Border')}</p>
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="noBorder" label="Border" options={{
-                        '': 'With border',
-                        'noborder': 'Without border',
-                    }}/>
-                    {this.props.presetData.noBorder !== 'noborder' ?
-                        <>
-                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_width" label="Border width" min="0" type="number"/>
-                            {this.props.presetData.border_width ? this.renderColorField(this.props.presetData, this.updateField, 'Border color', 'border_color') : null}
-                            {this.props.presetData.border_width ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="border_style" label="Border style" options={{
-                                'solid':  'solid',
-                                'dotted': 'dotted',
-                                'dashed': 'dashed',
-                                'double': 'double',
-                                'groove': 'groove',
-                                'ridge':  'ridge',
-                                'inset':  'inset',
-                                'outset': 'outset',
-                            }}/> : null}
-                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min="0" type="number"/>
+            {/*<h4>{I18n.t('Appearance')}</h4>*/}
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Theme')}</p>
+                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="theme" label="Theme" noTranslate={true} options={{
+                    '': 'auto',
+                    'default': 'default',
+                    'dark': 'dark',
+                    'dark-bold': 'dark-bold',
+                    'dark-blue': 'dark-blue',
+                    'gray': 'gray',
+                    'vintage': 'vintage',
+                    'macarons': 'macarons',
+                    'infographic': 'infographic',
+                    'shine': 'shine',
+                    'roma': 'roma',
+                    'azul': 'azul',
+                    'bee-inspired': '',
+                    'blue': 'blue',
+                    'royal': 'royal',
+                    'tech-blue': 'tech-blue',
+                    'red': 'red',
+                    'red-velvet': 'red-velvet',
+                    'green': 'green',
+                }}/>
+            </div>
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Chart size')}</p>
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width"  label="Width"  classes={{fieldContainer: this.props.classes.marginTop}}/>
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" classes={{fieldContainer: this.props.classes.marginTop}} />
+            </div>
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Backgrounds')}</p>
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="noBackground" label="No background" />
+                {!this.props.presetData.noBackground ? this.renderColorField(this.props.presetData, this.updateField, 'Window background', 'window_bg', undefined, this.props.classes.marginTop) : null}
+                {this.renderColorField(this.props.presetData, this.updateField, 'Chart background', 'bg_custom', undefined, this.props.classes.marginTop)}
+            </div>
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Labels')}</p>
+                {this.renderColorField(this.props.presetData, this.updateField, 'X labels color', 'x_labels_color', undefined, this.props.classes.marginTop)}
+                {this.renderColorField(this.props.presetData, this.updateField, 'X ticks color', 'x_ticks_color', undefined, this.props.classes.marginTop)}
+                {this.renderColorField(this.props.presetData, this.updateField, 'Y labels color', 'y_labels_color', undefined, this.props.classes.marginTop)}
+                {this.renderColorField(this.props.presetData, this.updateField, 'Y ticks color', 'y_ticks_color', undefined, this.props.classes.marginTop)}
+            </div>
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Grid')}</p>
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideX" label="Hide X grid" />
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideY" label="Hide Y grid" />
+                {!this.props.presetData.grid_hideX || !this.props.presetData.grid_hideY ?
+                    this.renderColorField(this.props.presetData, this.updateField, 'Grid color', 'grid_color')
+                    : null }
+            </div>
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Border')}</p>
+                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="noBorder" label="Border" options={{
+                    '': 'With border',
+                    'noborder': 'Without border',
+                }}/>
+                {this.props.presetData.noBorder !== 'noborder' ?
+                    <>
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_width" label="Border width" min={0} type="number"/>
+                        {this.props.presetData.border_width ? this.renderColorField(this.props.presetData, this.updateField, 'Border color', 'border_color') : null}
+                        {this.props.presetData.border_width ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="border_style" label="Border style" options={{
+                            'solid':  'solid',
+                            'dotted': 'dotted',
+                            'dashed': 'dashed',
+                            'double': 'double',
+                            'groove': 'groove',
+                            'ridge':  'ridge',
+                            'inset':  'inset',
+                            'outset': 'outset',
+                        }}/> : null}
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min={0} type="number"/>
 
-                        </> : null}
-                </div>
-                {
-                    !!this.props.presetData.lines.find(line => line.chartType === 'bar') ?
-                        <Grid item sm={6} xs={12}>
-                            <h4>{I18n.t('Bar settings')}</h4>
-                            {this.renderColorField(this.props.presetData, this.updateField, 'Fill color', 'barColor')}
-                            <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="barLabels" label="Show labels" options={{
-                                '': 'none',
-                                'topover': 'top over',
-                                'topunder': 'top under',
-                                'bottom': 'bottom',
-                                'middle': 'middle',
-                            }}/>
-                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barWidth" label="Bars width" min="0" type="number"/>
-                            <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barFontSize" label="Label font size" min="0" type="number"/>
-                            {this.renderColorField(this.props.presetData, this.updateField, 'Label color', 'barFontColor')}
-                        </Grid>
-                        : null
-                }
+                    </> : null}
+            </div>
+            {
+                !!this.props.presetData.lines.find(line => line.chartType === 'bar') ?
+                    <Grid item sm={6} xs={12}>
+                        <h4>{I18n.t('Bar settings')}</h4>
+                        {this.renderColorField(this.props.presetData, this.updateField, 'Fill color', 'barColor')}
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="barLabels" label="Show labels" options={{
+                            '': 'none',
+                            'topover': 'top over',
+                            'topunder': 'top under',
+                            'bottom': 'bottom',
+                            'middle': 'middle',
+                        }}/>
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barWidth" label="Bars width" min={0} type="number"/>
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barFontSize" label="Label font size" min={0} type="number"/>
+                        {this.renderColorField(this.props.presetData, this.updateField, 'Label color', 'barFontColor')}
+                    </Grid>
+                    : null
+            }
         </TabPanel>;
     }
 

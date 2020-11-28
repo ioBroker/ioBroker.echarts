@@ -439,5 +439,13 @@
   "Valid time (sec)": "Temps valide (sec)",
   "X Axis position": "Position de l'axe X",
   "Reorder presets in folders": "Réorganiser les préréglages dans les dossiers",
-  "Hide nulls in tooltip": "Masquer les valeurs nulles dans l'info-bulle"
+  "Hide nulls in tooltip": "Masquer les valeurs nulles dans l'info-bulle",
+  "X ticks color": "X ticks couleur",
+  "Y ticks color": "Couleur des graduations Y",
+  "Border width": "Largeur de la bordure",
+  "Border padding": "Rembourrage de la bordure",
+  "Copy": "Copie",
+  "No background": "Pas de fond",
+  "standard": "la norme",
+  "Open in own window": "Ouvrir dans sa propre fenêtre"
 }

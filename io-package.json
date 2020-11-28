@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.9",
+        "version": "0.4.0",
         "news": {
+            "0.4.0": {
+                "en": "Added new option: no background",
+                "de": "Neue Option hinzugefügt: kein Hintergrund",
+                "ru": "Добавлена новая опция: без фона",
+                "pt": "Adicionada nova opção: sem fundo",
+                "nl": "Nieuwe optie toegevoegd: geen achtergrond",
+                "fr": "Ajout d'une nouvelle option: pas de fond",
+                "it": "Aggiunta nuova opzione: nessuno sfondo",
+                "es": "Añadida nueva opción: sin fondo",
+                "pl": "Dodano nową opcję: bez tła",
+                "zh-cn": "添加了新选项：无背景"
+            },
             "0.3.9": {
                 "en": "Corrected error with the chart.",
                 "de": "Fehler mit dem Diagramm behoben.",

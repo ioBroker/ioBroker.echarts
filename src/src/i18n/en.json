@@ -439,5 +439,13 @@
   "Valid time (sec)": "Valid time (sec)",
   "X Axis position": "X Axis position",
   "Reorder presets in folders": "Reorder presets in folders",
-  "Hide nulls in tooltip": "Hide nulls in tooltip"
+  "Hide nulls in tooltip": "Hide nulls in tooltip",
+  "X ticks color": "X ticks color",
+  "Y ticks color": "Y ticks color",
+  "Border width": "Border width",
+  "Border padding": "Border padding",
+  "Copy": "Copy",
+  "No background": "No background",
+  "standard": "standard",
+  "Open in own window": "Open in own window"
 }

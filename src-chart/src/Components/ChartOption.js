@@ -311,7 +311,7 @@ class ChartOption {
             if (parseFloat(oneLine.fill)) {
                 cfg.areaStyle = {
                     color: color,
-                    opacity: parseFloat(oneLine.fill),
+                    opacity: parseFloat(oneLine.fill) || 0,
                 };
             }
 
@@ -456,7 +456,7 @@ class ChartOption {
                     itemStyle: {
                         color:       oneMark.color || series.itemStyle.color,
                         borderWidth: 0,
-                        opacity:     parseFloat(oneMark.fill),
+                        opacity:     parseFloat(oneMark.fill) || 0,
                     },
                     data: []
                 };
