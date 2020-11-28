@@ -840,5 +840,4 @@ class ChartOption {
     }
 }
 
-module.exports = ChartOption;
 export default ChartOption;

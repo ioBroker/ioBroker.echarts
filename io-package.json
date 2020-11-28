@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.3.8",
+        "version": "0.3.9",
         "news": {
+            "0.3.9": {
+                "en": "Corrected error with the chart.",
+                "de": "Fehler mit dem Diagramm behoben.",
+                "ru": "Исправлена ошибка с графиком.",
+                "pt": "Erro corrigido com o gráfico.",
+                "nl": "Fout gecorrigeerd met de grafiek.",
+                "fr": "Erreur corrigée avec le graphique.",
+                "it": "Errore corretto con il grafico.",
+                "es": "Error corregido con el gráfico.",
+                "pl": "Poprawiony błąd w wykresie.",
+                "zh-cn": "纠正了图表错误。"
+            },
             "0.3.8": {
                 "en": "Implemented the conversion of the flot presets into echarts.",
                 "de": "Implementierung der Konvertierung der Flot-Presets in Echarts.",

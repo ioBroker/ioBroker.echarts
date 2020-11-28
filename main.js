@@ -38,8 +38,8 @@ function prepareReactFiles() {
     // after that require changed files and not original ones.
     let _chartModel = fs.readFileSync(__dirname + '/src-chart/src/Components/ChartModel.js').toString('utf8');
     let _chartOption = fs.readFileSync(__dirname + '/src-chart/src/Components/ChartOption.js').toString('utf8');
-    _chartModel = _chartModel.replace('export default ChartModel;', '');
-    _chartOption = _chartOption.replace('export default ChartOption;', '');
+    _chartModel = _chartModel.replace('export default ', 'module.exports = ');
+    _chartOption = _chartOption.replace('export default ', 'module.exports = ');
 
     if (fs.existsSync(__dirname + '/_helpers/ChartModel.js')) {
         if (fs.readFileSync(__dirname + '/_helpers/ChartModel.js').toString('utf8') !== _chartModel) {
