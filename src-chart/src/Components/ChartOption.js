@@ -442,12 +442,20 @@ class ChartOption {
     getMarkings(options) {
         // fill markings
         this.config.marks && this.config.marks.forEach(oneMark => {
+            if (!oneMark) {
+                return;
+            }
             const lowerLimitFloat = oneMark.lowerValue !== undefined ? oneMark.lowerValue : parseFloat(oneMark.lowerValueOrId);
             const upperLimitFloat = oneMark.upperValue !== undefined ? oneMark.upperValue : parseFloat(oneMark.upperValueOrId);
             const isLowerNumber   = lowerLimitFloat !== null && !isNaN(lowerLimitFloat);
             const isUpperNumber   = upperLimitFloat !== null && !isNaN(upperLimitFloat);
 
             const series = options.series[oneMark.lineId];
+
+            if (!series) {
+                console.error('Mark line has no chart line');
+                return;
+            }
 
             if (isLowerNumber && isUpperNumber) {
                 // area

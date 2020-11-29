@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.0",
+        "version": "0.4.1",
         "news": {
+            "0.4.1": {
+                "en": "Disconnection errors are caught now.",
+                "de": "Trennungsfehler werden jetzt abgefangen.",
+                "ru": "Ошибки отключения теперь выявляются.",
+                "pt": "Erros de desconexão são detectados agora.",
+                "nl": "Ontkoppelingsfouten worden nu opgemerkt.",
+                "fr": "Les erreurs de déconnexion sont détectées maintenant.",
+                "it": "Gli errori di disconnessione vengono rilevati ora.",
+                "es": "Los errores de desconexión se detectan ahora.",
+                "pl": "Błędy rozłączania są teraz wychwytywane.",
+                "zh-cn": "现在发现了断开连接错误。"
+            },
             "0.4.0": {
                 "en": "Added new option: no background",
                 "de": "Neue Option hinzugefügt: kein Hintergrund",

@@ -70,6 +70,9 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### 0.4.1 (2020-11-29)
+* (bluefox) Disconnection errors are caught now.
+
 ### 0.4.0 (2020-11-28)
 * (bluefox) Added new option: no background
 

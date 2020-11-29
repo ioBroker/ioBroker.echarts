@@ -10,7 +10,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Utils from '@iobroker/adapter-react/Components/Utils';
 import Loader from '@iobroker/adapter-react/Components/Loader'
 import I18n from '@iobroker/adapter-react/i18n';
-import Connection, {PROGRESS} from '@iobroker/adapter-react/Connection';
+import Connection, {PROGRESS, ERRORS} from '@iobroker/adapter-react/Connection';
 import DialogError from '@iobroker/adapter-react/Dialogs/Error';
 import theme from '@iobroker/adapter-react/Theme';
 
@@ -57,6 +57,7 @@ class App extends Component {
 
         this.divRef      = React.createRef();
         this.progressRef = React.createRef();
+        this.progressShown = true;
 
         // init translations
         const translations = {
@@ -100,11 +101,18 @@ class App extends Component {
             name: window.adapterName,
             onProgress: progress => {
                 if (progress === PROGRESS.CONNECTING) {
-                    this.setState({connected: false});
+                    if (this.state.seriesData) {
+                        this.divRef.current && (this.divRef.current.style.opacity = 0.5);
+                        this.progressRef.current && (this.progressRef.current.style.display = 'block');
+                    } else {
+                        this.setState({connected: false});
+                    }
                 } else if (progress === PROGRESS.READY) {
                     this.setState({connected: true});
+                    this.restoreAfterReconnection();
                 } else {
                     this.setState({connected: true});
+                    this.restoreAfterReconnection();
                 }
             },
             onReady: (objects, scripts) => {
@@ -126,7 +134,14 @@ class App extends Component {
                         } else {
                             this.createChartData();
                         }
-                    });
+                    })
+                    .catch(err => {
+                        if (err === ERRORS.NOT_CONNECTED) {
+                            this.setState({connected: false});
+                        } else {
+                            this.showError(I18n.t(err));
+                        }
+                    })
             },
             onError: err => {
                 console.error(err);
@@ -135,14 +150,32 @@ class App extends Component {
         });
     }
 
+    restoreAfterReconnection() {
+        this.divRef.current && (this.divRef.current.style.opacity = 1);
+        this.progressRef.current && !this.progressShown && (this.progressRef.current.style.display = 'none');
+        if (this.state.seriesData && !this.state.seriesData.find(series => series.length)) {
+            this.chartData.setNewRange();
+        }
+    }
+
     createChartData(config) {
         this.chartData = new ChartModel(this.socket, config);
-        this.chartData.onError(err => this.showError(I18n.t(err)));
+        this.chartData.onError(err => {
+            if (err === ERRORS.NOT_CONNECTED) {
+                this.divRef.current && (this.divRef.current.style.opacity = 0.5);
+                this.progressRef.current && (this.progressRef.current.style.display = 'block');
+            } else {
+                this.showError(I18n.t(err));
+            }
+        });
         this.chartData.onReading(reading => this.showProgress(reading));
-        this.chartData.onUpdate(seriesData => this.setState({seriesData}, () => this.showProgress(false)));
+        this.chartData.onUpdate(seriesData =>
+            this.setState({seriesData, connected: true, dataLoaded: true}, () =>
+                this.showProgress(false)));
     }
 
     showProgress(isShow) {
+        this.progressShown = isShow;
         if (this.progressRef.current) {
             this.progressRef.current.style.display = isShow ? 'block' : 'none';
         }
@@ -204,6 +237,12 @@ class App extends Component {
             return null;
         } else {
             return <DialogError classes={{}} text={this.state.errorText} onClose={() => this.setState({errorText: ''})}/>;
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!this.progressShown && this.progressRef.current && this.progressRef.current.style.display !== 'none') {
+            this.progressRef.current.style.display = 'none';
         }
     }
 

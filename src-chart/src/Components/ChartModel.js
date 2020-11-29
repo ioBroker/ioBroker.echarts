@@ -219,6 +219,8 @@ function normalizeConfig(config) {
     return config;
 }
 
+const NOT_CONNECTED = 'notConnectedError';
+
 class ChartModel {
     constructor(socket, config, options) {
         options = Object.assign({updateTimeout: 300}, options || {});
@@ -260,11 +262,16 @@ class ChartModel {
         }
 
         this.socket.getSystemConfig()
+            .catch(e => {
+                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                console.error('Cannot read systemConfig: ' + e);
+                return null;
+            })
             .then(systemConfig => {
                 this.systemConfig = systemConfig && systemConfig.common ? systemConfig.common : {};
                 this.defaultHistory = this.systemConfig.defaultHistory;
                 return this.analyseAndLoadConfig(config);
-            });
+            })
     }
 
     analyseAndLoadConfig(config) {
@@ -344,7 +351,12 @@ class ChartModel {
                     if (!this.serverSide && this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
                         this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                     }
+                })
+                .catch(e => {
+                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                    console.error(`Cannot read ${this.preset}: ${e}`)
                 });
+
         } else {
             this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
             this.config.lang     = this.systemConfig.language;
@@ -726,13 +738,22 @@ class ChartModel {
 
                 return Promise.resolve();
             })
-            .catch(err => err && console.error('[ChartModel] ' + err))
+            .catch(err => {
+                err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
+                err && console.error('[ChartModel] ' + err)
+            })
             .then(() => cb(id, index))
     }
 
     _readObject(id) {
         if (!this.objectPromises[id]) {
-            this.objectPromises[id] = this.socket.getObject(id);
+            this.objectPromises[id] = this.socket.getObject(id)
+                .catch(e => {
+                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                    console.error(`Cannot read ${id}: ${e}`);
+                    return null;
+                });
+
         }
         return this.objectPromises[id];
     }
@@ -753,6 +774,7 @@ class ChartModel {
                 return Promise.resolve();
             })
             .catch(e => {
+                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
                 console.error(`[ChartModel] Cannot read object ${this.config.l[index].id}: ${e}`);
                 return Promise.resolve();
             })
@@ -841,7 +863,10 @@ class ChartModel {
                     }
                     return Promise.resolve();
                 })
-                .catch(e => console.error(`[ChartModel] ${e}`))
+                .catch(e => {
+                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                    console.error(`[ChartModel] ${e}`);
+                })
                 .then(() => cb && cb(this.ticks));
         }
     }
@@ -856,6 +881,7 @@ class ChartModel {
                 }
             })
             .catch(e => {
+                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
                 console.error(`[ChartModel] ${e}`);
                 cb(index, 0);
             });
@@ -884,6 +910,11 @@ class ChartModel {
                                 this.config.marks[m].upperValue = null;
                             }
                             resolve();
+                        })
+                        .catch(e => {
+                            e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                            console.error(`Cannot read marking ${this.config.marks[m].upperValueOrId}: ${e}`);
+                            resolve();
                         });
                 } else {
                     resolve();
@@ -902,6 +933,11 @@ class ChartModel {
                                 } else {
                                     this.config.marks[m].lowerValue = null;
                                 }
+                                resolve();
+                            })
+                            .catch(e => {
+                                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                                console.error(`Cannot read marking ${this.config.marks[m].lowerValueOrId}: ${e}`);
                                 resolve();
                             });
                     } else {
