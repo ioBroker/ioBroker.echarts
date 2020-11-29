@@ -70,6 +70,9 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### 0.4.2 (2020-11-29)
+* (bluefox) Corrected the error with overflow of axis.
+
 ### 0.4.1 (2020-11-29)
 * (bluefox) Disconnection errors are caught now.
 

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.1",
+        "version": "0.4.2",
         "news": {
+            "0.4.2": {
+                "en": "Corrected the error with overflow of axis.",
+                "de": "Fehler mit Achsüberlauf behoben.",
+                "ru": "Исправлена ошибка с переполнением оси.",
+                "pt": "Corrigido o erro com estouro do eixo.",
+                "nl": "Fout gecorrigeerd met overloop van as.",
+                "fr": "Correction de l'erreur avec débordement d'axe.",
+                "it": "Corretto l'errore con overflow dell'asse.",
+                "es": "Corregido el error con desbordamiento del eje.",
+                "pl": "Poprawiono błąd związany z przepełnieniem osi.",
+                "zh-cn": "修正了轴溢出的错误。"
+            },
             "0.4.1": {
                 "en": "Disconnection errors are caught now.",
                 "de": "Trennungsfehler werden jetzt abgefangen.",

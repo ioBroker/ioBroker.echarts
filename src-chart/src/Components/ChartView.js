@@ -59,7 +59,6 @@ import 'echarts/lib/component/legend';
 
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/timeline';
-import 'zrender/lib/svg/svg';
 
 const styles = theme => ({
     chart: {
@@ -435,6 +434,8 @@ class ChartView extends React.Component {
     renderChart() {
         if (this.props.data) {
             this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config);
+
+            console.log(JSON.stringify(this.option, null, 2));
 
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 

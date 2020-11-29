@@ -285,9 +285,13 @@ class ChartOption {
             if (!oneLine.color) {
                 colorCount++;
             }
+
+            oneLine.shadowsize = parseFloat(oneLine.shadowsize) || 0;
+
             const yAxisIndex = oneLine.commonYAxis === '' || oneLine.commonYAxis === undefined ? i : parseInt(oneLine.commonYAxis) || 0;
             const cfg = {
                 name: oneLine.name,
+                clip: true,
                 xAxisIndex: 0,
                 yAxisIndex,
                 type: oneLine.chartType === 'scatterplot' ? 'scatter' : 'line',
@@ -301,7 +305,7 @@ class ChartOption {
                 symbolSize: (oneLine.chartType === 'scatterplot' || oneLine.points) ? (oneLine.symbolSize || 3) : undefined,
                 symbol: 'circle',
                 lineStyle: {
-                    width:          oneLine.thickness || 1,
+                    width:          parseFloat(oneLine.thickness) || 1,
                     shadowBlur:     oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                     shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                     shadowColor:    color,
