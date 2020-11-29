@@ -218,8 +218,7 @@ function _executeWriteTasks(socket, tasks, _resolve) {
                         console.log(`Object ${obj._id} already exists and will not be converted`);
                         setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50);
                     }
-                })
-
+                });
         } else {
             setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50);
         }
@@ -310,7 +309,7 @@ function _flot2echarts(flotObj, instance) {
 }
 
 
-function flotConverter (socket, instance) {
+function flotConverter(socket, instance) {
     instance = instance || 0;
 
     let instanceObj;
@@ -336,6 +335,10 @@ function flotConverter (socket, instance) {
                 return Promise.resolve();
             }
         })
+        .catch(e => {
+            console.error(`Cannot convert flot: ${e}`);
+            return Promise.resolve();
+        });
 }
 
 module.exports = flotConverter;

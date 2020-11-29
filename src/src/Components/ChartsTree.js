@@ -128,7 +128,8 @@ class ChartsTree extends Component {
                     }
                 });
                 return newState;
-            });
+            })
+            .catch(e => this.onError(e, `Cannot read enums`));
     }
 
     getAdapterIcon(groupId, id) {
@@ -155,8 +156,14 @@ class ChartsTree extends Component {
                     } else {
                         return Promise.resolve();
                     }
-                });
+                })
+                .catch(e => this.onError(e, `Cannot read object ${instanceId}`));
         }
+    }
+
+    onError(e, comment) {
+        comment && console.error(comment);
+        this.props.onShowError(e);
     }
 
     getChartIcon(groupId, obj) {
@@ -208,17 +215,20 @@ class ChartsTree extends Component {
                                                                 return this.getAdapterIcon(groupId, id);
                                                             }
                                                         }
-                                                    });
+                                                    })
+                                                    .catch(e => this.onError(e, `Cannot read object ${adapterID}`));
                                             } else {
                                                 return this.getAdapterIcon(groupId, id);
                                             }
                                         }
-                                    });
+                                    })
+                                    .catch(e => this.onError(e, `Cannot read object ${deviceID}`));
                             } else {
                                 return this.getAdapterIcon(groupId, id);
                             }
                         }
-                    });
+                    })
+                    .catch(e => this.onError(e, `Cannot read object ${channelID}`));
             } else {
                 return this.getAdapterIcon(groupId, id);
             }
@@ -421,9 +431,11 @@ class ChartsTree extends Component {
                                             inst.enabledDP = inst.enabledDP || {};
                                             inst.enabledDP[obj._id] = obj;
                                             this.setState({instances});
-                                        });
+                                        })
+                                        .catch(e => this.onError(e, `Cannot read object ${id}`));
                                 }
                             })
+                            .catch(e => this.onError(e, `Cannot read object ${id}`));
                     }
                     this.setState({showAddStateDialog: false});
                 } }

@@ -298,16 +298,17 @@ class PresetTabs extends React.Component {
     }
 
     renderColorDialog() {
-        return <Dialog onClose={() => {
-            this.colorPickerCb = null;
-            this.setState({showColorDialog: false});
-        }} open={this.state.showColorDialog}>
-            {/*<DialogTitle id="simple-dialog-title">Set backup account</DialogTitle>*/}
+        return <Dialog
+            onClose={() => {
+                this.colorPickerCb = null;
+                this.setState({showColorDialog: false});
+            }}
+            open={this.state.showColorDialog}>
             <ChromePicker
                 color={this.state.colorDialogValue}
                 onChange={value => {
                     this.setState({colorDialogValue: value}, () =>
-                        this.colorPickerCb(value));
+                        this.colorPickerCb && this.colorPickerCb(value));
                 }}
             />
         </Dialog>;

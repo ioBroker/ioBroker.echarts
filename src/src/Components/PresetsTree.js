@@ -690,6 +690,11 @@ class MenuList extends Component {
         </Dialog>;
     }
 
+    onError(e, comment) {
+        comment && console.error(comment);
+        this.props.onShowError(e);
+    }
+
     onDragFinish(source, target) {
         // new Id
         let newId = target + '.' + source.split('.').pop();
@@ -704,9 +709,11 @@ class MenuList extends Component {
                         this.props.socket.delObject(source)
                             .then(() => this.props.socket.setObject(newId, obj))
                             .then(() => this.getAllPresets())
-                            .then(newState => this.setState(newState));
+                            .then(newState => this.setState(newState))
+                            .catch(e => this.onError(e, `Cannot delete object ${source}`));
                     }
-                });
+                })
+                .catch(e => this.onError(e, `Cannot read object ${source}`));
         }
     }
 
@@ -817,9 +824,11 @@ class MenuList extends Component {
                                             inst.enabledDP = inst.enabledDP || {};
                                             inst.enabledDP[obj._id] = obj;
                                             this.setState({instances});
-                                        });
+                                        })
+                                        .catch(e => this.onError(e, `Cannot save object ${id}`));
                                 }
                             })
+                            .catch(e => this.onError(e, `Cannot read object ${id}`));
                     }
                     this.setState({showAddStateDialog: false});
                 } }
@@ -836,7 +845,7 @@ class MenuList extends Component {
                         this.setState(newState, () =>
                             this.props.onSelectedChanged(null)));
             })
-            .catch(e => this.props.onShowError(e));
+            .catch(e => this.onError(e, `Cannot delete object ${id}`));
     };
 
     renamePreset(id, newTitle) {
@@ -863,7 +872,7 @@ class MenuList extends Component {
                     this.setState(newState);
                 }
             })
-            .catch(e => this.props.onShowError(e));
+            .catch(e => this.onError(e, `Cannot get object ${id}`));
     }
 
     addPresetToFolderPrefix = (preset, folderPrefix, noRefresh) => {
@@ -880,7 +889,7 @@ class MenuList extends Component {
                 console.log('Set new ID: ' + preset._id);
                 return !noRefresh && this.refreshData(presetId)
             })
-            .catch(e => this.props.onShowError(e));
+            .catch(e => this.onError(e, `Cannot delete object ${oldId}`));
     };
 
     render() {

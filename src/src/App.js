@@ -174,7 +174,7 @@ class App extends GenericApp {
             // get only history adapters
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
             .then(instances => this.setState({ready: true, instances}))
-            .catch(e => this.showError(e));
+            .catch(e => this.onError(e, 'Cannot read system config'));
     }
 
     getNewPresetName(prefix, index) {
@@ -225,9 +225,11 @@ class App extends GenericApp {
                     obj._id = newId;
                     obj.common.name = newName;
                     this.socket.setObject(newId, obj)
-                        .then(() => this.loadChartOrPreset(newId));
+                        .then(() => this.loadChartOrPreset(newId))
+                        .catch(e => this.onError(e, 'Cannot save object'));
                 });
-            });
+            })
+            .catch(e => this.onError(e, 'Cannot read object'));
     };
 
     onCreatePreset = (isFromCurrentSelection, parentId) => {
@@ -249,29 +251,33 @@ class App extends GenericApp {
                 } else {
                     resolve(null);
                 }
-            }).then(obj => {
-                if (obj) {
-                    name = (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim();
-                }
+            })
+                .then(obj => {
+                    if (obj) {
+                        name = (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim();
+                    }
 
-                this.getNewPresetName(name)
-                    .then(name => {
-                        let template = {
-                            common: {
-                                name,
-                                expert: true,
-                            },
-                            native: {
-                                data: JSON.parse(JSON.stringify(this.state.presetData))
-                            },
-                            type: 'chart'
-                        };
-                        let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+                    return this.getNewPresetName(name)
+                        .then(name => {
+                            let template = {
+                                common: {
+                                    name,
+                                    expert: true,
+                                },
+                                native: {
+                                    data: JSON.parse(JSON.stringify(this.state.presetData))
+                                },
+                                type: 'chart'
+                            };
+                            let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
 
-                        return this.socket.setObject(id, template)
-                            .then(() => this.loadChartOrPreset(id));
-                    });
-            });
+                            return this.socket.setObject(id, template)
+                                .then(() => this.loadChartOrPreset(id))
+                                .catch(e => this.onError(e, 'Cannot save object'));
+                        });
+                })
+                .catch(e => this.onError(e, 'Cannot read object'));
+
         } else {
             // create empty preset
             return this.getNewPresetName()
@@ -290,11 +296,17 @@ class App extends GenericApp {
                     let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
 
                     return this.socket.setObject(id, template)
-                        .then(() => this.loadChartOrPreset(id));
+                        .then(() => this.loadChartOrPreset(id))
+                        .catch(e => this.onError(e, 'Cannot save object'));
                 })
                 .catch(e => this.showError(e));
         }
     };
+
+    onError(e, comment) {
+        comment && console.error(comment);
+        this.showError(e);
+    }
 
     savePreset = () => {
         if (!this.state.presetData) {
@@ -309,9 +321,10 @@ class App extends GenericApp {
                         obj.native.data = this.state.presetData;
                         return this.socket.setObject(obj._id, obj)
                             .then(() => this.setState({originalPresetData: JSON.stringify(this.state.presetData), selectedPresetChanged: false}))
-                            .catch(e => this.showError(e));
+                            .catch(e => this.onError(e, 'Cannot save object'));
                     }
-                });
+                })
+                .catch(e => this.onError(e, 'Cannot read object'));
         }
     };
 
@@ -331,11 +344,7 @@ class App extends GenericApp {
 
             return Promise.all(promises)
                 .then(results => {
-                    results.forEach(obj => {
-                        if (obj) {
-                            this.objects[obj._id] = obj
-                        }
-                    });
+                    results.forEach(obj => obj && (this.objects[obj._id] = obj));
 
                     const lines = (this.state.chartsList || []).map(item => DefaultPreset.getDefaultLine(this.state.systemConfig, item.instance, this.objects[item.id], I18n.getLanguage()));
 
@@ -403,7 +412,8 @@ class App extends GenericApp {
                         selectedPresetChanged: false,
                         selectedId: selectedId,
                     }, () => cb && cb());
-                });
+                })
+                .catch(e => this.onError(e, 'Cannot read object'));
         } else if (selectedId) {
             // load preset
             return this.socket.getObject(selectedId)
@@ -421,7 +431,8 @@ class App extends GenericApp {
                     } else {
                         cb && cb();
                     }
-                });
+                })
+                .catch(e => this.onError(e, 'Cannot read object'));
         } else {
             this.setState({
                 presetData: null,
@@ -568,7 +579,9 @@ class App extends GenericApp {
                     }
 
                     this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
-                });
+                })
+                .catch(e => this.onError(e, 'Cannot read object'));
+
         } else if (destination && source.droppableId === destination.droppableId) {
             const presetData = JSON.parse(JSON.stringify(this.state.presetData));
             const [removed] = presetData.lines.splice(source.index, 1);
