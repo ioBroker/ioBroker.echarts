@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.2",
+        "version": "0.4.3",
         "news": {
+            "0.4.3": {
+                "en": "Some sentry errors were corrected.",
+                "de": "Einige Wachfehler wurden korrigiert.",
+                "ru": "Исправлены некоторые сторожевые ошибки.",
+                "pt": "Alguns erros de sentinela foram corrigidos.",
+                "nl": "Enkele schildwachtfouten werden gecorrigeerd.",
+                "fr": "Certaines erreurs de sentinelle ont été corrigées.",
+                "it": "Alcuni errori di sentinella sono stati corretti.",
+                "es": "Se corrigieron algunos errores de centinela.",
+                "pl": "Niektóre błędy wartowników zostały poprawione.",
+                "zh-cn": "一些哨兵错误已得到纠正。"
+            },
             "0.4.2": {
                 "en": "Corrected the error with overflow of axis.",
                 "de": "Fehler mit Achsüberlauf behoben.",

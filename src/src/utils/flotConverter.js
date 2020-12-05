@@ -239,6 +239,10 @@ function _flot2echarts(flotObj, instance) {
         type: 'chart',
     };
 
+    if (echartsObj._id.endsWith('.')) {
+        echartsObj._id = 'empty_' + Math.round(Math.random() * 10000);
+    }
+
     /*
     {
           "l": [

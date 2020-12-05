@@ -129,6 +129,7 @@ class App extends Component {
                                     window.parent.postMessage('chartReady');
                                 } catch (e) {
                                     console.warn('Cannot send ready event to parent window');
+                                    console.error(e);
                                 }
                             }
                         } else {
