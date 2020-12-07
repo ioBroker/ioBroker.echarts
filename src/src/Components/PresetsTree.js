@@ -242,7 +242,7 @@ class MenuList extends Component {
                 if (err) {
                     reject(err);
                 } else {
-                    res && res.rows && res.rows.forEach(preset => !preset.value._id.endsWidth('.') && (presets[preset.value._id] = preset.value));
+                    res && res.rows && res.rows.forEach(preset => preset.value._id && !preset.value._id.endsWith('.') && (presets[preset.value._id] = preset.value));
                     newState.presets = presets;
                     newState.changingPreset = '';
 

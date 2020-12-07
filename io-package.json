@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.3",
+        "version": "0.4.4",
         "news": {
-            "0.4.3": {
+            "0.4.4": {
                 "en": "Some sentry errors were corrected.",
                 "de": "Einige Wachfehler wurden korrigiert.",
                 "ru": "Исправлены некоторые сторожевые ошибки.",
