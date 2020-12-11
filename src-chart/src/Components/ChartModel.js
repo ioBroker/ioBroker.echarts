@@ -230,12 +230,14 @@ class ChartModel {
         this.serverSide       = options.serverSide || false; // if rendering is serverside
 
         this.seriesData       = [];
+        this.actualValues     = []; // only if config.legActual === true
         this.ticks            = null;
         this.liveInterval     = null;
+        this.reading          = false;
 
         this.navOptions       = {};
 
-        //this.subscribes       = [];
+        this.subscribes       = [];
         //this.subscribed       = false;
         this.sessionId        = 1;
         this.updateInterval   = null; // update interval by time
@@ -451,11 +453,11 @@ class ChartModel {
     }
 
     destroy() {
-        /*if (this.subscribed) {
+        if (this.subscribed) {
             this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChange));
             this.subscribes = [];
             this.subscribed = null;
-        }*/
+        }
         if (this.readOnZoomTimeout) {
             clearTimeout(this.readOnZoomTimeout);
             this.readOnZoomTimeout = null;
@@ -742,6 +744,26 @@ class ChartModel {
                 err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
                 err && console.error('[ChartModel] ' + err)
             })
+            .then(() => {
+                if (this.config.legActual) {
+                    // read current value
+                    return this.socket.getState(id)
+                        .then(state => this.actualValues[index] = state ? state.val || null : null)
+                        .catch(e => {
+                            console.warn(`Cannot read last value of ${id}: ${e}`);
+                            this.actualValues[index] = null;
+                        })
+                        .then(() => {
+                            if (!this.subscribes.includes(id)) {
+                                this.subscribes.push(id);
+                                this.subscribed = true;
+                                this.socket.subscribeState(id, this.onStateChange);
+                            }
+                        })
+                } else {
+                    return Promise.resolve();
+                }
+            })
             .then(() => cb(id, index))
     }
 
@@ -949,7 +971,7 @@ class ChartModel {
         }
     }
 
-    /*subscribeAll(subscribes, cb, s) {
+    subscribeAll(subscribes, cb, s) {
         s = s || 0;
 
         if (!subscribes || !subscribes.length || s >= subscribes.length) {
@@ -961,22 +983,24 @@ class ChartModel {
     }
 
     onStateChange = (id, state) => {
-        if (!this.seriesData || !this.config || !this.config.m) {
+        if (!id || !state || !this.actualValues || this.reading) {
             return;
         }
 
         this.debug && console.log('State update ' + id + ' - ' + state.val);
 
-        for (let m = 0; m < this.config.m.length; m++) {
-            if (this.config.m[m].oid === id) {
-                this.config.m[m].v = parseFloat(state.val) || 0;
-            }
-            if (this.config.m[m].oidl === id) {
-                this.config.m[m].vl = parseFloat(state.val) || 0;
+        let changed = false;
+        for (let m = 0; m < this.config.l.length; m++) {
+            if (this.config.l[m].id === id) {
+                if (this.actualValues[m] !== state.val) {
+                    this.actualValues[m] = state.val;
+                    changed = true;
+                }
+                break;
             }
         }
-        //chart.update(null, ;config.m);
-    };*/
+        changed && this.onUpdateFunc(null, this.actualValues);
+    };
 
     addTime(time, offset, plusOrMinus, isOffsetInMinutes) {
         time = new Date(time);
@@ -1042,6 +1066,7 @@ class ChartModel {
         }
 
         if (this.config.l) {
+            this.reading = true;
             this.onReadingFunc && this.onReadingFunc(true);
 
             // todo
@@ -1070,12 +1095,14 @@ class ChartModel {
                             this.subscribeAll(this.subscribes, () =>
                                 this.onUpdateFunc(this.seriesData));
                         } else {*/
-                            this.onUpdateFunc(this.seriesData);
+                            this.reading = false;
+                            this.onUpdateFunc(this.seriesData, this.actualValues);
                         //}
                     })));
         } else {
             this.onErrorFunc && this.onErrorFunc('No config provided');
             this.onReadingFunc && this.onReadingFunc(false);
+            this.reading = false;
         }
     }
 }

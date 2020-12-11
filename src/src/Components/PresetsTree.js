@@ -53,7 +53,7 @@ import Utils from '@iobroker/adapter-react/Components/Utils';
 function getFolderList(folder) {
     let result = [];
     result.push(folder);
-    Object.values(folder.subFolders).forEach(subFolder =>
+    Object.values(folder.subFolders || {}).forEach(subFolder =>
         result = result.concat(getFolderList(subFolder)));
 
     return result;
@@ -225,7 +225,7 @@ class MenuList extends Component {
 
         if (changed) {
             const newState = {presets, changingPreset: '', presetFolders: this.buildPresetTree(presets)};
-            const showReorder = !!Object.keys(newState.presetFolders.subFolders).length;
+            const showReorder = !!Object.keys((newState.presetFolders && newState.presetFolders.subFolders) || {}).length;
             setTimeout(() => this.props.onShowReorder(showReorder), 200);
             this.setState(newState);
         }
@@ -242,7 +242,7 @@ class MenuList extends Component {
                 if (err) {
                     reject(err);
                 } else {
-                    res && res.rows && res.rows.forEach(preset => preset.value._id && !preset.value._id.endsWith('.') && (presets[preset.value._id] = preset.value));
+                    res && res.rows && res.rows.forEach(preset => preset.value._id && !preset.value._id.toString().endsWith('.') && (presets[preset.value._id] = preset.value));
                     newState.presets = presets;
                     newState.changingPreset = '';
 
@@ -254,7 +254,7 @@ class MenuList extends Component {
                     });
 
                     newState.presetFolders = this.buildPresetTree(presets);
-                    const showReorder = !!Object.keys(newState.presetFolders.subFolders).length;
+                    const showReorder = !!Object.keys((newState.presetFolders && newState.presetFolders.subFolders) || {}).length;
                     setTimeout(() => this.props.onShowReorder(showReorder), 200);
                     resolve(newState);
                 }
@@ -336,8 +336,8 @@ class MenuList extends Component {
 
         const reactChildren = [];
         if (parent && (presetsOpened || !parent.id)) { // root cannot be closed and have id = ''
-            const values     = Object.values(parent.presets);
-            const subFolders = Object.values(parent.subFolders);
+            const values     = Object.values(parent.presets || {});
+            const subFolders = Object.values(parent.subFolders || {});
 
             // add first sub-folders
             subFolders
@@ -402,6 +402,7 @@ class MenuList extends Component {
                 </Droppable>);
             }
         }
+
         reactChildren && reactChildren.forEach(r => result.push(r));
 
         return result;
@@ -480,13 +481,15 @@ class MenuList extends Component {
     }
 
     findFolder(parent, folder) {
-        if (parent.prefix === folder.prefix) {
+        if (parent && parent.prefix === folder.prefix) {
             return parent;
         }
-        for (let index in parent.subFolders) {
-            let result = this.findFolder(parent.subFolders[index], folder);
-            if (result) {
-                return result;
+        if (parent && parent.subFolders) {
+            for (let index in parent.subFolders) {
+                let result = this.findFolder(parent.subFolders[index], folder);
+                if (result) {
+                    return result;
+                }
             }
         }
     }
@@ -565,7 +568,7 @@ class MenuList extends Component {
                     </Button>
                     <Button
                         variant="contained"
-                        disabled={!this.state.addPresetFolderName || Object.keys(this.state.presetFolders.subFolders || {}).find(name => name === this.state.addPresetFolderName)}
+                        disabled={!this.state.addPresetFolderName || Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {}).find(name => name === this.state.addPresetFolderName)}
                         onClick={() =>
                             this.addFolder(null, this.state.addPresetFolderName)
                                 .then(() => this.props.onClosePresetFolderDialog())
@@ -584,7 +587,7 @@ class MenuList extends Component {
             return null;
         }
 
-        const isUnique = !Object.keys(this.state.presetFolders.subFolders).find(folder => folder.id === this.state.editPresetFolderName);
+        const isUnique = !Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {}).find(folder => folder.id === this.state.editPresetFolderName);
 
         return <Dialog
             maxWidth="md"
@@ -659,7 +662,7 @@ class MenuList extends Component {
                             this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))
                         }
                     >
-                        { getFolderList(this.state.presetFolders).map(folder =>
+                        { getFolderList(this.state.presetFolders || {}).map(folder =>
                             <MenuItem
                                 key={ folder.prefix }
                                 value={ folder.prefix || '__root__' }

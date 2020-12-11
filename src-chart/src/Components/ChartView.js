@@ -147,7 +147,7 @@ class ChartView extends React.Component {
                 chartInstance.clear();
             }
 
-            this.option = this.chartOption.getOption(props.data, props.config);
+            this.option = this.chartOption.getOption(props.data, props.config, props.actualValues);
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties: {min: ${this.option.xAxis[0].min}, ${this.option.xAxis[0].max}}`);
             try {
                 chartInstance.setOption(this.option, changed);
@@ -433,9 +433,9 @@ class ChartView extends React.Component {
 
     renderChart() {
         if (this.props.data) {
-            this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config);
+            this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config, this.props.actualValues);
 
-            console.log(JSON.stringify(this.option, null, 2));
+            // console.log(JSON.stringify(this.option, null, 2));
 
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 
@@ -527,7 +527,7 @@ class ChartView extends React.Component {
                                 `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.svg`;
                             downloadLink.click();
                         } catch (e) {
-                            console.error('Cannot access download: ' + e);
+                            console.error(`Cannot access download: ${e}`);
                             window.alert(I18n.t('Unfortunately your browser does not support this feature'));
                         }
                     }
@@ -571,6 +571,7 @@ ChartView.propTypes = {
     config: PropTypes.object,
     themeType: PropTypes.string,
     data: PropTypes.array,
+    actualValues: PropTypes.array,
     noAnimation: PropTypes.bool,
     onRangeChange: PropTypes.func,
 };

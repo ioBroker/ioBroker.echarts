@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.4",
+        "version": "0.4.5",
         "news": {
+            "0.4.5": {
+                "en": "Some sentry errors were corrected.\nAdded the possibility to show actual values in legend.",
+                "de": "Einige Wachfehler wurden korrigiert.\nEs wurde die Möglichkeit hinzugefügt, tatsächliche Werte in der Legende anzuzeigen.",
+                "ru": "Исправлены некоторые сторожевые ошибки.\nДобавлена возможность отображать фактические значения в легенде.",
+                "pt": "Alguns erros de sentinela foram corrigidos.\nAdicionada a possibilidade de mostrar valores reais na legenda.",
+                "nl": "Enkele schildwachtfouten werden gecorrigeerd.\nMogelijkheid toegevoegd om werkelijke waarden in legenda te tonen.",
+                "fr": "Certaines erreurs de sentinelle ont été corrigées.\nAjout de la possibilité d'afficher les valeurs réelles dans la légende.",
+                "it": "Alcuni errori di sentinella sono stati corretti.\nAggiunta la possibilità di mostrare i valori effettivi nella legenda.",
+                "es": "Se corrigieron algunos errores de centinela.\nAñadida la posibilidad de mostrar valores reales en leyenda.",
+                "pl": "Niektóre błędy wartowników zostały poprawione.\nDodano możliwość pokazania rzeczywistych wartości w legendzie.",
+                "zh-cn": "一些哨兵错误已得到纠正。\n添加了在图例中显示实际值的可能性。"
+            },
             "0.4.4": {
                 "en": "Some sentry errors were corrected.",
                 "de": "Einige Wachfehler wurden korrigiert.",

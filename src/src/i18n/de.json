@@ -441,11 +441,14 @@
   "Reorder presets in folders": "Presets in Ordnern neu anordnen",
   "Hide nulls in tooltip": "Nullen im Tooltip ausblenden",
   "X ticks color": "X-Strichfarbe",
-  "Y ticks color": "Y-Schtrichfarbe",
+  "Y ticks color": "Y-Strichfarbe",
   "Border width": "Rahmenbreite",
   "Border padding": "Randabstand",
   "Copy": "Kopieren",
   "No background": "Kein Hintergrund",
   "standard": "Standard",
-  "Open in own window": "In eigenem Fenster öffnen"
+  "Open in own window": "In eigenem Fenster öffnen",
+  "Show values": "Werte anzeigen",
+  "copied": "kopiert",
+  "You can create a new markings with a \"+\" on the right.": "Man kann neue Markierungen mit einem \"+\" rechts erstellen."
 }

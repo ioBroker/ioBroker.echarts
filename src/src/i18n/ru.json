@@ -447,5 +447,8 @@
   "Copy": "Копировать",
   "No background": "Без фона",
   "standard": "стандарт",
-  "Open in own window": "Открыть в собственном окне"
+  "Open in own window": "Открыть в собственном окне",
+  "Show values": "Показать значения",
+  "copied": "скопировано",
+  "You can create a new markings with a \"+\" on the right.": "Вы можете создать новую маркировку знаком «+» справа."
 }

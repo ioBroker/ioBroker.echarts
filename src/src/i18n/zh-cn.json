@@ -447,5 +447,8 @@
   "Copy": "复制",
   "No background": "没有背景",
   "standard": "标准",
-  "Open in own window": "在自己的窗口中打开"
+  "Open in own window": "在自己的窗口中打开",
+  "Show values": "显示数值",
+  "copied": "复制的",
+  "You can create a new markings with a \"+\" on the right.": "您可以在右侧创建带有“ +”的新标记。"
 }

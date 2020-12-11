@@ -657,8 +657,9 @@ class ChartOption {
         return `<b>${this.moment(date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
     }
 
-    getLegend(xAxisHeight) {
+    getLegend(xAxisHeight, actualValues) {
         return !this.config.legend || this.config.legend === 'none' ? undefined : {
+            //data:   this.config.l.map(oneLine => oneLine.name),
             data:   this.config.l.map(oneLine => oneLine.name),
             show:   true,
             left:   this.config.legend === 'nw' || this.config.legend === 'sw' ?  this.chart.padLeft  + 1 : undefined,
@@ -666,6 +667,16 @@ class ChartOption {
             top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  10 : undefined,
             bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
             backgroundColor: this.config.legBg || undefined,
+            formatter: (name, arg) => {
+                if (this.config.legActual && actualValues) {
+                    for (let i = 0; i < this.config.l.length; i++) {
+                        if (this.config.l[i].name === name) {
+                            return `${name} [${this.yFormatter(actualValues[i], i, true)}]`;
+                        }
+                    }
+                }
+                return name;
+            },
             textStyle: {
                 color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF')
             },
@@ -697,7 +708,7 @@ class ChartOption {
         };
     }
 
-    getOption(data, config) {
+    getOption(data, config, actualValues) {
         if (config) {
             this.config = JSON.parse(JSON.stringify(config));
         }
@@ -830,16 +841,16 @@ class ChartOption {
                 }
             }
         });
-        option.grid.left = padLeft + 10;
-        option.grid.right = padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
-        this.chart.padLeft = option.grid.left;
+        option.grid.left    = padLeft  + 10;
+        option.grid.right   = padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
+        this.chart.padLeft  = option.grid.left;
         this.chart.padRight = option.grid.right;
 
         // 'nw': 'Top, left',
         // 'ne': 'Top, right',
         // 'sw': 'Bottom, left',
         // 'se': 'Bottom, right',
-        option.legend = this.getLegend(xAxisHeight);
+        option.legend = this.getLegend(xAxisHeight, actualValues);
         option.title  = this.getTitle(xAxisHeight);
 
         if (!this.config.grid_color) {

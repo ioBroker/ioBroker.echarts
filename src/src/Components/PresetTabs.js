@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { ChromePicker } from 'react-color'
 
-
 import IconButton from '@material-ui/core/IconButton';
 import TabList from '@material-ui/lab/TabList';
 import Tab from '@material-ui/core/Tab';
@@ -20,16 +19,19 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
+import Snackbar from '@material-ui/core/Snackbar';
 
 import {MdAdd as IconAdd} from 'react-icons/md';
 import {MdSave as IconSave} from 'react-icons/md';
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
 import {MdExpandMore as IconExpand} from 'react-icons/md';
-import ClearIcon from '@material-ui/icons/Close';
+import IconClear from '@material-ui/icons/Close';
 import {MdFullscreen as IconNewWindow} from 'react-icons/md';
+import IconClose from '@material-ui/icons/Close';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import Utils from '@iobroker/adapter-react/Components/Utils';
+import IconCopy from '@iobroker/adapter-react/Components/CopyIcon';
 
 import {IOTextField, IOCheckbox, IOSelect, IODateTimeField} from './Fields';
 import Line from './Line';
@@ -119,6 +121,12 @@ const styles = theme => ({
         marginBottom: 0,
         paddingRight: 10,
     },
+    buttonCopyLink: {
+        minHeight: 30,
+        marginTop: 20,
+        marginBottom: 10,
+        marginLeft: theme.spacing(2),
+    }
 });
 
 const PREDEFINED_COLORS_MARKS = [
@@ -155,7 +163,19 @@ class PresetTabs extends React.Component {
             deleteMarkDialog: null,
             showColorDialog: false,
             colorDialogValue: '',
+            webInstances: [],
+            toast: '',
         };
+
+        this.props.socket.getAdapterInstances('web')
+            .then(instances => {
+                const webInstances = instances.map(obj => ({
+                    index: obj._id.split('.').pop(),
+                    link: `http${obj.native.secure ? 's' : ''}://${obj.native.bind === '0.0.0.0' ? window.location.hostname : obj.native.bind}:${obj.native.port}`}))
+
+                this.setState({webInstances});
+            });
+
         this.colorPickerCb = null;
     }
 
@@ -548,6 +568,34 @@ class PresetTabs extends React.Component {
         </TabPanel>;
     }
 
+    renderToast() {
+        if (!this.state.toast) {
+            return null;
+        }
+        return <Snackbar
+            anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+            }}
+            open={true}
+            autoHideDuration={2000}
+            onClose={() => this.setState({toast: ''})}
+            ContentProps={{'aria-describedby': 'message-id'}}
+            message={<span id="message-id">{this.state.toast}</span>}
+            action={[
+                <IconButton
+                    key="close"
+                    aria-label="Close"
+                    color="inherit"
+                    className={this.props.classes.close}
+                    onClick={() => this.setState({toast: ''})}
+                >
+                    <IconClose />
+                </IconButton>,
+            ]}
+        />;
+    }
+
     renderTabOptions() {
         return <TabPanel value="3" classes={{root: this.props.classes.tabContent}}>
             <div className={this.props.classes.group}>
@@ -560,12 +608,13 @@ class PresetTabs extends React.Component {
                     'se': 'Bottom, right',
                 }}/>
                 {this.props.presetData.legend ?
-                <>
-                    {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" />*/}
-                    {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity (0-1)" name="legBgOpacity" />*/}
-                    {this.renderColorField(this.props.presetData, this.updateField, 'Legend text color', 'legColor')}
-                    {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
-                </> : null}
+                    <>
+                        {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" />*/}
+                        {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity (0-1)" name="legBgOpacity" />*/}
+                        {this.renderColorField(this.props.presetData, this.updateField, 'Legend text color', 'legColor')}
+                        {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
+                        <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show values'} name="legActual" />
+                    </> : null}
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Options')}</p>
@@ -576,6 +625,32 @@ class PresetTabs extends React.Component {
                 {/*<IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />*/}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show export button'} name="export" />
                 {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Export button color', 'exportColor') : null}
+            </div>
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Copy link to clipboard')}</p>
+                <Button
+                    variant="contained"
+                    className={this.props.classes.buttonCopyLink}
+                    onClick={() => {
+                        const link = `${window.location.protocol}//${window.location.host}/adapter/echarts/chart/index.html?preset=${this.props.selectedId}`;
+                        this.setState({toast: I18n.t('copied') + ': ' + link}, () =>
+                            Utils.copyToClipboard(link));
+                    }}
+                >
+                    <IconCopy/>
+                    {I18n.t('admin')}
+                </Button>
+                {this.state.webInstances.map(instance =>
+                    <Button
+                        variant="contained"
+                        className={this.props.classes.buttonCopyLink}
+                        onClick={() => {
+                            const link = `${instance.link}/echarts/index.html?preset=${this.props.selectedId}`;
+                            this.setState({toast: I18n.t('copied') + ': ' + link}, () =>
+                                Utils.copyToClipboard(link));
+                        }}
+
+                    ><IconCopy/>{'web.' + instance.index}</Button>)}
             </div>
         </TabPanel>;
     }
@@ -737,7 +812,7 @@ class PresetTabs extends React.Component {
                                 e.stopPropagation();
                                 this.setState({['_c_' + name]: ''}, () => onUpdate(name, ''));
                             }}>
-                            <ClearIcon />
+                            <IconClear />
                         </IconButton>
                         : undefined,
                 }}
@@ -794,6 +869,7 @@ class PresetTabs extends React.Component {
             {this.renderDeleteLineDialog()}
             {this.renderDeleteMarkDialog()}
             {this.renderColorDialog()}
+            {this.renderToast()}
         </TabContext>
     }
 }

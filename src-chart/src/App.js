@@ -45,6 +45,7 @@ class App extends Component {
         this.state = {
             connected:  false,
             seriesData: null,
+            actualValues: null,
             noLoader:   query.noLoader || queryHash.noLoader || false,
             theme:      themeInstance,
             themeName:  this.getThemeName(themeInstance),
@@ -52,7 +53,8 @@ class App extends Component {
             noBackground: query.noBG || queryHash.noBG || false,
         };
 
-        this.inEdit = query.edit     === '1' || query.edit     === 1 || query.edit     === true || query.edit === 'true' ||
+        this.inEdit =
+            query.edit     === '1' || query.edit     === 1 || query.edit     === true || query.edit     === 'true' ||
             queryHash.edit === '1' || queryHash.edit === 1 || queryHash.edit === true || queryHash.edit === 'true';
 
         this.divRef      = React.createRef();
@@ -170,9 +172,13 @@ class App extends Component {
             }
         });
         this.chartData.onReading(reading => this.showProgress(reading));
-        this.chartData.onUpdate(seriesData =>
-            this.setState({seriesData, connected: true, dataLoaded: true}, () =>
-                this.showProgress(false)));
+        this.chartData.onUpdate((seriesData, actualValues) => {
+            const newState = {connected: true, dataLoaded: true};
+            seriesData   && (newState.seriesData   = seriesData);
+            actualValues && (newState.actualValues = actualValues);
+            this.setState(newState, () =>
+                this.showProgress(false));
+        });
     }
 
     showProgress(isShow) {
@@ -282,6 +288,7 @@ class App extends Component {
                     t={I18n.t}
                     noAnimation={this.state.noLoader}
                     data={this.state.seriesData}
+                    actualValues={this.state.actualValues}
                     config={config}
                     lang={I18n.getLanguage()}
                     themeType={this.state.themeType}

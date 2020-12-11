@@ -447,5 +447,8 @@
   "Copy": "Copiar",
   "No background": "Sin antecedentes",
   "standard": "estándar",
-  "Open in own window": "Abrir en su propia ventana"
+  "Open in own window": "Abrir en su propia ventana",
+  "Show values": "Mostrar valores",
+  "copied": "copiado",
+  "You can create a new markings with a \"+\" on the right.": "Puede crear nuevas marcas con un \"+\" a la derecha."
 }
