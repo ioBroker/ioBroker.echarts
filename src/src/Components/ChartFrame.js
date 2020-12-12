@@ -126,7 +126,7 @@ class ChartFrame extends React.Component {
         if (message && message.data === 'chartReady') {
             this.ready = true;
             this.lastPresetData = JSON.stringify(this.props.presetData);
-            this.refIframe.contentWindow.postMessage(this.lastPresetData);
+            this.refIframe.contentWindow.postMessage(this.lastPresetData,'*');
             console.log('Received ready from iframe');
         }
     };

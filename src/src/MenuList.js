@@ -88,7 +88,7 @@ class MenuList extends Component {
                 title={ I18n.t('Create new preset') }
             ><IconAdd/></IconButton> : null}
 
-                {!this.state.reorder ? <IconButton
+            {!this.state.reorder ? <IconButton
                 onClick={ () => this.setState({addPresetFolderDialog: true}) }
                 title={ I18n.t('Create new folder') }
             ><IconFolderAdd/></IconButton> : null}
@@ -98,6 +98,7 @@ class MenuList extends Component {
                     <SearchIcon/>
                 </IconButton>
             </span> : null}
+
             {this.state.showSearch ?
                 <TextField
                     value={ this.state.search }
@@ -115,7 +116,7 @@ class MenuList extends Component {
             }
             <div style={{flexGrow: 1}}/>
 
-            {!this.state.showSearch && this.state.showReorder ? <IconButton
+            {(!this.state.showSearch && this.state.showReorder) || this.state.reorder ? <IconButton
                 key="reorder"
                 title={I18n.t('Reorder presets in folders')}
                 className={this.props.classes.toolbarButtons}
@@ -125,10 +126,12 @@ class MenuList extends Component {
                     this.setState({reorder: !this.state.reorder});
                 }}
             ><IconReorder/></IconButton> : null }
+
             {!this.state.showSearch && this.isIFrame ? <IconButton
-            onClick={ () => window.open(window.location.href, 'own-echarts') }
-            title={ I18n.t('Open in own window') }
-            ><IconNewWindow/></IconButton> : null}
+                onClick={ () => window.open(window.location.href, 'own-echarts') }
+                title={ I18n.t('Open in own window') }
+                ><IconNewWindow/></IconButton> : null
+            }
         </Toolbar>;
     }
 
@@ -183,9 +186,9 @@ class MenuList extends Component {
                 <PresetsTree
                     socket={this.props.socket}
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
-                    onClosePresetFolderDialog={() => this.setState({addPresetFolderDialog: false})}
-                    onCreatePreset={this.props.onCreatePreset}
-                    onCopyPreset={this.props.onCopyPreset}
+                    onClosePresetFolderDialog={cb => this.setState({addPresetFolderDialog: false}, cb)}
+                    onCreatePreset={(isFromCurrentSelection, parent) => this.props.onCreatePreset(isFromCurrentSelection, parent)}
+                    onCopyPreset={id => this.props.onCopyPreset(id)}
                     adapterName={this.props.adapterName}
                     selectedPresetChanged={this.props.selectedPresetChanged}
                     onShowToast={toast => this.props.onShowToast(toast)}

@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.5",
+        "version": "0.4.6",
         "news": {
+            "0.4.6": {
+                "en": "Allowed the same names in different folders",
+                "de": "Erlaubt die gleichen Namen in verschiedenen Ordnern",
+                "ru": "Допускаются одинаковые имена в разных папках",
+                "pt": "Permitido os mesmos nomes em pastas diferentes",
+                "nl": "Toegestaan dezelfde namen in verschillende mappen",
+                "fr": "Autorisé les mêmes noms dans différents dossiers",
+                "it": "Consentiti gli stessi nomi in cartelle diverse",
+                "es": "Permitido los mismos nombres en diferentes carpetas",
+                "pl": "Dozwolone te same nazwy w różnych folderach",
+                "zh-cn": "允许在不同的文件夹中使用相同的名称"
+            },
             "0.4.5": {
                 "en": "Some sentry errors were corrected.\nAdded the possibility to show actual values in legend.",
                 "de": "Einige Wachfehler wurden korrigiert.\nEs wurde die Möglichkeit hinzugefügt, tatsächliche Werte in der Legende anzuzeigen.",
@@ -253,7 +265,7 @@
             "language": "javascript",
             "views": {
                 "chart": {
-                    "map": "function(doc) { if (doc.type === 'chart') emit(doc.common.name, doc); }"
+                    "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
                 }
             }
         }

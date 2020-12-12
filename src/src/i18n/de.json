@@ -450,5 +450,7 @@
   "Open in own window": "In eigenem Fenster öffnen",
   "Show values": "Werte anzeigen",
   "copied": "kopiert",
-  "You can create a new markings with a \"+\" on the right.": "Man kann neue Markierungen mit einem \"+\" rechts erstellen."
+  "You can create a new markings with a \"+\" on the right.": "Man kann neue Markierungen mit einem \"+\" rechts erstellen.",
+  "Copy link to clipboard": "Link in Zwischenablage kopieren",
+  "No presets created yet": "Noch keine Presets erstellt"
 }

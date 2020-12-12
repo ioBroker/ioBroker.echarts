@@ -263,6 +263,8 @@ class ChartModel {
             this.onPresetUpdateBound = this.onPresetUpdate.bind(this);
         }
 
+        this.onStateChangeBound = this.onStateChange.bind(this);
+
         this.socket.getSystemConfig()
             .catch(e => {
                 e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
@@ -454,7 +456,7 @@ class ChartModel {
 
     destroy() {
         if (this.subscribed) {
-            this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChange));
+            this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChangeBound));
             this.subscribes = [];
             this.subscribed = null;
         }
@@ -757,7 +759,7 @@ class ChartModel {
                             if (!this.subscribes.includes(id)) {
                                 this.subscribes.push(id);
                                 this.subscribed = true;
-                                this.socket.subscribeState(id, this.onStateChange);
+                                this.socket.subscribeState(id, this.onStateChangeBound);
                             }
                         })
                 } else {
@@ -977,12 +979,12 @@ class ChartModel {
         if (!subscribes || !subscribes.length || s >= subscribes.length) {
             cb();
         } else {
-            this.socket.subscribeState(subscribes[s], this.onStateChange);
+            this.socket.subscribeState(subscribes[s], this.onStateChangeBound);
             setTimeout(() => this.subscribeAll(subscribes, cb, s + 1), 0);
         }
     }
 
-    onStateChange = (id, state) => {
+    onStateChange(id, state) {
         if (!id || !state || !this.actualValues || this.reading) {
             return;
         }

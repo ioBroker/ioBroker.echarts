@@ -177,11 +177,11 @@ class App extends GenericApp {
             .catch(e => this.onError(e, 'Cannot read system config'));
     }
 
-    getNewPresetName(prefix, index) {
+    getNewPresetName(parentId, prefix, index) {
         index  = index  || (prefix ? '' : '1');
         prefix = prefix || 'preset_';
 
-        return this.socket.getObject(prefix + index)
+        return this.socket.getObject(`${this.adapterName}.${this.instance}.${parentId ? parentId + '.' : ''}${prefix}${index}`)
             .then(obj => {
                 if (!obj) {
                     return prefix + index;
@@ -191,7 +191,7 @@ class App extends GenericApp {
                     } else {
                         index++;
                     }
-                    return this.getNewPresetName(prefix, index);
+                    return this.getNewPresetName(parentId, prefix, index);
                 }
             })
             .catch(e => prefix + index);
@@ -257,7 +257,7 @@ class App extends GenericApp {
                         name = (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim();
                     }
 
-                    return this.getNewPresetName(name)
+                    return this.getNewPresetName(parentId, name)
                         .then(name => {
                             let template = {
                                 common: {
@@ -280,7 +280,7 @@ class App extends GenericApp {
 
         } else {
             // create empty preset
-            return this.getNewPresetName()
+            return this.getNewPresetName(parentId)
                 .then(name => {
                     let template = {
                         common: {

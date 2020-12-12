@@ -638,10 +638,11 @@ class PresetTabs extends React.Component {
                     }}
                 >
                     <IconCopy/>
-                    {I18n.t('admin')}
+                    admin
                 </Button>
-                {this.state.webInstances.map(instance =>
+                {this.state.webInstances.map((instance, i) =>
                     <Button
+                        key={i}
                         variant="contained"
                         className={this.props.classes.buttonCopyLink}
                         onClick={() => {

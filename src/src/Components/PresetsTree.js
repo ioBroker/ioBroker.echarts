@@ -188,9 +188,9 @@ class MenuList extends Component {
             movePresetDialog: null,
             newPresetFolder: '',
             addPresetFolderDialog: null,
-            addPresetFolderName: null,
+            addPresetFolderName: '',
             editPresetFolderDialog: null,
-            editPresetFolderName: null,
+            editPresetFolderName: '',
         };
 
         this.getAllPresets()
@@ -209,31 +209,58 @@ class MenuList extends Component {
         if (!id || !id.startsWith('echarts.')) {
             return;
         }
-        const presets = JSON.parse(JSON.stringify(this.state.presets));
+        let presets;
         let changed = false;
         if (obj) {
             obj.common = obj.common || {};
             obj.native = obj.native || {};
-            if (JSON.stringify(obj) !== JSON.stringify(presets[id])) {
+            if (JSON.stringify(obj) !== JSON.stringify(this.state.presets[id])) {
+                presets = JSON.parse(JSON.stringify(this.state.presets));
                 presets[id] = obj;
                 changed = true;
             }
-        } else if (presets[id]) {
+        } else if (this.state.presets[id]) {
+            presets = JSON.parse(JSON.stringify(this.state.presets));
             delete presets[id];
             changed = true;
         }
 
         if (changed) {
-            const newState = {presets, changingPreset: '', presetFolders: this.buildPresetTree(presets)};
-            const showReorder = !!Object.keys((newState.presetFolders && newState.presetFolders.subFolders) || {}).length;
-            setTimeout(() => this.props.onShowReorder(showReorder), 200);
+            const emptyFolders = this.getEmptyFolders();
+            const newState = {presets, changingPreset: '', presetFolders: this.buildPresetTree(presets, emptyFolders)};
+            setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
             this.setState(newState);
         }
     };
 
+    informAboutSubFolders(presetFolders) {
+        presetFolders = presetFolders || this.state.presetFolders || {};
+        this.props.onShowReorder(!!Object.keys(presetFolders.subFolders || {}).length);
+    }
+
+    getEmptyFolders(presetFolders, _path, _result) {
+        _result = _result || [];
+        _path   = _path   || [];
+        presetFolders = presetFolders || this.state.presetFolders || {};
+
+        if (presetFolders.id/* && !Object.keys(presetFolders.subFolders).length && !Object.keys(presetFolders.presets).length*/) {
+            const __path = [..._path];
+            __path.push(presetFolders.id)
+            _result.push(__path.join('.'));
+        }
+
+        if (presetFolders.subFolders) {
+            Object.keys(presetFolders.subFolders).forEach(name =>
+                this.getEmptyFolders(presetFolders.subFolders[name], _path, _result));
+        }
+
+        return _result;
+    }
+
     getAllPresets(newState) {
         newState = newState || {};
         let presets = {};
+
         return new Promise((resolve, reject) =>
             this.props.socket.getRawSocket().emit('getObjectView', 'chart', 'chart', {
                 startkey: this.props.adapterName + '.',
@@ -253,9 +280,10 @@ class MenuList extends Component {
                         presetObj.native = presetObj.native || {};
                     });
 
-                    newState.presetFolders = this.buildPresetTree(presets);
-                    const showReorder = !!Object.keys((newState.presetFolders && newState.presetFolders.subFolders) || {}).length;
-                    setTimeout(() => this.props.onShowReorder(showReorder), 200);
+                    // store all empty folders
+                    const emptyFolders = this.getEmptyFolders();
+                    newState.presetFolders = this.buildPresetTree(presets, emptyFolders);
+                    setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
                     resolve(newState);
                 }
             }));
@@ -352,7 +380,7 @@ class MenuList extends Component {
                     .forEach(preset =>
                         reactChildren.push(this.renderTreePreset(preset, level + 1, subFolders.length)));
             } else {
-                reactChildren.push(<ListItem classes={ {gutters: this.props.classes.noGutters} }>
+                reactChildren.push(<ListItem key="no presets" classes={ {gutters: this.props.classes.noGutters} }>
                     <ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText>
                 </ListItem>);
             }
@@ -441,18 +469,20 @@ class MenuList extends Component {
             });
     }
 
-    isNameUnique(name) {
-        return !Object.keys(this.state.presets).find(id => this.state.presets[id].common.name === name);
+    isNameUnique(presetId, name) {
+        const len = presetId.split('.').length;
+        return !Object.keys(this.state.presets)
+            .find(id => len === id.split('.').length && this.state.presets[id].common.name === name);
     }
 
-    buildPresetTree(presets) {
+    buildPresetTree(presets, emptyFolders) {
         // console.log(presets);
         presets = Object.values(presets);
 
         let presetFolders = {subFolders: {}, presets: {}, id: '', prefix: ''};
 
         // create missing folders
-        presets.forEach((preset) => {
+        presets.forEach(preset => {
             let id = preset._id;
             const parts = id.split('.');
             parts.shift();
@@ -477,6 +507,30 @@ class MenuList extends Component {
             currentFolder.presets[id] = preset;
         });
 
+        if (emptyFolders && emptyFolders.length) {
+            emptyFolders.forEach(id => {
+                const parts = id.split('.');
+                let currentFolder = presetFolders;
+                let prefix = '';
+                for (let i = 0; i < parts.length; i++) {
+                    if (prefix) {
+                        prefix = prefix + '.';
+                    }
+                    prefix = prefix + parts[i];
+                    if (!currentFolder.subFolders[parts[i]]) {
+                        currentFolder.subFolders[parts[i]] = {
+                            subFolders: {},
+                            presets: {},
+                            id: parts[i],
+                            prefix,
+                        }
+                    }
+                    currentFolder = currentFolder.subFolders[parts[i]];
+                }
+            });
+        }
+
+
         return presetFolders;
     }
 
@@ -486,9 +540,11 @@ class MenuList extends Component {
         }
         if (parent && parent.subFolders) {
             for (let index in parent.subFolders) {
-                let result = this.findFolder(parent.subFolders[index], folder);
-                if (result) {
-                    return result;
+                if (parent.subFolders.hasOwnProperty(index)) {
+                    let result = this.findFolder(parent.subFolders[index], folder);
+                    if (result) {
+                        return result;
+                    }
                 }
             }
         }
@@ -556,7 +612,8 @@ class MenuList extends Component {
                         onKeyPress={e => {
                             if (this.state.addPresetFolderName && e.which === 13) {
                                 this.addFolder(null, this.state.addPresetFolderName)
-                                    .then(() => this.props.onClosePresetFolderDialog());
+                                    .then(() => this.props.onClosePresetFolderDialog(() =>
+                                        this.informAboutSubFolders()));
                             }
                         }}
                     />
@@ -568,10 +625,11 @@ class MenuList extends Component {
                     </Button>
                     <Button
                         variant="contained"
-                        disabled={!this.state.addPresetFolderName || Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {}).find(name => name === this.state.addPresetFolderName)}
+                        disabled={!this.state.addPresetFolderName || !!Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {}).find(name => name === this.state.addPresetFolderName)}
                         onClick={() =>
                             this.addFolder(null, this.state.addPresetFolderName)
-                                .then(() => this.props.onClosePresetFolderDialog())
+                                .then(() => this.props.onClosePresetFolderDialog(() =>
+                                    this.informAboutSubFolders()))
                         }
                         color="primary" autoFocus
                     >
@@ -587,7 +645,8 @@ class MenuList extends Component {
             return null;
         }
 
-        const isUnique = !Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {}).find(folder => folder.id === this.state.editPresetFolderName);
+        const isUnique = !Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {})
+            .find(folder => folder.id === this.state.editPresetFolderName);
 
         return <Dialog
             maxWidth="md"
@@ -706,6 +765,7 @@ class MenuList extends Component {
             if (this.state.presets[newId]) {
                 newId += '_' + I18n.t('copy');
             }
+
             this.props.socket.getObject(source)
                 .then(obj => {
                     if (obj) {
@@ -743,7 +803,7 @@ class MenuList extends Component {
                         value={ this.state.renamePresetDialogTitle }
                         onChange={ e => this.setState({renamePresetDialogTitle: e.target.value})}
                         onKeyPress={e => {
-                            if (this.isNameUnique(this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle && e.which === 13) {
+                            if (this.isNameUnique(presetId, this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle && e.which === 13) {
                                 this.setState({renameDialog: null}, () =>
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle));
                             }
@@ -758,7 +818,7 @@ class MenuList extends Component {
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={ !this.state.renamePresetDialogTitle || !this.isNameUnique(this.state.renamePresetDialogTitle) }
+                    disabled={ !this.state.renamePresetDialogTitle || !this.isNameUnique(presetId, this.state.renamePresetDialogTitle) }
                     color="primary" onClick={() =>
                     this.setState({renameDialog: null}, () =>
                         this.renamePreset(presetId, this.state.renamePresetDialogTitle))

@@ -450,5 +450,7 @@
   "Open in own window": "Otwórz we własnym oknie",
   "Show values": "Pokaż wartości",
   "copied": "skopiowane",
-  "You can create a new markings with a \"+\" on the right.": "Możesz utworzyć nowe oznaczenia ze znakiem „+” po prawej stronie."
+  "You can create a new markings with a \"+\" on the right.": "Możesz utworzyć nowe oznaczenia ze znakiem „+” po prawej stronie.",
+  "Copy link to clipboard": "Skopiuj link do schowka",
+  "No presets created yet": "Nie utworzono jeszcze żadnych ustawień wstępnych"
 }

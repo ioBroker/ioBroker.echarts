@@ -128,7 +128,7 @@ class App extends Component {
                             window.addEventListener('message', this.onReceiveMessage);
                             if (window.self !== window.parent) {
                                 try {
-                                    window.parent.postMessage('chartReady');
+                                    window.parent.postMessage('chartReady','*');
                                 } catch (e) {
                                     console.warn('Cannot send ready event to parent window');
                                     console.error(e);

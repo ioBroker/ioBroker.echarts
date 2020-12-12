@@ -234,6 +234,15 @@ function processMessage(adapter, obj) {
 }
 
 function main(adapter) {
+    // fix _design/chart
+    adapter.getForeignObject('_design/chart', (err, obj) => {
+        const _obj = require('./io-package.json').objects.find(ob => ob._id === '_design/chart');
+        if (obj && _obj && JSON.stringify(obj.views) !== JSON.stringify(_obj.views)) {
+            obj.views = _obj.views;
+            adapter.setForeignObject('_design/chart', _obj);
+        }
+    });
+
     // enabled mode daemon and message box
     adapter.getForeignObject('system.adapter.' + adapter.namespace, (err, obj) => {
         if (obj && obj.common && (obj.common.mode !== 'daemon' || !obj.common.messagebox)) {
