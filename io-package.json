@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.6",
+        "version": "0.4.7",
         "news": {
+            "0.4.7": {
+                "en": "Updated the select ID dialog",
+                "de": "Das Dialogfeld \"ID auswählen\" wurde aktualisiert",
+                "ru": "Обновлен диалог выбора идентификатора.",
+                "pt": "Atualizado a caixa de diálogo de seleção de ID",
+                "nl": "Het dialoogvenster ID selecteren bijgewerkt",
+                "fr": "Mise à jour de la boîte de dialogue de sélection d'ID",
+                "it": "Aggiornata la finestra di dialogo Seleziona ID",
+                "es": "Se actualizó el cuadro de diálogo Seleccionar ID",
+                "pl": "Zaktualizowano okno dialogowe wyboru identyfikatora",
+                "zh-cn": "更新了选择ID对话框"
+            },
             "0.4.6": {
                 "en": "Allowed the same names in different folders",
                 "de": "Erlaubt die gleichen Namen in verschiedenen Ordnern",

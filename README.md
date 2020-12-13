@@ -74,6 +74,9 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### 0.4.7 (2020-12-13)
+* (bluefox) Updated the select ID dialog
+
 ### 0.4.6 (2020-12-12)
 * (bluefox) Allowed the same names in different folders
 
