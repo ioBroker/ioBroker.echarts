@@ -6,8 +6,6 @@
 [![Dependency Status](https://img.shields.io/david/ioBroker/iobroker.echarts.svg)](https://david-dm.org/ioBroker/iobroker.echarts)
 [![Known Vulnerabilities](https://snyk.io/test/github/ioBroker/ioBroker.echarts/badge.svg)](https://snyk.io/test/github/ioBroker/ioBroker.echarts)
 
-[![NPM](https://nodei.co/npm/iobroker.echarts.png?downloads=true)](https://nodei.co/npm/iobroker.echarts/)
-
 ## echarts adapter for ioBroker
 Build useful charts in ioBroker:
 

@@ -139,7 +139,7 @@ class ChartFrame extends React.Component {
         } else {
             if (this.lastPresetData !== JSON.stringify(this.props.presetData) && this.ready) {
                 this.lastPresetData = JSON.stringify(this.props.presetData);
-                this.refIframe.contentWindow.postMessage(this.lastPresetData);
+                this.refIframe.contentWindow.postMessage(this.lastPresetData, '*');
             }
 
             return <iframe ref={el => this.refIframe = el}
