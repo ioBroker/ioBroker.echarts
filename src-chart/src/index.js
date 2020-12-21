@@ -35,7 +35,37 @@ if (window.location.host !== 'localhost:3000') {
     Sentry.init({
         dsn: 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95',
         release: 'iobroker.' + window.adapterName + '@' + version,
-        integrations: [new SentryIntegrations.Dedupe()],
+        integrations: [
+            new SentryIntegrations.Dedupe()
+        ],
+        beforeSend: function (event, hint) {
+            let ignore = false;
+
+            // ignore errors from echarts lib
+            if (event.exception &&
+                event.exception.values &&
+                event.exception.values[0]) {
+                if (event.exception.values[0].type === 'NS_ERROR_FAILURE') {
+                    ignore = true;
+                } else if (event.exception.values[0].value) {
+                    if (event.exception.values[0].value.includes('Microsoft YaHei')) {
+                        ignore = true;
+                    } else if (event.exception.values[0].value === 'ResizeObserver loop completed with undelivered notifications.') {
+                        ignore = true;
+                    } else if (event.exception.values[0].value === `undefined is not an object (evaluating 't.get')`) {
+                        ignore = true;
+                    } else if (event.exception.values[0].value === `Cannot read property 'get' of undefined`) {
+                        ignore = true;
+                    } else if (event.exception.values[0].value === `this.painter is null`) {
+                        ignore = true;
+                    } else if (event.exception.values[0].value.includes('ioBroker is not connected')) {
+                        ignore = true;
+                    }
+                }
+            }
+
+            return ignore ? null : event;
+        },
     });
 }
 

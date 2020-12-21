@@ -154,6 +154,15 @@ class PresetTabs extends React.Component {
     constructor(props) {
         super(props);
 
+        let copiedObject = window.sessionStorage.getItem('echarts.copiedObject');
+        if (copiedObject) {
+            try {
+                copiedObject = JSON.parse(copiedObject)
+            } catch (e) {
+                copiedObject = null;
+            }
+        }
+
         this.state = {
             presetData: DefaultPreset.getDefaultPreset(this.props.systemConfig),
             selectedTab: window.localStorage.getItem('App.echarts.presetTabs.selectedTab') !== null ? window.localStorage.getItem('App.echarts.presetTabs.selectedTab') : '0',
@@ -165,6 +174,7 @@ class PresetTabs extends React.Component {
             colorDialogValue: '',
             webInstances: [],
             toast: '',
+            copiedObject,
         };
 
         this.props.socket.getAdapterInstances('web')
@@ -236,13 +246,17 @@ class PresetTabs extends React.Component {
         this.setState({marksOpened: []});
     };
 
-    addMark = () => {
-        const len = this.props.presetData.marks.length;
-        const color = PREDEFINED_COLORS_MARKS[len % PREDEFINED_COLORS_MARKS.length];
+    addMark(data) {
         let presetData = JSON.parse(JSON.stringify(this.props.presetData));
-        presetData.marks.push({color});
+        if (data) {
+            presetData.marks.push(JSON.parse(JSON.stringify(data)));
+        } else {
+            const len = this.props.presetData.marks.length;
+            const color = PREDEFINED_COLORS_MARKS[len % PREDEFINED_COLORS_MARKS.length];
+            presetData.marks.push({color});
+        }
         this.props.onChange(presetData);
-    };
+    }
 
     deleteMark = index => {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
@@ -253,14 +267,18 @@ class PresetTabs extends React.Component {
             this.props.onChange(presetData));
     };
 
-    addLine = () => {
-        const len = this.props.presetData.lines.length;
+    addLine(data) {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
-        const line = DefaultPreset.getDefaultLine(this.props.systemConfig);
-        line.xaxe = !len ? undefined : 'off';
-        presetData.lines.push(line);
+        if (data) {
+            presetData.lines.push(JSON.parse(JSON.stringify(data)));
+        } else {
+            const len = this.props.presetData.lines.length;
+            const line = DefaultPreset.getDefaultLine(this.props.systemConfig);
+            line.xaxe = !len ? undefined : 'off';
+            presetData.lines.push(line);
+        }
         this.props.onChange(presetData);
-    };
+    }
 
     deleteLine = index => {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
@@ -350,7 +368,7 @@ class PresetTabs extends React.Component {
                     }}
                 >
                     <TabPanel value="0" classes={{root: this.props.classes.tabContent}}>
-                        <Fab onClick={this.addLine} size="small" color="secondary" className={this.props.classes.buttonAdd}         title={I18n.t('Add line to chart')}><IconAdd/></Fab>
+                        <Fab onClick={() => this.addLine()} size="small" color="secondary" className={this.props.classes.buttonAdd}         title={I18n.t('Add line to chart')}><IconAdd/></Fab>
                         {anyClosed ? <Fab onClick={this.expandAllLines}   size="small" color="default" className={this.props.classes.buttonExpandAll}  title={I18n.t('Expand all lines')}><IconExpand/></Fab> : null}
                         {anyOpened ? <Fab onClick={this.collapseAllLines} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all lines')}><IconCollapse/></Fab> : null}
                         {this.props.presetData.lines.length ? this.props.presetData.lines.map((line, index) =>
@@ -379,6 +397,10 @@ class PresetTabs extends React.Component {
                                             lineOpenToggle={this.lineOpenToggle}
                                             maxLines={this.props.presetData.lines.length}
                                             onSelectColor={(value, cb) => this.showColorPicker(value, cb)}
+                                            onCopy={line => {
+                                                this.setState({copiedObject: {type: 'line', data: JSON.parse(JSON.stringify(line))}});
+                                                window.sessionStorage.setItem('echarts.copiedObject', JSON.stringify({type: 'line', data: line}));
+                                            }}
                                         />
                                     </div>
                                 }
@@ -388,6 +410,19 @@ class PresetTabs extends React.Component {
                                 {I18n.t('Create a new line with a "+" on the right.')}
                             </div>
                         }
+                        {this.state.copiedObject && this.state.copiedObject.type === 'line' ?
+                            <Line
+                                presetData={this.props.presetData}
+                                line={this.state.copiedObject.data}
+                                theme={this.props.theme}
+                                instances={this.props.instances}
+                                systemConfig={this.props.systemConfig}
+                                width={this.props.width}
+                                deleteLine={() => this.setState({copiedObject: null})}
+                                key="copiedLine"
+                                opened={false}
+                                onPaste={() => this.addLine(this.state.copiedObject.data)}
+                            /> : null}
                         <div className={this.props.classes.dragHint}>{I18n.t('You can drag and drop simple lines from the left list.')}</div>
                     </TabPanel>
                 </div>}
@@ -399,7 +434,7 @@ class PresetTabs extends React.Component {
         const anyOpened = this.props.presetData.marks.length > 1 && this.props.presetData.marks.find((l, i) =>  this.state.marksOpened[i]);
 
         return <TabPanel value="1" classes={{root: this.props.classes.tabContent}}>
-            <Fab onClick={this.addMark} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add marking line to chart')}>
+            <Fab onClick={() => this.addMark()} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add marking line to chart')}>
                 <IconAdd/>
             </Fab>
             {anyClosed ? <Fab onClick={this.expandAllMarks}   size="small" color="default" className={this.props.classes.buttonExpandAll}  title={I18n.t('Expand all markings')}><IconExpand/></Fab> : null}
@@ -417,11 +452,28 @@ class PresetTabs extends React.Component {
                         opened={typeof this.state.marksOpened[index] !== 'undefined' && this.state.marksOpened[index] === true}
                         markOpenToggle={this.markOpenToggle}
                         onSelectColor={(value, cb) => this.showColorPicker(value, cb)}
+                        onCopy={data => {
+                            this.setState({copiedObject: {type: 'marking', data: JSON.parse(JSON.stringify(data))}});
+                            window.sessionStorage.setItem('echarts.copiedObject', JSON.stringify({type: 'line', data}));
+                        }}
                     />) :
                     <div className={this.props.classes.noContent}>
                         {I18n.t('You can create a new markings with a "+" on the right.')}
                     </div>
             }
+            {this.state.copiedObject && this.state.copiedObject.type === 'marking' ?
+                <Mark
+                    presetData={this.props.presetData}
+                    mark={this.state.copiedObject.data}
+                    theme={this.props.theme}
+                    instances={this.props.instances}
+                    systemConfig={this.props.systemConfig}
+                    width={this.props.width}
+                    deleteMark={() => this.setState({copiedObject: null})}
+                    key="copiedMark"
+                    opened={false}
+                    onPaste={() => this.addMark(this.state.copiedObject.data)}
+                /> : null}
         </TabPanel>;
     }
 
@@ -614,11 +666,16 @@ class PresetTabs extends React.Component {
                         {this.renderColorField(this.props.presetData, this.updateField, 'Legend text color', 'legColor')}
                         {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
                         <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show values'} name="legActual" />
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Orientation" name="legendDirection" options={{
+                            '': 'horizontal',
+                            'vertical': 'vertical'
+                        }}/>
                     </> : null}
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Options')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hover details'} name="hoverDetail" />
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'No interpolate in hover'} name="hoverNoInterpolate" />
                 {this.props.presetData.hoverDetail ? <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide nulls in tooltip'} name="hoverNoNulls" /> : null}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Use comma'} name="useComma" />
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />

@@ -63,6 +63,7 @@ let IOSelect = function (props) {
         <FormControl style={{minWidth: props.minWidth || 200, width: props.width}}>
             <InputLabel shrink={true}>{ label }</InputLabel>
             <Select
+                disabled={!!props.disabled}
                 label={label}
                 style={{color: props.colors ? props.colors[props.formData[props.name]] || undefined : undefined}}
                 onChange={e => props.updateValue(props.name, e.target.value)}
@@ -82,6 +83,7 @@ let IOSelect = function (props) {
     </div>;
 };
 IOSelect.propTypes = {
+    disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     value: PropTypes.any,
@@ -95,13 +97,18 @@ export {IOSelect};
 let IOCheckbox = function (props) {
     return <div className={props.classes.fieldContainer}>
         <FormControlLabel style={{paddingTop: 10}} label={<span className={props.classes.checkBoxLabel}>{I18n.t(props.label)}</span>} control={
-            <Checkbox onChange={e => {
-                props.updateValue(props.name, e.target.checked)
-            }} checked={props.formData[props.name] || false}/>
+            <Checkbox
+                disabled={!!props.disabled}
+                onChange={e => {
+                    props.updateValue(props.name, e.target.checked)
+                }}
+                checked={props.formData[props.name] || false}
+            />
         }/>
     </div>;
 };
 IOCheckbox.propTypes = {
+    disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     value: PropTypes.any,
@@ -113,6 +120,7 @@ export {IOCheckbox};
 let IOTextField = function (props) {
     return <div className={props.classes.fieldContainer}>
         <TextField
+            disabled={!!props.disabled}
             style={{width: props.formData[props.name] ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : (props.width || '100%')}}
             label={I18n.t(props.label)}
             InputLabelProps={{shrink: true}}
@@ -122,13 +130,13 @@ let IOTextField = function (props) {
             type={props.type}
             title={props.title || ''}
             InputProps={{
-                startAdornment: props.helperLink ? <IconButton
+                startAdornment: !props.disabled && props.helperLink ? <IconButton
                     size="small"
                     onClick={() => window.open(props.helperLink,'_blank')}>
                     <HelpIcon />
                 </IconButton> : undefined,
 
-                endAdornment: props.formData[props.name] ?
+                endAdornment: !props.disabled && props.formData[props.name] ?
                     <IconButton
                         size="small"
                         onClick={() => props.updateValue(props.name, '')}>
@@ -140,6 +148,7 @@ let IOTextField = function (props) {
     </div>;
 };
 IOTextField.propTypes = {
+    disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     value: PropTypes.any,
@@ -176,6 +185,7 @@ let IOObjectField = function (props) {
     return <div className={props.classes.fieldContainer} style={{width: props.width}}>
         <div className={props.classes.objectContainer}>
             <TextField
+                disabled={!!props.disabled}
                 className={props.classes.objectField}
                 label={I18n.t(props.label)}
                 fullWidth={true}
@@ -183,7 +193,12 @@ let IOObjectField = function (props) {
                 value={props.formData[props.name] || ''}
                 onChange={e => props.updateValue(props.name, e.target.value)}
             />
-            <IconButton size="small" onClick={() => setState({showDialog: true})} className={props.classes.objectButton}>
+            <IconButton
+                disabled={!!props.disabled}
+                size="small"
+                onClick={() => setState({showDialog: true})}
+                className={props.classes.objectButton}
+            >
                 <IconSelectID/>
             </IconButton>
         </div>
@@ -204,6 +219,7 @@ let IOObjectField = function (props) {
     </div>;
 };
 IOObjectField.propTypes = {
+    disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     value: PropTypes.any,
@@ -217,6 +233,7 @@ export {IOObjectField};
 let IOColorPicker = function (props) {
     return <div className={props.classes.fieldContainer}>
         <ColorPicker
+            disabled={!!props.disabled}
             variant="standard"
             label={I18n.t(props.label)}
             pickerClassName={props.classes.colorPicker}
@@ -224,7 +241,7 @@ let IOColorPicker = function (props) {
                 style: {backgroundColor: props.formData[props.name]}
             }}
             InputProps={{
-                endAdornment: props.formData[props.name] ?
+                endAdornment: !props.disabled && props.formData[props.name] ?
                     <IconButton
                         size="small"
                         onClick={() => props.updateValue(props.name, '')}>
@@ -239,6 +256,7 @@ let IOColorPicker = function (props) {
     </div>;
 };
 IOColorPicker.propTypes = {
+    disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     value: PropTypes.any,
@@ -251,6 +269,7 @@ let IOSlider = function (props) {
     return <div className={clsx(props.classes.fieldContainer, props.classes.sliderContainer)}>
         <Typography className={props.classes.sliderLabel}>{props.label}</Typography>
         <Slider
+            disabled={!!props.disabled}
             classes={{root: props.classes.sliderRoot}}
             value={parseFloat(props.formData[props.name] || props.min || 0) || 0}
             //getAriaValueText={(props.formData[props.name] || '').toString()}
@@ -264,6 +283,7 @@ let IOSlider = function (props) {
     </div>;
 };
 IOSlider.propTypes = {
+    disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     value: PropTypes.any,

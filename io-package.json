@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.7",
+        "version": "0.4.9",
         "news": {
+            "0.4.9": {
+                "en": "Updated echarts to 5.0\nImplemented copy&paste of lines and markings\nAvailable vertical legend\nAllowed to hide interpolated values in tooltip",
+                "de": "Aktualisierte Echarts auf 5.0\nDas Kopieren und Einfügen von Linien und Markierungen wurde implementiert\nVerfügbare vertikale Legende\nErlaubt das Ausblenden interpolierter Werte in der QuickInfo",
+                "ru": "Обновлены электронные диаграммы до версии 5.0\nРеализовано копирование и вставка линий и разметок.\nДоступная вертикальная легенда\nРазрешено скрывать интерполированные значения во всплывающей подсказке",
+                "pt": "Echarts atualizados para 5.0\nImplementado copiar e colar de linhas e marcações\nLegenda vertical disponível\nTem permissão para ocultar valores interpolados na dica de ferramenta",
+                "nl": "Bijgewerkt echarts naar 5.0\nGeïmplementeerd kopiëren en plakken van lijnen en markeringen\nBeschikbare verticale legenda\nToegestaan om geïnterpoleerde waarden in tooltip te verbergen",
+                "fr": "Mise à jour des cartes électroniques à 5.0\nImplémentation du copier-coller de lignes et de marquages\nLégende verticale disponible\nAutorisé à masquer les valeurs interpolées dans l'info-bulle",
+                "it": "E-Grafici aggiornati a 5.0\nCopia e incolla implementati di linee e segni\nLegenda verticale disponibile\nConsentito di nascondere i valori interpolati nella descrizione comando",
+                "es": "Echarts actualizado a 5.0\nCopiar y pegar implementado de líneas y marcas\nLeyenda vertical disponible\nPermitido ocultar valores interpolados en información sobre herramientas",
+                "pl": "Zaktualizowano echa do 5.0\nWdrożono kopiowanie i wklejanie linii i oznaczeń\nDostępna legenda pionowa\nDozwolone jest ukrycie wartości interpolowanych w podpowiedzi",
+                "zh-cn": "将echarts更新为5.0\n实施线条和标记的复制和粘贴\n可用的垂直图例\n允许在工具提示中隐藏插值"
+            },
             "0.4.7": {
                 "en": "Updated the select ID dialog",
                 "de": "Das Dialogfeld \"ID auswählen\" wurde aktualisiert",

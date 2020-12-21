@@ -1,0 +1,473 @@
+{
+  "event_id": "54e2e081121040dea26892830909535f",
+  "project": 95,
+  "release": "iobroker.echarts-show@0.3.2",
+  "dist": null,
+  "platform": "javascript",
+  "message": "",
+  "datetime": "2020-12-21T08:05:54.048000Z",
+  "tags": [
+    [
+      "browser",
+      "Apple Mail 605.1.15"
+    ],
+    [
+      "browser.name",
+      "Apple Mail"
+    ],
+    [
+      "device",
+      "Mac"
+    ],
+    [
+      "device.family",
+      "Mac"
+    ],
+    [
+      "environment",
+      "production"
+    ],
+    [
+      "handled",
+      "yes"
+    ],
+    [
+      "level",
+      "error"
+    ],
+    [
+      "mechanism",
+      "instrument"
+    ],
+    [
+      "os",
+      "Mac OS X 10.15.6"
+    ],
+    [
+      "os.name",
+      "Mac OS X"
+    ],
+    [
+      "release",
+      "iobroker.echarts-show@0.3.2"
+    ],
+    [
+      "url",
+      "http://192.168.178.68:8082/adapter/echarts/chart/index.html"
+    ]
+  ],
+  "_meta": {
+    "user": {
+      "ip_address": {
+        "": {
+          "rem": [
+            [
+              "@anything:remove",
+              "x"
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "_metrics": {
+    "bytes.ingested.event": 6401,
+    "flag.processing.error": true,
+    "bytes.stored.event": 15639
+  },
+  "breadcrumbs": {
+    "values": [
+      {
+        "category": "xhr",
+        "timestamp": 1608537953.423,
+        "type": "http",
+        "data": {
+          "url": "http://192.168.178.68:8082/socket.io/?ws=true&EIO=3&transport=polling&t=NQ4LLGO",
+          "status_code": 200,
+          "method": "GET"
+        },
+        "level": "info"
+      },
+      {
+        "category": "xhr",
+        "timestamp": 1608537953.598,
+        "type": "http",
+        "data": {
+          "url": "http://192.168.178.68:8082/socket.io/?ws=true&EIO=3&transport=polling&t=NQ4LLIF&sid=O5UN1sOtqztyjyyyAAGU",
+          "status_code": 200,
+          "method": "GET"
+        },
+        "level": "info"
+      },
+      {
+        "category": "console",
+        "level": "info",
+        "timestamp": 1608537953.962,
+        "data": {
+          "logger": "console",
+          "arguments": [
+            "Read till Mon Dec 21 2020 09:05:53 GMT+0100 (CET)"
+          ]
+        },
+        "message": "Read till Mon Dec 21 2020 09:05:53 GMT+0100 (CET)",
+        "type": "default"
+      },
+      {
+        "category": "console",
+        "level": "error",
+        "timestamp": 1608537954.047,
+        "data": {
+          "logger": "console",
+          "arguments": [
+            {
+              "message": "null is not an object (evaluating 's.font=\"\".concat(e||12,\"px \").concat(i||\"Microsoft YaHei\")')",
+              "name": "TypeError",
+              "stack": "P@http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js:1:33233\nhttp://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js:1:29413\nforEach@[native code]\ngetOption@http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js:1:29062\nrenderChart@http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js:1:38793\nrender@http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js:1:41805\nBa@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1054281\nul@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1081196\nsl@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1081121\nQs@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1078130\nQs@[native code]\nhttp://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1029514\nhttp://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1105095\nGr@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1029460\nYr@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1029395\nZs@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1074912\nenqueueSetState@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:1033223\nhttp://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:979175\ni@http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js:2:2037545"
+            }
+          ]
+        },
+        "message": "TypeError: null is not an object (evaluating 's.font=\"\".concat(e||12,\"px \").concat(i||\"Microsoft YaHei\")')",
+        "type": "default"
+      }
+    ]
+  },
+  "contexts": {
+    "device": {
+      "model": "Mac",
+      "type": "device",
+      "brand": "Apple",
+      "family": "Mac"
+    },
+    "os": {
+      "version": "10.15.6",
+      "type": "os",
+      "name": "Mac OS X"
+    },
+    "browser": {
+      "version": "605.1.15",
+      "type": "browser",
+      "name": "Apple Mail"
+    }
+  },
+  "culprit": "P(adapter/echarts/chart/static/js/main.8d9acdb7.chunk)",
+  "environment": "production",
+  "errors": [
+    {
+      "url": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+      "type": "fetch_generic_error",
+      "value": "<class 'requests.exceptions.ConnectionError'>"
+    },
+    {
+      "url": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+      "type": "fetch_generic_error",
+      "value": "<class 'requests.exceptions.ConnectionError'>"
+    }
+  ],
+  "exception": {
+    "values": [
+      {
+        "stacktrace": {
+          "frames": [
+            {
+              "function": "i",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 2037545,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "in_app": false,
+              "lineno": 2,
+              "colno": 979175,
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "enqueueSetState",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1033223,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "Zs",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1074912,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "Yr",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1029395,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "Gr",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1029460,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "in_app": false,
+              "lineno": 2,
+              "colno": 1105095,
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "in_app": false,
+              "lineno": 2,
+              "colno": 1029514,
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "Qs",
+              "abs_path": "[native code]",
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              },
+              "filename": "[native code]"
+            },
+            {
+              "function": "Qs",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1078130,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "sl",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1081121,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "ul",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1081196,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "Ba",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "module": "adapter/echarts/chart/static/js/2.1f1e9b90.chunk",
+              "filename": "/adapter/echarts/chart/static/js/2.1f1e9b90.chunk.js",
+              "lineno": 2,
+              "colno": 1054281,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "render",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "module": "adapter/echarts/chart/static/js/main.8d9acdb7.chunk",
+              "filename": "/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "lineno": 1,
+              "colno": 41805,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "renderChart",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "module": "adapter/echarts/chart/static/js/main.8d9acdb7.chunk",
+              "filename": "/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "lineno": 1,
+              "colno": 38793,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "getOption",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "module": "adapter/echarts/chart/static/js/main.8d9acdb7.chunk",
+              "filename": "/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "lineno": 1,
+              "colno": 29062,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "forEach",
+              "abs_path": "[native code]",
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              },
+              "filename": "[native code]"
+            },
+            {
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "module": "adapter/echarts/chart/static/js/main.8d9acdb7.chunk",
+              "in_app": false,
+              "lineno": 1,
+              "colno": 29413,
+              "filename": "/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "data": {
+                "orig_in_app": 1
+              }
+            },
+            {
+              "function": "P",
+              "abs_path": "http://192.168.178.68:8082/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "module": "adapter/echarts/chart/static/js/main.8d9acdb7.chunk",
+              "filename": "/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+              "lineno": 1,
+              "colno": 33233,
+              "in_app": false,
+              "data": {
+                "orig_in_app": 1
+              }
+            }
+          ]
+        },
+        "type": "TypeError",
+        "mechanism": {
+          "data": {
+            "function": "setTimeout"
+          },
+          "type": "instrument",
+          "handled": true
+        },
+        "value": "null is not an object (evaluating 's.font=\"\".concat(e||12,\"px \").concat(i||\"Microsoft YaHei\")')"
+      }
+    ]
+  },
+  "extra": {
+    "arguments": []
+  },
+  "fingerprint": [
+    "{{ default }}"
+  ],
+  "grouping_config": {
+    "enhancements": "eJybzDhxY3J-bm5-npWRgaGlroGxrpHxBABcTQcY",
+    "id": "newstyle:2019-10-29"
+  },
+  "hashes": [
+    "b1e55c395880dcc08fc22b88ce283b00"
+  ],
+  "key_id": "98",
+  "level": "error",
+  "location": "/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js",
+  "logger": "",
+  "metadata": {
+    "function": "P",
+    "type": "TypeError",
+    "value": "null is not an object (evaluating 's.font=\"\".concat(e||12,\"px \").concat(i||\"Microsoft YaHei\")')",
+    "filename": "/adapter/echarts/chart/static/js/main.8d9acdb7.chunk.js"
+  },
+  "received": 1608537954.242245,
+  "request": {
+    "url": "http://192.168.178.68:8082/adapter/echarts/chart/index.html",
+    "query_string": [
+      [
+        "preset",
+        "echarts.0.Waschmaschine"
+      ]
+    ],
+    "headers": [
+      [
+        "Referer",
+        "http://192.168.178.68:8082/vis/index.html?VIS_4.1"
+      ],
+      [
+        "User-Agent",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+      ]
+    ]
+  },
+  "sdk": {
+    "version": "5.27.2",
+    "name": "sentry.javascript.browser",
+    "packages": [
+      {
+        "version": "5.27.2",
+        "name": "npm:@sentry/browser"
+      }
+    ],
+    "integrations": [
+      "InboundFilters",
+      "FunctionToString",
+      "TryCatch",
+      "Breadcrumbs",
+      "GlobalHandlers",
+      "LinkedErrors",
+      "UserAgent",
+      "Dedupe"
+    ]
+  },
+  "timestamp": 1608537954.048,
+  "title": "TypeError: null is not an object (evaluating 's.font=\"\".concat(e||12,\"px \").concat(i||\"Microsoft YaHei\")')",
+  "type": "error",
+  "user": {
+    "ip_address": null
+  },
+  "version": "7"
+}

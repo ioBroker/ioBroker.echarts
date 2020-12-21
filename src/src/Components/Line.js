@@ -1,13 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {withStyles} from '@material-ui/core/styles';
+import clsx from 'clsx';
 
 import IconButton from '@material-ui/core/IconButton';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
+import {MdContentCopy as IconCopy} from 'react-icons/md';
 import {MdMenu as IconDrag} from 'react-icons/md';
+import {MdContentPaste as IconPaste} from 'react-icons/md';
 import {FaFolder as IconFolderClosed} from 'react-icons/fa';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
 
@@ -39,6 +42,11 @@ let styles = theme => ({
         padding: theme.spacing(1),
         borderColor: theme.palette.grey['600'],
         overflow: 'initial'
+    },
+    cardPaste: {
+        borderColor: theme.type === 'dark' ? theme.palette.grey['400'] : theme.palette.grey['800'],
+        backgroundColor: 'rgba(0,0,0,0)',
+        opacity: 0.8,
     },
     cardContent: {
         padding: 0,
@@ -134,15 +142,27 @@ let styles = theme => ({
         verticalAlign: 'top',
     },
     deleteButton: {
-
+        float: 'right',
+        marginRight: 12
     },
     deleteButtonFull: {
         float: 'right',
         marginRight: 12
     },
+    copyButtonFull: {
+        float: 'right',
+        marginRight: 0
+    },
     fullWidth: {
         width: '100%',
         minWidth: 200
+    },
+    paste: {
+        opacity: 0.3
+    },
+    emptyDrag: {
+        display: 'inline-block',
+        width: 16,
     }
 });
 
@@ -231,13 +251,22 @@ class Line extends React.Component {
         }
 
         return <div className={this.props.classes.lineClosed}>
-            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : null }
-            <IconButton
-                title={ I18n.t('Edit') }
-                onClick={() => this.props.lineOpenToggle(this.props.index)}>
-                <IconFolderClosed/>
-            </IconButton>
+            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : <div className={this.props.classes.emptyDrag}/> }
+            {this.props.onPaste && this.props.onPaste ?
+                <IconButton
+                    title={I18n.t('Paste')}
+                    onClick={() => this.props.onPaste()}>
+                    <IconPaste/>
+                </IconButton>
+                :
+                <IconButton
+                    title={I18n.t('Edit')}
+                    onClick={() => this.props.lineOpenToggle(this.props.index)}>
+                    <IconFolderClosed/>
+                </IconButton>
+            }
             <IOSelect
+                disabled={!!this.props.onPaste}
                 formData={this.props.line}
                 updateValue={this.updateField}
                 name="instance"
@@ -249,19 +278,21 @@ class Line extends React.Component {
                     return result;
                 })()}
                 minWidth={WIDTHS.instance}
-                classes={{fieldContainer: this.props.classes.shortInstanceField}}
+                classes={{fieldContainer: clsx(this.props.classes.shortInstanceField, this.props.onPaste && this.props.classes.paste)}}
             />
             <IOObjectField
+                disabled={!!this.props.onPaste}
                 formData={this.props.line}
                 updateValue={this.updateField}
                 name="id"
                 width={idWidth}
                 label="ID"
                 customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
-                classes={{fieldContainer: this.props.classes.shortIdField}}
+                classes={{fieldContainer: clsx(this.props.classes.shortIdField, this.props.onPaste && this.props.classes.paste)}}
                 socket={this.props.socket}
             />
             {visible.chartType ? <IOSelect
+                disabled={!!this.props.onPaste}
                 formData={this.props.line}
                 updateValue={this.updateField}
                 minWidth={WIDTHS.chartType}
@@ -273,11 +304,13 @@ class Line extends React.Component {
                     //bar: 'Bar',
                     scatterplot: 'Scatter plot',
                     steps: 'Steps',
+                    stepsStart: 'Steps on start',
                     spline: 'Spline',
                 }}
-                classes={{fieldContainer: this.props.classes.shortChartTypeField}}
+                classes={{fieldContainer: clsx(this.props.classes.shortChartTypeField, this.props.onPaste && this.props.classes.paste)}}
             /> : null}
             {visible.dataType && this.props.line.chartType !== 'auto' ? <IOSelect
+                disabled={!!this.props.onPaste}
                 formData={this.props.line}
                 updateValue={this.updateField}
                 minWidth={WIDTHS.dataType}
@@ -291,16 +324,17 @@ class Line extends React.Component {
                     total: 'total',
                     onchange: 'raw',
                 }}
-                classes={{fieldContainer: this.props.classes.shortDataTypeField}}
+                classes={{fieldContainer: clsx(this.props.classes.shortDataTypeField, this.props.onPaste && this.props.classes.paste)}}
             /> : null}
-            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, this.props.classes.shortColorField, true) : null}
+            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, clsx(this.props.classes.shortColorField, this.props.onPaste && this.props.classes.paste), true) : null}
             {visible.name ? <IOTextField
+                disabled={!!this.props.onPaste}
                 width={WIDTHS.name}
                 formData={this.props.line}
                 updateValue={this.updateField}
                 name="name"
                 label="Name"
-                classes={{fieldContainer: this.props.classes.shortNameField}}
+                classes={{fieldContainer: clsx(this.props.classes.shortNameField, this.props.onPaste && this.props.classes.paste)}}
             /> : null}
             <IconButton
                 className={this.props.classes.deleteButton}
@@ -319,11 +353,12 @@ class Line extends React.Component {
         }
         return <div className={className}>
             <TextField
+                disabled={!!this.props.onPaste}
                 style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}
-                value={formData[name]}
+                value={formData[name] || ''}
                 onClick={() =>
-                    this.setState({['_' + name]: formData[name]}, () =>
+                    !this.props.onPaste && this.setState({['_' + name]: formData[name]}, () =>
                         this.props.onSelectColor(this.state['_' + name], color =>
                             this.setState({['_' + name]: color}, () =>
                                 onUpdate(name, ColorPicker.getColor(color, true)))))
@@ -337,6 +372,7 @@ class Line extends React.Component {
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton
+                            disabled={!!this.props.onPaste}
                             size="small"
                             onClick={e => {
                                 e.stopPropagation();
@@ -377,6 +413,13 @@ class Line extends React.Component {
                     onClick={() => this.props.deleteLine(this.props.index)}>
                     <IconDelete/>
                 </IconButton>
+                <IconButton
+                    className={this.props.classes.copyButtonFull}
+                    aria-label="Copy"
+                    title={I18n.t('Copy')}
+                    onClick={() => this.props.onCopy(this.props.line)}>
+                    <IconCopy/>
+                </IconButton>
             </div>
             <div className={this.props.classes.shortFields}>
                 <IOSelect
@@ -410,6 +453,7 @@ class Line extends React.Component {
                     //bar: 'Bar',
                     scatterplot: 'Scatter plot',
                     steps: 'Steps',
+                    stepsStart: 'Steps on start',
                     spline: 'Spline',
                 }}/>
                 {this.props.line.chartType !== 'auto' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
@@ -524,11 +568,11 @@ class Line extends React.Component {
 
     render() {
         return <Card
-            className={this.props.classes.card}
-            style={{background: this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined}}
+            className={clsx(this.props.classes.card, this.props.onPaste && this.props.classes.cardPaste)}
+            style={{background: this.props.snapshot && this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined}}
         >
             <CardContent className={this.props.classes.cardContent}>
-                { this.props.opened ? this.renderOpenedLine() : this.renderClosedLine()}
+                { this.props.opened && !this.props.onPaste ? this.renderOpenedLine() : this.renderClosedLine()}
             </CardContent>
         </Card>
     }
@@ -550,6 +594,8 @@ Line.propTypes = {
     presetData: PropTypes.object,
     onSelectColor: PropTypes.func,
     systemConfig: PropTypes.object.isRequired,
+    onCopy: PropTypes.func,
+    onPaste: PropTypes.func,
 };
 
 export default withStyles(styles)(Line);

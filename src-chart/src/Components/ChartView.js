@@ -31,6 +31,9 @@ import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/grid';
 import 'echarts/lib/component/markLine';
 import 'echarts/lib/component/markArea';
+import 'echarts/lib/coord/cartesian/Grid';
+import 'echarts/lib/coord/cartesian/Axis2D';
+import 'zrender/lib/svg/svg';
 
 import ChartOption from './ChartOption';
 
@@ -101,6 +104,23 @@ function calcTextWidth(text, fontSize, fontFamily) {
     context.font = `${fontSize || 12}px ${fontFamily || 'Microsoft YaHei'}`;
     const metrics = context.measureText(text);
     return Math.ceil(metrics.width);
+}
+
+if (!String.prototype.padStart) {
+    // Copyright (c) 2019 Behnam Mohammadi MIT https://github.com/behnammodi/polyfill/blob/master/string.polyfill.js#L273
+    String.prototype.padStart = function padStart(targetLength, padString) {
+        targetLength = targetLength >> 0; // floor if number or convert non-number to 0;
+        padString = String(typeof padString !== 'undefined' ? padString : ' ');
+        if (this.length > targetLength) {
+            return String(this);
+        } else {
+            targetLength = targetLength - this.length;
+            if (targetLength > padString.length) {
+                padString += padString.repeat(targetLength / padString.length); // append to original to ensure we are longer than needed
+            }
+            return padString.slice(0, targetLength) + String(this);
+        }
+    };
 }
 
 class ChartView extends React.Component {
@@ -495,7 +515,12 @@ class ChartView extends React.Component {
     }
 
     renderExportButton() {
-        if (this.props.config.export) {
+        if (this.props.config.export &&
+            this.option &&
+            this.option.series &&
+            this.option.series[0] &&
+            this.option.series[0].data &&
+            this.option.series[0].data.length) {
             return <IconExport
                 color={this.props.config.exportColor || 'default'}
                 className={this.props.classes.exportButton}

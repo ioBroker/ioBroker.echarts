@@ -105,6 +105,7 @@ const DEFAULT_PRESET = {
     legBg: '',
     timeFormat: '',
     export: true,
+    legendDirection: '', // '' - horizontal, 'vertical' - vertical
 };
 
 function getDefaultLine(systemSettings, instance, obj, language) {

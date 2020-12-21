@@ -452,5 +452,11 @@
   "copied": "copied",
   "You can create a new markings with a \"+\" on the right.": "You can create a new markings with a \"+\" on the right.",
   "Copy link to clipboard": "Copy link to clipboard",
-  "No presets created yet": "No presets created yet"
+  "No presets created yet": "No presets created yet",
+  "horizontal": "horizontal",
+  "vertical": "vertical",
+  "Orientation": "Orientation",
+  "Steps on start": "Steps on start",
+  "Paste": "Paste",
+  "No interpolate in hover": "No interpolation in tooltip"
 }

@@ -452,5 +452,11 @@
   "copied": "复制的",
   "You can create a new markings with a \"+\" on the right.": "您可以在右侧创建带有“ +”的新标记。",
   "Copy link to clipboard": "复制链接到剪贴板",
-  "No presets created yet": "尚未创建预设"
+  "No presets created yet": "尚未创建预设",
+  "horizontal": "水平的",
+  "vertical": "垂直",
+  "Orientation": "方向",
+  "Steps on start": "开始步骤",
+  "Paste": "糊",
+  "No interpolate in hover": "工具提示中没有插值"
 }

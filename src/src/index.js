@@ -36,6 +36,20 @@ if (window.location.host !== 'localhost:3000') {
         dsn: 'https://709f116e1de34029921e4f2696d6740f@sentry.iobroker.net/88',
         release: 'iobroker.' + window.adapterName + '@' + version,
         integrations: [new SentryIntegrations.Dedupe()],
+        beforeSend: function (event, hint) {
+            let ignore = false;
+
+            // ignore some errors
+            if (event.exception &&
+                event.exception.values &&
+                event.exception.values[0] && event.exception.values[0].value) {
+                if (event.exception.values[0].value.includes('ioBroker is not connected')) {
+                    ignore = true;
+                }
+            }
+
+            return ignore ? null : event;
+        },
     });
 }
 

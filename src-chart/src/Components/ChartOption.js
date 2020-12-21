@@ -218,6 +218,105 @@ function padding2(num) {
     }
 }
 
+function rgba2hex(color) {
+    const rgb = color.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
+    return rgb ?
+        '#' +
+        padding2(parseInt(rgb[1], 10).toString(16)) +
+        padding2(parseInt(rgb[2], 10).toString(16)) +
+        padding2(parseInt(rgb[3], 10).toString(16)) : color;
+}
+
+function brighterColor(color, amt) {
+    let usePound = false;
+
+    if (color.includes('rgb')) {
+        color = rgba2hex(color);
+    }
+
+    if (color[0] === '#') {
+        color = color.slice(1);
+        usePound = true;
+    }
+
+    const num = parseInt(color,16);
+
+    let r = (num >> 16) + amt;
+    if (r > 255) {
+        r = 255;
+    } else if (r < 0) {
+        r = 0;
+    }
+
+    let b = ((num >> 8) & 0x00FF) + amt;
+    if (b > 255) {
+        b = 255;
+    } else if (b < 0) {
+        b = 0;
+    }
+
+    let g = (num & 0x0000FF) + amt;
+    if (g > 255) {
+        g = 255;
+    } else if (g < 0) {
+        g = 0;
+    }
+
+    return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16);
+}
+
+//----- copied from
+const Gradient = function (colorStops) {
+    this.colorStops = colorStops || [];
+};
+
+Gradient.prototype = {
+    constructor: Gradient,
+    addColorStop: function (offset, color) {
+        this.colorStops.push({
+            offset: offset,
+            color: color
+        });
+    }
+};
+const LinearGradient = function (x, y, x2, y2, colorStops, globalCoord) {
+    // Should do nothing more in this constructor. Because gradient can be
+    // declared by `color: {type: 'linear', colorStops: ...}`, where
+    // this constructor will not be called.
+    this.x = x == null ? 0 : x;
+    this.y = y == null ? 0 : y;
+    this.x2 = x2 == null ? 1 : x2;
+    this.y2 = y2 == null ? 0 : y2; // Can be cloned
+
+    this.type = 'linear'; // If use global coord
+
+    this.global = globalCoord || false;
+    Gradient.call(this, colorStops);
+};
+
+LinearGradient.prototype = {
+    constructor: LinearGradient
+};
+
+function zrUtilInherits(clazz, baseClazz) {
+    const clazzPrototype = clazz.prototype;
+
+    function F() {}
+
+    F.prototype = baseClazz.prototype;
+    clazz.prototype = new F();
+
+    for (const prop in clazzPrototype) {
+        if (clazzPrototype.hasOwnProperty(prop)) {
+            clazz.prototype[prop] = clazzPrototype[prop];
+        }
+    }
+
+    clazz.prototype.constructor = clazz;
+    clazz.superClass = baseClazz;
+}
+zrUtilInherits(LinearGradient, Gradient);
+
 class ChartOption {
     constructor(moment, themeType, calcTextWidth, config) {
         this.moment = moment;
@@ -298,7 +397,7 @@ class ChartOption {
                 showSymbol: oneLine.chartType === 'scatterplot' || oneLine.points,
                 hoverAnimation: true,
                 animation: false,
-                step: oneLine.chartType === 'steps' ? 'end' : undefined,
+                step: oneLine.chartType === 'steps' ? 'end' : (oneLine.chartType === 'stepsStart' ? 'start' : undefined) ,
                 smooth: oneLine.chartType === 'spline',
                 data: this.convertData(data, i, yAxisIndex),
                 itemStyle: {color},
@@ -313,8 +412,16 @@ class ChartOption {
                 }
             };
             if (parseFloat(oneLine.fill)) {
+                const colorGradient = new LinearGradient(0, 0, 0, 1, [{
+                    offset: 0,
+                    color: brighterColor(color, 30)
+                }, {
+                    offset: 1,
+                    color
+                }]);
+
                 cfg.areaStyle = {
-                    color: color,
+                    color: colorGradient,
                     opacity: parseFloat(oneLine.fill) || 0,
                 };
             }
@@ -642,6 +749,10 @@ class ChartOption {
             if (!interpolated) {
                 return '';
             }
+            if (!interpolated.exact && this.config.hoverNoInterpolate) {
+                return '';
+            }
+
             const val = interpolated.val === null ?
                 'null' :
                 this.yFormatter(interpolated.val, i, false, !interpolated.exact);
@@ -680,11 +791,12 @@ class ChartOption {
             textStyle: {
                 color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF')
             },
+            orient: this.config.legendDirection || 'horizontal',
         }
     }
 
     getTitle(xAxisHeight) {
-        if (!this.config.title) {
+        if (!this.config || !this.config.title) {
             return undefined;
         }
         let titlePos = {};

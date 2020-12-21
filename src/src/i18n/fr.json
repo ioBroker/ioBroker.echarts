@@ -452,5 +452,11 @@
   "copied": "copié",
   "You can create a new markings with a \"+\" on the right.": "Vous pouvez créer un nouveau marquage avec un \"+\" sur la droite.",
   "Copy link to clipboard": "Copier le lien dans le presse-papiers",
-  "No presets created yet": "Aucun préréglage n'a encore été créé"
+  "No presets created yet": "Aucun préréglage n'a encore été créé",
+  "horizontal": "horizontal",
+  "vertical": "verticale",
+  "Orientation": "Orientation",
+  "Steps on start": "Étapes au démarrage",
+  "Paste": "Pâte",
+  "No interpolate in hover": "Aucune interpolation dans l'info-bulle"
 }

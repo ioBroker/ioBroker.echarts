@@ -154,6 +154,7 @@ const CHART_TYPES = {
     //bar: 'Bar',
     scatterplot: 'Scatter plot',
     steps: 'Steps',
+    stepsStart: 'Steps on start',
     spline: 'Spline',
 };
 

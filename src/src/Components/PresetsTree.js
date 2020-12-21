@@ -1,9 +1,9 @@
-import React, {Component} from "react";
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import withWidth from "@material-ui/core/withWidth";
-import {withStyles, withTheme} from "@material-ui/core/styles";
+import withWidth from '@material-ui/core/withWidth';
+import {withStyles, withTheme} from '@material-ui/core/styles';
 import clsx from 'clsx';
-import { useDrag, useDrop, DndProvider as DragDropContext  } from 'react-dnd';
+import { useDrag, useDrop, DndProvider as DragDropContext } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
 import IconButton from '@material-ui/core/IconButton';
@@ -23,6 +23,8 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+
+import ConfirmDialog from '@iobroker/adapter-react/Dialogs/Confirm'
 
 // icons
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
@@ -832,26 +834,22 @@ class MenuList extends Component {
     }
 
     renderDeleteDialog() {
-        return this.state.deletePresetDialog ? <Dialog
-            open={ true }
+        return this.state.deletePresetDialog ? <ConfirmDialog
+            title={ I18n.t('Are you sure for delete this preset?') }
+            ok={ I18n.t('Delete') }
+            cancel={ I18n.t('Cancel') }
+            suppressQuestionMinutes={3}
             key="deletePresetDialog"
-            onClose={ () => this.setState({deletePresetDialog: false}) }
-        >
-            <DialogTitle>{ I18n.t('Are you sure for delete this preset?') }</DialogTitle>
-            <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({deletePresetDialog: false}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    {I18n.t('Cancel')}
-                </Button>
-                <Button variant="contained" color="secondary" onClick={() => {
-                    this.deletePreset(this.state.deletePresetDialog);
+            dialogName="echarts.deletePresetDialog"
+            onClose={isYes => {
+                if (isYes) {
+                    this.deletePreset(this.state.deletePresetDialog, () =>
+                        this.setState({deletePresetDialog: false}));
+                } else {
                     this.setState({deletePresetDialog: false});
-                }}>
-                    <IconDelete className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Delete') }
-                </Button>
-            </DialogActions>
-        </Dialog> : null;
+                }
+            }}
+        /> : null;
     }
 
     renderSelectIdDialog() {
@@ -900,7 +898,7 @@ class MenuList extends Component {
         }
     }
 
-    deletePreset = id => {
+    deletePreset(id, cb) {
         return this.props.socket.delObject(id)
             .then(() => {
                 this.getAllPresets()
@@ -908,8 +906,9 @@ class MenuList extends Component {
                         this.setState(newState, () =>
                             this.props.onSelectedChanged(null)));
             })
-            .catch(e => this.onError(e, `Cannot delete object ${id}`));
-    };
+            .catch(e => this.onError(e, `Cannot delete object ${id}`))
+            .then(() => cb && cb());
+    }
 
     renamePreset(id, newTitle) {
         let preset;
