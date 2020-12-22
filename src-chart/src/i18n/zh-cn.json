@@ -2,5 +2,7 @@
   "Save as image": "另存为图片",
   "Reset pan and zoom": "重置平移和缩放",
   "Save chart as svg": "将图表另存为SVG",
-  "Unfortunately your browser does not support this feature": "不幸的是，您的浏览器不支持此功能"
+  "Unfortunately your browser does not support this feature": "不幸的是，您的浏览器不支持此功能",
+  "Save chart as png": "将图表另存为png",
+  "No data found": "没有找到数据"
 }

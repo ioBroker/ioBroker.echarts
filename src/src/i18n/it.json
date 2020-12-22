@@ -458,5 +458,8 @@
   "Orientation": "Orientamento",
   "Steps on start": "Passi all'avvio",
   "Paste": "Incolla",
-  "No interpolate in hover": "Nessuna interpolazione nel tooltip"
+  "No interpolate in hover": "Nessuna interpolazione nel tooltip",
+  "Show only in legend": "Mostra solo nella legenda",
+  "Collapse all markings": "Comprimi tutti i contrassegni",
+  "Expand all markings": "Espandi tutti i segni"
 }

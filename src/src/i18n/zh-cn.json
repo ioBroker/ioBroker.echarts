@@ -458,5 +458,8 @@
   "Orientation": "方向",
   "Steps on start": "开始步骤",
   "Paste": "糊",
-  "No interpolate in hover": "工具提示中没有插值"
+  "No interpolate in hover": "工具提示中没有插值",
+  "Show only in legend": "仅在图例中显示",
+  "Collapse all markings": "收起所有标记",
+  "Expand all markings": "展开所有标记"
 }

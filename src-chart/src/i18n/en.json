@@ -2,5 +2,7 @@
   "Save as image": "Save as image",
   "Reset pan and zoom": "Reset pan and zoom",
   "Save chart as svg": "Save chart as SVG",
-  "Unfortunately your browser does not support this feature": "Unfortunately your browser does not support this feature"
+  "Unfortunately your browser does not support this feature": "Unfortunately your browser does not support this feature",
+  "Save chart as png": "Save chart as png",
+  "No data found": "No data found"
 }

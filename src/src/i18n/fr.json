@@ -458,5 +458,8 @@
   "Orientation": "Orientation",
   "Steps on start": "Étapes au démarrage",
   "Paste": "Pâte",
-  "No interpolate in hover": "Aucune interpolation dans l'info-bulle"
+  "No interpolate in hover": "Aucune interpolation dans l'info-bulle",
+  "Show only in legend": "Afficher uniquement dans la légende",
+  "Collapse all markings": "Réduire toutes les marques",
+  "Expand all markings": "Développer toutes les marques"
 }

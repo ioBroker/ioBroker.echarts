@@ -458,5 +458,8 @@
   "Orientation": "Oriëntatie",
   "Steps on start": "Stappen bij het starten",
   "Paste": "Plakken",
-  "No interpolate in hover": "Geen interpolatie in tooltip"
+  "No interpolate in hover": "Geen interpolatie in tooltip",
+  "Show only in legend": "Alleen in legenda weergeven",
+  "Collapse all markings": "Vouw alle markeringen samen",
+  "Expand all markings": "Vouw alle markeringen uit"
 }

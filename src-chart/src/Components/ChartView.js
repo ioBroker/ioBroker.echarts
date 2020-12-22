@@ -34,6 +34,7 @@ import 'echarts/lib/component/markArea';
 import 'echarts/lib/coord/cartesian/Grid';
 import 'echarts/lib/coord/cartesian/Axis2D';
 import 'zrender/lib/svg/svg';
+import 'zrender/lib/canvas/canvas';
 
 import ChartOption from './ChartOption';
 
@@ -108,6 +109,7 @@ function calcTextWidth(text, fontSize, fontFamily) {
 
 if (!String.prototype.padStart) {
     // Copyright (c) 2019 Behnam Mohammadi MIT https://github.com/behnammodi/polyfill/blob/master/string.polyfill.js#L273
+    // eslint-disable-next-line
     String.prototype.padStart = function padStart(targetLength, padString) {
         targetLength = targetLength >> 0; // floor if number or convert non-number to 0;
         padString = String(typeof padString !== 'undefined' ? padString : ' ');
@@ -130,6 +132,7 @@ class ChartView extends React.Component {
         this.state = {
             chartHeight: null,
             chartWidth: null,
+
         };
 
         this.echartsReact = React.createRef();
@@ -138,12 +141,16 @@ class ChartView extends React.Component {
         this.divRef = React.createRef();
         this.divResetButton = React.createRef();
 
+        this.selected = null;
+
         moment.locale(I18n.getLanguage());
 
         this.lastIds = (this.props.config && this.props.config.l && this.props.config.l.map(item => item.id)) || [];
         this.lastIds.sort();
 
         this.chartOption = new ChartOption(moment, this.props.themeType, calcTextWidth);
+
+        this.isTouch = 'ontouchstart' in document.documentElement;
     }
 
     componentDidMount() {
@@ -168,6 +175,7 @@ class ChartView extends React.Component {
             }
 
             this.option = this.chartOption.getOption(props.data, props.config, props.actualValues);
+            this.applySelected();
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties: {min: ${this.option.xAxis[0].min}, ${this.option.xAxis[0].max}}`);
             try {
                 chartInstance.setOption(this.option, changed);
@@ -264,7 +272,7 @@ class ChartView extends React.Component {
         chart.withTime    = chart.diff < 3600000 * 24 * 7;
         chart.withSeconds = chart.diff < 60000 * 30;
 
-        console.log(`[ChartView ] [${new Date().toISOString()}] setNewRange: ${!!updateChart}, {min: ${chart.xMin}, max: ${chart.xMax}}`);
+        console.log(`[ChartView ] [${new Date().toISOString()}] setNewRange: ${!!updateChart}, {min: ${new Date(chart.xMin)}, max: ${new Date(chart.xMax)}}`);
         if (updateChart) {
             this.updateDataTimer && clearTimeout(this.updateDataTimer);
             this.updateDataTimer = null;
@@ -350,14 +358,16 @@ class ChartView extends React.Component {
     };
 
     onTouchStart = e => {
-        e.preventDefault();
         this.mouseDown = true;
         const touches = e.touches || e.originalEvent.touches;
         if (touches) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
             const chart = this.chartOption.getHelperChartData();
             chart.lastX = touches[touches.length - 1].pageX;
+
             if (touches.length > 1) {
-                chart.lastWidth = Math.abs(touches[0].pageX - touches[1].pageX);
+                chart.lastWidth = Math.round(Math.abs(touches[0].pageX - touches[1].pageX));
             } else {
                 chart.lastWidth = null;
             }
@@ -365,13 +375,15 @@ class ChartView extends React.Component {
     };
 
     onTouchEnd = e => {
-        e.preventDefault();
-        this.mouseDown = false;
-        this.setNewRange(true);
+        if (this.mouseDown) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            this.mouseDown = false;
+            this.setNewRange(true);
+        }
     };
 
     onTouchMove = e => {
-        e.preventDefault();
         const touches = e.touches || e.originalEvent.touches;
         if (!touches) {
             return;
@@ -379,14 +391,22 @@ class ChartView extends React.Component {
         const chart = this.chartOption.getHelperChartData();
         const pageX = touches[touches.length - 1].pageX - chart.padLeft;
         if (this.mouseDown) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            if (this.divResetButton.current && this.divResetButton.current.style.display !== 'block') {
+                this.divResetButton.current.style.display = 'block';
+            }
+
             if (touches.length > 1) {
+                console.log('touch move: ' + touches.length)
                 // zoom
-                const fingerWidth = Math.abs(touches[0].pageX - touches[1].pageX);
+                const fingerWidth = Math.round(Math.abs(touches[0].pageX - touches[1].pageX));
                 if (chart.lastWidth !== null && fingerWidth !== chart.lastWidth) {
                     let diff = chart.xMax - chart.xMin;
                     const chartWidth = this.state.chartWidth - chart.padRight - chart.padLeft;
 
-                    const amount     = fingerWidth > chart.lastWidth ? 1.1 : 0.9;
+                    const amount     = fingerWidth > chart.lastWidth ? 1.05 : 0.95;
                     const positionX  = touches[0].pageX > touches[1].pageX ?
                         touches[1].pageX - chart.padLeft + fingerWidth / 2 :
                         touches[0].pageX - chart.padLeft + fingerWidth / 2;
@@ -397,8 +417,13 @@ class ChartView extends React.Component {
                     diff = diff * amount;
                     const move = oldDiff - diff;
 
+                    console.log(`Move: ${Math.round(move / 1000)} => ${Math.round(move * pos / 1000)} -- ${Math.round(move * (1 - pos) / 1000)}`);
+
                     chart.xMax += move * (1 - pos);
                     chart.xMin -= move * pos;
+
+                    chart.xMax = Math.round(chart.xMax);
+                    chart.xMin = Math.round(chart.xMin);
 
                     this.setNewRange();
                 }
@@ -421,33 +446,44 @@ class ChartView extends React.Component {
 
     installEventHandlers() {
         this.zr = this.echartsReact && this.echartsReact.getEchartsInstance && this.echartsReact.getEchartsInstance().getZr();
+        const items = this.divRef.current && this.divRef.current.getElementsByClassName('echarts-for-react');
+        const div = items && items[0];
 
         if (this.zr && this.props.config.zoom && !this.zr._iobInstalled) {
             this.zr._iobInstalled = true;
 
-            this.zr.on('mousedown', this.onMouseDown);
-
-            this.zr.on('mouseup', this.onMouseUp);
-
-            this.zr.on('mousewheel', this.onMouseWheel);
-
-            this.zr.on('touchstart', this.onTouchStart);
-
-            this.zr.on('touchend', this.onTouchEnd);
-
-            this.zr.on('touchmove', this.onTouchMove);
+            if (!this.isTouch) {
+                this.zr.on('mousedown', this.onMouseDown);
+                this.zr.on('mouseup', this.onMouseUp);
+                this.zr.on('mousewheel', this.onMouseWheel);
+            } else if (div) {
+                div.addEventListener('touchstart', this.onTouchStart, false);
+                div.addEventListener('touchend', this.onTouchEnd, false);
+                div.addEventListener('touchmove', this.onTouchMove, false);
+            }
         } else if (this.zr && !this.props.config.zoom && this.zr._iobInstalled) {
             this.zr._iobInstalled = false;
-            this.zr.off('mousedown', this.onMouseDown);
-            this.zr.off('mouseup', this.onMouseUp);
-            this.zr.off('mousewheel', this.onMouseWheel);
-            if (this.zr && this.zr._mousemove) {
-                this.zr._mousemove = false;
-                this.zr.off('mousemove', this.onMouseMove);
+
+            if (!this.isTouch) {
+                this.zr.off('mousedown', this.onMouseDown);
+                this.zr.off('mouseup', this.onMouseUp);
+                this.zr.off('mousewheel', this.onMouseWheel);
+                if (this.zr && this.zr._mousemove) {
+                    this.zr._mousemove = false;
+                    this.zr.off('mousemove', this.onMouseMove);
+                }
+            } else if (div) {
+                div.removeEventListener('touchstart', this.onTouchStart, false);
+                div.removeEventListener('touchend', this.onTouchEnd, false);
+                div.removeEventListener('touchmove', this.onTouchMove, false);
             }
-            this.zr.off('touchstart', this.onTouchStart);
-            this.zr.off('touchend', this.onTouchEnd);
-            this.zr.off('touchmove', this.onTouchMove);
+        }
+    }
+
+    applySelected() {
+        // merge selected
+        if (this.selected && this.option.legend) {
+            Object.keys(this.selected).forEach(name => this.option.legend.selected[name] = this.selected[name]);
         }
     }
 
@@ -459,6 +495,8 @@ class ChartView extends React.Component {
 
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 
+            this.applySelected();
+
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
                 echarts={ echarts }
@@ -467,12 +505,15 @@ class ChartView extends React.Component {
                 lazyUpdate={ true }
                 theme={ this.option.theme }
                 style={{ height: this.state.chartHeight + 'px', width: '100%' }}
-                opts={{ renderer: 'svg' }}
+                opts={this.isTouch && this.props.config.zoom ? undefined : { renderer: 'svg' }}
                 onEvents={ {
                     /*datazoom: e => {
                         const {startValue, endValue} = e.batch[0];
                         this.updateChart(startValue, endValue, true);
                     },*/
+                    legendselectchanged: e => {
+                        this.selected = JSON.parse(JSON.stringify(e.selected));
+                    },
                     rendered: e => {
                         this.props.config.zoom && this.installEventHandlers();
                     }
@@ -515,16 +556,11 @@ class ChartView extends React.Component {
     }
 
     renderExportButton() {
-        if (this.props.config.export &&
-            this.option &&
-            this.option.series &&
-            this.option.series[0] &&
-            this.option.series[0].data &&
-            this.option.series[0].data.length) {
+        if (this.props.config.export) {
             return <IconExport
                 color={this.props.config.exportColor || 'default'}
                 className={this.props.classes.exportButton}
-                title={I18n.t('Save chart as svg')}
+                title={this.isTouch && this.props.config.zoom ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')}
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                         const chartInstance = this.echartsReact.getEchartsInstance();
@@ -545,15 +581,23 @@ class ChartView extends React.Component {
                             name = 'chart';
                         }
                         const option = this.option;
-                        const date = new Date(option.xAxis[0].max || option.series[0].data[option.series[0].data.length - 1].value[0]);
-                        try {
-                            downloadLink.download =
-                                `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
-                                `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.svg`;
-                            downloadLink.click();
-                        } catch (e) {
-                            console.error(`Cannot access download: ${e}`);
-                            window.alert(I18n.t('Unfortunately your browser does not support this feature'));
+                        if (option &&
+                            option.series &&
+                            option.series[0] &&
+                            option.series[0].data &&
+                            option.series[0].data.length) {
+                            const date = new Date(option.xAxis[0].max || option.series[0].data[option.series[0].data.length - 1].value[0]);
+                            try {
+                                downloadLink.download =
+                                    `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
+                                    `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.${this.isTouch && this.props.config.zoom ? 'png' : 'svg'}`;
+                                downloadLink.click();
+                            } catch (e) {
+                                console.error(`Cannot access download: ${e}`);
+                                window.alert(I18n.t('Unfortunately your browser does not support this feature'));
+                            }
+                        } else {
+                            window.alert(I18n.t('No data found'));
                         }
                     }
                 }}
@@ -576,8 +620,8 @@ class ChartView extends React.Component {
             className={ this.props.classes.chart }
             style={{
                 borderWidth,
-                width:          borderWidth || borderPadding ? 'calc(100% - ' + ((borderWidth + borderPadding) * 2 + 1) + 'px' : undefined,
-                height:         borderWidth || borderPadding ? 'calc(100% - ' + (borderWidth + borderPadding) * 2 + 'px' : undefined,
+                width:          borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : undefined,
+                height:         borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : undefined,
                 background:     this.props.config.noBackground ? undefined : this.props.config.window_bg || undefined,
                 borderColor:    this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
                 borderStyle:    this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',

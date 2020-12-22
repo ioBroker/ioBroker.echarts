@@ -458,5 +458,8 @@
   "Orientation": "Ориентация",
   "Steps on start": "Шаги на старте",
   "Paste": "Вставить",
-  "No interpolate in hover": "В подсказке не интерполировать"
+  "No interpolate in hover": "В подсказке не интерполировать",
+  "Show only in legend": "Показать только в легенде",
+  "Collapse all markings": "Свернуть все маркировки",
+  "Expand all markings": "Развернуть все маркировки"
 }

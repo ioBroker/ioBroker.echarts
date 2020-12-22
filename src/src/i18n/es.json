@@ -458,5 +458,8 @@
   "Orientation": "Orientación",
   "Steps on start": "Pasos al inicio",
   "Paste": "Pegar",
-  "No interpolate in hover": "Sin interpolación en la información sobre herramientas"
+  "No interpolate in hover": "Sin interpolación en la información sobre herramientas",
+  "Show only in legend": "Mostrar solo en leyenda",
+  "Collapse all markings": "Contraer todas las marcas",
+  "Expand all markings": "Expandir todas las marcas"
 }

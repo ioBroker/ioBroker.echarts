@@ -60,6 +60,8 @@ if (window.location.host !== 'localhost:3000') {
                         ignore = true;
                     } else if (event.exception.values[0].value.includes('ioBroker is not connected')) {
                         ignore = true;
+                    } else if (event.exception.values[0].value === `Cannot read property 'getDisplayList' of null`) {
+                        ignore = true;
                     }
                 }
             }

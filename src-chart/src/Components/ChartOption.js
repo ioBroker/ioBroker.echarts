@@ -328,6 +328,7 @@ class ChartOption {
         this.calcTextWidth = calcTextWidth;
         this.themeType = themeType || 'light';
         this.chart = {yAxis: []};
+        this.isTouch = 'ontouchstart' in document.documentElement;
     }
 
     setThemeName(themeType) {
@@ -412,16 +413,20 @@ class ChartOption {
                 }
             };
             if (parseFloat(oneLine.fill)) {
-                const colorGradient = new LinearGradient(0, 0, 0, 1, [{
-                    offset: 0,
-                    color: brighterColor(color, 30)
-                }, {
-                    offset: 1,
-                    color
-                }]);
-
+                let _color;
+                if (!this.isTouch) {
+                    _color = new LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: brighterColor(color, 30)
+                    }, {
+                        offset: 1,
+                        color
+                    }]);
+                } else {
+                    _color = color;
+                }
                 cfg.areaStyle = {
-                    color: colorGradient,
+                    color: _color,
                     opacity: parseFloat(oneLine.fill) || 0,
                 };
             }
@@ -769,29 +774,37 @@ class ChartOption {
     }
 
     getLegend(xAxisHeight, actualValues) {
-        return !this.config.legend || this.config.legend === 'none' ? undefined : {
-            //data:   this.config.l.map(oneLine => oneLine.name),
-            data:   this.config.l.map(oneLine => oneLine.name),
-            show:   true,
-            left:   this.config.legend === 'nw' || this.config.legend === 'sw' ?  this.chart.padLeft  + 1 : undefined,
-            right:  this.config.legend === 'ne' || this.config.legend === 'se' ?  this.chart.padRight + 1 : undefined,
-            top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  10 : undefined,
-            bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
-            backgroundColor: this.config.legBg || undefined,
-            formatter: (name, arg) => {
-                if (this.config.legActual && actualValues) {
-                    for (let i = 0; i < this.config.l.length; i++) {
-                        if (this.config.l[i].name === name) {
-                            return `${name} [${this.yFormatter(actualValues[i], i, true)}]`;
+        if (!this.config.legend || this.config.legend === 'none') {
+            return undefined;
+        } else {
+            const legend = {
+                data:   this.config.l.map(oneLine => oneLine.name),
+                show:   true,
+                left:   this.config.legend === 'nw' || this.config.legend === 'sw' ?  this.chart.padLeft  + 1 : undefined,
+                right:  this.config.legend === 'ne' || this.config.legend === 'se' ?  this.chart.padRight + 1 : undefined,
+                top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  10 : undefined,
+                bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
+                backgroundColor: this.config.legBg || undefined,
+                formatter: (name, arg) => {
+                    if (this.config.legActual && actualValues) {
+                        for (let i = 0; i < this.config.l.length; i++) {
+                            if (this.config.l[i].name === name) {
+                                return `${name} [${this.yFormatter(actualValues[i], i, true)}]`;
+                            }
                         }
                     }
-                }
-                return name;
-            },
-            textStyle: {
-                color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF')
-            },
-            orient: this.config.legendDirection || 'horizontal',
+                    return name;
+                },
+                textStyle: {
+                    color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF')
+                },
+                orient: this.config.legendDirection || 'horizontal',
+                selected: {}
+            };
+
+            this.config.l.forEach(oneLine => legend.selected[oneLine.name] = oneLine.hide !== true);
+
+            return legend;
         }
     }
 

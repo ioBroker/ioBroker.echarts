@@ -1,13 +1,13 @@
 {
   "name": "iobroker.echarts",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "Build useful charts in ioBroker",
   "author": {
     "name": "bluefox",
     "email": "dogafox@gmail.com"
   },
   "homepage": "https://github.com/ioBroker/ioBroker.echarts",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "keywords": [
     "charts",
     "diagram"

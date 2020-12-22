@@ -2,5 +2,7 @@
   "Save as image": "Zapisz jako obraz",
   "Reset pan and zoom": "Zresetuj przesuwanie i powiększanie",
   "Save chart as svg": "Zapisz wykres jako SVG",
-  "Unfortunately your browser does not support this feature": "Niestety Twoja przeglądarka nie obsługuje tej funkcji"
+  "Unfortunately your browser does not support this feature": "Niestety Twoja przeglądarka nie obsługuje tej funkcji",
+  "Save chart as png": "Zapisz wykres jako png",
+  "No data found": "Nie znaleziono danych"
 }

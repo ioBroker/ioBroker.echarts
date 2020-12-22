@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.9",
+        "version": "0.4.10",
         "news": {
+            "0.4.10": {
+                "en": "Allow the hiding of lines at start and show them via legend later\nUse canvas renderer on touch devices to allow zoom and pan",
+                "de": "Lassen Sie das Ausblenden von Linien zu Beginn zu und zeigen Sie sie später per Legende an\nVerwenden Sie den Canvas-Renderer auf Touch-Geräten, um das Zoomen und Schwenken zu ermöglichen",
+                "ru": "Разрешить скрытие линий в начале и показывать их позже в легенде\nИспользуйте средство визуализации холста на сенсорных устройствах, чтобы разрешить масштабирование и панорамирование",
+                "pt": "Permitir ocultar as linhas no início e mostrá-las mais tarde na legenda\nUse o renderizador de tela em dispositivos de toque para permitir zoom e panorâmica",
+                "nl": "Sta het verbergen van lijnen toe aan het begin en toon ze later via een legenda\nGebruik canvas renderer op aanraakapparaten om zoomen en pannen toe te staan",
+                "fr": "Autoriser le masquage des lignes au début et les afficher via une légende plus tard\nUtilisez le moteur de rendu de canevas sur les appareils tactiles pour autoriser le zoom et le panoramique",
+                "it": "Consenti l'occultamento delle righe all'inizio e mostrale in seguito tramite la legenda\nUsa il renderer canvas sui dispositivi touch per consentire lo zoom e la panoramica",
+                "es": "Permitir que las líneas se oculten al principio y mostrarlas a través de la leyenda más tarde\nUtilice el renderizador de lienzo en dispositivos táctiles para permitir el zoom y la panorámica",
+                "pl": "Pozwól na ukrywanie linii na początku i pokaż je później za pomocą legendy\nUżyj modułu renderującego płótno na urządzeniach dotykowych, aby umożliwić powiększanie i przesuwanie",
+                "zh-cn": "允许在开始时隐藏行，并在以后通过图例显示\n在触摸设备上使用画布渲染器以允许缩放和平移"
+            },
             "0.4.9": {
                 "en": "Updated echarts to 5.0\nImplemented copy&paste of lines and markings\nAvailable vertical legend\nAllowed to hide interpolated values in tooltip",
                 "de": "Aktualisierte Echarts auf 5.0\nDas Kopieren und Einfügen von Linien und Markierungen wurde implementiert\nVerfügbare vertikale Legende\nErlaubt das Ausblenden interpolierter Werte in der QuickInfo",
@@ -268,7 +280,7 @@
             "singleton": true,
             "name": "ECharts"
         },
-        "license": "MIT",
+        "license": "BSD-3-Clause",
         "platform": "Javascript/Node.js",
         "main": "main.js",
         "icon": "echarts.png",

@@ -466,6 +466,7 @@ class Line extends React.Component {
                 }}/> : null }
                 {(this.props.line.chartType !== 'auto' && this.props.line.chartType === 'scatterplot') || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
                 {this.props.line.chartType !== 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')}/> : null }
+                {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend"/> : null}
             </div>
             <div className={this.props.classes.shortFields}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>

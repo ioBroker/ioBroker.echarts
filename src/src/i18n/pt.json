@@ -458,5 +458,8 @@
   "Orientation": "Orientação",
   "Steps on start": "Passos no início",
   "Paste": "Colar",
-  "No interpolate in hover": "Sem interpolação na dica de ferramenta"
+  "No interpolate in hover": "Sem interpolação na dica de ferramenta",
+  "Show only in legend": "Mostrar apenas na legenda",
+  "Collapse all markings": "Recolher todas as marcações",
+  "Expand all markings": "Expanda todas as marcações"
 }

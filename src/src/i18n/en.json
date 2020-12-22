@@ -458,5 +458,8 @@
   "Orientation": "Orientation",
   "Steps on start": "Steps on start",
   "Paste": "Paste",
-  "No interpolate in hover": "No interpolation in tooltip"
+  "No interpolate in hover": "No interpolation in tooltip",
+  "Show only in legend": "Show only in legend",
+  "Collapse all markings": "Collapse all markings",
+  "Expand all markings": "Expand all markings"
 }

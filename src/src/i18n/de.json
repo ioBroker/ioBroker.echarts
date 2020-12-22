@@ -458,5 +458,8 @@
   "Orientation": "Orientierung",
   "Steps on start": "Schritte beim Start",
   "Paste": "Einfügen",
-  "No interpolate in hover": "Keine Interpolation im Tooltip"
+  "No interpolate in hover": "Keine Interpolation im Tooltip",
+  "Show only in legend": "Nur in der Legende anzeigen",
+  "Collapse all markings": "Alle Markierungen zusammenklappen",
+  "Expand all markings": "Alle Markierungen aufklappen"
 }
