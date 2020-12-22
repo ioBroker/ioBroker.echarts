@@ -328,7 +328,7 @@ class ChartOption {
         this.calcTextWidth = calcTextWidth;
         this.themeType = themeType || 'light';
         this.chart = {yAxis: []};
-        this.isTouch = 'ontouchstart' in document.documentElement;
+        this.isTouch = 'ontouchstart' in window.document.documentElement;
     }
 
     setThemeName(themeType) {
@@ -837,7 +837,7 @@ class ChartOption {
         if (config) {
             this.config = JSON.parse(JSON.stringify(config));
         }
-
+        const useCanvas = this.isTouch && this.config.zoom;
         const xAxisHeight = 20;
 
         let theme = this.config.theme;
@@ -920,7 +920,8 @@ class ChartOption {
                     realtime: true,
                 },
             ],*/
-            series
+            series,
+            useCanvas
         };
 
         this.getMarkings(option);

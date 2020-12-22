@@ -149,8 +149,6 @@ class ChartView extends React.Component {
         this.lastIds.sort();
 
         this.chartOption = new ChartOption(moment, this.props.themeType, calcTextWidth);
-
-        this.isTouch = 'ontouchstart' in document.documentElement;
     }
 
     componentDidMount() {
@@ -452,7 +450,7 @@ class ChartView extends React.Component {
         if (this.zr && this.props.config.zoom && !this.zr._iobInstalled) {
             this.zr._iobInstalled = true;
 
-            if (!this.isTouch) {
+            if (!this.option || !this.option.useCanvas) {
                 this.zr.on('mousedown', this.onMouseDown);
                 this.zr.on('mouseup', this.onMouseUp);
                 this.zr.on('mousewheel', this.onMouseWheel);
@@ -464,7 +462,7 @@ class ChartView extends React.Component {
         } else if (this.zr && !this.props.config.zoom && this.zr._iobInstalled) {
             this.zr._iobInstalled = false;
 
-            if (!this.isTouch) {
+            if (!!this.option || !this.option.useCanvas) {
                 this.zr.off('mousedown', this.onMouseDown);
                 this.zr.off('mouseup', this.onMouseUp);
                 this.zr.off('mousewheel', this.onMouseWheel);
@@ -505,7 +503,7 @@ class ChartView extends React.Component {
                 lazyUpdate={ true }
                 theme={ this.option.theme }
                 style={{ height: this.state.chartHeight + 'px', width: '100%' }}
-                opts={this.isTouch && this.props.config.zoom ? undefined : { renderer: 'svg' }}
+                opts={this.option && this.option.useCanvas ? undefined : { renderer: 'svg' }}
                 onEvents={ {
                     /*datazoom: e => {
                         const {startValue, endValue} = e.batch[0];
@@ -560,7 +558,7 @@ class ChartView extends React.Component {
             return <IconExport
                 color={this.props.config.exportColor || 'default'}
                 className={this.props.classes.exportButton}
-                title={this.isTouch && this.props.config.zoom ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')}
+                title={this.option && this.option.useCanvas ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')}
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                         const chartInstance = this.echartsReact.getEchartsInstance();
@@ -590,7 +588,7 @@ class ChartView extends React.Component {
                             try {
                                 downloadLink.download =
                                     `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
-                                    `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.${this.isTouch && this.props.config.zoom ? 'png' : 'svg'}`;
+                                    `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.${this.option && this.option.useCanvas ? 'png' : 'svg'}`;
                                 downloadLink.click();
                             } catch (e) {
                                 console.error(`Cannot access download: ${e}`);
