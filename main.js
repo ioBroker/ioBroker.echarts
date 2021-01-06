@@ -71,9 +71,7 @@ function startAdapter(options) {
     adapter.on('message', obj =>
         obj && obj.command === 'send' && processMessage(adapter, obj));
 
-    adapter.on('ready', () => {
-        main(adapter);
-    });
+    adapter.on('ready', () => main(adapter));
 
     adapter.__emailTransport  = null;
     adapter.__stopTimer       = null;
@@ -251,7 +249,7 @@ function main(adapter) {
             adapter.setForeignObject(obj._id, obj);
         }
     });
-
+    
     /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
         .then(data => {
             const base64 = Buffer.from(data.split(',')[1], 'base64');

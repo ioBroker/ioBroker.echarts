@@ -750,7 +750,7 @@ class ChartModel {
                 if (this.config.legActual) {
                     // read current value
                     return this.socket.getState(id)
-                        .then(state => this.actualValues[index] = state ? state.val || null : null)
+                        .then(state => this.actualValues[index] = state && state.val && state.val !== null && state.val !== undefined ? state.val : null)
                         .catch(e => {
                             console.warn(`Cannot read last value of ${id}: ${e}`);
                             this.actualValues[index] = null;
