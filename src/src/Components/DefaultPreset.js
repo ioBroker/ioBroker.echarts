@@ -153,6 +153,8 @@ function getDefaultPreset(systemSettings, instance, obj, language) {
 
     return preset;
 }
+
+// eslint-disable-next-line
 export default {
     getDefaultPreset,
     getDefaultLine

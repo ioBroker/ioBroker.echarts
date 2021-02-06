@@ -7,6 +7,7 @@
 'use strict';
 
 const fs         = require('fs');
+const path       = require('path');
 const del        = require('del');
 const cp         = require('child_process');
 
@@ -230,14 +231,14 @@ module.exports = function init(gulp) {
                 checkChart(resolve, reject, Date.now()));
         } else {
             console.log('Check src-chart/build/service-worker.js');
-            if (fs.existsSync(__dirname + '/src-chart/build/service-worker.js')) {
-                console.log('Exists src-chart/build/service-worker.js');
+            if (fs.existsSync(__dirname + '/src-chart/build/index.html')) {
+                console.log('Exists src-chart/build/index.html');
                 setTimeout(() => resolve(), 500);
             } else {
                 if (Date.now() - start > 30000) {
                     reject('timeout');
                 } else {
-                    console.log('Wait for src-chart/build/service-worker.js');
+                    console.log('Wait for src-chart/build/index.html');
                     setTimeout(() => checkChart(resolve, reject, start), 500);
                 }
             }
@@ -264,16 +265,63 @@ module.exports = function init(gulp) {
         }
     }
 
+    /*function copyFileSync(source, target) {
+        let targetFile = target;
+
+        // If target is a directory, a new file with the same name will be created
+        if (fs.existsSync(target)) {
+            if (fs.lstatSync(target).isDirectory()) {
+                targetFile = path.join(target, path.basename(source));
+            }
+        }
+
+        fs.writeFileSync(targetFile, fs.readFileSync(source));
+    }
+
+    function copyFolderRecursiveSync(source, target) {
+        let files = [];
+
+        // Copy
+        if (fs.lstatSync(source).isDirectory()) {
+            files = fs.readdirSync(source);
+            files.forEach(file => {
+                const targetFolder = path.join(target, path.basename(source));
+                if (!fs.existsSync(targetFolder)) {
+                    fs.mkdirSync(targetFolder);
+                }
+
+                const curSource = path.join(source, file);
+                if (fs.lstatSync(curSource).isDirectory() ) {
+                    copyFolderRecursiveSync(curSource, targetFolder);
+                } else {
+                    copyFileSync(curSource, targetFolder);
+                }
+            });
+        }
+    }*/
+    function copyFolderRecursiveSync(src, dest) {
+        const stats = fs.existsSync(src) && fs.statSync(src);
+        if (stats && stats.isDirectory()) {
+            !fs.existsSync(dest) && fs.mkdirSync(dest);
+            fs.readdirSync(src).forEach(childItemName=> {
+                copyFolderRecursiveSync(
+                    path.join(src, childItemName),
+                    path.join(dest, childItemName));
+            });
+        } else {
+            fs.copyFileSync(src, dest);
+        }
+    }
+
     function copyFilesToWWW() {
         return del([
             'www/**/*'
         ]).then(() => {
             return checkChart()
                 .then(() =>
-                    gulp.src(['admin/chart/**/*',])
-                        .pipe(gulp.dest('www')))
-                .then(() => checkWWW())
-                .then(() => new Promise(resolve => {
+                    copyFolderRecursiveSync(__dirname + '/admin/chart/', __dirname + '/www'))
+                .then(() =>
+                    new Promise(resolve => {
                         if (fs.existsSync(__dirname + '/www/index.html')) {
                             let code = fs.readFileSync(__dirname + '/www/index.html').toString('utf8');
                             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
@@ -290,7 +338,8 @@ module.exports = function init(gulp) {
                     }));
         });
     }
-    gulp.task('[chart]7-copy-www', () => copyFilesToWWW());
+    gulp.task('[chart]7-copy-www', () =>
+        copyFilesToWWW());
 
     gulp.task('[chart]7-copy-www-dep',  gulp.series('[chart]6-patch-dep', '[chart]7-copy-www'));
 

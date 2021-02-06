@@ -387,6 +387,11 @@ class ChartOption {
             }
 
             oneLine.shadowsize = parseFloat(oneLine.shadowsize) || 0;
+            if (oneLine.dashes === 'false') {
+                oneLine.dashes = false;
+            } else if (oneLine.dashes === 'true') {
+                oneLine.dashes = true;
+            }
 
             const yAxisIndex = oneLine.commonYAxis === '' || oneLine.commonYAxis === undefined ? i : parseInt(oneLine.commonYAxis) || 0;
             const cfg = {

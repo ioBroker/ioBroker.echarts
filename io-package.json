@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.10",
+        "version": "0.4.11",
         "news": {
+            "0.4.11": {
+                "en": "Fixed the dashed lines",
+                "de": "Die gestrichelten Linien wurden korrigiert",
+                "ru": "Исправлены пунктирные линии",
+                "pt": "Corrigiu as linhas tracejadas",
+                "nl": "Repareerde de stippellijnen",
+                "fr": "Correction des lignes pointillées",
+                "it": "Corrette le linee tratteggiate",
+                "es": "Se corrigieron las líneas discontinuas",
+                "pl": "Naprawiono przerywane linie",
+                "zh-cn": "固定虚线"
+            },
             "0.4.10": {
                 "en": "Allow the hiding of lines at start and show them via legend later\nUse canvas renderer on touch devices to allow zoom and pan",
                 "de": "Lassen Sie das Ausblenden von Linien zu Beginn zu und zeigen Sie sie später per Legende an\nVerwenden Sie den Canvas-Renderer auf Touch-Geräten, um das Zoomen und Schwenken zu ermöglichen",
@@ -230,18 +242,6 @@
                 "es": "Soporte agregado de múltiples gráficos",
                 "pl": "Dodano obsługę wielu wykresów",
                 "zh-cn": "增加了对多个图表的支持"
-            },
-            "0.1.1": {
-                "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "zh-cn": "首次出版"
             }
         },
         "title": "E-Charts",

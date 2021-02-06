@@ -1,6 +1,6 @@
 {
   "name": "iobroker.echarts",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "description": "Build useful charts in ioBroker",
   "author": {
     "name": "bluefox",
@@ -25,12 +25,12 @@
     "moment": "^2.29.1"
   },
   "devDependencies": {
-    "@alcalzone/release-script": "^1.8.1",
-    "@iobroker/testing": "^2.3.0",
-    "@types/gulp": "^4.0.7",
-    "axios": "^0.21.0",
-    "eslint": "^6.6.0",
-    "chai": " ^4.2.0",
+    "@alcalzone/release-script": "^1.8.3",
+    "@iobroker/testing": "^2.4.2",
+    "@types/gulp": "^4.0.8",
+    "axios": "^0.21.1",
+    "eslint": "^7.19.0",
+    "chai": "^4.3.0",
     "del": "^6.0.0",
     "gulp": "^4.0.2",
     "gulp-rename": "^2.0.0",
