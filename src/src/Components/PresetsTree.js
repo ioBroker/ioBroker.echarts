@@ -51,12 +51,15 @@ import Utils from '@iobroker/adapter-react/Components/Utils';
     result = result.join('.');
     return result;
 }*/
+const HIDDEN_FOLDER = '_consumption_';
+
+const hideFolder = !window.location.search.includes('hidden=false');
 
 function getFolderList(folder) {
     let result = [];
-    result.push(folder);
-    Object.values(folder.subFolders || {}).forEach(subFolder =>
-        result = result.concat(getFolderList(subFolder)));
+    Object.values(folder.subFolders || {})
+        .forEach(subFolder =>
+            result = result.concat(getFolderList(subFolder)));
 
     return result;
 }
@@ -372,6 +375,7 @@ class MenuList extends Component {
             // add first sub-folders
             subFolders
                 .sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0))
+                .filter(subFolder => !(hideFolder && subFolder.id === HIDDEN_FOLDER))
                 .forEach(subFolder =>
                     reactChildren.push(this.renderPresetsTree(subFolder, level + 1)));
 
@@ -457,7 +461,7 @@ class MenuList extends Component {
                 prefix = prefix.join('.');
 
                 if (Object.keys(folder.presets).find(id => id === this.props.selectedId)) {
-                    newSelectedId = 'preset.0.' + prefix + '.' + this.props.selectedId.split('.').pop();
+                    newSelectedId = `preset.0.${prefix}.${this.props.selectedId.split('.').pop()}`;
                 }
 
                 const promises = Object.keys(folder.presets).map(presetId =>
@@ -473,6 +477,9 @@ class MenuList extends Component {
 
     isNameUnique(presetId, name) {
         const len = presetId.split('.').length;
+        if (name === HIDDEN_FOLDER) {
+            return false;
+        }
         return !Object.keys(this.state.presets)
             .find(id => len === id.split('.').length && this.state.presets[id].common.name === name);
     }
@@ -612,7 +619,7 @@ class MenuList extends Component {
                         value={ this.state.addPresetFolderName }
                         onChange={ e => this.setState({addPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()})}
                         onKeyPress={e => {
-                            if (this.state.addPresetFolderName && e.which === 13) {
+                            if (this.state.addPresetFolderName && e.which === 13 && this.state.addPresetFolderName !== HIDDEN_FOLDER) {
                                 this.addFolder(null, this.state.addPresetFolderName)
                                     .then(() => this.props.onClosePresetFolderDialog(() =>
                                         this.informAboutSubFolders()));
@@ -627,7 +634,11 @@ class MenuList extends Component {
                     </Button>
                     <Button
                         variant="contained"
-                        disabled={!this.state.addPresetFolderName || !!Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {}).find(name => name === this.state.addPresetFolderName)}
+                        disabled={
+                            !this.state.addPresetFolderName ||
+                            !!Object.keys((this.state.presetFolders && this.state.presetFolders.subFolders) || {}).find(name => name === this.state.addPresetFolderName) ||
+                            this.state.addPresetFolderName === HIDDEN_FOLDER
+                        }
                         onClick={() =>
                             this.addFolder(null, this.state.addPresetFolderName)
                                 .then(() => this.props.onClosePresetFolderDialog(() =>
@@ -663,7 +674,7 @@ class MenuList extends Component {
                     label={ I18n.t('Title') }
                     value={ this.state.editPresetFolderName }
                     onKeyPress={e => {
-                        if (this.state.editPresetFolderName && e.which === 13) {
+                        if (this.state.editPresetFolderName && e.which === 13 && this.state.editPresetFolderName !== HIDDEN_FOLDER) {
                             this.renamePresetFolder(this.state.editPresetFolderDialog, this.state.editPresetFolderName)
                                 .then(() => this.setState({editPresetFolderDialog: null}));
                         }
@@ -677,7 +688,7 @@ class MenuList extends Component {
                 </Button>
                 <Button
                     variant="contained"
-                    disabled={ !this.state.editPresetFolderName || this.state.editFolderDialogTitleOrigin === this.state.editPresetFolderName || !isUnique}
+                    disabled={ !this.state.editPresetFolderName || this.state.editFolderDialogTitleOrigin === this.state.editPresetFolderName || !isUnique || this.state.editPresetFolderName === HIDDEN_FOLDER}
                     onClick={ () => {
                         this.renamePresetFolder(this.state.editPresetFolderDialog, this.state.editPresetFolderName)
                             .then(() => this.setState({editPresetFolderDialog: null}));

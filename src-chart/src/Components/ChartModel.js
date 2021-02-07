@@ -308,16 +308,26 @@ class ChartModel {
                         query.data = {};
                     }
                 }
-                // search ID and range
-                const _config = Object.assign(query.data || {}, hQuery.data || {}, true);
-                if (hQuery.noLoader !== undefined) {
-                    _config.noLoader = hQuery.noLoader === true || hQuery.noLoader === 'true' || hQuery.noLoader === 1 || hQuery.noLoader === '1';
+                if (hQuery.preset) {
+                    this.preset = hQuery.preset;
+                    if (hQuery.range || hQuery.relativeEnd) {
+                        this.hash = {
+                            range: hQuery.range,
+                            relativeEnd: hQuery.relativeEnd
+                        };
+                    }
+                } else {
+                    // search ID and range
+                    const _config = Object.assign(query.data || {}, hQuery.data || {}, true);
+                    if (hQuery.noLoader !== undefined) {
+                        _config.noLoader = hQuery.noLoader === true || hQuery.noLoader === 'true' || hQuery.noLoader === 1 || hQuery.noLoader === '1';
+                    }
+                    if (query.noLoader !== undefined) {
+                        _config.noLoader = query.noLoader === true || query.noLoader === 'true' || query.noLoader === 1 || query.noLoader === '1';
+                    }
+                    this.config = normalizeConfig(_config);
+                    //console.log(this.config);
                 }
-                if (query.noLoader !== undefined) {
-                    _config.noLoader = query.noLoader === true || query.noLoader === 'true' || query.noLoader === 1 || query.noLoader === '1';
-                }
-                this.config = normalizeConfig(_config);
-                //console.log(this.config);
             }
         }
 
@@ -343,6 +353,13 @@ class ChartModel {
                     this.config.lang     = this.systemConfig.language;
                     this.config.live     = parseInt(this.config.live, 10) || 0;
                     this.config.debug    = this.debug;
+
+                    if (this.hash && this.hash.range) {
+                        this.config.range = this.hash.range;
+                    }
+                    if (this.hash && this.hash.relativeEnd) {
+                        this.config.relativeEnd = this.hash.relativeEnd;
+                    }
 
                     this.readData();
 
