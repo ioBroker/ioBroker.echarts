@@ -285,7 +285,7 @@ class Mark extends React.Component {
                         formData={this.props.mark}
                         updateValue={this.updateField}
                         name="lowerValueOrId"
-                        label="Upper value or ID"
+                        label="Lower value or ID"
                         socket={this.props.socket}
                         classes={{fieldContainer: this.props.classes.shortLowerValueOrIdField}}
                         minWidth={WIDTHS.lowerValueOrId}
