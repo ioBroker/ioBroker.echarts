@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.12",
+        "version": "0.4.13",
         "news": {
+            "0.4.13": {
+                "en": "Tried to sort the time series before displaying it",
+                "de": "Es wurde versucht, die Zeitreihen vor dem Anzeigen zu sortieren",
+                "ru": "Пытался отсортировать временной ряд перед его отображением",
+                "pt": "Tentei classificar a série temporal antes de exibi-la",
+                "nl": "Probeerde de tijdreeks te sorteren voordat deze werd weergegeven",
+                "fr": "J'ai essayé de trier la série chronologique avant de l'afficher",
+                "it": "Ho provato a ordinare le serie temporali prima di visualizzarle",
+                "es": "Intenté ordenar la serie temporal antes de mostrarla.",
+                "pl": "Podjęto próbę posortowania szeregów czasowych przed ich wyświetleniem",
+                "zh-cn": "尝试在显示时间序列之前对其进行排序"
+            },
             "0.4.12": {
                 "en": "Added the support of parameters in URL",
                 "de": "Unterstützung von Parametern in URL hinzugefügt",
@@ -230,18 +242,6 @@
                 "es": "Correcciones de GUI",
                 "pl": "GUI fixes",
                 "zh-cn": "GUI修复"
-            },
-            "0.2.0": {
-                "en": "Implemented the grouping by category.",
-                "de": "Die Gruppierung nach Kategorien wurde implementiert.",
-                "ru": "Реализована группировка по категориям.",
-                "pt": "Implementado o agrupamento por categoria.",
-                "nl": "Implementeerde de groepering op categorie.",
-                "fr": "Implémentation du regroupement par catégorie.",
-                "it": "Implementato il raggruppamento per categoria.",
-                "es": "Implementado la agrupación por categoría.",
-                "pl": "Zaimplementowano grupowanie według kategorii.",
-                "zh-cn": "实施了按类别分组。"
             }
         },
         "title": "E-Charts",

@@ -112,7 +112,7 @@ function parseHash() {
         window.location.hash
             .replace(/^#/, '')
             .split('&')
-            .map(line => {
+            .forEach(line => {
                 const [name, val] = line.split('=');
                 result[name] = window.decodeURIComponent(val);
                 if (name === 'instance' && !result[name].startsWith('system.adapter')) {
@@ -206,6 +206,9 @@ class App extends GenericApp {
 
                 if (this.config && this.config.id) {
                     newState.selectedId = {id: this.config.id, instance: this.config.instance};
+                    if (this.config.menuOpened !== undefined) {
+                        newState.menuOpened = this.config.menuOpened === 'true' || this.config.menuOpened === true;
+                    }
                     this.config = null;
                 }
 
@@ -663,7 +666,7 @@ class App extends GenericApp {
                             primaryIndex={1}
                             secondaryMinSize={300}
                             secondaryInitialSize={this.menuSize}
-                            customClassName={classes.splitterDivs + ' ' + (!this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
+                            customClassName={clsx(classes.splitterDivs, !this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
                             onDragStart={() => this.setState({resizing: true})}
                             onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
                             onDragEnd={() => {

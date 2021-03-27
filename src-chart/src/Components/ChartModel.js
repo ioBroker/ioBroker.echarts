@@ -752,6 +752,9 @@ class ChartModel {
                         _series.push({value: [option.end,   null], exact: false});
                     }
 
+                    // TODO: May be not required?
+                    _series.sort((a, b) => a.value[0] > b.value[0] ? -1 : (a.value[0] < b.value[0] ? 1 : 0));
+
                     // free memory
                     res.values = null;
                     res = null;
@@ -767,7 +770,7 @@ class ChartModel {
                 if (this.config.legActual) {
                     // read current value
                     return this.socket.getState(id)
-                        .then(state => this.actualValues[index] = state && state.val && state.val !== null && state.val !== undefined ? state.val : null)
+                        .then(state => this.actualValues[index] = state && (state.val || state.val === 0) ? state.val : null)
                         .catch(e => {
                             console.warn(`Cannot read last value of ${id}: ${e}`);
                             this.actualValues[index] = null;

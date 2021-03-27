@@ -75,6 +75,9 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### 0.4.13 (2021-03-27)
+* (bluefox) Tried to sort the time series before displaying it 
+
 ### 0.4.12 (2021-03-27)
 * (bluefox) Added the support of parameters in URL
 
@@ -89,7 +92,7 @@ You can debug view charts locally with:
 * (bluefox) Updated echarts to 5.0
 * (bluefox) Implemented copy&paste of lines and markings
 * (bluefox) Available vertical legend
-* (bluefox) Allowed to hide interpolated values in tooltip
+* (bluefox) Allowed the hiding the interpolated values in tooltip
 
 ### 0.4.7 (2020-12-13)
 * (bluefox) Updated the select ID dialog
@@ -140,7 +143,7 @@ You can debug view charts locally with:
 * (bluefox) GUI fixes
 
 ### 0.2.0 (2020-10-22)
-* (bluefox) Implemented the grouping by category.
+* (bluefox) Implemented the grouping by the category.
 
 ### 0.1.2 (2020-10-21)
 * (bluefox) Added support of multiple charts
