@@ -185,6 +185,7 @@ class MenuList extends Component {
             <div className={ this.props.classes.heightMinusToolbar }>
                 <PresetsTree
                     socket={this.props.socket}
+                    scrollToSelect={this.props.scrollToSelect}
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
                     onClosePresetFolderDialog={cb => this.setState({addPresetFolderDialog: false}, cb)}
                     onCreatePreset={(isFromCurrentSelection, parent) => this.props.onCreatePreset(isFromCurrentSelection, parent)}
@@ -207,6 +208,7 @@ class MenuList extends Component {
                 {!this.state.reorder ?
                     <ChartsTree
                         socket={this.props.socket}
+                        scrollToSelect={this.props.scrollToSelect}
                         instances={this.props.instances}
                         adapterName={this.props.adapterName}
                         onShowToast={toast => this.props.onShowToast(toast)}
@@ -242,6 +244,7 @@ MenuList.propTypes = {
     chartsList: PropTypes.array,
     onCreatePreset: PropTypes.func,
     onCopyPreset: PropTypes.func,
+    scrollToSelect: PropTypes.bool,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.string

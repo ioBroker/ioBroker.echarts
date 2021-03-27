@@ -197,9 +197,25 @@ class MenuList extends Component {
             editPresetFolderDialog: null,
             editPresetFolderName: '',
         };
+        this.scrollToSelect = false;
+        this.refSelected = React.createRef();
 
         this.getAllPresets()
             .then(newState => this.setState(newState));
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+        if (nextProps.scrollToSelect !== this.scrollToSelect) {
+            this.scrollToSelect = nextProps.scrollToSelect;
+
+            this.scrollToSelect && setTimeout(() => {
+                this.refSelected.current?.scrollIntoView({
+                    behavior: 'auto',
+                    block: 'center',
+                    inline: 'center'
+                });
+            }, 100);
+        }
     }
 
     componentDidMount() {
@@ -309,6 +325,7 @@ class MenuList extends Component {
             style={ {paddingLeft: depthPx } }
             key={ item._id }
             className={ clsx(this.props.reorder && 'item-reorder') }
+            ref={this.props.selectedId === item._id ? this.refSelected : null}
             selected={this.props.selectedId === item._id}
             button
             onClick={() => this.props.onSelectedChanged(preset._id)}
@@ -994,6 +1011,7 @@ MenuList.propTypes = {
     adapterName: PropTypes.string.isRequired,
     onShowError: PropTypes.func,
     onSelectedChanged: PropTypes.func.isRequired,
+    scrollToSelect: PropTypes.bool,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.string

@@ -106,6 +106,25 @@ function loadChartParam(name, defaultValue) {
     return window.localStorage.getItem('App.echarts.__' + name) ? window.localStorage.getItem('App.echarts.__' + name) : defaultValue;
 }
 
+function parseHash() {
+    if (window.location.hash) {
+        const result = {};
+        window.location.hash
+            .replace(/^#/, '')
+            .split('&')
+            .map(line => {
+                const [name, val] = line.split('=');
+                result[name] = window.decodeURIComponent(val);
+                if (name === 'instance' && !result[name].startsWith('system.adapter')) {
+                    result[name] = 'system.adapter.' + result[name];
+                }
+            });
+        return result;
+    } else {
+        return null;
+    }
+}
+
 class App extends GenericApp {
     constructor(props) {
         let settings = {socket: {}};
@@ -125,10 +144,27 @@ class App extends GenericApp {
             'zh-cn': require('./i18n/zh-cn'),
         };
         super(props, settings);
+
+        this.config = parseHash();
+    }
+
+    onHashChanged() {
+        super.onHashChanged();
+        const config = parseHash();
+
+        if ((config.preset && (this.state.selectedId !== config.preset)) ||
+            (config.id && (this.state.selectedId?.id !== config.id || this.state.selectedId?.instance !== config.instance))
+        ) {
+            this.loadChartOrPreset(config.preset || config, () =>
+                this.setState({scrollToSelect: true}, () =>
+                    this.setState({scrollToSelect: false})));
+        }
     }
 
     onConnectionReady() {
         let selectedId = window.localStorage.getItem('App.echarts.selectedId') || null;
+        let presetData = null;
+
         if (selectedId) {
             try {
                 selectedId = JSON.parse(selectedId)
@@ -143,7 +179,7 @@ class App extends GenericApp {
 
             selectedId,
             selectedPresetChanged: false,
-            presetData: null,
+            presetData,
             originalPresetData: null,
             chartsList: null,
             addPresetDialog: null,
@@ -167,6 +203,12 @@ class App extends GenericApp {
             .then(systemConfig => {
                 newState.systemConfig = systemConfig;
                 newState.presetData = DefaultPreset.getDefaultPreset(systemConfig);
+
+                if (this.config && this.config.id) {
+                    newState.selectedId = {id: this.config.id, instance: this.config.instance};
+                    this.config = null;
+                }
+
                 this.setState(newState);
                 return flotConverter(this.socket, this.instance);
             })
@@ -410,8 +452,14 @@ class App extends GenericApp {
                         presetData,
                         originalPresetData: '',
                         selectedPresetChanged: false,
-                        selectedId: selectedId,
-                    }, () => cb && cb());
+                        selectedId,
+                    }, () => {
+                        const hash = `#id=${selectedId.id}&instance=${selectedId.instance.replace(/^system\.adapter\./, '')}`;
+                        if (window.location.hash !== hash) {
+                            window.location.hash = hash;
+                        }
+                        cb && cb()
+                    });
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
         } else if (selectedId) {
@@ -625,6 +673,7 @@ class App extends GenericApp {
                         >
                             <MenuList
                                 key="menuList"
+                                scrollToSelect={this.state.scrollToSelect}
                                 socket={this.socket}
                                 theme={this.state.theme}
                                 adapterName={this.adapterName}

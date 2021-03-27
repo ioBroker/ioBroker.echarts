@@ -101,15 +101,31 @@ class ChartsTree extends Component {
 
         this.state = {
             instances: [], // chart folders
-            chartsOpened
+            chartsOpened,
         };
 
+        this.refSelected = React.createRef();
+        this.scrollToSelect = false;
         this.adapterPromises = {};
 
         this.getAllEnums()
             .then(newState => this.getAllCharts(newState))
             .then(newState => this.setState(newState, () =>
                 this.props.selectedId && this.props.onSelectedChanged(this.props.selectedId)));
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+        if (nextProps.scrollToSelect !== this.scrollToSelect) {
+            this.scrollToSelect = nextProps.scrollToSelect;
+
+            this.scrollToSelect && setTimeout(() => {
+                this.refSelected.current?.scrollIntoView({
+                    behavior: 'auto',
+                    block: 'center',
+                    inline: 'center'
+                });
+            }, 100);
+        }
     }
 
     getAllEnums(newState) {
@@ -447,17 +463,18 @@ class ChartsTree extends Component {
     renderListItem(group, id, dragging, level) {
         level = level || 0;
         const instance = group._id;
+        const selected = this.props.selectedId &&
+            typeof this.props.selectedId === 'object' &&
+            this.props.selectedId.id === id &&
+            this.props.selectedId.instance === instance;
+
         return <ListItem
             key={instance + '_' + id}
+            ref={selected ? this.refSelected : null}
             classes={ {gutters: this.props.classes.noGutters} }
             button
             style={{paddingLeft: LEVEL_PADDING * level}}
-            selected={
-                this.props.selectedId &&
-                typeof this.props.selectedId === 'object' &&
-                this.props.selectedId.id === id &&
-                this.props.selectedId.instance === instance
-            }
+            selected={selected}
             onClick={dragging ? undefined : () => this.props.onSelectedChanged({id, instance})}
         >
             <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
@@ -694,6 +711,7 @@ ChartsTree.propTypes = {
     multiple: PropTypes.bool,
     search: PropTypes.string,
     groupBy: PropTypes.string,
+    scrollToSelect: PropTypes.bool,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
         PropTypes.string

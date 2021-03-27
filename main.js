@@ -2,7 +2,7 @@
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2021 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *
@@ -249,7 +249,7 @@ function main(adapter) {
             adapter.setForeignObject(obj._id, obj);
         }
     });
-    
+
     /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
         .then(data => {
             const base64 = Buffer.from(data.split(',')[1], 'base64');

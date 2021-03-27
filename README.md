@@ -75,6 +75,9 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### 0.4.12 (2021-03-27)
+* (bluefox) Added the support of parameters in URL
+
 ### 0.4.11 (2021-02-06)
 * (bluefox) Fixed the dashed lines
 
@@ -148,7 +151,7 @@ You can debug view charts locally with:
 ## License
 BSD 3-Clause License
 
-Copyright (c) 2019-2020 bluefox <dogafox@gmail.com>
+Copyright (c) 2019-2021 bluefox <dogafox@gmail.com>
 Copyright (c) 2017, Baidu Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
