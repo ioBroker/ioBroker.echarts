@@ -15,12 +15,13 @@ import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 
 import IconSelectID from '@material-ui/icons/Subject';
+import ClearIcon from '@material-ui/icons/Close';
+import HelpIcon from '@material-ui/icons/Help';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
+
 import ColorPicker from './ColorPicker';
-import ClearIcon from "@material-ui/icons/Close";
-import HelpIcon from "@material-ui/icons/Help";
 
 const styles = theme => ({
     fieldContainer: {

@@ -37,7 +37,7 @@ import {MdDelete as IconDelete} from 'react-icons/md';
 import {FaScroll as IconScript} from 'react-icons/all';
 import {FaFolder as IconFolderClosed} from 'react-icons/all';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
-import IconCopy from '@iobroker/adapter-react/Components/CopyIcon';
+import IconCopy from '@iobroker/adapter-react/icons/IconCopy';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
@@ -68,7 +68,7 @@ export const Droppable = (props) => {
     const { onDrop} = props;
 
     const [{ isOver, isOverAny}, drop] = useDrop({
-        accept: ['item'],
+        accept: 'item',
         drop: e => isOver ? onDrop(e) : undefined,
         collect: monitor => ({
             isOver: monitor.isOver({ shallow: true }),
@@ -84,13 +84,9 @@ export const Droppable = (props) => {
 export const Draggable = (props) => {
     const { name } = props;
     const [{ opacity }, drag] = useDrag({
-        item: {
-            name,
-            type: 'item'
-        },
-        collect: (monitor) => ({
-            opacity: monitor.isDragging() ? 0.3 : 1,
-        }),
+        type: 'item',
+        item: () => ({name}),
+        collect: monitor => ({opacity: monitor.isDragging() ? 0.3 : 1}),
     });
     // About transform: https://github.com/react-dnd/react-dnd/issues/832#issuecomment-442071628
     return <div ref={drag} style={{ opacity, transform: 'translate3d(0, 0, 0)' }}>
@@ -446,8 +442,8 @@ class MenuList extends Component {
             } else {
                 result.push(<Droppable
                     key={'droppable_' + parent.prefix}
-                   name={parent.prefix}
-                   onDrop={e => this.onDragFinish(e.name, 'echarts.0' + (parent.prefix ? '.' : '') + parent.prefix)}
+                    name={parent.prefix}
+                    onDrop={e => this.onDragFinish(e.name, 'echarts.0' + (parent.prefix ? '.' : '') + parent.prefix)}
                 >
                     {folder}
                 </Droppable>);

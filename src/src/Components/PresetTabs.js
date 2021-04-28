@@ -31,7 +31,7 @@ import IconClose from '@material-ui/icons/Close';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import Utils from '@iobroker/adapter-react/Components/Utils';
-import IconCopy from '@iobroker/adapter-react/Components/CopyIcon';
+import IconCopy from '@iobroker/adapter-react/icons/IconCopy';
 
 import {IOTextField, IOCheckbox, IOSelect, IODateTimeField} from './Fields';
 import Line from './Line';

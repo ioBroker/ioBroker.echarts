@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.13",
+        "version": "0.4.14",
         "news": {
+            "0.4.14": {
+                "en": "Fixed reorder of presets",
+                "de": "Neuordnung von Presets behoben",
+                "ru": "Исправлен переупорядочение пресетов",
+                "pt": "Reordenação corrigida de predefinições",
+                "nl": "Vaste herschikking van voorinstellingen",
+                "fr": "Correction de la réorganisation des préréglages",
+                "it": "Risolto il riordino dei preset",
+                "es": "Reordenamiento fijo de presets",
+                "pl": "Naprawiono zmianę kolejności presetów",
+                "zh-cn": "修复了预设的重新排序"
+            },
             "0.4.13": {
                 "en": "Tried to sort the time series before displaying it",
                 "de": "Es wurde versucht, die Zeitreihen vor dem Anzeigen zu sortieren",
@@ -230,18 +242,6 @@
                 "es": "Se agregó el color del botón de exportación.\nLos valores interpolados se muestran ahora\nSe implementa la representación del lado del servidor",
                 "pl": "Dodano kolor przycisku eksportu\nWyświetlane są teraz interpolowane wartości\nZaimplementowano renderowanie po stronie serwera",
                 "zh-cn": "添加了导出按钮的颜色\n现在显示插值\n服务器端渲染已实现"
-            },
-            "0.2.1": {
-                "en": "GUI fixes",
-                "de": "GUI-Korrekturen",
-                "ru": "Исправления GUI",
-                "pt": "Correções de GUI",
-                "nl": "GUI-oplossingen",
-                "fr": "Correctifs de l'interface graphique",
-                "it": "Correzioni della GUI",
-                "es": "Correcciones de GUI",
-                "pl": "GUI fixes",
-                "zh-cn": "GUI修复"
             }
         },
         "title": "E-Charts",
