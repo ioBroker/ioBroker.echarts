@@ -51,6 +51,7 @@ class App extends Component {
             themeName:  this.getThemeName(themeInstance),
             themeType:  this.getThemeType(themeInstance),
             noBackground: query.noBG || queryHash.noBG || false,
+            compact:    query.compact || queryHash.compact || false,
         };
 
         this.inEdit =
@@ -162,7 +163,7 @@ class App extends Component {
     }
 
     createChartData(config) {
-        this.chartData = new ChartModel(this.socket, config);
+        this.chartData = new ChartModel(this.socket, config, {compact: this.state.compact});
         this.chartData.onError(err => {
             if (err === ERRORS.NOT_CONNECTED) {
                 this.divRef.current && (this.divRef.current.style.opacity = 0.5);
@@ -278,7 +279,7 @@ class App extends Component {
                  style={{
                      width: config.width,
                      height: config.height,
-                     background: config.noBackground ? undefined : this.state.theme.palette.background.default,
+                     background: this.state.noBackground ? undefined : this.state.theme.palette.background.default,
                      color: this.state.theme.palette.text.primary
                  }}>
                 <LinearProgress ref={this.progressRef} style={{display: 'block'}} className={this.props.classes.progress}/>
@@ -290,6 +291,7 @@ class App extends Component {
                     data={this.state.seriesData}
                     actualValues={this.state.actualValues}
                     config={config}
+                    compact={this.state.compact}
                     lang={I18n.getLanguage()}
                     themeType={this.state.themeType}
                     onRangeChange={options => this.chartData.setNewRange(options)}

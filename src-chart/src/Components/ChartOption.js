@@ -318,7 +318,7 @@ function zrUtilInherits(clazz, baseClazz) {
 zrUtilInherits(LinearGradient, Gradient);
 
 class ChartOption {
-    constructor(moment, themeType, calcTextWidth, config) {
+    constructor(moment, themeType, calcTextWidth, config, compact) {
         this.moment = moment;
         if (!this.moment) {
             throw new Error('moment must be set and initialized');
@@ -329,6 +329,7 @@ class ChartOption {
         this.themeType = themeType || 'light';
         this.chart = {yAxis: []};
         this.isTouch = 'ontouchstart' in window.document.documentElement;
+        this.compact = compact;
     }
 
     setThemeName(themeType) {
@@ -398,10 +399,12 @@ class ChartOption {
                 name: oneLine.name,
                 clip: true,
                 xAxisIndex: 0,
+
+                silent: true,
                 yAxisIndex,
                 type: oneLine.chartType === 'scatterplot' ? 'scatter' : 'line',
                 showSymbol: oneLine.chartType === 'scatterplot' || oneLine.points,
-                hoverAnimation: true,
+                //hoverAnimation: false,
                 animation: false,
                 step: oneLine.chartType === 'steps' ? 'end' : (oneLine.chartType === 'stepsStart' ? 'start' : undefined) ,
                 smooth: oneLine.chartType === 'spline',
@@ -409,6 +412,18 @@ class ChartOption {
                 itemStyle: {color},
                 symbolSize: (oneLine.chartType === 'scatterplot' || oneLine.points) ? (oneLine.symbolSize || 3) : undefined,
                 symbol: 'circle',
+                emphasis:{
+                    scale: false,
+                    focus: 'none',
+                    blurScope: 'none',
+                    lineStyle: {
+                        width:          parseFloat(oneLine.thickness) || 1,
+                        shadowBlur:     oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
+                        shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
+                        shadowColor:    color,
+                        type:           oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
+                    },
+                },
                 lineStyle: {
                     width:          parseFloat(oneLine.thickness) || 1,
                     shadowBlur:     oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
@@ -463,6 +478,7 @@ class ChartOption {
                         (this.config.x_ticks_color ? {color: this.config.x_ticks_color} : undefined),
                 },
                 axisLabel: {
+                    show: !this.compact,
                     formatter: this.xFormatter.bind(this),
                     color: this.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : (this.config.x_labels_color || undefined),
                 }
@@ -549,10 +565,11 @@ class ChartOption {
                 } : undefined,
                 splitNumber: parseInt(oneLine.yticks, 10) || undefined,
                 axisLabel: {
+                    show: !this.compact,
                     formatter: value => this.yFormatter(value, i, true),
                     color: oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor' ? color : (this.config.y_labels_color || undefined),
                 },
-                axisTick: {
+                axisTick: {                    
                     alignWithLabel: true,
                     lineStyle: color ? {color} : (this.config.y_ticks_color ? {color: this.config.y_ticks_color} : undefined)
                 }
@@ -882,9 +899,9 @@ class ChartOption {
                 left:   0,
                 top:    8,
                 right:  0,
-                bottom: this.isXLabelHasBreak() ? 40 : 24,
+                bottom: this.compact ? 4 : (this.isXLabelHasBreak() ? 40 : 24),
             },
-            tooltip: this.config.hoverDetail ? {
+            tooltip: !this.compact && this.config.hoverDetail ? {
                 trigger: 'axis',
                 formatter: params => this.renderTooltip(params),
                 hoverAnimation: true,
@@ -972,10 +989,12 @@ class ChartOption {
                 }
             }
         });
-        option.grid.left    = padLeft  + 10;
-        option.grid.right   = padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
-        this.chart.padLeft  = option.grid.left;
-        this.chart.padRight = option.grid.right;
+        if (!this.compact) {
+            option.grid.left    = padLeft  + 10;
+            option.grid.right   = padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
+            this.chart.padLeft  = option.grid.left;
+            this.chart.padRight = option.grid.right;    
+        }
 
         // 'nw': 'Top, left',
         // 'ne': 'Top, right',

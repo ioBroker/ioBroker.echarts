@@ -22,19 +22,22 @@ import 'moment/locale/zh-cn';
 import 'moment/locale/de';
 
 import I18n from '@iobroker/adapter-react/i18n';
-
 import ReactEchartsCore from 'echarts-for-react/lib/core';
-import echarts from 'echarts/lib/echarts';
-import 'echarts/lib/chart/line';
-import 'echarts/lib/chart/scatter';
-import 'echarts/lib/component/tooltip';
-import 'echarts/lib/component/grid';
-import 'echarts/lib/component/markLine';
-import 'echarts/lib/component/markArea';
-import 'echarts/lib/coord/cartesian/Grid';
-import 'echarts/lib/coord/cartesian/Axis2D';
-import 'zrender/lib/svg/svg';
-import 'zrender/lib/canvas/canvas';
+
+import * as echarts from 'echarts/core';
+import { LineChart, ScatterChart} from 'echarts/charts';
+import { 
+    GridComponent, 
+    ToolboxComponent, 
+    TitleComponent, 
+    LegendComponent, 
+    DataZoomComponent, 
+    TimelineComponent,
+    MarkLineComponent,
+    MarkAreaComponent,
+} from 'echarts/components';
+
+import { SVGRenderer, CanvasRenderer } from 'echarts/renderers';
 
 import ChartOption from './ChartOption';
 
@@ -57,12 +60,22 @@ import 'echarts/theme/green';
 import 'echarts/theme/gray';
 import 'echarts/theme/dark-bold';
 
-import 'echarts/lib/component/toolbox';
-import 'echarts/lib/component/title';
-import 'echarts/lib/component/legend';
-
-import 'echarts/lib/component/dataZoom';
-import 'echarts/lib/component/timeline';
+echarts.use([GridComponent, 
+    ToolboxComponent, 
+    TitleComponent, 
+    LegendComponent, 
+    DataZoomComponent, 
+    TimelineComponent,
+    MarkLineComponent,
+    MarkAreaComponent,
+    // Axis2D,
+    // CartesianGrid,
+    GridComponent, 
+    LineChart, 
+    SVGRenderer, 
+    
+    ScatterChart, 
+    CanvasRenderer]);
 
 const styles = theme => ({
     chart: {
@@ -148,7 +161,7 @@ class ChartView extends React.Component {
         this.lastIds = (this.props.config && this.props.config.l && this.props.config.l.map(item => item.id)) || [];
         this.lastIds.sort();
 
-        this.chartOption = new ChartOption(moment, this.props.themeType, calcTextWidth);
+        this.chartOption = new ChartOption(moment, this.props.themeType, calcTextWidth, undefined, this.props.compact);
     }
 
     componentDidMount() {
@@ -494,7 +507,7 @@ class ChartView extends React.Component {
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 
             this.applySelected();
-
+            console.log(11223344,this.option)
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
                 echarts={ echarts }
@@ -513,7 +526,12 @@ class ChartView extends React.Component {
                         this.selected = JSON.parse(JSON.stringify(e.selected));
                     },
                     rendered: e => {
-                        this.props.config.zoom && this.installEventHandlers();
+                        !this.props.compact && this.props.config.zoom && this.installEventHandlers();
+                    },
+                    highlight: e => {
+                        e.batch = [];
+                        console.log(e);
+                        return false;
                     }
                 }}
             />;
@@ -641,6 +659,7 @@ ChartView.propTypes = {
     actualValues: PropTypes.array,
     noAnimation: PropTypes.bool,
     onRangeChange: PropTypes.func,
+    compact: PropTypes.bool,
 };
 
 export default withWidth()(withStyles(styles)(ChartView));
