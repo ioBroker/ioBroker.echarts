@@ -1,6 +1,6 @@
 {
   "name": "iobroker.echarts",
-  "version": "0.4.14",
+  "version": "1.0.0",
   "description": "Build useful charts in ioBroker",
   "author": {
     "name": "bluefox",
@@ -17,24 +17,24 @@
     "url": "https://github.com/ioBroker/ioBroker.echarts"
   },
   "optionalDependencies": {
-    "canvas": "^2.6.1",
-    "echarts": "^5.0.0",
-    "jsdom": "^16.4.0"
+    "canvas": "^2.8.0",
+    "echarts": "^5.1.2",
+    "jsdom": "^16.6.0"
   },
   "dependencies": {
     "moment": "^2.29.1"
   },
   "devDependencies": {
-    "@alcalzone/release-script": "^1.8.3",
-    "@iobroker/testing": "^2.4.2",
+    "@alcalzone/release-script": "^2.2.0",
+    "@iobroker/testing": "^2.4.4",
     "@types/gulp": "^4.0.8",
     "axios": "^0.21.1",
-    "chai": "^4.3.0",
+    "chai": "^4.3.4",
     "del": "^6.0.0",
-    "eslint": "^7.19.0",
+    "eslint": "^7.29.0",
     "gulp": "^4.0.2",
     "gulp-rename": "^2.0.0",
-    "mocha": "^8.2.1"
+    "mocha": "^9.0.1"
   },
   "main": "main.js",
   "scripts": {

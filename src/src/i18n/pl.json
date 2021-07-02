@@ -461,5 +461,8 @@
   "No interpolate in hover": "Brak interpolacji w podpowiedzi",
   "Show only in legend": "Pokaż tylko w legendzie",
   "Collapse all markings": "Zwiń wszystkie oznaczenia",
-  "Expand all markings": "Rozwiń wszystkie oznaczenia"
+  "Expand all markings": "Rozwiń wszystkie oznaczenia",
+  "Font size": "Rozmiar czcionki",
+  "Y labels size": "Rozmiar czcionki Y",
+  "X labels size": "X rozmiar czcionki"
 }

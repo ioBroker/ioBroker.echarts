@@ -461,5 +461,8 @@
   "No interpolate in hover": "No interpolation in tooltip",
   "Show only in legend": "Show only in legend",
   "Collapse all markings": "Collapse all markings",
-  "Expand all markings": "Expand all markings"
+  "Expand all markings": "Expand all markings",
+  "Font size": "Font size",
+  "Y labels size": "Y font size",
+  "X labels size": "X font size"
 }

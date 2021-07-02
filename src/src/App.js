@@ -95,9 +95,6 @@ const styles = theme => ({
             whiteSpace: 'nowrap'
         }
     },
-    buttonIcon: {
-        marginRight: theme.spacing(0.5),
-    },
 });
 
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
@@ -507,21 +504,34 @@ class App extends GenericApp {
                         I18n.t('Are you sure for closing folder and discard unsaved changes?'))
                 }</DialogTitle>
                 <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() =>
-                        this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(false))}>
-                        <IconCancel className={ this.props.classes.buttonIcon }/>
-                        { I18n.t('Cancel') }
+                    <Button
+                        variant="outlined"
+                        onClick={() =>
+                            this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true))}
+                    >
+                            { I18n.t('Load without save')}
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={() => {
-                        this.savePreset()
-                            .then(() => this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true)));
-                    }}>
-                        <IconSave className={ this.props.classes.buttonIcon }/>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        autoFocus
+                        onClick={() => {
+                            this.savePreset()
+                                .then(() => this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true)));
+                        }}
+                        startIcon={<IconSave/>}
+                    >
+
                         { I18n.t('Save current preset and load') }
                     </Button>
-                    <Button variant="contained" onClick={() =>
-                        this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true))}>
-                        { I18n.t('Load without save') }
+                    <Button
+                        variant="contained"
+                        onClick={() =>
+                            this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(false))
+                        }
+                        startIcon={<IconCancel/>}
+                    >
+                        { I18n.t('Cancel') }
                     </Button>
                 </DialogActions>
             </Dialog> : null;

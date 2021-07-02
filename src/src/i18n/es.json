@@ -461,5 +461,8 @@
   "No interpolate in hover": "Sin interpolación en la información sobre herramientas",
   "Show only in legend": "Mostrar solo en leyenda",
   "Collapse all markings": "Contraer todas las marcas",
-  "Expand all markings": "Expandir todas las marcas"
+  "Expand all markings": "Expandir todas las marcas",
+  "Font size": "Tamaño de fuente",
+  "Y labels size": "Tamaño de fuente Y",
+  "X labels size": "Tamaño de fuente X"
 }

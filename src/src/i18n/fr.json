@@ -461,5 +461,8 @@
   "No interpolate in hover": "Aucune interpolation dans l'info-bulle",
   "Show only in legend": "Afficher uniquement dans la légende",
   "Collapse all markings": "Réduire toutes les marques",
-  "Expand all markings": "Développer toutes les marques"
+  "Expand all markings": "Développer toutes les marques",
+  "Font size": "Taille de police",
+  "Y labels size": "Taille de police Y",
+  "X labels size": "X taille de police"
 }

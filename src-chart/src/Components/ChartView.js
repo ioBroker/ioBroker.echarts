@@ -26,15 +26,16 @@ import ReactEchartsCore from 'echarts-for-react/lib/core';
 
 import * as echarts from 'echarts/core';
 import { LineChart, ScatterChart} from 'echarts/charts';
-import { 
-    GridComponent, 
-    ToolboxComponent, 
-    TitleComponent, 
-    LegendComponent, 
-    DataZoomComponent, 
+import {
+    GridComponent,
+    ToolboxComponent,
+    TitleComponent,
+    LegendComponent,
+    DataZoomComponent,
     TimelineComponent,
     MarkLineComponent,
     MarkAreaComponent,
+    TooltipComponent,
 } from 'echarts/components';
 
 import { SVGRenderer, CanvasRenderer } from 'echarts/renderers';
@@ -60,22 +61,27 @@ import 'echarts/theme/green';
 import 'echarts/theme/gray';
 import 'echarts/theme/dark-bold';
 
-echarts.use([GridComponent, 
-    ToolboxComponent, 
-    TitleComponent, 
-    LegendComponent, 
-    DataZoomComponent, 
+echarts.use([
+    GridComponent,
+    ToolboxComponent,
+    TitleComponent,
+    LegendComponent,
+    DataZoomComponent,
     TimelineComponent,
     MarkLineComponent,
     MarkAreaComponent,
+    TooltipComponent,
     // Axis2D,
     // CartesianGrid,
-    GridComponent, 
-    LineChart, 
-    SVGRenderer, 
-    
-    ScatterChart, 
-    CanvasRenderer]);
+    GridComponent,
+
+    LineChart,
+    ScatterChart,
+
+    SVGRenderer,
+
+    CanvasRenderer,
+]);
 
 const styles = theme => ({
     chart: {
@@ -145,7 +151,12 @@ class ChartView extends React.Component {
         this.state = {
             chartHeight: null,
             chartWidth: null,
-
+            paddings: {
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+            }
         };
 
         this.echartsReact = React.createRef();
@@ -502,12 +513,18 @@ class ChartView extends React.Component {
         if (this.props.data) {
             this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config, this.props.actualValues);
 
+            if (this.props.config.title) {
+                window.document.title = this.props.config.title;
+            } else if (this.props.config.presetId) {
+                window.document.title = this.props.config.presetId;
+            }
+
             // console.log(JSON.stringify(this.option, null, 2));
 
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 
             this.applySelected();
-            console.log(11223344,this.option)
+
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
                 echarts={ echarts }
@@ -527,11 +544,6 @@ class ChartView extends React.Component {
                     },
                     rendered: e => {
                         !this.props.compact && this.props.config.zoom && this.installEventHandlers();
-                    },
-                    highlight: e => {
-                        e.batch = [];
-                        console.log(e);
-                        return false;
                     }
                 }}
             />;

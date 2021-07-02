@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "0.4.14",
+        "version": "1.0.0",
         "news": {
+            "1.0.0": {
+                "en": "Fixed many bugs",
+                "de": "Viele Fehler behoben",
+                "ru": "Исправлено много ошибок",
+                "pt": "Muitos bugs corrigidos",
+                "nl": "Veel bugs opgelost",
+                "fr": "Correction de nombreux bugs",
+                "it": "Risolti molti bug",
+                "es": "Se corrigieron muchos errores",
+                "pl": "Naprawiono wiele błędów",
+                "zh-cn": "修复了许多错误"
+            },
             "0.4.14": {
                 "en": "Fixed reorder of presets",
                 "de": "Neuordnung von Presets behoben",
@@ -230,18 +242,6 @@
                 "es": "Representación corregida del lado del servidor de PNG",
                 "pl": "Poprawione renderowanie PNG po stronie serwera",
                 "zh-cn": "修正了PNG的服务器端渲染"
-            },
-            "0.3.1": {
-                "en": "Added the color of export button \nThe interpolated values are shown now\nServer-side rendering is implemented",
-                "de": "Die Farbe der Exportschaltfläche wurde hinzugefügt\nDie interpolierten Werte werden jetzt angezeigt\nServerseitiges Rendern ist implementiert",
-                "ru": "Добавлен цвет кнопки экспорта\nТеперь отображаются интерполированные значения.\nРеализован рендеринг на стороне сервера",
-                "pt": "Adicionada a cor do botão de exportação\nOs valores interpolados são mostrados agora\nA renderização do lado do servidor é implementada",
-                "nl": "De kleur van de exportknop toegevoegd\nDe geïnterpoleerde waarden worden nu weergegeven\nServer-side rendering is geïmplementeerd",
-                "fr": "Ajout de la couleur du bouton d'exportation\nLes valeurs interpolées sont maintenant affichées\nLe rendu côté serveur est implémenté",
-                "it": "Aggiunto il colore del pulsante di esportazione\nI valori interpolati vengono ora visualizzati\nViene implementato il rendering lato server",
-                "es": "Se agregó el color del botón de exportación.\nLos valores interpolados se muestran ahora\nSe implementa la representación del lado del servidor",
-                "pl": "Dodano kolor przycisku eksportu\nWyświetlane są teraz interpolowane wartości\nZaimplementowano renderowanie po stronie serwera",
-                "zh-cn": "添加了导出按钮的颜色\n现在显示插值\n服务器端渲染已实现"
             }
         },
         "title": "E-Charts",
@@ -282,7 +282,8 @@
         },
         "license": "BSD-3-Clause",
         "platform": "Javascript/Node.js",
-        "main": "main.js",
+        "connectionType": "local",
+        "dataSource": "push",
         "icon": "echarts.png",
         "messagebox": true,
         "enabled": true,
@@ -292,7 +293,8 @@
         "noConfig": true,
         "singleton": true,
         "type": "visualization",
-        "mode": "daemon"
+        "mode": "daemon",
+        "compact": true
     },
     "native": {},
     "objects": [

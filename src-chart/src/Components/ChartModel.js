@@ -353,6 +353,7 @@ class ChartModel {
                     this.config.lang     = this.systemConfig.language;
                     this.config.live     = parseInt(this.config.live, 10) || 0;
                     this.config.debug    = this.debug;
+                    this.config.presetId = this.preset;
 
                     if (this.hash && this.hash.range) {
                         this.config.range = this.hash.range;
@@ -753,7 +754,7 @@ class ChartModel {
                     }
 
                     // TODO: May be not required?
-                    _series.sort((a, b) => a.value[0] > b.value[0] ? -1 : (a.value[0] < b.value[0] ? 1 : 0));
+                    _series.sort((a, b) => a.value[0] > b.value[0] ? 1 : (a.value[0] < b.value[0] ? -1 : 0));
 
                     // free memory
                     res.values = null;

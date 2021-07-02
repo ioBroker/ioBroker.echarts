@@ -461,5 +461,8 @@
   "No interpolate in hover": "В подсказке не интерполировать",
   "Show only in legend": "Показать только в легенде",
   "Collapse all markings": "Свернуть все маркировки",
-  "Expand all markings": "Развернуть все маркировки"
+  "Expand all markings": "Развернуть все маркировки",
+  "Font size": "Размер шрифта",
+  "Y labels size": "Размер шрифта Y",
+  "X labels size": "Размер шрифта X"
 }

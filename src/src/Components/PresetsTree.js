@@ -474,7 +474,7 @@ class MenuList extends Component {
                 prefix = prefix.join('.');
 
                 if (Object.keys(folder.presets).find(id => id === this.props.selectedId)) {
-                    newSelectedId = `preset.0.${prefix}.${this.props.selectedId.split('.').pop()}`;
+                    newSelectedId = `${this.props.adapterName}.0.${prefix}.${this.props.selectedId.split('.').pop()}`;
                 }
 
                 const promises = Object.keys(folder.presets).map(presetId =>
@@ -628,6 +628,7 @@ class MenuList extends Component {
                 <DialogContent className={ this.props.classes.p }>
                     <TextField
                         fullWidth={true}
+                        autoFocus
                         label={ I18n.t('Title') }
                         value={ this.state.addPresetFolderName }
                         onChange={ e => this.setState({addPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()})}
@@ -641,10 +642,6 @@ class MenuList extends Component {
                     />
                 </DialogContent>
                 <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                    <Button variant="contained" onClick={() => this.props.onClosePresetFolderDialog()}>
-                        <IconCancel className={ this.props.classes.buttonIcon }/>
-                        { I18n.t('Cancel') }
-                    </Button>
                     <Button
                         variant="contained"
                         disabled={
@@ -657,10 +654,18 @@ class MenuList extends Component {
                                 .then(() => this.props.onClosePresetFolderDialog(() =>
                                     this.informAboutSubFolders()))
                         }
-                        color="primary" autoFocus
+                        color="primary"
+                        autoFocus
+                        startIcon={<IconCheck/>}
                     >
-                        <IconCheck className={ this.props.classes.buttonIcon }/>
                         {I18n.t('Create')}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => this.props.onClosePresetFolderDialog()}
+                        startIcon={<IconCancel/>}
+                    >
+                        { I18n.t('Cancel') }
                     </Button>
                 </DialogActions>
             </Dialog> : null;
@@ -684,6 +689,7 @@ class MenuList extends Component {
             <DialogContent>
                 <TextField
                     fullWidth={true}
+                    autoFocus
                     label={ I18n.t('Title') }
                     value={ this.state.editPresetFolderName }
                     onKeyPress={e => {
@@ -695,10 +701,6 @@ class MenuList extends Component {
                     onChange={ e => this.setState({editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()}) }/>
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({editPresetFolderDialog: null}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Cancel') }
-                </Button>
                 <Button
                     variant="contained"
                     disabled={ !this.state.editPresetFolderName || this.state.editFolderDialogTitleOrigin === this.state.editPresetFolderName || !isUnique || this.state.editPresetFolderName === HIDDEN_FOLDER}
@@ -707,10 +709,16 @@ class MenuList extends Component {
                             .then(() => this.setState({editPresetFolderDialog: null}));
                     }}
                     color="primary"
-                    autoFocus
+                    startIcon={<IconCheck/>}
                 >
-                    <IconCheck className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Rename') }
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={ () => this.setState({editPresetFolderDialog: null}) }
+                    startIcon={<IconCancel/>}
+                >
+                    { I18n.t('Cancel') }
                 </Button>
             </DialogActions>
         </Dialog>;
@@ -739,6 +747,7 @@ class MenuList extends Component {
                 <FormControl classes={ {root: this.props.classes.width100} }>
                     <InputLabel shrink={ true }>{ I18n.t('Folder') }</InputLabel>
                     <Select
+                        autoFocus
                         fullWidth={true}
                         className={ this.props.classes.width100 }
                         value={ this.state.newPresetFolder || '__root__' }
@@ -759,20 +768,24 @@ class MenuList extends Component {
                 </FormControl>
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({movePresetDialog: null}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Cancel') }
-                </Button>
                 <Button
                     variant="contained"
                     disabled={ !isIdUnique }
                     color="primary" onClick={() =>
-                    this.setState({movePresetDialog: null}, () =>
-                        this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))
-                }
+                        this.setState({movePresetDialog: null}, () =>
+                            this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))
+                    }
+                    startIcon={<IconCheck/>}
                 >
-                    <IconCheck className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Move to folder') }
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={ () => this.setState({movePresetDialog: null}) }
+                    startIcon={<IconCancel/>}
+                >
+                    <IconCancel className={ this.props.classes.buttonIcon }/>
+                    { I18n.t('Cancel') }
                 </Button>
             </DialogActions>
         </Dialog>;
@@ -795,8 +808,8 @@ class MenuList extends Component {
             this.props.socket.getObject(source)
                 .then(obj => {
                     if (obj) {
-                        this.props.socket.delObject(source)
-                            .then(() => this.props.socket.setObject(newId, obj))
+                        this.props.socket.setObject(newId, obj)
+                            .then(() => this.props.socket.delObject(source))
                             .then(() => this.getAllPresets())
                             .then(newState => this.setState(newState))
                             .catch(e => this.onError(e, `Cannot delete object ${source}`));
@@ -825,8 +838,15 @@ class MenuList extends Component {
                 <FormControl classes={ {root: this.props.classes.width100} }>
                     <TextField
                         fullWidth={true}
+                        autoFocus
                         label={ I18n.t('Name') }
                         value={ this.state.renamePresetDialogTitle }
+                        onKeyDown={e => {
+                            if (e.keyCode === 13 && this.state.renamePresetDialogTitle && this.isNameUnique(presetId, this.state.renamePresetDialogTitle)) {
+                                this.setState({renameDialog: null}, () =>
+                                    this.renamePreset(presetId, this.state.renamePresetDialogTitle));
+                            }
+                        }}
                         onChange={ e => this.setState({renamePresetDialogTitle: e.target.value})}
                         onKeyPress={e => {
                             if (this.isNameUnique(presetId, this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle && e.which === 13) {
@@ -838,20 +858,23 @@ class MenuList extends Component {
                 </FormControl>
             </DialogContent>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({renameDialog: null}) }>
-                    <IconCancel className={ this.props.classes.buttonIcon }/>
-                    { I18n.t('Cancel') }
-                </Button>
                 <Button
                     variant="contained"
                     disabled={ !this.state.renamePresetDialogTitle || !this.isNameUnique(presetId, this.state.renamePresetDialogTitle) }
                     color="primary" onClick={() =>
-                    this.setState({renameDialog: null}, () =>
-                        this.renamePreset(presetId, this.state.renamePresetDialogTitle))
-                }
+                        this.setState({renameDialog: null}, () =>
+                            this.renamePreset(presetId, this.state.renamePresetDialogTitle))
+                    }
+                    startIcon={<IconCheck/>}
                 >
-                    <IconCheck className={ this.props.classes.buttonIcon }/>
                     { I18n.t('Rename') }
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={ () => this.setState({renameDialog: null}) }
+                    startIcon={<IconCancel/>}
+                >
+                    { I18n.t('Cancel') }
                 </Button>
             </DialogActions>
         </Dialog>;
@@ -924,12 +947,12 @@ class MenuList extends Component {
 
     deletePreset(id, cb) {
         return this.props.socket.delObject(id)
-            .then(() => {
+            .then(() =>
                 this.getAllPresets()
                     .then(newState =>
                         this.setState(newState, () =>
-                            this.props.onSelectedChanged(null)));
-            })
+                            this.props.onSelectedChanged(null)))
+            )
             .catch(e => this.onError(e, `Cannot delete object ${id}`))
             .then(() => cb && cb());
     }
@@ -946,9 +969,9 @@ class MenuList extends Component {
                 newId = newId.join('.');
 
                 preset._id = newId;
-                return this.props.socket.delObject(id);
+                return this.props.socket.setObject(preset._id, preset);
             })
-            .then(() => this.props.socket.setObject(preset._id, preset))
+            .then(() => this.props.socket.delObject(id))
             .then(() => this.getAllPresets())
             .then(newState => {
                 if (id === this.props.selectedId) {
@@ -964,18 +987,19 @@ class MenuList extends Component {
     addPresetToFolderPrefix = (preset, folderPrefix, noRefresh) => {
         let oldId = preset._id;
         let presetId = preset._id.split('.').pop();
-        preset._id = this.props.adapterName + '.0.' + folderPrefix + (folderPrefix ? '.' : '') + presetId;
+        preset._id = `${this.props.adapterName}.0.${folderPrefix}${folderPrefix ? '.' : ''}${presetId}`;
 
-        return this.props.socket.delObject(oldId)
+        return this.props.socket.setObject(preset._id, preset)
             .then(() => {
                 console.log('Deleted ' + oldId);
-                return this.props.socket.setObject(preset._id, preset)
+                return this.props.socket.delObject(oldId);
             })
             .then(() => {
                 console.log('Set new ID: ' + preset._id);
                 return !noRefresh && this.refreshData(presetId)
             })
-            .catch(e => this.onError(e, `Cannot delete object ${oldId}`));
+            .catch(e =>
+                this.onError(e, `Cannot delete object ${oldId}`));
     };
 
     render() {

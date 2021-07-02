@@ -163,7 +163,23 @@ let styles = theme => ({
     emptyDrag: {
         display: 'inline-block',
         width: 16,
-    }
+    },
+
+    chapterMain: {
+        backgroundColor: 'rgba(3,104,255,0.1)',
+    },
+    chapterTexts: {
+        backgroundColor: 'rgba(101,253,0,0.1)',
+    },
+    chapterLine: {
+        backgroundColor: 'rgba(255,20,0,0.1)',
+    },
+    chapterAxis: {
+        backgroundColor: 'rgba(179,2,255,0.1)',
+    },
+    chapterOther: {
+        backgroundColor: 'rgba(255,146,0,0.1)',
+    },
 });
 
 class Line extends React.Component {
@@ -208,6 +224,10 @@ class Line extends React.Component {
                     });
             }
         }
+        if (name === 'fill' && value < 0.01 && !parseFloat(line.thickness)) {
+            line.thickness = 1;
+        }
+
         this.props.updateLine(this.props.index, line);
     };
 
@@ -444,7 +464,7 @@ class Line extends React.Component {
                     customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
                     socket={this.props.socket}/>
             </div>
-            <div className={this.props.classes.shortFields}>
+            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
                 {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
                 <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
@@ -468,23 +488,21 @@ class Line extends React.Component {
                 {this.props.line.chartType !== 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')}/> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend"/> : null}
             </div>
-            <div className={this.props.classes.shortFields}>
+            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
             </div>
-            <div className={this.props.classes.shortFields}>
+            {this.props.line.chartType !== 'scatterplot' ? <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
                 <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
-                <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
+                <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)"/>
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
-                {this.props.line.points && this.props.line.chartType !== 'scatterplot' ?
-                    <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> :
-                    null
-                }
-                <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={1} type="number"/>
+                {this.props.line.points ?
+                    <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null}
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={this.props.line.fill > 0.01 ? 0 : 1} type="number"/>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number"/>
-            </div>
-            <div className={this.props.classes.shortFields}>
+            </div> : null}
+            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterAxis)}>
                 <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
                 {!this.props.index ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis position" options={{
                     '': 'bottom',
@@ -544,7 +562,7 @@ class Line extends React.Component {
                 {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null }
                 {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number"/> : null }
             </div>
-            <div className={this.props.classes.shortFields}>
+            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterOther)}>
                 <p className={this.props.classes.title}>{I18n.t('Others')}</p>
                 <IOSelect formData={this.props.line} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
                     'false': 'default',
@@ -575,7 +593,7 @@ class Line extends React.Component {
             <CardContent className={this.props.classes.cardContent}>
                 { this.props.opened && !this.props.onPaste ? this.renderOpenedLine() : this.renderClosedLine()}
             </CardContent>
-        </Card>
+        </Card>;
     }
 }
 

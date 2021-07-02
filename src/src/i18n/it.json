@@ -461,5 +461,8 @@
   "No interpolate in hover": "Nessuna interpolazione nel tooltip",
   "Show only in legend": "Mostra solo nella legenda",
   "Collapse all markings": "Comprimi tutti i contrassegni",
-  "Expand all markings": "Espandi tutti i segni"
+  "Expand all markings": "Espandi tutti i segni",
+  "Font size": "Dimensione del font",
+  "Y labels size": "Y dimensione del carattere",
+  "X labels size": "Dimensione carattere X"
 }

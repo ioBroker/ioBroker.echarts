@@ -21,13 +21,14 @@ import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import Snackbar from '@material-ui/core/Snackbar';
 
-import {MdAdd as IconAdd} from 'react-icons/md';
+import {MdAdd as IconAdd, MdClose as IconCancel} from 'react-icons/md';
 import {MdSave as IconSave} from 'react-icons/md';
 import {MdExpandLess as IconCollapse} from 'react-icons/md';
 import {MdExpandMore as IconExpand} from 'react-icons/md';
 import IconClear from '@material-ui/icons/Close';
 import {MdFullscreen as IconNewWindow} from 'react-icons/md';
 import IconClose from '@material-ui/icons/Close';
+import IconDelete from '@material-ui/icons/Delete';
 
 import I18n from '@iobroker/adapter-react/i18n';
 import Utils from '@iobroker/adapter-react/Components/Utils';
@@ -296,14 +297,24 @@ class PresetTabs extends React.Component {
         >
             <DialogTitle>{ I18n.t('Are you sure for delete this line?') }</DialogTitle>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({deleteLineDialog: null}) }>
-                    {I18n.t('Cancel')}
-                </Button>
-                <Button variant="contained" color="secondary" onClick={() => {
-                    this.deleteLine(this.state.deleteLineDialog);
-                    this.setState({deleteLineDialog: null});
-                }}>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    autoFocus
+                    onClick={() => {
+                        this.deleteLine(this.state.deleteLineDialog);
+                        this.setState({deleteLineDialog: null});
+                    }}
+                    startIcon={<IconDelete />}
+                >
                     { I18n.t('Delete') }
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={ () => this.setState({deleteLineDialog: null}) }
+                    startIcon={<IconCancel/>}
+                >
+                    {I18n.t('Cancel')}
                 </Button>
             </DialogActions>
         </Dialog> : null;
@@ -317,14 +328,23 @@ class PresetTabs extends React.Component {
         >
             <DialogTitle>{ I18n.t('Are you sure for delete this mark?') }</DialogTitle>
             <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
-                <Button variant="contained" onClick={ () => this.setState({deleteMarkDialog: null}) }>
-                    {I18n.t('Cancel')}
-                </Button>
-                <Button variant="contained" color="secondary" onClick={() => {
-                    this.deleteMark(this.state.deleteMarkDialog);
-                    this.setState({deleteMarkDialog: null});
-                }}>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => {
+                        this.deleteMark(this.state.deleteMarkDialog);
+                        this.setState({deleteMarkDialog: null});
+                    }}
+                    startIcon={<IconDelete/>}
+                >
                     { I18n.t('Delete') }
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={ () => this.setState({deleteMarkDialog: null}) }
+                    startIcon={<IconCancel/>}
+                >
+                    {I18n.t('Cancel')}
                 </Button>
             </DialogActions>
         </Dialog> : null;
@@ -670,6 +690,8 @@ class PresetTabs extends React.Component {
                             '': 'horizontal',
                             'vertical': 'vertical'
                         }}/>
+                        {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legFontSize" label="Font size" min={6} type="number"/>
                     </> : null}
             </div>
             <div className={this.props.classes.group}>
@@ -784,8 +806,10 @@ class PresetTabs extends React.Component {
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Labels')}</p>
                 {this.renderColorField(this.props.presetData, this.updateField, 'X labels color', 'x_labels_color', undefined, this.props.classes.marginTop)}
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="x_labels_size" label="X labels size" min={6} type="number"/>
                 {this.renderColorField(this.props.presetData, this.updateField, 'X ticks color', 'x_ticks_color', undefined, this.props.classes.marginTop)}
                 {this.renderColorField(this.props.presetData, this.updateField, 'Y labels color', 'y_labels_color', undefined, this.props.classes.marginTop)}
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="y_labels_size" label="Y labels size" min={6} type="number"/>
                 {this.renderColorField(this.props.presetData, this.updateField, 'Y ticks color', 'y_ticks_color', undefined, this.props.classes.marginTop)}
             </div>
             <div className={this.props.classes.group}>

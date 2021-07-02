@@ -208,6 +208,9 @@ const THEMES = {
 };
 
 function padding2(num) {
+    if (!num) {
+        return '00';
+    }
     // on safari 9.0 it is unknown
     // return num.toString().padStart(2, '0');
     num = (num || '').toString();
@@ -330,6 +333,7 @@ class ChartOption {
         this.chart = {yAxis: []};
         this.isTouch = 'ontouchstart' in window.document.documentElement;
         this.compact = compact;
+        this.lastFormattedTime = null;
     }
 
     setThemeName(themeType) {
@@ -417,7 +421,7 @@ class ChartOption {
                     focus: 'none',
                     blurScope: 'none',
                     lineStyle: {
-                        width:          parseFloat(oneLine.thickness) || 1,
+                        width:          oneLine.thickness !== undefined ? parseFloat(oneLine.thickness) : 1,
                         shadowBlur:     oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowColor:    color,
@@ -425,7 +429,7 @@ class ChartOption {
                     },
                 },
                 lineStyle: {
-                    width:          parseFloat(oneLine.thickness) || 1,
+                    width:          oneLine.thickness !== undefined ? parseFloat(oneLine.thickness) : 1,
                     shadowBlur:     oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                     shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                     shadowColor:    color,
@@ -479,8 +483,17 @@ class ChartOption {
                 },
                 axisLabel: {
                     show: !this.compact,
-                    formatter: this.xFormatter.bind(this),
+                    formatter: (value, _index) => this.xFormatter(value, _index, this.config.l[0].xaxe === 'top'),
+                    fontSize: parseInt(this.config.x_labels_size, 10) || 12,
                     color: this.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : (this.config.x_labels_color || undefined),
+                    rich: {
+                        a: {
+                            fontWeight: 'bold',
+                        },
+                        b: {
+                            opacity: 0,
+                        },
+                    }
                 }
             }
         ];
@@ -568,8 +581,9 @@ class ChartOption {
                     show: !this.compact,
                     formatter: value => this.yFormatter(value, i, true),
                     color: oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor' ? color : (this.config.y_labels_color || undefined),
+                    fontSize: parseInt(this.config.y_labels_size, 10) || 12
                 },
-                axisTick: {                    
+                axisTick: {
                     alignWithLabel: true,
                     lineStyle: color ? {color} : (this.config.y_ticks_color ? {color: this.config.y_ticks_color} : undefined)
                 }
@@ -599,16 +613,21 @@ class ChartOption {
                 // area
                 series.markArea = series.markArea || {
                     symbol: ['none', 'none'],
-                    itemStyle: {
-                        color:       oneMark.color || series.itemStyle.color,
-                        borderWidth: 0,
-                        opacity:     parseFloat(oneMark.fill) || 0,
-                    },
                     data: []
                 };
                 series.markArea.data.push([
-                    {yAxis: lowerLimitFloat, name: oneMark.text || ''},
-                    {yAxis: upperLimitFloat},
+                    {
+                        yAxis: lowerLimitFloat,
+                        name: oneMark.text || '',
+                        itemStyle: {
+                            color:       oneMark.color || series.itemStyle.color,
+                            borderWidth: 0,
+                            opacity:     parseFloat(oneMark.fill) || 0,
+                        }
+                    },
+                    {
+                        yAxis: upperLimitFloat
+                    },
                 ]);
 
             }
@@ -707,7 +726,7 @@ class ChartOption {
             return this.config.timeFormat.replace('<br/>', '\n').includes('\n');
         } else
         if (this.chart.withSeconds) {
-            return false;
+            return true;
         } else if (this.chart.withTime) {
             return true;
         } else {
@@ -715,17 +734,45 @@ class ChartOption {
         }
     }
 
-    xFormatter(value, _index) {
+    xFormatter(value, _index, isTop) {
         const date = new Date(value);
         if (this.config.timeFormat) {
             return this.moment(date).format(this.config.timeFormat).replace('<br/>', '\n');
-        } else
-        if (this.chart.withSeconds) {
-            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds());
-        } else if (this.chart.withTime) {
-            return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + '\n' + padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1);
         } else {
-            return padding2(date.getDate()) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
+            let dateTxt = '';
+            const dateInMonth = date.getDate();
+            if (this.chart.withSeconds || this.chart.withTime) {
+                let showDate = false;
+                if (_index < 2 || this.lastFormattedTime === null || value < this.lastFormattedTime) {
+                    showDate = true;
+                } else
+                if (!showDate && new Date(this.lastFormattedTime).getDate() !== dateInMonth) {
+                    showDate = true;
+                }
+                if (showDate) {
+                    if (isTop) {
+                        dateTxt = '{a|' + padding2(dateInMonth) + '.' + padding2(date.getMonth() + 1) + '.}\n';
+                    } else {
+                        dateTxt = '{b|..}\n{a|' + padding2(dateInMonth) + '.' + padding2(date.getMonth() + 1) + '.}';
+                    }
+                }
+                this.lastFormattedTime = value;
+                if (isTop) {
+                    if (this.chart.withSeconds) {
+                        return dateTxt + padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds()) + (dateTxt ? '{b|..}' : '');
+                    } else if (this.chart.withTime) {
+                        return dateTxt + padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + (dateTxt ? '{b|..}' : '');
+                    }
+                } else {
+                    if (this.chart.withSeconds) {
+                        return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds()) + dateTxt;
+                    } else if (this.chart.withTime) {
+                        return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + dateTxt;
+                    }
+                }
+            } else {
+                return padding2(dateInMonth) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
+            }
         }
     }
 
@@ -791,21 +838,21 @@ class ChartOption {
                 `</div>`;
         });
 
-        const format = this.config.timeFormat || 'dd, MM Do YYYY, h:mm:ss.SSS';
+        const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm:ss.SSS';
         return `<b>${this.moment(date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
     }
 
-    getLegend(xAxisHeight, actualValues) {
+    getLegend(actualValues) {
         if (!this.config.legend || this.config.legend === 'none') {
             return undefined;
         } else {
             const legend = {
                 data:   this.config.l.map(oneLine => oneLine.name),
                 show:   true,
-                left:   this.config.legend === 'nw' || this.config.legend === 'sw' ?  this.chart.padLeft  + 1 : undefined,
-                right:  this.config.legend === 'ne' || this.config.legend === 'se' ?  this.chart.padRight + 1 : undefined,
-                top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  10 : undefined,
-                bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  xAxisHeight + 20 : undefined,
+                left:   this.config.legend === 'nw' || this.config.legend === 'sw' ?  this.chart.padLeft   + 1 : undefined,
+                right:  this.config.legend === 'ne' || this.config.legend === 'se' ?  this.chart.padRight  + 1 : undefined,
+                top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  this.chart.padTop    + 2 : undefined,
+                bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  this.chart.padBottom + 2 : undefined,
                 backgroundColor: this.config.legBg || undefined,
                 formatter: (name, arg) => {
                     if (this.config.legActual && actualValues) {
@@ -818,7 +865,8 @@ class ChartOption {
                     return name;
                 },
                 textStyle: {
-                    color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF')
+                    color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF'),
+                    fontSize:this.config.legFontSize,
                 },
                 orient: this.config.legendDirection || 'horizontal',
                 selected: {}
@@ -830,7 +878,7 @@ class ChartOption {
         }
     }
 
-    getTitle(xAxisHeight) {
+    getTitle() {
         if (!this.config || !this.config.title) {
             return undefined;
         }
@@ -848,9 +896,9 @@ class ChartOption {
             },
             textVerticalAlign: titlePos.bottom      ? 'bottom' : 'top',
             textAlign:         titlePos.left === 50 ? 'center' : (titlePos.right === -5 ? 'right' : 'left'),
-            top:               titlePos.top  === 35 ? 5        : (titlePos.top   === 50 ? '50%'   : undefined),
+            top:               titlePos.top  === 35 ? 5 + this.chart.padTop : (titlePos.top === 50 ? '50%'   : undefined),
             left:              titlePos.left === 50 ? '50%'    : (titlePos.left  === 65 ? this.chart.padLeft : undefined),
-            bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + xAxisHeight - 10 : titlePos.bottom) : undefined,
+            bottom:            titlePos.bottom      ? (titlePos.bottom > 0 ? titlePos.bottom + this.chart.padBottom - 15 : titlePos.bottom) : undefined,
             right:             titlePos.right === 5 ? this.chart.padRight : undefined,
         };
     }
@@ -860,7 +908,6 @@ class ChartOption {
             this.config = JSON.parse(JSON.stringify(config));
         }
         const useCanvas = this.isTouch && this.config.zoom;
-        const xAxisHeight = 20;
 
         let theme = this.config.theme;
         if (!theme || theme === 'default') {
@@ -885,6 +932,9 @@ class ChartOption {
         this.chart.diff        = this.chart.xMax - this.chart.xMin;
         this.chart.withTime    = this.chart.diff < 3600000 * 24 * 7;
         this.chart.withSeconds = this.chart.diff < 60000 * 30;
+        this.config.y_labels_size = parseInt(this.config.y_labels_size, 10) || 12;
+        this.config.x_labels_size = parseInt(this.config.x_labels_size, 10) || 12;
+        this.config.legFontSize   = parseInt(this.config.legFontSize, 10) || 12;
 
         const yAxis = this.getYAxis(theme, series);
         const xAxis = this.getXAxis();
@@ -948,60 +998,86 @@ class ChartOption {
 
         this.getMarkings(option);
 
-        // calculate padding: left and right
-        let padLeft  = 0;
-        let padRight = 0;
-        series.forEach((ser, i) => {
-            let yAxis = option.yAxis[ser.yAxisIndex];
-            if (!yAxis) {
-                // seems this axis is defined something else
-                const cY = this.config.l[ser.yAxisIndex] ? this.config.l[ser.yAxisIndex].commonYAxis : undefined;
-                if (cY !== undefined) {
-                    yAxis = option.yAxis[cY];
-                } else {
-                    console.log('Cannot find Y axis for line ' + i);
+        if (!this.compact) {
+            // calculate padding: left and right
+            let padLeft  = 0;
+            let padRight = 0;
+            let padBottom = 0;
+            let padTop = 0;
+            series.forEach((ser, i) => {
+                let yAxis = option.yAxis[ser.yAxisIndex];
+                if (!yAxis) {
+                    // seems this axis is defined something else
+                    const cY = this.config.l[ser.yAxisIndex] ? this.config.l[ser.yAxisIndex].commonYAxis : undefined;
+                    if (cY !== undefined) {
+                        yAxis = option.yAxis[cY];
+                    } else {
+                        console.log('Cannot find Y axis for line ' + i);
+                        return;
+                    }
+                }
+
+                let minTick = this.yFormatter(yAxis.min, i, true);
+                let maxTick = this.yFormatter(!yAxis.min && yAxis.max === yAxis.min ? 0.8 : yAxis.max, i, true);
+
+                if (xAxis[0].position === 'top') {
+                    padTop = this.isXLabelHasBreak() ? 40 : 24;
+                } else
+                if (xAxis[0].position !== 'off' || xAxis[0].position === 'bottom') {
+                    padBottom = this.isXLabelHasBreak() ? 40 : 24;
+                }
+
+                const position = yAxis.position;
+                if (position === 'off' || (yAxis.axisLabel && yAxis.axisLabel.color === 'rgba(0,0,0,0)')) {
                     return;
                 }
-            }
-
-            let minTick = this.yFormatter(yAxis.min, i, true);
-            let maxTick = this.yFormatter(!yAxis.min && yAxis.max === yAxis.min ? 0.8 : yAxis.max, i, true);
-
-            const position = yAxis.position;
-            if (position === 'off' || (yAxis.axisLabel && yAxis.axisLabel.color === 'rgba(0,0,0,0)')) {
-                return;
-            }
-            let wMin = this.calcTextWidth(minTick) + 4;
-            let wMax = this.calcTextWidth(maxTick) + 4;
-            if (position === 'left' || position === 'leftColor') {
-                if (wMin > padLeft) {
-                    padLeft = wMin;
+                let wMin = this.calcTextWidth(minTick, this.config.y_labels_size) + 4;
+                let wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
+                if (position !== 'right' && position !== 'rightColor') {
+                    if (wMin > padLeft) {
+                        padLeft = wMin;
+                    }
+                    if (wMax > padLeft) {
+                        padLeft = wMax;
+                    }
+                } else {
+                    if (wMin > padRight) {
+                        padRight = wMin;
+                    }
+                    if (wMax > padRight) {
+                        padRight = wMax;
+                    }
                 }
-                if (wMax > padLeft) {
-                    padLeft = wMax;
-                }
-            } else {
-                if (wMin > padRight) {
-                    padRight = wMin;
-                }
-                if (wMax > padRight) {
-                    padRight = wMax;
-                }
-            }
-        });
-        if (!this.compact) {
+            });
             option.grid.left    = padLeft  + 10;
             option.grid.right   = padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
+            // if xAxis shown, let the place for last value
+            if (option.grid.right <= 10 && (padTop || padBottom)) {
+                option.grid.right = 18;
+            }
+            if (option.grid.left <= 10 && (padTop || padBottom)) {
+                option.grid.left = 18;
+            }
             this.chart.padLeft  = option.grid.left;
-            this.chart.padRight = option.grid.right;    
+            this.chart.padRight = option.grid.right;
+            if (!padTop) {
+                padTop = 8;
+            }
+            if (!padBottom) {
+                padBottom = 8;
+            }
+            option.grid.top      = padTop;
+            option.grid.bottom   = padBottom;
+            this.chart.padTop    = option.grid.top;
+            this.chart.padBottom = option.grid.bottom;
         }
 
         // 'nw': 'Top, left',
         // 'ne': 'Top, right',
         // 'sw': 'Bottom, left',
         // 'se': 'Bottom, right',
-        option.legend = this.getLegend(xAxisHeight, actualValues);
-        option.title  = this.getTitle(xAxisHeight);
+        option.legend = this.getLegend(actualValues);
+        option.title  = this.getTitle();
 
         if (!this.config.grid_color) {
             option.yAxis.forEach(axis => axis.splitLine && delete axis.splitLine.lineStyle);
