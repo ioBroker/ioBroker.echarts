@@ -279,7 +279,7 @@ class App extends Component {
                  style={{
                      width: config.width,
                      height: config.height,
-                     background: this.state.noBackground ? undefined : this.state.theme.palette.background.default,
+                     background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
                      color: this.state.theme.palette.text.primary
                  }}>
                 <LinearProgress ref={this.progressRef} style={{display: 'block'}} className={this.props.classes.progress}/>

@@ -416,7 +416,7 @@ class ChartOption {
                 itemStyle: {color},
                 symbolSize: (oneLine.chartType === 'scatterplot' || oneLine.points) ? (oneLine.symbolSize || 3) : undefined,
                 symbol: 'circle',
-                emphasis:{
+                emphasis: {
                     scale: false,
                     focus: 'none',
                     blurScope: 'none',
@@ -690,7 +690,7 @@ class ChartOption {
         return options;
     }
 
-    yFormatter(val, line, withUnit, interpolated) {
+    yFormatter(val, line, withUnit, interpolated, ignoreWidth) {
         if (this.config.l[line].type === 'boolean') {
             return val ? 'TRUE' : 'FALSE';
         }
@@ -829,7 +829,7 @@ class ChartOption {
 
             const val = interpolated.val === null ?
                 'null' :
-                this.yFormatter(interpolated.val, i, false, !interpolated.exact);
+                this.yFormatter(interpolated.val, i, false, !interpolated.exact, true);
 
             return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle.color}">` +
                 `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
@@ -858,7 +858,7 @@ class ChartOption {
                     if (this.config.legActual && actualValues) {
                         for (let i = 0; i < this.config.l.length; i++) {
                             if (this.config.l[i].name === name) {
-                                return `${name} [${this.yFormatter(actualValues[i], i, true)}]`;
+                                return `${name} [${this.yFormatter(actualValues[i], i, true, true, true)}]`;
                             }
                         }
                     }

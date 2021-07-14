@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "news": {
+            "1.0.1": {
+                "en": "Fixed the \"no background\" option",
+                "de": "Die Option \"kein Hintergrund\" wurde behoben",
+                "ru": "Исправлена опция \"без фона\"",
+                "pt": "Corrigida a opção \"sem plano de fundo\"",
+                "nl": "De optie \"geen achtergrond\" gerepareerd",
+                "fr": "Correction de l'option \"pas de fond\"",
+                "it": "Risolto il problema con l'opzione \"nessun sfondo\"",
+                "es": "Se corrigió la opción \"sin fondo\"",
+                "pl": "Naprawiono opcję „bez tła”",
+                "zh-cn": "修复了“无背景”选项"
+            },
             "1.0.0": {
                 "en": "Fixed many bugs",
                 "de": "Viele Fehler behoben",
@@ -230,18 +242,6 @@
                 "es": "Errores de SENTRY corregidos",
                 "pl": "Poprawione błędy SENTRY",
                 "zh-cn": "更正了SENTRY错误"
-            },
-            "0.3.4": {
-                "en": "Corrected server-side rendering of PNG",
-                "de": "Serverseitiges Rendern von PNG korrigiert",
-                "ru": "Исправленный рендеринг PNG на стороне сервера.",
-                "pt": "Renderização do lado do servidor corrigida de PNG",
-                "nl": "Gecorrigeerde server-side rendering van PNG",
-                "fr": "Correction du rendu côté serveur du PNG",
-                "it": "Corretto il rendering lato server di PNG",
-                "es": "Representación corregida del lado del servidor de PNG",
-                "pl": "Poprawione renderowanie PNG po stronie serwera",
-                "zh-cn": "修正了PNG的服务器端渲染"
             }
         },
         "title": "E-Charts",

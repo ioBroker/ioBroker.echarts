@@ -111,10 +111,19 @@ class MainChart extends React.Component {
     getChartFrame() {
         const URL = (window.location.search || '').includes('dev=true') ? 'http://localhost:3000/' : 'chart/';
 
+        const data = JSON.parse(JSON.stringify(this.props.presetData));
+
+        if (typeof this.props.selectedId === 'object') {
+            // fast chart
+            // remove settings from line
+            delete data.lines[0].aggregate;
+            delete data.lines[0].chartType;
+        }
+
         return <div style={{display: this.props.visible ? 'block' : 'none'}} className={typeof this.props.selectedId !== 'string' ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
             <ChartFrame
                 src={URL + 'index.html?edit=1'}
-                presetData={this.props.presetData}
+                presetData={data}
             />
         </div>;
     }

@@ -168,6 +168,7 @@ function normalizeConfig(config) {
             config.l[j].yOffset   = parseFloat(config.l[j].yOffset)   || 0;
             config.l[j].offset    = parseFloat(config.l[j].offset)    || 0;
             config.l[j].validTime = parseFloat(config.l[j].validTime) || 0;
+            config.l[j].chartType = config.l[j].chartType || config.chartType || 'auto';
         }
     }
 
@@ -216,6 +217,7 @@ function normalizeConfig(config) {
     config.animation    = parseInt(config.animation)     || 0;
     config.afterComma   = config.afterComma === undefined ? 2 : parseInt(config.afterComma, 10);
     config.timeType     = config.timeType || 'relative';
+
     return config;
 }
 
