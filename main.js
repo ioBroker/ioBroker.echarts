@@ -97,7 +97,11 @@ const socketSimulator = {
     getSystemConfig: function () {
         systemConfig = systemConfig || adapter.getForeignObjectAsync('system.config');
         return systemConfig;
-    }
+    },
+    unsubscribeState: function () {},
+    subscribeState: function () {},
+    unsubscribeObject: function () {},
+    subscribeObject: function () {}
 };
 
 function calcTextWidth(text, fontSize, fontFamily) {

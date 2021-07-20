@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "news": {
+            "1.0.2": {
+                "en": "Fixed the communication with admin4",
+                "de": "Die Kommunikation mit admin4 behoben",
+                "ru": "Исправлена связь с admin4",
+                "pt": "Corrigida a comunicação com admin4",
+                "nl": "De communicatie met admin opgelost4",
+                "fr": "Correction de la communication avec admin4",
+                "it": "Risolta la comunicazione con admin4",
+                "es": "Se corrigió la comunicación con admin4.",
+                "pl": "Naprawiono komunikację z admin4min",
+                "zh-cn": "修复了与 admin4 的通信"
+            },
             "1.0.1": {
                 "en": "Fixed the \"no background\" option",
                 "de": "Die Option \"kein Hintergrund\" wurde behoben",
@@ -230,18 +242,6 @@
                 "es": "Se implementa la copia de gráficos",
                 "pl": "Zaimplementowano kopię wykresów",
                 "zh-cn": "图表副本已实施"
-            },
-            "0.3.5": {
-                "en": "Corrected SENTRY errors",
-                "de": "SENTRY-Fehler wurden korrigiert",
-                "ru": "Исправлены ошибки SENTRY.",
-                "pt": "Erros SENTRY corrigidos",
-                "nl": "SENTRY-fouten gecorrigeerd",
-                "fr": "Erreurs SENTRY corrigées",
-                "it": "Errori SENTRY corretti",
-                "es": "Errores de SENTRY corregidos",
-                "pl": "Poprawione błędy SENTRY",
-                "zh-cn": "更正了SENTRY错误"
             }
         },
         "title": "E-Charts",

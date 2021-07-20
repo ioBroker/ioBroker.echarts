@@ -263,7 +263,7 @@ class ChartModel {
                 window.addEventListener('hashchange', this.onHashChangeBound, false);
             }
             this.onPresetUpdateBound = this.onPresetUpdate.bind(this);
-        }
+        } // else node.js
 
         this.onStateChangeBound = this.onStateChange.bind(this);
 
@@ -378,7 +378,7 @@ class ChartModel {
                 })
                 .catch(e => {
                     e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                    console.error(`Cannot read ${this.preset}: ${e}`)
+                    console.error(`Cannot read ${this.preset}: ${e}`);
                 });
 
         } else {
@@ -476,7 +476,7 @@ class ChartModel {
 
     destroy() {
         if (this.subscribed) {
-            this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChangeBound));
+            !this.serverSide && this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChangeBound));
             this.subscribes = [];
             this.subscribed = null;
         }
@@ -489,7 +489,7 @@ class ChartModel {
             this.presetUpdateTimeout = null;
         }
         if (this.presetSubscribed) {
-            this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdateBound);
+            !this.serverSide && this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdateBound);
             this.presetSubscribed = null;
         }
         if (this.updateInterval) {
@@ -779,7 +779,7 @@ class ChartModel {
                             this.actualValues[index] = null;
                         })
                         .then(() => {
-                            if (!this.subscribes.includes(id)) {
+                            if (!this.serverSide && !this.subscribes.includes(id)) {
                                 this.subscribes.push(id);
                                 this.subscribed = true;
                                 this.socket.subscribeState(id, this.onStateChangeBound);
@@ -999,7 +999,7 @@ class ChartModel {
     subscribeAll(subscribes, cb, s) {
         s = s || 0;
 
-        if (!subscribes || !subscribes.length || s >= subscribes.length) {
+        if (this.serverSide || !subscribes || !subscribes.length || s >= subscribes.length) {
             cb();
         } else {
             this.socket.subscribeState(subscribes[s], this.onStateChangeBound);
