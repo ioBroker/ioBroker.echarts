@@ -331,7 +331,7 @@ class ChartOption {
         this.calcTextWidth = calcTextWidth;
         this.themeType = themeType || 'light';
         this.chart = {yAxis: []};
-        this.isTouch = 'ontouchstart' in window.document.documentElement;
+        this.isTouch = typeof window !== 'undefined' ? 'ontouchstart' in window.document.documentElement : false;
         this.compact = compact;
         this.lastFormattedTime = null;
     }

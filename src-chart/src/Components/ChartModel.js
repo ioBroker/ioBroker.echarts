@@ -287,7 +287,7 @@ class ChartModel {
             } else {
                 this.config = normalizeConfig(config);
             }
-        } else {
+        } else if (!this.serverSide) {
             const query = parseQuery(window.location.search); // Utils.parseQuery
 
             this.debug = query.debug === true || query.debug === 'true' || query.debug === 1 || query.debug === '1';

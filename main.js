@@ -52,7 +52,7 @@ function prepareReactFiles() {
 
     if (fs.existsSync(__dirname + '/_helpers/ChartOption.js')) {
         if (fs.readFileSync(__dirname + '/_helpers/ChartOption.js').toString('utf8') !== _chartOption) {
-            fs.writeFileSync(__dirname + '/_helpers/ChartOption.js', _chartModel);
+            fs.writeFileSync(__dirname + '/_helpers/ChartOption.js', _chartOption);
         }
     } else {
         !fs.existsSync(__dirname + '/_helpers') && fs.mkdirSync(__dirname + '/_helpers');

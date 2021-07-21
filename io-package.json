@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "echarts",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "news": {
+            "1.0.3": {
+                "en": "Fixed server-side rendering",
+                "de": "Serverseitiges Rendering behoben",
+                "ru": "Фиксированный рендеринг на стороне сервера",
+                "pt": "Renderização do lado do servidor corrigida",
+                "nl": "Vaste weergave aan serverzijde",
+                "fr": "Rendu fixe côté serveur",
+                "it": "Risolto il problema con il rendering lato server",
+                "es": "Representación fija del lado del servidor",
+                "pl": "Naprawiono renderowanie po stronie serwera",
+                "zh-cn": "固定服务器端渲染"
+            },
             "1.0.2": {
                 "en": "Fixed the communication with admin4",
                 "de": "Die Kommunikation mit admin4 behoben",
@@ -230,18 +242,6 @@
                 "es": "Ocultar nulos en los detalles de desplazamiento",
                 "pl": "Ukryj wartości null w szczegółach po najechaniu",
                 "zh-cn": "在悬停详细信息中隐藏空值"
-            },
-            "0.3.6": {
-                "en": "The copy of charts is implemented",
-                "de": "Die Kopie der Diagramme ist implementiert",
-                "ru": "Реализована копия графиков.",
-                "pt": "A cópia dos gráficos é implementada",
-                "nl": "De kopie van grafieken is geïmplementeerd",
-                "fr": "La copie des graphiques est implémentée",
-                "it": "Viene implementata la copia dei grafici",
-                "es": "Se implementa la copia de gráficos",
-                "pl": "Zaimplementowano kopię wykresów",
-                "zh-cn": "图表副本已实施"
             }
         },
         "title": "E-Charts",
