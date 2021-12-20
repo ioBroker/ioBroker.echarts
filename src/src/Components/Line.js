@@ -32,7 +32,7 @@ const WIDTHS = {
     dataType: 110,
     color: 100,
     name: 200,
-    buttons: 50 + 50 + 16
+    buttons: 50 + 50 + 16 + 50
 };
 
 const LINE_HEIGHT = 48;
@@ -143,6 +143,9 @@ let styles = theme => ({
         paddingTop: 0,
         lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
+    },
+    editButton: {
+        float: 'right'
     },
     deleteButton: {
         float: 'right',
@@ -369,6 +372,13 @@ class Line extends React.Component {
                 title={I18n.t('Delete')}
                 onClick={() => this.props.deleteLine(this.props.index)}>
                 <IconDelete/>
+            </IconButton>
+            <IconButton
+                className={this.props.classes.editButton}
+                aria-label="Edit"
+                title={I18n.t('Edit')}
+                onClick={() => this.setState({dialogOpen: true})}>
+                <IconEdit/>
             </IconButton>
         </div>;
     }
