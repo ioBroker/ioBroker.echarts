@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {withStyles} from '@material-ui/core/styles';
 
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 
@@ -11,6 +12,12 @@ import {CgBorderStyleSolid as IconSolid} from 'react-icons/cg';
 import {CgBorderStyleDashed as IconDashed} from 'react-icons/cg';
 import {CgBorderStyleDotted as IconDotted} from 'react-icons/cg';
 import {MdClose as IconClose} from 'react-icons/md';
+
+const styles = theme => ({
+    dialogSlider: {
+        padding: '20px 0px'
+    }
+});
 
 class LineDialog extends React.Component {
     render() {
@@ -28,10 +35,20 @@ class LineDialog extends React.Component {
                     'dotted': <IconDotted/>,
                 }}
                 />
-                <div style={{padding: '20px 0px'}}>
+                <div className={this.props.classes.dialogSlider}>
                     <IOSlider formData={this.props.line} updateValue={this.props.updateField} name="fill" label="Fill (from 0 to 1)"/>
                 </div>
-                <IOTextField formData={this.props.line} updateValue={this.props.updateField} name="thickness" label="ØL - Line thickness" min={this.props.line.fill > 0.01 ? 0 : 1} type="number"/>
+                <div className={this.props.classes.dialogSlider}>
+                    <IOSlider 
+                        formData={this.props.line} 
+                        updateValue={this.props.updateField} 
+                        name="thickness" 
+                        label="ØL - Line thickness"
+                        min={this.props.line.fill > 0.01 ? 0 : 1}
+                        max={10}
+                        step={1}
+                    />
+                </div>
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" color="default" onClick={this.props.onClose} startIcon={<IconClose/>}>{I18n.t('Close')}</Button>
@@ -47,4 +64,4 @@ LineDialog.propTypes = {
     onClose: PropTypes.func,
 };
 
-export default LineDialog
+export default withStyles(styles)(LineDialog)
