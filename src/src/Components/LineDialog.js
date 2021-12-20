@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 
 import I18n from '@iobroker/adapter-react/i18n';
 
-import {IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider} from './Fields';
+import {IOTextField, IOSelect, IOSlider} from './Fields';
 
 import {CgBorderStyleSolid as IconSolid} from 'react-icons/cg';
 import {CgBorderStyleDashed as IconDashed} from 'react-icons/cg';
@@ -38,5 +39,12 @@ class LineDialog extends React.Component {
         </Dialog>
     }
 }
+
+LineDialog.propTypes = {
+    updateField: PropTypes.func,
+    line: PropTypes.object,
+    open: PropTypes.bool,
+    onClose: PropTypes.func,
+};
 
 export default LineDialog
