@@ -55,6 +55,9 @@ const styles = theme => ({
     sliderRoot: {
         paddingBottom: 0,
         paddingTop: theme.spacing(2),
+    },
+    selectIcon: {
+        paddingRight: 4
     }
 });
 
@@ -74,9 +77,18 @@ let IOSelect = function (props) {
             >{
                 props.options ?
                     Object.keys(props.options).map(key =>
-                        <MenuItem key={key} value={key} style={{color: props.colors ? props.colors[key] || undefined : undefined}}>{
+                        <MenuItem 
+                            key={key} 
+                            value={key} 
+                            style={{color: props.colors ? props.colors[key] || undefined : undefined}}
+                        >
+                        {
+                            props.icons && props.icons[key] ? <span className={props.classes.selectIcon}>{props.icons[key]}</span> : null
+                        }
+                        {
                             props.noTranslate ? props.options[key] : (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined? I18n.t(props.options[key]) : '')
-                        }</MenuItem>)
+                        }
+                        </MenuItem>)
                      : null
             }
             </Select>
@@ -91,6 +103,7 @@ IOSelect.propTypes = {
     formData: PropTypes.object,
     options: PropTypes.object,
     colors: PropTypes.object,
+    icons: PropTypes.object,
 };
 IOSelect = withStyles(styles)(IOSelect);
 export {IOSelect};
