@@ -8,6 +8,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
+import {MdEdit as IconEdit} from 'react-icons/md';
 import {MdContentCopy as IconCopy} from 'react-icons/md';
 import {MdMenu as IconDrag} from 'react-icons/md';
 import {MdContentPaste as IconPaste} from 'react-icons/md';
@@ -22,6 +23,8 @@ import {IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider} from './Fiel
 import TextField from '@material-ui/core/TextField';
 import ClearIcon from '@material-ui/icons/Close';
 
+import LineDialog from './LineDialog';
+
 const WIDTHS = {
     instance: 100,
     id: 200,
@@ -29,7 +32,7 @@ const WIDTHS = {
     dataType: 110,
     color: 100,
     name: 200,
-    buttons: 50 + 50 + 16
+    buttons: 50 + 50 + 16 + 50
 };
 
 const LINE_HEIGHT = 48;
@@ -141,9 +144,15 @@ let styles = theme => ({
         lineHeight: LINE_HEIGHT + 'px',
         verticalAlign: 'top',
     },
+    editButton: {
+        float: 'right'
+    },
     deleteButton: {
         float: 'right',
         marginRight: 12
+    },
+    editButtonFull: {
+        float: 'right'
     },
     deleteButtonFull: {
         float: 'right',
@@ -186,7 +195,8 @@ class Line extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            width: this.props.width
+            width: this.props.width,
+            dialogOpen: false
         };
     }
 
@@ -363,6 +373,13 @@ class Line extends React.Component {
                 onClick={() => this.props.deleteLine(this.props.index)}>
                 <IconDelete/>
             </IconButton>
+            <IconButton
+                className={this.props.classes.editButton}
+                aria-label="Edit"
+                title={I18n.t('Edit')}
+                onClick={() => this.setState({dialogOpen: true})}>
+                <IconEdit/>
+            </IconButton>
         </div>;
     }
 
@@ -432,6 +449,13 @@ class Line extends React.Component {
                     title={I18n.t('Delete')}
                     onClick={() => this.props.deleteLine(this.props.index)}>
                     <IconDelete/>
+                </IconButton>
+                <IconButton
+                    className={this.props.classes.editButtonFull}
+                    aria-label="Edit"
+                    title={I18n.t('Edit')}
+                    onClick={() => this.setState({dialogOpen: true})}>
+                    <IconEdit/>
                 </IconButton>
                 <IconButton
                     className={this.props.classes.copyButtonFull}
@@ -592,6 +616,13 @@ class Line extends React.Component {
         >
             <CardContent className={this.props.classes.cardContent}>
                 { this.props.opened && !this.props.onPaste ? this.renderOpenedLine() : this.renderClosedLine()}
+                <LineDialog 
+                    open={this.state.dialogOpen}
+                    onClose={() => this.setState({dialogOpen: false})}
+                    line={this.props.line}
+                    index={this.props.index}
+                    updateField={this.updateField}
+                />
             </CardContent>
         </Card>;
     }
