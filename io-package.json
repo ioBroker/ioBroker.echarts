@@ -1,322 +1,166 @@
 {
-    "common": {
-        "name": "echarts",
-        "version": "1.0.3",
-        "news": {
-            "1.0.3": {
-                "en": "Fixed server-side rendering",
-                "de": "Serverseitiges Rendering behoben",
-                "ru": "Фиксированный рендеринг на стороне сервера",
-                "pt": "Renderização do lado do servidor corrigida",
-                "nl": "Vaste weergave aan serverzijde",
-                "fr": "Rendu fixe côté serveur",
-                "it": "Risolto il problema con il rendering lato server",
-                "es": "Representación fija del lado del servidor",
-                "pl": "Naprawiono renderowanie po stronie serwera",
-                "zh-cn": "固定服务器端渲染"
-            },
-            "1.0.2": {
-                "en": "Fixed the communication with admin4",
-                "de": "Die Kommunikation mit admin4 behoben",
-                "ru": "Исправлена связь с admin4",
-                "pt": "Corrigida a comunicação com admin4",
-                "nl": "De communicatie met admin opgelost4",
-                "fr": "Correction de la communication avec admin4",
-                "it": "Risolta la comunicazione con admin4",
-                "es": "Se corrigió la comunicación con admin4.",
-                "pl": "Naprawiono komunikację z admin4min",
-                "zh-cn": "修复了与 admin4 的通信"
-            },
-            "1.0.1": {
-                "en": "Fixed the \"no background\" option",
-                "de": "Die Option \"kein Hintergrund\" wurde behoben",
-                "ru": "Исправлена опция \"без фона\"",
-                "pt": "Corrigida a opção \"sem plano de fundo\"",
-                "nl": "De optie \"geen achtergrond\" gerepareerd",
-                "fr": "Correction de l'option \"pas de fond\"",
-                "it": "Risolto il problema con l'opzione \"nessun sfondo\"",
-                "es": "Se corrigió la opción \"sin fondo\"",
-                "pl": "Naprawiono opcję „bez tła”",
-                "zh-cn": "修复了“无背景”选项"
-            },
-            "1.0.0": {
-                "en": "Fixed many bugs",
-                "de": "Viele Fehler behoben",
-                "ru": "Исправлено много ошибок",
-                "pt": "Muitos bugs corrigidos",
-                "nl": "Veel bugs opgelost",
-                "fr": "Correction de nombreux bugs",
-                "it": "Risolti molti bug",
-                "es": "Se corrigieron muchos errores",
-                "pl": "Naprawiono wiele błędów",
-                "zh-cn": "修复了许多错误"
-            },
-            "0.4.14": {
-                "en": "Fixed reorder of presets",
-                "de": "Neuordnung von Presets behoben",
-                "ru": "Исправлен переупорядочение пресетов",
-                "pt": "Reordenação corrigida de predefinições",
-                "nl": "Vaste herschikking van voorinstellingen",
-                "fr": "Correction de la réorganisation des préréglages",
-                "it": "Risolto il riordino dei preset",
-                "es": "Reordenamiento fijo de presets",
-                "pl": "Naprawiono zmianę kolejności presetów",
-                "zh-cn": "修复了预设的重新排序"
-            },
-            "0.4.13": {
-                "en": "Tried to sort the time series before displaying it",
-                "de": "Es wurde versucht, die Zeitreihen vor dem Anzeigen zu sortieren",
-                "ru": "Пытался отсортировать временной ряд перед его отображением",
-                "pt": "Tentei classificar a série temporal antes de exibi-la",
-                "nl": "Probeerde de tijdreeks te sorteren voordat deze werd weergegeven",
-                "fr": "J'ai essayé de trier la série chronologique avant de l'afficher",
-                "it": "Ho provato a ordinare le serie temporali prima di visualizzarle",
-                "es": "Intenté ordenar la serie temporal antes de mostrarla.",
-                "pl": "Podjęto próbę posortowania szeregów czasowych przed ich wyświetleniem",
-                "zh-cn": "尝试在显示时间序列之前对其进行排序"
-            },
-            "0.4.12": {
-                "en": "Added the support of parameters in URL",
-                "de": "Unterstützung von Parametern in URL hinzugefügt",
-                "ru": "Добавлена поддержка параметров в URL",
-                "pt": "Adicionado o suporte de parâmetros em URL",
-                "nl": "Ondersteuning van parameters in URL toegevoegd",
-                "fr": "Ajout de la prise en charge des paramètres dans l'URL",
-                "it": "Aggiunto il supporto dei parametri nell'URL",
-                "es": "Se agregó el soporte de parámetros en URL.",
-                "pl": "Dodano obsługę parametrów w adresie URL",
-                "zh-cn": "添加了对URL参数的支持"
-            },
-            "0.4.11": {
-                "en": "Fixed the dashed lines",
-                "de": "Die gestrichelten Linien wurden korrigiert",
-                "ru": "Исправлены пунктирные линии",
-                "pt": "Corrigiu as linhas tracejadas",
-                "nl": "Repareerde de stippellijnen",
-                "fr": "Correction des lignes pointillées",
-                "it": "Corrette le linee tratteggiate",
-                "es": "Se corrigieron las líneas discontinuas",
-                "pl": "Naprawiono przerywane linie",
-                "zh-cn": "固定虚线"
-            },
-            "0.4.10": {
-                "en": "Allow the hiding of lines at start and show them via legend later\nUse canvas renderer on touch devices to allow zoom and pan",
-                "de": "Lassen Sie das Ausblenden von Linien zu Beginn zu und zeigen Sie sie später per Legende an\nVerwenden Sie den Canvas-Renderer auf Touch-Geräten, um das Zoomen und Schwenken zu ermöglichen",
-                "ru": "Разрешить скрытие линий в начале и показывать их позже в легенде\nИспользуйте средство визуализации холста на сенсорных устройствах, чтобы разрешить масштабирование и панорамирование",
-                "pt": "Permitir ocultar as linhas no início e mostrá-las mais tarde na legenda\nUse o renderizador de tela em dispositivos de toque para permitir zoom e panorâmica",
-                "nl": "Sta het verbergen van lijnen toe aan het begin en toon ze later via een legenda\nGebruik canvas renderer op aanraakapparaten om zoomen en pannen toe te staan",
-                "fr": "Autoriser le masquage des lignes au début et les afficher via une légende plus tard\nUtilisez le moteur de rendu de canevas sur les appareils tactiles pour autoriser le zoom et le panoramique",
-                "it": "Consenti l'occultamento delle righe all'inizio e mostrale in seguito tramite la legenda\nUsa il renderer canvas sui dispositivi touch per consentire lo zoom e la panoramica",
-                "es": "Permitir que las líneas se oculten al principio y mostrarlas a través de la leyenda más tarde\nUtilice el renderizador de lienzo en dispositivos táctiles para permitir el zoom y la panorámica",
-                "pl": "Pozwól na ukrywanie linii na początku i pokaż je później za pomocą legendy\nUżyj modułu renderującego płótno na urządzeniach dotykowych, aby umożliwić powiększanie i przesuwanie",
-                "zh-cn": "允许在开始时隐藏行，并在以后通过图例显示\n在触摸设备上使用画布渲染器以允许缩放和平移"
-            },
-            "0.4.9": {
-                "en": "Updated echarts to 5.0\nImplemented copy&paste of lines and markings\nAvailable vertical legend\nAllowed to hide interpolated values in tooltip",
-                "de": "Aktualisierte Echarts auf 5.0\nDas Kopieren und Einfügen von Linien und Markierungen wurde implementiert\nVerfügbare vertikale Legende\nErlaubt das Ausblenden interpolierter Werte in der QuickInfo",
-                "ru": "Обновлены электронные диаграммы до версии 5.0\nРеализовано копирование и вставка линий и разметок.\nДоступная вертикальная легенда\nРазрешено скрывать интерполированные значения во всплывающей подсказке",
-                "pt": "Echarts atualizados para 5.0\nImplementado copiar e colar de linhas e marcações\nLegenda vertical disponível\nTem permissão para ocultar valores interpolados na dica de ferramenta",
-                "nl": "Bijgewerkt echarts naar 5.0\nGeïmplementeerd kopiëren en plakken van lijnen en markeringen\nBeschikbare verticale legenda\nToegestaan om geïnterpoleerde waarden in tooltip te verbergen",
-                "fr": "Mise à jour des cartes électroniques à 5.0\nImplémentation du copier-coller de lignes et de marquages\nLégende verticale disponible\nAutorisé à masquer les valeurs interpolées dans l'info-bulle",
-                "it": "E-Grafici aggiornati a 5.0\nCopia e incolla implementati di linee e segni\nLegenda verticale disponibile\nConsentito di nascondere i valori interpolati nella descrizione comando",
-                "es": "Echarts actualizado a 5.0\nCopiar y pegar implementado de líneas y marcas\nLeyenda vertical disponible\nPermitido ocultar valores interpolados en información sobre herramientas",
-                "pl": "Zaktualizowano echa do 5.0\nWdrożono kopiowanie i wklejanie linii i oznaczeń\nDostępna legenda pionowa\nDozwolone jest ukrycie wartości interpolowanych w podpowiedzi",
-                "zh-cn": "将echarts更新为5.0\n实施线条和标记的复制和粘贴\n可用的垂直图例\n允许在工具提示中隐藏插值"
-            },
-            "0.4.7": {
-                "en": "Updated the select ID dialog",
-                "de": "Das Dialogfeld \"ID auswählen\" wurde aktualisiert",
-                "ru": "Обновлен диалог выбора идентификатора.",
-                "pt": "Atualizado a caixa de diálogo de seleção de ID",
-                "nl": "Het dialoogvenster ID selecteren bijgewerkt",
-                "fr": "Mise à jour de la boîte de dialogue de sélection d'ID",
-                "it": "Aggiornata la finestra di dialogo Seleziona ID",
-                "es": "Se actualizó el cuadro de diálogo Seleccionar ID",
-                "pl": "Zaktualizowano okno dialogowe wyboru identyfikatora",
-                "zh-cn": "更新了选择ID对话框"
-            },
-            "0.4.6": {
-                "en": "Allowed the same names in different folders",
-                "de": "Erlaubt die gleichen Namen in verschiedenen Ordnern",
-                "ru": "Допускаются одинаковые имена в разных папках",
-                "pt": "Permitido os mesmos nomes em pastas diferentes",
-                "nl": "Toegestaan dezelfde namen in verschillende mappen",
-                "fr": "Autorisé les mêmes noms dans différents dossiers",
-                "it": "Consentiti gli stessi nomi in cartelle diverse",
-                "es": "Permitido los mismos nombres en diferentes carpetas",
-                "pl": "Dozwolone te same nazwy w różnych folderach",
-                "zh-cn": "允许在不同的文件夹中使用相同的名称"
-            },
-            "0.4.5": {
-                "en": "Some sentry errors were corrected.\nAdded the possibility to show actual values in legend.",
-                "de": "Einige Wachfehler wurden korrigiert.\nEs wurde die Möglichkeit hinzugefügt, tatsächliche Werte in der Legende anzuzeigen.",
-                "ru": "Исправлены некоторые сторожевые ошибки.\nДобавлена возможность отображать фактические значения в легенде.",
-                "pt": "Alguns erros de sentinela foram corrigidos.\nAdicionada a possibilidade de mostrar valores reais na legenda.",
-                "nl": "Enkele schildwachtfouten werden gecorrigeerd.\nMogelijkheid toegevoegd om werkelijke waarden in legenda te tonen.",
-                "fr": "Certaines erreurs de sentinelle ont été corrigées.\nAjout de la possibilité d'afficher les valeurs réelles dans la légende.",
-                "it": "Alcuni errori di sentinella sono stati corretti.\nAggiunta la possibilità di mostrare i valori effettivi nella legenda.",
-                "es": "Se corrigieron algunos errores de centinela.\nAñadida la posibilidad de mostrar valores reales en leyenda.",
-                "pl": "Niektóre błędy wartowników zostały poprawione.\nDodano możliwość pokazania rzeczywistych wartości w legendzie.",
-                "zh-cn": "一些哨兵错误已得到纠正。\n添加了在图例中显示实际值的可能性。"
-            },
-            "0.4.4": {
-                "en": "Some sentry errors were corrected.",
-                "de": "Einige Wachfehler wurden korrigiert.",
-                "ru": "Исправлены некоторые сторожевые ошибки.",
-                "pt": "Alguns erros de sentinela foram corrigidos.",
-                "nl": "Enkele schildwachtfouten werden gecorrigeerd.",
-                "fr": "Certaines erreurs de sentinelle ont été corrigées.",
-                "it": "Alcuni errori di sentinella sono stati corretti.",
-                "es": "Se corrigieron algunos errores de centinela.",
-                "pl": "Niektóre błędy wartowników zostały poprawione.",
-                "zh-cn": "一些哨兵错误已得到纠正。"
-            },
-            "0.4.2": {
-                "en": "Corrected the error with overflow of axis.",
-                "de": "Fehler mit Achsüberlauf behoben.",
-                "ru": "Исправлена ошибка с переполнением оси.",
-                "pt": "Corrigido o erro com estouro do eixo.",
-                "nl": "Fout gecorrigeerd met overloop van as.",
-                "fr": "Correction de l'erreur avec débordement d'axe.",
-                "it": "Corretto l'errore con overflow dell'asse.",
-                "es": "Corregido el error con desbordamiento del eje.",
-                "pl": "Poprawiono błąd związany z przepełnieniem osi.",
-                "zh-cn": "修正了轴溢出的错误。"
-            },
-            "0.4.1": {
-                "en": "Disconnection errors are caught now.",
-                "de": "Trennungsfehler werden jetzt abgefangen.",
-                "ru": "Ошибки отключения теперь выявляются.",
-                "pt": "Erros de desconexão são detectados agora.",
-                "nl": "Ontkoppelingsfouten worden nu opgemerkt.",
-                "fr": "Les erreurs de déconnexion sont détectées maintenant.",
-                "it": "Gli errori di disconnessione vengono rilevati ora.",
-                "es": "Los errores de desconexión se detectan ahora.",
-                "pl": "Błędy rozłączania są teraz wychwytywane.",
-                "zh-cn": "现在发现了断开连接错误。"
-            },
-            "0.4.0": {
-                "en": "Added new option: no background",
-                "de": "Neue Option hinzugefügt: kein Hintergrund",
-                "ru": "Добавлена новая опция: без фона",
-                "pt": "Adicionada nova opção: sem fundo",
-                "nl": "Nieuwe optie toegevoegd: geen achtergrond",
-                "fr": "Ajout d'une nouvelle option: pas de fond",
-                "it": "Aggiunta nuova opzione: nessuno sfondo",
-                "es": "Añadida nueva opción: sin fondo",
-                "pl": "Dodano nową opcję: bez tła",
-                "zh-cn": "添加了新选项：无背景"
-            },
-            "0.3.9": {
-                "en": "Corrected error with the chart.",
-                "de": "Fehler mit dem Diagramm behoben.",
-                "ru": "Исправлена ошибка с графиком.",
-                "pt": "Erro corrigido com o gráfico.",
-                "nl": "Fout gecorrigeerd met de grafiek.",
-                "fr": "Erreur corrigée avec le graphique.",
-                "it": "Errore corretto con il grafico.",
-                "es": "Error corregido con el gráfico.",
-                "pl": "Poprawiony błąd w wykresie.",
-                "zh-cn": "纠正了图表错误。"
-            },
-            "0.3.8": {
-                "en": "Implemented the conversion of the flot presets into echarts.",
-                "de": "Implementierung der Konvertierung der Flot-Presets in Echarts.",
-                "ru": "Реализована конвертация пресетов флота в электронные диаграммы.",
-                "pt": "Implementou a conversão dos presets de flot em echarts.",
-                "nl": "De conversie van de flot-presets naar echarts geïmplementeerd.",
-                "fr": "Implémentation de la conversion des préréglages de flot en echarts.",
-                "it": "Implementata la conversione dei preset flot in echart.",
-                "es": "Se implementó la conversión de los presets de flot en echarts.",
-                "pl": "Zaimplementowano konwersję ustawień flot na echarty.",
-                "zh-cn": "实现了将flot预设转换为echarts。"
-            },
-            "0.3.7": {
-                "en": "Hide nulls in the hover details",
-                "de": "Blenden Sie Nullen in den Hover-Details aus",
-                "ru": "Скрыть нули в деталях наведения",
-                "pt": "Ocultar nulos nos detalhes do foco",
-                "nl": "Verberg null-waarden in de hover-details",
-                "fr": "Masquer les valeurs nulles dans les détails du survol",
-                "it": "Nascondi i valori nulli nei dettagli al passaggio del mouse",
-                "es": "Ocultar nulos en los detalles de desplazamiento",
-                "pl": "Ukryj wartości null w szczegółach po najechaniu",
-                "zh-cn": "在悬停详细信息中隐藏空值"
-            }
-        },
-        "title": "E-Charts",
-        "titleLang": {
-            "en": "E-Charts",
-            "de": "E-Charts",
-            "ru": "E-диаграмма",
-            "pt": "E-Charts",
-            "nl": "E-Grafieken",
-            "fr": "E-Charts",
-            "it": "E-Charts",
-            "es": "E-Charts",
-            "pl": "Wykresy elektroniczne",
-            "zh-cn": "电子图"
-        },
-        "desc": {
-            "en": "Build useful charts in ioBroker",
-            "de": "Erstellen Sie nützliche Diagramme in ioBroker",
-            "ru": "Создавайте полезные графики в ioBroker",
-            "pt": "Crie gráficos úteis no ioBroker",
-            "nl": "Bouw handige grafieken in ioBroker",
-            "fr": "Construire des graphiques utiles dans ioBroker",
-            "it": "Crea grafici utili in ioBroker",
-            "es": "Cree gráficos útiles en ioBroker",
-            "pl": "Twórz przydatne wykresy w ioBroker",
-            "zh-cn": "在ioBroker中建立有用的图表"
-        },
-        "authors": [
-            "bluefox <dogafox@gmail.com>"
-        ],
-        "keywords": [
-            "charts",
-            "diagram"
-        ],
-        "adminTab": {
-            "singleton": true,
-            "name": "ECharts"
-        },
-        "license": "BSD-3-Clause",
-        "platform": "Javascript/Node.js",
-        "connectionType": "local",
-        "dataSource": "push",
-        "icon": "echarts.png",
-        "messagebox": true,
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
-        "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
-        "loglevel": "info",
-        "noConfig": true,
-        "singleton": true,
-        "type": "visualization",
-        "mode": "daemon",
-        "compact": true
+  "common": {
+    "name": "echarts",
+    "version": "1.0.4",
+    "news": {
+      "1.0.4": {
+        "en": "License changed to Apache-2.0 (because of apache/echarts)\nUpdated some packages\nAdded fast properties editor",
+        "de": "Lizenz auf Apache-2.0 geändert (wegen Apache/Echarts)\nEinige Pakete aktualisiert\nSchneller Eigenschaftseditor hinzugefügt",
+        "ru": "Лицензия изменена на Apache-2.0 (из-за apache/echarts)\nОбновлены некоторые пакеты\nДобавлен быстрый редактор свойств",
+        "pt": "Licença alterada para Apache-2.0 (por causa do apache/echarts)\nAlguns pacotes atualizados\nAdicionado editor de propriedades rápidas",
+        "nl": "Licentie gewijzigd naar Apache-2.0 (vanwege apache/echarts)\nEnkele pakketten bijgewerkt\nSnelle eigenschappen-editor toegevoegd",
+        "fr": "Licence changée en Apache-2.0 (à cause d'apache/echarts)\nMise à jour de certains packages\nAjout de l'éditeur de propriétés rapides",
+        "it": "Licenza modificata in Apache-2.0 (a causa di apache/echarts)\nAggiornati alcuni pacchetti\nAggiunto editor di proprietà veloci",
+        "es": "Licencia cambiada a Apache-2.0 (debido a apache/echarts)\nActualizado algunos paquetes\nAgregado editor de propiedades rápidas",
+        "pl": "Licencja zmieniona na Apache-2.0 (z powodu apache/echarts)\nZaktualizowano niektóre pakiety\nDodano szybki edytor właściwości",
+        "zh-cn": "许可证更改为 Apache-2.0（因为 apache/echarts）\n更新了一些包\n添加了快速属性编辑器"
+      },
+      "1.0.3": {
+        "en": "Fixed server-side rendering",
+        "de": "Serverseitiges Rendering behoben",
+        "ru": "Фиксированный рендеринг на стороне сервера",
+        "pt": "Renderização do lado do servidor corrigida",
+        "nl": "Vaste weergave aan serverzijde",
+        "fr": "Rendu fixe côté serveur",
+        "it": "Risolto il problema con il rendering lato server",
+        "es": "Representación fija del lado del servidor",
+        "pl": "Naprawiono renderowanie po stronie serwera",
+        "zh-cn": "固定服务器端渲染"
+      },
+      "1.0.2": {
+        "en": "Fixed the communication with admin4",
+        "de": "Die Kommunikation mit admin4 behoben",
+        "ru": "Исправлена связь с admin4",
+        "pt": "Corrigida a comunicação com admin4",
+        "nl": "De communicatie met admin opgelost4",
+        "fr": "Correction de la communication avec admin4",
+        "it": "Risolta la comunicazione con admin4",
+        "es": "Se corrigió la comunicación con admin4.",
+        "pl": "Naprawiono komunikację z admin4min",
+        "zh-cn": "修复了与 admin4 的通信"
+      },
+      "1.0.1": {
+        "en": "Fixed the \"no background\" option",
+        "de": "Die Option \"kein Hintergrund\" wurde behoben",
+        "ru": "Исправлена опция \"без фона\"",
+        "pt": "Corrigida a opção \"sem plano de fundo\"",
+        "nl": "De optie \"geen achtergrond\" gerepareerd",
+        "fr": "Correction de l'option \"pas de fond\"",
+        "it": "Risolto il problema con l'opzione \"nessun sfondo\"",
+        "es": "Se corrigió la opción \"sin fondo\"",
+        "pl": "Naprawiono opcję „bez tła”",
+        "zh-cn": "修复了“无背景”选项"
+      },
+      "1.0.0": {
+        "en": "Fixed many bugs",
+        "de": "Viele Fehler behoben",
+        "ru": "Исправлено много ошибок",
+        "pt": "Muitos bugs corrigidos",
+        "nl": "Veel bugs opgelost",
+        "fr": "Correction de nombreux bugs",
+        "it": "Risolti molti bug",
+        "es": "Se corrigieron muchos errores",
+        "pl": "Naprawiono wiele błędów",
+        "zh-cn": "修复了许多错误"
+      },
+      "0.4.14": {
+        "en": "Fixed reorder of presets",
+        "de": "Neuordnung von Presets behoben",
+        "ru": "Исправлен переупорядочение пресетов",
+        "pt": "Reordenação corrigida de predefinições",
+        "nl": "Vaste herschikking van voorinstellingen",
+        "fr": "Correction de la réorganisation des préréglages",
+        "it": "Risolto il riordino dei preset",
+        "es": "Reordenamiento fijo de presets",
+        "pl": "Naprawiono zmianę kolejności presetów",
+        "zh-cn": "修复了预设的重新排序"
+      },
+      "0.4.13": {
+        "en": "Tried to sort the time series before displaying it",
+        "de": "Es wurde versucht, die Zeitreihen vor dem Anzeigen zu sortieren",
+        "ru": "Пытался отсортировать временной ряд перед его отображением",
+        "pt": "Tentei classificar a série temporal antes de exibi-la",
+        "nl": "Probeerde de tijdreeks te sorteren voordat deze werd weergegeven",
+        "fr": "J'ai essayé de trier la série chronologique avant de l'afficher",
+        "it": "Ho provato a ordinare le serie temporali prima di visualizzarle",
+        "es": "Intenté ordenar la serie temporal antes de mostrarla.",
+        "pl": "Podjęto próbę posortowania szeregów czasowych przed ich wyświetleniem",
+        "zh-cn": "尝试在显示时间序列之前对其进行排序"
+      }
     },
-    "native": {},
-    "objects": [
-        {
-            "_id": "_design/chart",
-            "language": "javascript",
-            "views": {
-                "chart": {
-                    "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
-                }
-            }
-        }
+    "title": "E-Charts",
+    "titleLang": {
+      "en": "E-Charts",
+      "de": "E-Charts",
+      "ru": "E-диаграмма",
+      "pt": "E-Charts",
+      "nl": "E-Grafieken",
+      "fr": "E-Charts",
+      "it": "E-Charts",
+      "es": "E-Charts",
+      "pl": "Wykresy elektroniczne",
+      "zh-cn": "电子图"
+    },
+    "desc": {
+      "en": "Build useful charts in ioBroker",
+      "de": "Erstellen Sie nützliche Diagramme in ioBroker",
+      "ru": "Создавайте полезные графики в ioBroker",
+      "pt": "Crie gráficos úteis no ioBroker",
+      "nl": "Bouw handige grafieken in ioBroker",
+      "fr": "Construire des graphiques utiles dans ioBroker",
+      "it": "Crea grafici utili in ioBroker",
+      "es": "Cree gráficos útiles en ioBroker",
+      "pl": "Twórz przydatne wykresy w ioBroker",
+      "zh-cn": "在ioBroker中建立有用的图表"
+    },
+    "authors": [
+      "bluefox <dogafox@gmail.com>"
     ],
-    "instanceObjects": [
-        {
-            "_id": "",
-            "type": "meta",
-            "common": {
-                "name": "user files and images for echart",
-                "type": "meta.user"
-            },
-            "native": {}
+    "keywords": [
+      "charts",
+      "diagram"
+    ],
+    "adminTab": {
+      "singleton": true,
+      "name": "ECharts"
+    },
+    "license": "BSD-3-Clause",
+    "platform": "Javascript/Node.js",
+    "connectionType": "local",
+    "dataSource": "push",
+    "icon": "echarts.png",
+    "messagebox": true,
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
+    "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
+    "loglevel": "info",
+    "noConfig": true,
+    "singleton": true,
+    "type": "visualization",
+    "mode": "daemon",
+    "compact": true
+  },
+  "native": {},
+  "objects": [
+    {
+      "_id": "_design/chart",
+      "language": "javascript",
+      "views": {
+        "chart": {
+          "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
         }
-    ]
+      }
+    }
+  ],
+  "instanceObjects": [
+    {
+      "_id": "",
+      "type": "meta",
+      "common": {
+        "name": "user files and images for echart",
+        "type": "meta.user"
+      },
+      "native": {}
+    }
+  ]
 }

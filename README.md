@@ -75,7 +75,7 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### __WORK IN PROGRESS__
+### 1.0.4 (2022-01-31)
 * (bluefox) License changed to Apache-2.0 (because of apache/echarts)
 * (bluefox) Updated some packages
 * (bluefox) Added fast properties editor
@@ -96,7 +96,7 @@ You can debug view charts locally with:
 * (bluefox) Fixed reorder of presets
 
 ### 0.4.13 (2021-03-27)
-* (bluefox) Tried to sort the time series before displaying it 
+* (bluefox) Tried to sort the time series before displaying it
 
 ### 0.4.12 (2021-03-27)
 * (bluefox) Added the support of parameters in URL
@@ -137,10 +137,10 @@ You can debug view charts locally with:
 * (bluefox) Added new option: no background
 
 ### 0.3.9 (2020-11-28)
-* (bluefox) Corrected error with the chart. 
+* (bluefox) Corrected error with the chart.
 
 ### 0.3.8 (2020-11-27)
-* (bluefox) Implemented the conversion of the flot presets into echarts. 
+* (bluefox) Implemented the conversion of the flot presets into echarts.
 
 ### 0.3.7 (2020-11-17)
 * (bluefox) Hide nulls in hover details
@@ -152,7 +152,7 @@ You can debug view charts locally with:
 * (bluefox) Corrected SENTRY errors
 
 ### 0.3.4 (2020-11-08)
-* (bluefox) Corrected server-side rendering of PNG 
+* (bluefox) Corrected server-side rendering of PNG
 
 ### 0.3.1 (2020-10-31)
 * (bluefox) Added the color of export button 
