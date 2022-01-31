@@ -2,7 +2,7 @@
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020-2021 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2022 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *
@@ -13,8 +13,8 @@ const utils       = require('@iobroker/adapter-core'); // Get common adapter uti
 const adapterName = require('./package.json').name.split('.').pop();
 const fs          = require('fs');
 prepareReactFiles(); // this call must be before require ChartModel and ChartOption
-const ChartModel  = require(__dirname + '/_helpers/ChartModel');
-const ChartOption = require(__dirname + '/_helpers/ChartOption');
+const ChartModel  = require('./_helpers/ChartModel');
+const ChartOption = require('./_helpers/ChartOption');
 
 const moment = require('moment');
 require('moment/locale/en-gb');
