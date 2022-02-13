@@ -6,7 +6,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mate
 
 import I18n from '@iobroker/adapter-react/i18n';
 
-import {IOTextField, IOSelect, IOSlider} from './Fields';
+import { IOSelect, IOSlider } from './Fields';
 
 import {CgBorderStyleSolid as IconSolid} from 'react-icons/cg';
 import {CgBorderStyleDashed as IconDashed} from 'react-icons/cg';
@@ -39,10 +39,10 @@ class LineDialog extends React.Component {
                     <IOSlider formData={this.props.line} updateValue={this.props.updateField} name="fill" label="Fill (from 0 to 1)"/>
                 </div>
                 <div className={this.props.classes.dialogSlider}>
-                    <IOSlider 
-                        formData={this.props.line} 
-                        updateValue={this.props.updateField} 
-                        name="thickness" 
+                    <IOSlider
+                        formData={this.props.line}
+                        updateValue={this.props.updateField}
+                        name="thickness"
                         label="ØL - Line thickness"
                         min={this.props.line.fill > 0.01 ? 0 : 1}
                         max={10}
