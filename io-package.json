@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "news": {
+      "1.0.5": {
+        "en": "Added \"i\" in tooltips by interpolated values",
+        "de": "„i“ in Tooltips durch interpolierte Werte hinzugefügt",
+        "ru": "Добавлено \"i\" в подсказках по интерполированным значениям",
+        "pt": "Adicionado \"i\" nas dicas de ferramentas por valores interpolados",
+        "nl": "Toegevoegd \"i\" in tooltips door geïnterpoleerde waarden",
+        "fr": "Ajout de \"i\" dans les info-bulles par valeurs interpolées",
+        "it": "Aggiunta \"i\" nelle descrizioni comandi tramite valori interpolati",
+        "es": "Se agregó \"i\" en la información sobre herramientas por valores interpolados",
+        "pl": "Dodano „i” w podpowiedziach według wartości interpolowanych",
+        "zh-cn": "通过插值在工具提示中添加“i”"
+      },
       "1.0.4": {
         "en": "License changed to Apache-2.0 (because of apache/echarts)\nUpdated some packages\nAdded fast properties editor",
         "de": "Lizenz auf Apache-2.0 geändert (wegen Apache/Echarts)\nEinige Pakete aktualisiert\nSchneller Eigenschaftseditor hinzugefügt",
@@ -74,18 +86,6 @@
         "es": "Reordenamiento fijo de presets",
         "pl": "Naprawiono zmianę kolejności presetów",
         "zh-cn": "修复了预设的重新排序"
-      },
-      "0.4.13": {
-        "en": "Tried to sort the time series before displaying it",
-        "de": "Es wurde versucht, die Zeitreihen vor dem Anzeigen zu sortieren",
-        "ru": "Пытался отсортировать временной ряд перед его отображением",
-        "pt": "Tentei classificar a série temporal antes de exibi-la",
-        "nl": "Probeerde de tijdreeks te sorteren voordat deze werd weergegeven",
-        "fr": "J'ai essayé de trier la série chronologique avant de l'afficher",
-        "it": "Ho provato a ordinare le serie temporali prima di visualizzarle",
-        "es": "Intenté ordenar la serie temporal antes de mostrarla.",
-        "pl": "Podjęto próbę posortowania szeregów czasowych przed ich wyświetleniem",
-        "zh-cn": "尝试在显示时间序列之前对其进行排序"
       }
     },
     "title": "E-Charts",

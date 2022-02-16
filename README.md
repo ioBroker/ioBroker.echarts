@@ -75,7 +75,7 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
-### __WORK IN PROGRESS__
+### 1.0.5 (2022-02-16)
 * (bluefox) Added "i" in tooltips by interpolated values
 
 ### 1.0.4 (2022-01-31)
