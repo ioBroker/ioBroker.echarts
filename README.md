@@ -75,6 +75,9 @@ You can debug view charts locally with:
 	### __WORK IN PROGRESS__
 -->
 ## Changelog
+### __WORK IN PROGRESS__
+* (bluefox) Added "i" in tooltips by interpolated values
+
 ### 1.0.4 (2022-01-31)
 * (bluefox) License changed to Apache-2.0 (because of apache/echarts)
 * (bluefox) Updated some packages

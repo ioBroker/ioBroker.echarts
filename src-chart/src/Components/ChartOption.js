@@ -756,7 +756,9 @@ class ChartOption {
                         dateTxt = '{b|..}\n{a|' + padding2(dateInMonth) + '.' + padding2(date.getMonth() + 1) + '.}';
                     }
                 }
+
                 this.lastFormattedTime = value;
+
                 if (isTop) {
                     if (this.chart.withSeconds) {
                         return dateTxt + padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds()) + (dateTxt ? '{b|..}' : '');
@@ -787,7 +789,11 @@ class ChartOption {
         for (let k = 0; k < data.length - 1; k++) {
             if (data[k].value[0] === ts) {
                 // Calculate
-                return {exact: true, val: data[k].value[1]};
+                const dp = {val: data[k].value[1]};
+                if (data[k].exact === false) {
+                    dp.exact = false
+                }
+                return dp;
             } else if (data[k].value[0] < ts && ts < data[k + 1].value[0]) {
                 const y1 = data[k].value[1];
                 const y2 = data[k + 1].value[1];
@@ -804,6 +810,7 @@ class ChartOption {
                 return {exact: false, val: (1 - kk) * (y2 - y1) + y1};
             }
         }
+
         return hoverNoNulls ? null : {exact: false, val: null};
     }
 

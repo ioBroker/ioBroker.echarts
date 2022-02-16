@@ -729,7 +729,14 @@ class ChartModel {
                             values[i].val = parseFloat(values[i].val);
                         }
 
-                        _series.push({value: [values[i].ts, values[i].val !== null ? values[i].val + option.yOffset : null]});
+                        const dp = {value: [values[i].ts, values[i].val !== null ? values[i].val + option.yOffset : null]};
+
+                        // If value was interpolated by backend
+                        if (values[i].i) {
+                            dp.exact = false;
+                        }
+
+                        _series.push(dp);
                     }
 
                     // add start and end
@@ -784,7 +791,7 @@ class ChartModel {
                                 this.subscribed = true;
                                 this.socket.subscribeState(id, this.onStateChangeBound);
                             }
-                        })
+                        });
                 } else {
                     return Promise.resolve();
                 }
