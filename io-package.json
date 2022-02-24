@@ -130,6 +130,7 @@
     "dataSource": "push",
     "icon": "echarts.png",
     "messagebox": true,
+    "eraseOnUpload": true,
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
     "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
