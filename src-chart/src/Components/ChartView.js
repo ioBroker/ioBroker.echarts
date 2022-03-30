@@ -592,10 +592,24 @@ class ChartView extends React.Component {
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                         const chartInstance = this.echartsReact.getEchartsInstance();
-                        const base64 = chartInstance.getDataURL({
+                        let base64 = chartInstance.getDataURL({
                             pixelRatio: 2, // only for png
                             backgroundColor: this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF'),
                         });
+
+                        // Add background to SVG
+                        if (!this.option || !this.option.useCanvas) {
+                            try {
+                                const data = base64.split(',');
+                                // decode base64
+                                let xml = decodeURIComponent(data[1]);
+                                xml = xml.replace('fill="none"', 'fill="' + (this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')) + '"');
+                                xml = xml.replace('fill="transparent"', 'fill="' + (this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')) + '"');
+                                base64 = data[0] + ',' + encodeURIComponent(xml);
+                            } catch (e) {
+                                console.warn('cannot attach background: ' + e);
+                            }
+                        }
 
                         const downloadLink = document.createElement('a');
                         document.body.appendChild(downloadLink);
