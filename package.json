@@ -17,20 +17,20 @@
     "url": "https://github.com/ioBroker/ioBroker.echarts"
   },
   "optionalDependencies": {
-    "canvas": "^2.9.0",
-    "echarts": "^5.3.1",
+    "canvas": "^2.9.1",
+    "echarts": "^5.3.2",
     "jsdom": "^19.0.0"
   },
   "dependencies": {
-    "moment": "^2.29.1"
+    "moment": "^2.29.3"
   },
   "devDependencies": {
-    "@alcalzone/release-script": "^3.5.6",
-    "@alcalzone/release-script-plugin-iobroker": "^3.5.7",
-    "@alcalzone/release-script-plugin-license": "^3.5.3",
-    "@iobroker/testing": "^2.5.6",
+    "@alcalzone/release-script": "^3.5.9",
+    "@alcalzone/release-script-plugin-iobroker": "^3.5.9",
+    "@alcalzone/release-script-plugin-license": "^3.5.9",
+    "@iobroker/testing": "^2.6.0",
     "@types/gulp": "^4.0.9",
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "chai": "^4.3.6",
     "del": "^6.0.0",
     "eslint": "^7.32.0",
