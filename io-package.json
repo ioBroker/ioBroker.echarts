@@ -124,7 +124,7 @@
       "singleton": true,
       "name": "ECharts"
     },
-    "license": "BSD-3-Clause",
+    "license": "Apache-2.0",
     "platform": "Javascript/Node.js",
     "connectionType": "local",
     "dataSource": "push",

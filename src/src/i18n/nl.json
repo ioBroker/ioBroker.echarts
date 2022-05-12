@@ -464,5 +464,7 @@
   "Expand all markings": "Vouw alle markeringen uit",
   "Font size": "Lettertypegrootte",
   "Y labels size": "Y-lettergrootte",
-  "X labels size": "X lettergrootte"
+  "X labels size": "X lettergrootte",
+  "percentile": "percentiel",
+  "integral": "integraal"
 }

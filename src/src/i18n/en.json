@@ -464,5 +464,7 @@
   "Expand all markings": "Expand all markings",
   "Font size": "Font size",
   "Y labels size": "Y font size",
-  "X labels size": "X font size"
+  "X labels size": "X font size",
+  "percentile": "percentile",
+  "integral": "integral"
 }

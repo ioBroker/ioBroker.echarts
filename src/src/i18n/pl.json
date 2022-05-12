@@ -464,5 +464,7 @@
   "Expand all markings": "Rozwiń wszystkie oznaczenia",
   "Font size": "Rozmiar czcionki",
   "Y labels size": "Rozmiar czcionki Y",
-  "X labels size": "X rozmiar czcionki"
+  "X labels size": "X rozmiar czcionki",
+  "percentile": "percentyl",
+  "integral": "całka"
 }

@@ -464,5 +464,7 @@
   "Expand all markings": "Espandi tutti i segni",
   "Font size": "Dimensione del font",
   "Y labels size": "Y dimensione del carattere",
-  "X labels size": "Dimensione carattere X"
+  "X labels size": "Dimensione carattere X",
+  "percentile": "percentile",
+  "integral": "integrante"
 }

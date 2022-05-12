@@ -82,6 +82,7 @@ You can debug view charts locally with:
 ## Changelog
 ### **WORK IN PROGRESS**
 * (bluefox) Added background to export image
+* (bluefox) Added integral and percentile aggregate methods
 
 ### 1.0.5 (2022-02-16)
 * (bluefox) Added "i" in tooltips by interpolated values

@@ -464,5 +464,7 @@
   "Expand all markings": "展开所有标记",
   "Font size": "字体大小",
   "Y labels size": "Y字号",
-  "X labels size": "X 字体大小"
+  "X labels size": "X 字体大小",
+  "percentile": "百分位数",
+  "integral": "不可缺少的"
 }

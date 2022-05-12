@@ -464,5 +464,7 @@
   "Expand all markings": "Développer toutes les marques",
   "Font size": "Taille de police",
   "Y labels size": "Taille de police Y",
-  "X labels size": "X taille de police"
+  "X labels size": "X taille de police",
+  "percentile": "centile",
+  "integral": "intégral"
 }

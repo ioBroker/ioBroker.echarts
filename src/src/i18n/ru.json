@@ -464,5 +464,7 @@
   "Expand all markings": "Развернуть все маркировки",
   "Font size": "Размер шрифта",
   "Y labels size": "Размер шрифта Y",
-  "X labels size": "Размер шрифта X"
+  "X labels size": "Размер шрифта X",
+  "percentile": "процентиль",
+  "integral": "интеграл"
 }

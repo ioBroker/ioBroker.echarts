@@ -165,6 +165,8 @@ const AGGREGATES = {
     max: 'max',
     total: 'total',
     onchange: 'raw',
+    percentile: 'percentile',
+    integral: 'integral',
 };
 
 class ChartSettings extends React.Component {

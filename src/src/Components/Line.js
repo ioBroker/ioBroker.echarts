@@ -353,6 +353,8 @@ class Line extends React.Component {
                     max: 'max',
                     total: 'total',
                     onchange: 'raw',
+                    percentile: 'percentile',
+                    integral: 'integral',
                 }}
                 classes={{fieldContainer: clsx(this.props.classes.shortDataTypeField, this.props.onPaste && this.props.classes.paste)}}
             /> : null}
@@ -507,6 +509,8 @@ class Line extends React.Component {
                     max: 'max',
                     total: 'total',
                     onchange: 'raw',
+                    percentile: 'percentile',
+                    integral: 'integral',
                 }}/> : null }
                 {(this.props.line.chartType !== 'auto' && this.props.line.chartType === 'scatterplot') || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
                 {this.props.line.chartType !== 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')}/> : null }
@@ -616,7 +620,7 @@ class Line extends React.Component {
         >
             <CardContent className={this.props.classes.cardContent}>
                 { this.props.opened && !this.props.onPaste ? this.renderOpenedLine() : this.renderClosedLine()}
-                <LineDialog 
+                <LineDialog
                     open={this.state.dialogOpen}
                     onClose={() => this.setState({dialogOpen: false})}
                     line={this.props.line}
