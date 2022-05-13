@@ -466,5 +466,11 @@
   "Y labels size": "Y-lettergrootte",
   "X labels size": "X lettergrootte",
   "percentile": "percentiel",
-  "integral": "integraal"
+  "integral": "integraal",
+  "Percentile": "percentiel",
+  "Integral unit": "Integrale eenheid",
+  "In seconds": "In seconden",
+  "Interpolation method": "Interpolatie methode:",
+  "linear": "lineair",
+  "none_no": "geen"
 }

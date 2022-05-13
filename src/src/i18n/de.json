@@ -466,5 +466,11 @@
   "Y labels size": "Y-Schriftgröße",
   "X labels size": "X Schriftgröße",
   "percentile": "Perzentil",
-  "integral": "Integral"
+  "integral": "Integral",
+  "Percentile": "Perzentil",
+  "Integral unit": "Integrale Einheit",
+  "In seconds": "In Sekunden",
+  "Interpolation method": "Interpolationsmethode",
+  "linear": "linear",
+  "none_no": "keins"
 }

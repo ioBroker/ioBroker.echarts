@@ -466,5 +466,11 @@
   "Y labels size": "Y字号",
   "X labels size": "X 字体大小",
   "percentile": "百分位数",
-  "integral": "不可缺少的"
+  "integral": "不可缺少的",
+  "Percentile": "百分位数",
+  "Integral unit": "整体单元",
+  "In seconds": "马上",
+  "Interpolation method": "插值法",
+  "linear": "线性的",
+  "none_no": "没有任何"
 }

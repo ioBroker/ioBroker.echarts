@@ -80,7 +80,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 1.0.6 (2022-05-12)
+### **WORK IN PROGRESS**
 * (bluefox) Added background to export image
 * (bluefox) Added integral and percentile aggregate methods
 

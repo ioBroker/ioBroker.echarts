@@ -466,5 +466,11 @@
   "Y labels size": "Taille de police Y",
   "X labels size": "X taille de police",
   "percentile": "centile",
-  "integral": "intégral"
+  "integral": "intégral",
+  "Percentile": "Centile",
+  "Integral unit": "Unité intégrale",
+  "In seconds": "En secondes",
+  "Interpolation method": "Méthode d'interpolation",
+  "linear": "linéaire",
+  "none_no": "rien"
 }

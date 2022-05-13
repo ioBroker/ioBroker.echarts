@@ -466,5 +466,11 @@
   "Y labels size": "Rozmiar czcionki Y",
   "X labels size": "X rozmiar czcionki",
   "percentile": "percentyl",
-  "integral": "całka"
+  "integral": "całka",
+  "Percentile": "Percentyl",
+  "Integral unit": "Jednostka integralna",
+  "In seconds": "W sekundy",
+  "Interpolation method": "Metoda interpolacji",
+  "linear": "liniowy",
+  "none_no": "Żaden"
 }

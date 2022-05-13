@@ -466,5 +466,11 @@
   "Y labels size": "Tamanho da fonte Y",
   "X labels size": "Tamanho da fonte X",
   "percentile": "percentil",
-  "integral": "integrante"
+  "integral": "integrante",
+  "Percentile": "Percentil",
+  "Integral unit": "Unidade integral",
+  "In seconds": "Em segundos",
+  "Interpolation method": "Método de interpolação",
+  "linear": "linear",
+  "none_no": "Nenhum"
 }

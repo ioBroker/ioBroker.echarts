@@ -233,9 +233,14 @@ class Line extends React.Component {
                         this.props.updateLine(this.props.index, line);
                     });
             }
-        }
+        } else
         if (name === 'fill' && value < 0.01 && !parseFloat(line.thickness)) {
             line.thickness = 1;
+        } else if (name === 'aggregate' && value === 'percentile' && (line.percentile === undefined || line.percentile < 0 || line.percentile > 100)) {
+            line.percentile = 50;
+        } else if (name === 'aggregate' && value === 'integral') {
+            line.integralUnit = line.integralUnit || 60;
+            line.integralInterpolation = line.integralInterpolation || 'none';
         }
 
         this.props.updateLine(this.props.index, line);
@@ -512,7 +517,13 @@ class Line extends React.Component {
                     percentile: 'percentile',
                     integral: 'integral',
                 }}/> : null }
-                {(this.props.line.chartType !== 'auto' && this.props.line.chartType === 'scatterplot') || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
+                {this.props.line.aggregate === 'percentile' ? <IOSlider formData={this.props.line} updateValue={this.updateField} name="percentile" step={5} max={100} label="Percentile"/> : null }
+                {this.props.line.aggregate === 'integral' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="integralUnit" label="Integral unit" min={1} type="number" title={I18n.t('In seconds')}/> : null }
+                {this.props.line.aggregate === 'integral' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="integralInterpolation" label="Interpolation method" options={{
+                    'none': 'none_no',
+                    'linear': 'linear',
+                }}/> : null }
+                {this.props.line.chartType === 'scatterplot' || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
                 {this.props.line.chartType !== 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')}/> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend"/> : null}
             </div>

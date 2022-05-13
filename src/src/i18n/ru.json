@@ -466,5 +466,11 @@
   "Y labels size": "Размер шрифта Y",
   "X labels size": "Размер шрифта X",
   "percentile": "процентиль",
-  "integral": "интеграл"
+  "integral": "интеграл",
+  "Percentile": "Процентиль",
+  "Integral unit": "Интегральный блок",
+  "In seconds": "В секундах",
+  "Interpolation method": "Метод интерполяции",
+  "linear": "линейный",
+  "none_no": "нет"
 }
