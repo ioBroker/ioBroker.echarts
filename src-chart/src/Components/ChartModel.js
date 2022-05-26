@@ -887,10 +887,6 @@ class ChartModel {
                         const values = res.values;
 
                         for (let i = 0; i < values.length; i++) {
-                            // if less 2000.01.01 00:00:00
-                            //if (values[i].ts < 946681200000) {
-                            //    values[i].ts = values[i].ts * 1000;
-                            //}
 
                             if (values[i].val !== null) {
                                 _series.push({value: [values[i].ts, values[i].val]});
