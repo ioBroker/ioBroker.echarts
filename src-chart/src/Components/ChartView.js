@@ -295,6 +295,7 @@ class ChartView extends React.Component {
         chart.withSeconds = chart.diff < 60000 * 30;
 
         console.log(`[ChartView ] [${new Date().toISOString()}] setNewRange: ${!!updateChart}, {min: ${new Date(chart.xMin)}, max: ${new Date(chart.xMax)}}`);
+
         if (updateChart) {
             this.updateDataTimer && clearTimeout(this.updateDataTimer);
             this.updateDataTimer = null;
@@ -318,21 +319,54 @@ class ChartView extends React.Component {
         }
     }
 
+    setNewYAxis(yAxis) {
+        // console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
+        this.option.yAxis = yAxis;
+
+        try {
+            this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function' &&
+                this.echartsReact.getEchartsInstance().setOption({ yAxis });
+        } catch (e) {
+            console.error('Cannot apply options: ' + JSON.stringify(this.option));
+        }
+    }
+
     onMouseMove = e => {
         if (this.mouseDown) {
             if (this.divResetButton.current && this.divResetButton.current.style.display !== 'block') {
                  this.divResetButton.current.style.display = 'block';
             }
-            const chart = this.chartOption.getHelperChartData();
-            const moved = chart.lastX - (e.offsetX - chart.padLeft);
-            chart.lastX = e.offsetX - chart.padLeft;
-            const diff = chart.xMax - chart.xMin;
-            const width = this.state.chartWidth - chart.padRight - chart.padLeft;
 
-            const shift = Math.round(moved * diff / width);
-            chart.xMin += shift;
-            chart.xMax += shift;
-            this.setNewRange();
+            const chart = this.chartOption.getHelperChartData();
+
+            if (e.event.shiftKey) {
+                chart.yMoved = true;
+                const moved = chart.lastY - (e.offsetY - chart.padTop);
+                chart.lastY = e.offsetY - chart.padTop;
+                const height = this.state.chartHeight - chart.padTop - chart.padBottom;
+
+                let shift;
+                let diff;
+                chart._yAxis.forEach(axis => {
+                    diff = axis.max - axis.min;
+                    shift = moved * diff / height;
+                    axis.min -= shift;
+                    axis.max -= shift;
+                });
+
+                this.setNewYAxis(chart._yAxis);
+            } else {
+                chart.xMoved = true;
+                const moved = chart.lastX - (e.offsetX - chart.padLeft);
+                chart.lastX = e.offsetX - chart.padLeft;
+                const diff = chart.xMax - chart.xMin;
+                const width = this.state.chartWidth - chart.padRight - chart.padLeft;
+
+                const shift = Math.round(moved * diff / width);
+                chart.xMin += shift;
+                chart.xMax += shift;
+                this.setNewRange();
+            }
         }
     };
 
@@ -340,20 +374,30 @@ class ChartView extends React.Component {
         this.mouseDown = true;
         const chart = this.chartOption.getHelperChartData();
         chart.lastX = e.offsetX;
+        chart.lastY = e.offsetY;
+        chart.yMoved = false;
+        chart.xMoved = false;
+        chart._yAxis = JSON.parse(JSON.stringify(chart.yAxis));
+
         if (this.zr && !this.zr._mousemove) {
             this.zr._mousemove = true;
             this.zr.on('mousemove', this.onMouseMove);
         }
+
         const config = this.props.config;
         if (config.live && this.props.onRangeChange) {
             console.log('Stop update');
-            this.props.onRangeChange({stopLive: true});
+            this.props.onRangeChange({ stopLive: true });
         }
     };
 
     onMouseUp = () => {
         this.mouseDown = false;
-        this.setNewRange(true);
+        const chart = this.chartOption.getHelperChartData();
+        if (chart.xMoved) {
+            this.setNewRange(true);
+        }
+
         if (this.zr && this.zr._mousemove) {
             this.zr._mousemove = false;
             this.zr.off('mousemove', this.onMouseMove);
@@ -362,21 +406,41 @@ class ChartView extends React.Component {
 
     onMouseWheel = e => {
         const chart = this.chartOption.getHelperChartData();
-        let diff = chart.xMax - chart.xMin;
-        const width = this.state.chartWidth - chart.padRight - chart.padLeft;
-        const x = e.offsetX - chart.padLeft;
-        const pos = x / width;
+        if (e.event.shiftKey) {
+            const height = this.state.chartHeight - chart.padBottom - chart.padTop;
+            const y = e.offsetY - chart.padTop;
+            const pos = y / height;
+            const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
+            const yAxis = JSON.parse(JSON.stringify(chart.yAxis));
 
-        const oldDiff = diff;
-        const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
-        diff = diff * amount;
-        const move = oldDiff - diff;
-        chart.xMax += move * (1 - pos);
-        chart.xMin -= move * pos;
+            chart.yAxis.forEach(axis => {
+                let diff = axis.max - axis.min;
+                const oldDiff = diff;
+                diff = diff * amount;
+                const move = oldDiff - diff;
 
-        this.setNewRange();
-        this.updateDataTimer && clearTimeout(this.updateDataTimer);
-        this.updateDataTimer = setTimeout(() => this.setNewRange(true), 1000);
+                axis.max += move * (1 - pos);
+                axis.min -= move * pos;
+            });
+
+            this.setNewYAxis(yAxis);
+        } else {
+            let diff = chart.xMax - chart.xMin;
+            const width = this.state.chartWidth - chart.padRight - chart.padLeft;
+            const x = e.offsetX - chart.padLeft;
+            const pos = x / width;
+
+            const oldDiff = diff;
+            const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
+            diff = diff * amount;
+            const move = oldDiff - diff;
+            chart.xMax += move * (1 - pos);
+            chart.xMin -= move * pos;
+
+            this.setNewRange();
+            this.updateDataTimer && clearTimeout(this.updateDataTimer);
+            this.updateDataTimer = setTimeout(() => this.setNewRange(true), 1000);
+        }
     };
 
     onTouchStart = e => {
@@ -505,7 +569,8 @@ class ChartView extends React.Component {
     applySelected() {
         // merge selected
         if (this.selected && this.option.legend) {
-            Object.keys(this.selected).forEach(name => this.option.legend.selected[name] = this.selected[name]);
+            Object.keys(this.selected)
+                .forEach(name => this.option.legend.selected[name] = this.selected[name]);
         }
     }
 
