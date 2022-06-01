@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "news": {
+      "1.0.8": {
+        "en": "Added option `shift+mouse move` to scale Y axis",
+        "de": "Option `Umschalt+Mausbewegung` hinzugefügt, um die Y-Achse zu skalieren",
+        "ru": "Добавлена опция «shift+перемещение мыши» для масштабирования оси Y.",
+        "pt": "Adicionada opção 'shift+mouse move' para dimensionar o eixo Y",
+        "nl": "Optie `shift+mouse move` toegevoegd om Y-as te schalen",
+        "fr": "Ajout de l'option `shift + mouse move` pour mettre à l'échelle l'axe Y",
+        "it": "Aggiunta l'opzione \"shift+mouse move\" per scalare l'asse Y",
+        "es": "Se agregó la opción `shift + movimiento del mouse` para escalar el eje Y",
+        "pl": "Dodano opcję `shift+mouse move` do skalowania osi Y",
+        "zh-cn": "添加选项 `shift+mouse move` 来缩放 Y 轴"
+      },
       "1.0.7": {
         "en": "Added background to export image\nAdded integral and percentile aggregate methods",
         "de": "Hintergrund zum Exportbild hinzugefügt\nIntegral- und Perzentil-Aggregationsmethoden hinzugefügt",
@@ -74,18 +86,6 @@
         "es": "Se corrigió la opción \"sin fondo\"",
         "pl": "Naprawiono opcję „bez tła”",
         "zh-cn": "修复了“无背景”选项"
-      },
-      "1.0.0": {
-        "en": "Fixed many bugs",
-        "de": "Viele Fehler behoben",
-        "ru": "Исправлено много ошибок",
-        "pt": "Muitos bugs corrigidos",
-        "nl": "Veel bugs opgelost",
-        "fr": "Correction de nombreux bugs",
-        "it": "Risolti molti bug",
-        "es": "Se corrigieron muchos errores",
-        "pl": "Naprawiono wiele błędów",
-        "zh-cn": "修复了许多错误"
       }
     },
     "title": "E-Charts",
