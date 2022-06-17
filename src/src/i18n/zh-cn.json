@@ -472,5 +472,7 @@
   "In seconds": "马上",
   "Interpolation method": "插值法",
   "linear": "线性的",
-  "none_no": "没有任何"
+  "none_no": "没有任何",
+  "end of previous sunday": "上周日结束（2 周）",
+  "end of previous saturday": "上周六结束（2周）"
 }

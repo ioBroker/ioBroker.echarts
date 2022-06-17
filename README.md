@@ -80,6 +80,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added 2 weeks as relative period
+
 ### 1.0.8 (2022-06-01)
 * (bluefox) Added option `shift+mouse move` to scale Y axis
 

@@ -123,6 +123,8 @@ const relativeEndOptions = {
     'today': 'end of day',
     'weekEurope': 'end of sunday',
     'weekUsa': 'end of saturday',
+    'week2Europe': 'end of previous sunday',
+    'week2Usa': 'end of previous saturday',
     'month': 'this month',
     'year': 'this year',
 };
@@ -196,13 +198,13 @@ class ChartSettings extends React.Component {
                 size="small"
                 className={this.props.classes.settingsButton}
                 id="timeSpanOpenButton"
-                onClick={() => {this.setState({timeSpanOpened: !this.state.timeSpanOpened})}}
+                onClick={() => {this.setState({ timeSpanOpened: !this.state.timeSpanOpened })}}
             >
                 <IconTime/>
                 {
                     this.props.presetData.timeType === 'relative' ?
-                    I18n.t(rangeOptions[this.props.presetData.range]) + ' ' + I18n.t('to') + ' ' + I18n.t(relativeEndOptions[this.props.presetData.relativeEnd]) :
-                    this.props.presetData.start + ' ' + this.props.presetData.start_time + ' - ' + this.props.presetData.end + ' ' + this.props.presetData.end_time
+                    `${I18n.t(rangeOptions[this.props.presetData.range])} ${I18n.t('to')} ${I18n.t(relativeEndOptions[this.props.presetData.relativeEnd])}` :
+                    `${this.props.presetData.start} ${this.props.presetData.start_time} - ${this.props.presetData.end} ${this.props.presetData.end_time}`
                 }
                 <IconDropDown/>
             </Button>

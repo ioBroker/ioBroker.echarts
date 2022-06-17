@@ -472,5 +472,7 @@
   "In seconds": "W sekundy",
   "Interpolation method": "Metoda interpolacji",
   "linear": "liniowy",
-  "none_no": "Żaden"
+  "none_no": "Żaden",
+  "end of previous sunday": "koniec poprzedniej niedzieli (2 tygodnie)",
+  "end of previous saturday": "koniec poprzedniej soboty (2 tygodnie)"
 }

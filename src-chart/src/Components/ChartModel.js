@@ -581,13 +581,13 @@ class ChartModel {
 
                 if (this.config.relativeEnd === 'now') {
                     _now = new Date(this.now);
-                } else if (this.config.relativeEnd.indexOf('minute') !== -1) {
+                } else if (this.config.relativeEnd.includes('minute')) {
                     const minutes = parseInt(this.config.relativeEnd, 10) || 1;
                     _now = new Date(this.now);
                     _now.setMinutes(Math.floor(_now.getMinutes() / minutes) * minutes + minutes);
                     _now.setSeconds(0);
                     _now.setMilliseconds(0);
-                }  else if (this.config.relativeEnd.indexOf('hour') !== -1) {
+                }  else if (this.config.relativeEnd.includes('hour')) {
                     const hours = parseInt(this.config.relativeEnd, 10) || 1;
                     _now = new Date(this.now);
                     _now.setHours(Math.floor(_now.getHours() / hours) * hours + hours);
@@ -618,6 +618,29 @@ class ChartModel {
                     } else {
                         _now.setDate(_now.getDate() - _now.getDay() + 8);
                     }
+                    _now.setHours(0);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                } else if (this.config.relativeEnd === 'week2Usa') {
+                    //const week = parseInt(config.relativeEnd, 10) || 1;
+                    _now = new Date(this.now);
+                    _now.setDate(_now.getDate() - _now.getDay() + 7);
+                    _now.setDate(_now.getDate() - 7);
+                    _now.setHours(0);
+                    _now.setMinutes(0);
+                    _now.setSeconds(0);
+                    _now.setMilliseconds(0);
+                } else if (this.config.relativeEnd === 'week2Europe') {
+                    //const _week = parseInt(config.relativeEnd, 10) || 1;
+                    _now = new Date(this.now);
+                    // If
+                    if (_now.getDay() === 0) {
+                        _now.setDate(_now.getDate() + 1);
+                    } else {
+                        _now.setDate(_now.getDate() - _now.getDay() + 8);
+                    }
+                    _now.setDate(_now.getDate() - 7);
                     _now.setHours(0);
                     _now.setMinutes(0);
                     _now.setSeconds(0);

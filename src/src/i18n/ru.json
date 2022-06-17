@@ -472,5 +472,7 @@
   "In seconds": "В секундах",
   "Interpolation method": "Метод интерполяции",
   "linear": "линейный",
-  "none_no": "нет"
+  "none_no": "нет",
+  "end of previous sunday": "конец предыдущего воскресенья (2 недели)",
+  "end of previous saturday": "конец предыдущей субботы (2 недели)"
 }

@@ -472,5 +472,7 @@
   "In seconds": "In seconds",
   "Interpolation method": "Interpolation method",
   "linear": "linear",
-  "none_no": "none"
+  "none_no": "none",
+  "end of previous sunday": "end of previous sunday (2 weeks)",
+  "end of previous saturday": "end of previous saturday (2 weeks)"
 }

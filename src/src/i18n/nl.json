@@ -472,5 +472,7 @@
   "In seconds": "In seconden",
   "Interpolation method": "Interpolatie methode:",
   "linear": "lineair",
-  "none_no": "geen"
+  "none_no": "geen",
+  "end of previous sunday": "eind vorige zondag (2 weken)",
+  "end of previous saturday": "eind vorige zaterdag (2 weken)"
 }
