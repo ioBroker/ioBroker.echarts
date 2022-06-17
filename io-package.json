@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "news": {
+      "1.0.9": {
+        "en": "Added 2 weeks as relative period",
+        "de": "Zusätzlich 2 Wochen als relativer Zeitraum",
+        "ru": "Добавлено 2 недели как относительное время",
+        "pt": "Adicionado 2 semanas como período relativo",
+        "nl": "Twee weken als relatief ongesteld",
+        "fr": "Ajout de 2 semaines en période relative",
+        "it": "Aggiunto 2 settimane come periodo relativo",
+        "es": "Añadido 2 semanas como período relativo",
+        "pl": "Dodany 2 tygodnie jako okres względny",
+        "zh-cn": "在相对期间增加2个星期"
+      },
       "1.0.8": {
         "en": "Added option `shift+mouse move` to scale Y axis",
         "de": "Option `Umschalt+Mausbewegung` hinzugefügt, um die Y-Achse zu skalieren",
@@ -74,18 +86,6 @@
         "es": "Se corrigió la comunicación con admin4.",
         "pl": "Naprawiono komunikację z admin4min",
         "zh-cn": "修复了与 admin4 的通信"
-      },
-      "1.0.1": {
-        "en": "Fixed the \"no background\" option",
-        "de": "Die Option \"kein Hintergrund\" wurde behoben",
-        "ru": "Исправлена опция \"без фона\"",
-        "pt": "Corrigida a opção \"sem plano de fundo\"",
-        "nl": "De optie \"geen achtergrond\" gerepareerd",
-        "fr": "Correction de l'option \"pas de fond\"",
-        "it": "Risolto il problema con l'opzione \"nessun sfondo\"",
-        "es": "Se corrigió la opción \"sin fondo\"",
-        "pl": "Naprawiono opcję „bez tła”",
-        "zh-cn": "修复了“无背景”选项"
       }
     },
     "title": "E-Charts",
