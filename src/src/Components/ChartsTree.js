@@ -254,7 +254,7 @@ class ChartsTree extends Component {
     getAllCharts(newState) {
         newState = newState || {};
         return new Promise(resolve =>
-            this.props.socket._socket.emit('getObjectView', 'custom', 'state', {}, (err, objs) => {
+            this.props.socket._socket.emit('getObjectView', 'system', 'custom', {}, (err, objs) => {
                 // console.log(objs);
                 const ids = ((objs && objs.rows) || []).map(item => item.id);
                 this.getObjects(ids, objs => {
