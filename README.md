@@ -80,7 +80,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.10 (2022-06-20)
 * (bluefox) Corrected the problem with `socket.io`
 
 ### 1.0.9 (2022-06-17)

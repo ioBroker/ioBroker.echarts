@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "news": {
+      "1.0.10": {
+        "en": "Corrected the problem with `socket.io`",
+        "de": "Hat das Problem mit der Steckdose korrigiert. io",
+        "ru": "Исправлена проблема с розеткой. io",
+        "pt": "Corrigido o problema com a tomada. I",
+        "nl": "Het probleem met de soket gecorrigeerd. io",
+        "fr": "Correction du problème avec la socket. io",
+        "it": "Corretto il problema con la presa. I",
+        "es": "Corregido el problema con el socket. io",
+        "pl": "Poprawiono problem z gniazdem. i",
+        "zh-cn": "把问题与袖手旁观。 0%"
+      },
       "1.0.9": {
         "en": "Added 2 weeks as relative period",
         "de": "Zusätzlich 2 Wochen als relativer Zeitraum",
@@ -74,18 +86,6 @@
         "es": "Representación fija del lado del servidor",
         "pl": "Naprawiono renderowanie po stronie serwera",
         "zh-cn": "固定服务器端渲染"
-      },
-      "1.0.2": {
-        "en": "Fixed the communication with admin4",
-        "de": "Die Kommunikation mit admin4 behoben",
-        "ru": "Исправлена связь с admin4",
-        "pt": "Corrigida a comunicação com admin4",
-        "nl": "De communicatie met admin opgelost4",
-        "fr": "Correction de la communication avec admin4",
-        "it": "Risolta la comunicazione con admin4",
-        "es": "Se corrigió la comunicación con admin4.",
-        "pl": "Naprawiono komunikację z admin4min",
-        "zh-cn": "修复了与 admin4 的通信"
       }
     },
     "title": "E-Charts",
