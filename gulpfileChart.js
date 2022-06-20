@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2020 bluefox <dogafox@gmail.com>
+ * Copyright 2018-2022 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *
@@ -73,7 +73,7 @@ module.exports = function init(gulp) {
             const words = {};
             keys.forEach((key, line) => {
                 if (!index[key]) {
-                    console.log('No word ' + key + ', ' + lang + ', line: ' + line);
+                    console.log(`No word ${key}, ${lang}, line: ${line}`);
                 }
                 words[key] = index[key][lang];
             });
@@ -209,14 +209,14 @@ module.exports = function init(gulp) {
         if (fs.existsSync(__dirname + '/admin/chart/index.html')) {
             let code = fs.readFileSync(__dirname + '/admin/chart/index.html').toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>`);
+                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
             fs.writeFileSync(__dirname + '/admin/chart/index.html', code);
         }
         if (fs.existsSync(__dirname + '/src-chart/build/index.html')) {
             let code = fs.readFileSync(__dirname + '/src-chart/build/index.html').toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>`);
+                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
             fs.writeFileSync(__dirname + '/src-chart/build/index.html', code);
         }
@@ -325,10 +325,12 @@ module.exports = function init(gulp) {
                         if (fs.existsSync(__dirname + '/www/index.html')) {
                             let code = fs.readFileSync(__dirname + '/www/index.html').toString('utf8');
                             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                                `<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>`);
+                                `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`);
+                            code = code.replace('<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>',
+                                `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`);
 
                             if (!code.includes('_socket/info.js')) {
-                                code = code.replace('<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script>', '<script type="text/javascript" src="./../../../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>');
+                                code = code.replace('<script type="text/javascript" src="./../lib/js/socket.io.js"></script>', '<script type="text/javascript" src="./../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>');
                             }
 
                             fs.writeFileSync(__dirname + '/www/index.html', code);

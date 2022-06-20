@@ -80,6 +80,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Corrected the problem with `socket.io`
+
 ### 1.0.9 (2022-06-17)
 * (bluefox) Added 2 weeks as relative period
 
