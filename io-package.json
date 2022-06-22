@@ -3,18 +3,6 @@
     "name": "echarts",
     "version": "1.0.11",
     "news": {
-      "1.0.11": {
-        "en": "Made it work with ioBroker cloud",
-        "de": "Es funktioniert mit ioBroker Cloud",
-        "ru": "Сделано в ioBroker cloud",
-        "pt": "Fez com que funcionasse com a nuvem ioBroker",
-        "nl": "Ik liet het werken met ioBrokerwolk",
-        "fr": "Il a fait fonctionner avec ioBroker cloud",
-        "it": "Ha fatto funzionare con ioBroker cloud",
-        "es": "Lo hizo funcionar con la nube de yoBroker",
-        "pl": "Uprawiała się w chmurze ioBrokera",
-        "zh-cn": "马约恩岛与奥布罗克云合作"
-      },
       "1.0.10": {
         "en": "Corrected the problem with `socket.io`",
         "de": "Hat das Problem mit der Steckdose korrigiert. io",
