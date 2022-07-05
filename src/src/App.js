@@ -34,7 +34,7 @@ import MenuList from './MenuList';
 import flotConverter from './utils/flotConverter';
 
 const generateClassName = createGenerateClassName({
-    productionPrefix: 'iob',
+    productionPrefix: 'iob-app',
 });
 
 const styles = theme => ({
@@ -176,12 +176,11 @@ class App extends GenericApp {
             }
         }
 
-        if (!selectedId && this.config.preset) {
+        if (!selectedId && this.config?.preset) {
             selectedId = this.config.preset;
-        } else if (!selectedId && this.config.id) {
-            selectedId = {id: this.config.id, instance: this.config.instance};
+        } else if (!selectedId && this.config?.id) {
+            selectedId = { id: this.config.id, instance: this.config.instance };
         }
-
 
         const newState = {
             ready: false,
@@ -375,7 +374,7 @@ class App extends GenericApp {
                     } else {
                         obj.native.data = this.state.presetData;
                         return this.socket.setObject(obj._id, obj)
-                            .then(() => this.setState({originalPresetData: JSON.stringify(this.state.presetData), selectedPresetChanged: false}))
+                            .then(() => this.setState({ originalPresetData: JSON.stringify(this.state.presetData), selectedPresetChanged: false }))
                             .catch(e => this.onError(e, 'Cannot save object'));
                     }
                 })
@@ -514,7 +513,7 @@ class App extends GenericApp {
             fullWidth={true}
             open={ true }
             key="discardChangesConfirmDialog"
-            onClose={ () => this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(false)) }>
+            onClose={ () => this.setState({ discardChangesConfirmDialog: false }, () => this.confirmCB && this.confirmCB(false)) }>
                 <DialogTitle>{
                     this.state.discardChangesConfirmDialog === 'chart' ? I18n.t('Are you sure for loading the chart and discard unsaved changes?')
                     : (this.state.discardChangesConfirmDialog === 'preset' ? I18n.t('Are you sure for loading the preset and discard unsaved changes?') :
@@ -525,7 +524,8 @@ class App extends GenericApp {
                         color="grey"
                         variant="outlined"
                         onClick={() =>
-                            this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true))}
+                            this.setState({ discardChangesConfirmDialog: false }, () =>
+                                this.confirmCB && this.confirmCB(true))}
                     >
                             { I18n.t('Load without save')}
                     </Button>
@@ -534,7 +534,8 @@ class App extends GenericApp {
                         color="secondary"
                         autoFocus
                         onClick={() => this.savePreset()
-                            .then(() => this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(true)))}
+                            .then(() => this.setState({ discardChangesConfirmDialog: false }, () =>
+                                this.confirmCB && this.confirmCB(true)))}
                         startIcon={<IconSave/>}
                     >
 
@@ -543,7 +544,8 @@ class App extends GenericApp {
                     <Button
                         color="grey"
                         variant="contained"
-                        onClick={() => this.setState({discardChangesConfirmDialog: false}, () => this.confirmCB && this.confirmCB(false))}
+                        onClick={() => this.setState({ discardChangesConfirmDialog: false }, () =>
+                            this.confirmCB && this.confirmCB(false))}
                         startIcon={<IconCancel/>}
                     >
                         { I18n.t('Cancel') }
@@ -558,8 +560,8 @@ class App extends GenericApp {
             <div className={clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
                 <div key="confirmdiv" className={classes.menuOpenCloseButton} onClick={() => {
                     window.localStorage && window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
-                    this.setState({menuOpened: !this.state.menuOpened, resizing: true});
-                    setTimeout(() => this.setState({resizing: false}), 300);
+                    this.setState({ menuOpened: !this.state.menuOpened, resizing: true });
+                    setTimeout(() => this.setState({ resizing: false }), 300);
                 }}>
                     {this.state.menuOpened ? <IconMenuOpened /> : <IconMenuClosed />}
                 </div>
@@ -569,10 +571,10 @@ class App extends GenericApp {
                     primaryMinSize={100}
                     secondaryInitialSize={this.settingsSize}
                     //customClassName={classes.menuDiv + ' ' + classes.splitterDivWithoutMenu}
-                    onDragStart={() => this.setState({resizing: true})}
+                    onDragStart={() => this.setState({ resizing: true })}
                     onSecondaryPaneSizeChange={size => this.settingsSize = parseFloat(size)}
                     onDragEnd={() => {
-                        this.setState({resizing: false});
+                        this.setState({ resizing: false });
                         window.localStorage && window.localStorage.setItem('App.echarts.settingsSize', this.settingsSize.toString());
                     }}
                 >
@@ -580,7 +582,7 @@ class App extends GenericApp {
                         key="MainChart"
                         visible={!this.state.resizing}
                         theme={this.state.theme}
-                        onChange={presetData => this.setState({presetData})}
+                        onChange={presetData => this.setState({ presetData })}
                         presetData={this.state.presetData}
                         selectedId={this.state.selectedId}
                         chartsList={this.state.chartsList}
@@ -595,9 +597,9 @@ class App extends GenericApp {
                             theme={this.state.theme}
                             onChange={presetData => {
                                 if (this.state.autoSave) {
-                                    this.setState({presetData}, () => this.savePreset());
+                                    this.setState({ presetData }, () => this.savePreset());
                                 } else {
-                                    this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
+                                    this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });
                                 }
                             }}
                             presetData={this.state.presetData}
@@ -614,9 +616,9 @@ class App extends GenericApp {
                                 window.localStorage.setItem('App.echarts.autoSave', autoSave ? 'true' : 'false');
                                 if (autoSave && this.state.selectedPresetChanged) {
                                     this.savePreset()
-                                        .then(() => this.setState({autoSave}));
+                                        .then(() => this.setState({ autoSave }));
                                 } else {
-                                    this.setState({autoSave});
+                                    this.setState({ autoSave });
                                 }
 
                             }}
@@ -654,7 +656,7 @@ class App extends GenericApp {
                         }
                     }
 
-                    this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
+                    this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
 
@@ -662,13 +664,13 @@ class App extends GenericApp {
             const presetData = JSON.parse(JSON.stringify(this.state.presetData));
             const [removed] = presetData.lines.splice(source.index, 1);
             presetData.lines.splice(destination.index, 0, removed);
-            this.setState({presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData});
+            this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });
         }
     };
 
     toggleLogLayout() {
         window.localStorage && window.localStorage.setItem('App.echarts.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
-        this.setState({logHorzLayout: !this.state.logHorzLayout});
+        this.setState({ logHorzLayout: !this.state.logHorzLayout });
     }
 
     render() {
@@ -698,10 +700,10 @@ class App extends GenericApp {
                                     secondaryMinSize={300}
                                     secondaryInitialSize={this.menuSize}
                                     customClassName={clsx(classes.splitterDivs, !this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
-                                    onDragStart={() => this.setState({resizing: true})}
+                                    onDragStart={() => this.setState({ resizing: true })}
                                     onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
                                     onDragEnd={() => {
-                                        this.setState({resizing: false});
+                                        this.setState({ resizing: false });
                                         window.localStorage && window.localStorage.setItem('App.echarts.menuSize', this.menuSize.toString());
                                     }}
                                 >

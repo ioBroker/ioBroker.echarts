@@ -7,7 +7,7 @@ import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
 
 const generateClassName = createGenerateClassName({
-    productionPrefix: 'iob',
+    productionPrefix: 'iob-ch',
 });
 
 const styles = theme => ({

@@ -90,7 +90,7 @@ class MenuList extends Component {
             ><IconAdd/></IconButton> : null}
 
             {!this.state.reorder ? <IconButton
-                onClick={ () => this.setState({addPresetFolderDialog: true}) }
+                onClick={ () => this.setState({ addPresetFolderDialog: true }) }
                 title={ I18n.t('Create new folder') }
             ><IconFolderAdd/></IconButton> : null}
 

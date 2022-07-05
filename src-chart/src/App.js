@@ -19,7 +19,7 @@ import ChartModel from './Components/ChartModel';
 import ChartView from './Components/ChartView';
 
 const generateClassName = createGenerateClassName({
-    productionPrefix: 'iob',
+    productionPrefix: 'iob-app',
 });
 
 const styles = theme => ({
