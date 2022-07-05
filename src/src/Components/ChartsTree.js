@@ -1,30 +1,30 @@
 import React, {Component} from "react";
 import PropTypes from 'prop-types';
-import withWidth from "@material-ui/core/withWidth";
-import {withStyles, withTheme} from "@material-ui/core/styles";
+import { withStyles, withTheme } from '@mui/styles';
 import clsx from 'clsx';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
-import IconButton from '@material-ui/core/IconButton';
-import ListItemText from '@material-ui/core/ListItemText';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Switch from '@material-ui/core/Switch';
+import IconButton from '@mui/material/IconButton';
+import ListItemText from '@mui/material/ListItemText';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Switch from '@mui/material/Switch';
 
 // icons
-import {MdExpandLess as IconCollapse} from 'react-icons/md';
-import {MdExpandMore as IconExpand} from 'react-icons/md';
-import {MdAdd as IconAdd} from 'react-icons/md';
-import {FaFolder as IconFolderClosed} from 'react-icons/all';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
-import {AiOutlineAreaChart as IconChart} from 'react-icons/ai';
-import {FaWaveSquare as IconBooleanChart} from 'react-icons/fa';
+import { MdExpandLess as IconCollapse } from 'react-icons/md';
+import { MdExpandMore as IconExpand } from 'react-icons/md';
+import { MdAdd as IconAdd } from 'react-icons/md';
+import { FaFolder as IconFolderClosed } from 'react-icons/fa';
+import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
+import { AiOutlineAreaChart as IconChart } from 'react-icons/ai';
+import { FaWaveSquare as IconBooleanChart } from 'react-icons/fa';
 
-import I18n from '@iobroker/adapter-react/i18n';
-import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
-import Utils from '@iobroker/adapter-react/Components/Utils';
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import { withWidth } from '@iobroker/adapter-react-v5';
+import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 
 function sortObj(a, b) {
     const aid = typeof a === 'object' ? a._id.replace('system.adapter.', '') : a.replace('system.adapter.', '');
@@ -83,7 +83,7 @@ const styles = theme => ({
         borderRadius: 2,
     },
     mainList: {
-        width: 'calc(100% - ' + theme.spacing(1) + 'px)',
+        width: 'calc(100% - ' + theme.spacing(1) + ')',
         marginLeft: theme.spacing(1),
     },
 });
@@ -551,13 +551,13 @@ class ChartsTree extends Component {
             return ids.map(id=>
                 <Draggable
                     isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
-                    key={instance + '_' + id}
-                    draggableId={instance + '***' + id}
+                    key={`${instance}_${id}`}
+                    draggableId={`${instance}***${id}`}
                     index={renderContext.gIndex++}>
                     {(provided, snapshot) =>
                         [
                             <div
-                                key={instance + '_' + id + '_item'}
+                                key={`${instance}_${id}_item`}
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
@@ -602,13 +602,13 @@ class ChartsTree extends Component {
                     {ids.map(id=>
                         <Draggable
                             isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
-                            key={instance + '_' + id}
-                            draggableId={instance + '***' + id}
+                            key={`${instance}_${id}`}
+                            draggableId={`${instance}***${id}`}
                             index={renderContext.gIndex++}>
                             {(provided, snapshot) =>
                                 [
                                     <div
-                                        key={instance + '_' + id + '_item'}
+                                        key={`${instance}_${id}_item`}
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
@@ -631,7 +631,7 @@ class ChartsTree extends Component {
     }
 
     render() {
-        const renderContext = {gIndex: 0};
+        const renderContext = { gIndex: 0 };
         return [
             this.renderSelectIdDialog(),
             <Droppable droppableId="Lines" isDropDisabled={true} key="charts">

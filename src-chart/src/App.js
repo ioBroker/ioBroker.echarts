@@ -1,23 +1,26 @@
-import React, {Component} from 'react';
-import {withStyles} from '@material-ui/core/styles';
-import { withTheme } from '@material-ui/core/styles';
-import withWidth from '@material-ui/core/withWidth';
-import { MuiThemeProvider } from '@material-ui/core/styles';
-import MD5 from "crypto-js/md5";
+import React, { Component } from 'react';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { StylesProvider, createGenerateClassName, withStyles, withTheme } from '@mui/styles';
+import MD5 from 'crypto-js/md5';
 
-import LinearProgress from '@material-ui/core/LinearProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 
-import Utils from '@iobroker/adapter-react/Components/Utils';
-import Loader from '@iobroker/adapter-react/Components/Loader'
-import I18n from '@iobroker/adapter-react/i18n';
-import Connection, {PROGRESS, ERRORS} from '@iobroker/adapter-react/Connection';
-import DialogError from '@iobroker/adapter-react/Dialogs/Error';
-import theme from '@iobroker/adapter-react/Theme';
+import { withWidth } from '@iobroker/adapter-react-v5';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
+import Loader from '@iobroker/adapter-react-v5/Components/Loader'
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import Connection, { PROGRESS, ERRORS } from '@iobroker/adapter-react-v5/Connection';
+import DialogError from '@iobroker/adapter-react-v5/Dialogs/Error';
+import theme from '@iobroker/adapter-react-v5/Theme';
 
-import '@iobroker/adapter-react/index.css';
+import '@iobroker/adapter-react-v5/index.css';
 
 import ChartModel from './Components/ChartModel';
 import ChartView from './Components/ChartView';
+
+const generateClassName = createGenerateClassName({
+    productionPrefix: 'iob',
+});
 
 const styles = theme => ({
     root: {
@@ -64,16 +67,16 @@ class App extends Component {
 
         // init translations
         const translations = {
-            'en': require('@iobroker/adapter-react/i18n/en'),
-            'de': require('@iobroker/adapter-react/i18n/de'),
-            'ru': require('@iobroker/adapter-react/i18n/ru'),
-            'pt': require('@iobroker/adapter-react/i18n/pt'),
-            'nl': require('@iobroker/adapter-react/i18n/nl'),
-            'fr': require('@iobroker/adapter-react/i18n/fr'),
-            'it': require('@iobroker/adapter-react/i18n/it'),
-            'es': require('@iobroker/adapter-react/i18n/es'),
-            'pl': require('@iobroker/adapter-react/i18n/pl'),
-            'zh-cn': require('@iobroker/adapter-react/i18n/zh-cn'),
+            'en': require('@iobroker/adapter-react-v5/i18n/en'),
+            'de': require('@iobroker/adapter-react-v5/i18n/de'),
+            'ru': require('@iobroker/adapter-react-v5/i18n/ru'),
+            'pt': require('@iobroker/adapter-react-v5/i18n/pt'),
+            'nl': require('@iobroker/adapter-react-v5/i18n/nl'),
+            'fr': require('@iobroker/adapter-react-v5/i18n/fr'),
+            'it': require('@iobroker/adapter-react-v5/i18n/it'),
+            'es': require('@iobroker/adapter-react-v5/i18n/es'),
+            'pl': require('@iobroker/adapter-react-v5/i18n/pl'),
+            'zh-cn': require('@iobroker/adapter-react-v5/i18n/zh-cn'),
         };
 
         const ownTranslations = {
@@ -233,7 +236,7 @@ class App extends Component {
      * @returns {string} Theme type
      */
     getThemeType(theme) {
-        return theme.palette.type;
+        return theme.palette.mode;
     }
 
     showError(text) {
@@ -259,9 +262,13 @@ class App extends Component {
             if (this.state.noLoader) {
                 return null;
             } else {
-                return <MuiThemeProvider theme={this.state.theme}>
-                    <Loader theme={this.state.themeType}/>
-                </MuiThemeProvider>;
+                return <StylesProvider generateClassName={generateClassName}>
+                    <StyledEngineProvider injectFirst>
+                        <ThemeProvider theme={this.state.theme}>
+                            <Loader theme={this.state.themeType}/>
+                        </ThemeProvider>
+                    </StyledEngineProvider>
+                </StylesProvider>;
             }
         }
 
@@ -273,32 +280,36 @@ class App extends Component {
             console.log('seriesData: ' + JSON.stringify(this.state.seriesData));
         }
 
-        return <MuiThemeProvider theme={this.state.theme}>
-            <div ref={this.divRef}
-                 className={this.props.classes.root}
-                 style={{
-                     width: config.width,
-                     height: config.height,
-                     background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
-                     color: this.state.theme.palette.text.primary
-                 }}>
-                <LinearProgress ref={this.progressRef} style={{display: 'block'}} className={this.props.classes.progress}/>
-                <ChartView
-                    key={hash}
-                    socket={this.socket}
-                    t={I18n.t}
-                    noAnimation={this.state.noLoader}
-                    data={this.state.seriesData}
-                    actualValues={this.state.actualValues}
-                    config={config}
-                    compact={this.state.compact}
-                    lang={I18n.getLanguage()}
-                    themeType={this.state.themeType}
-                    onRangeChange={options => this.chartData.setNewRange(options)}
-                />
-                {this.renderError()}
-            </div>
-        </MuiThemeProvider>;
+        return <StylesProvider generateClassName={generateClassName}>
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.state.theme}>
+                    <div ref={this.divRef}
+                         className={this.props.classes.root}
+                         style={{
+                             width: config.width,
+                             height: config.height,
+                             background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
+                             color: this.state.theme.palette.text.primary
+                         }}>
+                        <LinearProgress ref={this.progressRef} style={{display: 'block'}} className={this.props.classes.progress}/>
+                        <ChartView
+                            key={hash}
+                            socket={this.socket}
+                            t={I18n.t}
+                            noAnimation={this.state.noLoader}
+                            data={this.state.seriesData}
+                            actualValues={this.state.actualValues}
+                            config={config}
+                            compact={this.state.compact}
+                            lang={I18n.getLanguage()}
+                            themeType={this.state.themeType}
+                            onRangeChange={options => this.chartData.setNewRange(options)}
+                        />
+                        {this.renderError()}
+                    </div>
+                </ThemeProvider>
+            </StyledEngineProvider>
+        </StylesProvider>;
     }
 }
 

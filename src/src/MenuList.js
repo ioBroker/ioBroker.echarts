@@ -1,30 +1,31 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import withWidth from '@material-ui/core/withWidth';
-import {withStyles, withTheme} from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@mui/styles';
 
-import IconButton from '@material-ui/core/IconButton';
-import TextField from '@material-ui/core/TextField';
-import Toolbar from '@material-ui/core/Toolbar';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
+import Toolbar from '@mui/material/Toolbar';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+
 // icons
-import {MdAdd as IconAdd} from 'react-icons/md';
-import {MdCreateNewFolder as IconFolderAdd} from 'react-icons/md';
-import SearchIcon from '@material-ui/icons/Search';
-import ClearIcon from '@material-ui/icons/Close';
-import {MdFullscreen as IconNewWindow} from 'react-icons/md';
-import {MdSwapVert as IconReorder} from 'react-icons/md';
+import { MdAdd as IconAdd } from 'react-icons/md';
+import { MdCreateNewFolder as IconFolderAdd } from 'react-icons/md';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Close';
+import { MdFullscreen as IconNewWindow } from 'react-icons/md';
+import { MdSwapVert as IconReorder } from 'react-icons/md';
 
-import I18n from '@iobroker/adapter-react/i18n';
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import { withWidth } from '@iobroker/adapter-react-v5';
+
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from './Components/ChartsTree';
-
 
 const TOOLBAR_HEIGHT = 48;
 
@@ -39,7 +40,7 @@ const styles = theme => ({
     },
     secondaryColors: {
         background: '#888',
-        color: theme.palette.type === 'dark' ? '#000' : '#FFF',
+        color: theme.palette.mode === 'dark' ? '#000' : '#FFF',
     },
     smallMargin: {
         marginTop: '8px !important',
@@ -101,6 +102,7 @@ class MenuList extends Component {
 
             {this.state.showSearch ?
                 <TextField
+                    variant="standard"
                     value={ this.state.search }
                     className={ this.props.classes.textInput }
                     onChange={ e => this.setState({search: e.target.value}) }
@@ -158,9 +160,10 @@ class MenuList extends Component {
                     }} />}
                     label={I18n.t('Multiple')}
                 /> : null}
-                <FormControl>
+                <FormControl variant="standard">
                     <InputLabel shrink={true} style={{whiteSpace: 'nowrap'}}>{I18n.t('Group by') }</InputLabel>
                     <Select
+                        variant="standard"
                         label={I18n.t('Group by')}
                         onChange={e => {
                             window.localStorage.setItem('App.echarts.groupBy', e.target.value);
@@ -187,7 +190,7 @@ class MenuList extends Component {
                     socket={this.props.socket}
                     scrollToSelect={this.props.scrollToSelect}
                     addPresetFolderDialog={this.state.addPresetFolderDialog}
-                    onClosePresetFolderDialog={cb => this.setState({addPresetFolderDialog: false}, cb)}
+                    onClosePresetFolderDialog={cb => this.setState({ addPresetFolderDialog: false }, cb)}
                     onCreatePreset={(isFromCurrentSelection, parent) => this.props.onCreatePreset(isFromCurrentSelection, parent)}
                     onCopyPreset={id => this.props.onCopyPreset(id)}
                     adapterName={this.props.adapterName}
@@ -196,7 +199,7 @@ class MenuList extends Component {
                     onShowError={toast => this.props.onShowToast(toast)}
                     onShowReorder={showReorder => {
                         if (showReorder !== this.props.showReorder) {
-                            this.setState({showReorder});
+                            this.setState({ showReorder });
                         }
                     }}
                     search={this.state.search}

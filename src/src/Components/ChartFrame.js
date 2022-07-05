@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from "@material-ui/core";
-import Paper from '@material-ui/core/Paper';
+import { withStyles } from '@mui/styles';
+
+import Paper from '@mui/material/Paper';
 
 const styles = theme => ({
     darkBackground: {

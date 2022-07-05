@@ -1,6 +1,6 @@
 /**
  * Parse a query string into its parts.
- * Copied from @iobroker/adapter-react/Components/Utils
+ * Copied from @iobroker/adapter-react-v5/Components/Utils
  * @param {string} query
  * @returns {Record<string, string | boolean | number>}
  */

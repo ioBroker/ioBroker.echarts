@@ -1,20 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
-import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Popover from '@material-ui/core/Popover';
+import Toolbar from '@mui/material/Toolbar';
+import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Popover from '@mui/material/Popover';
 
-import {IOTextField, IOSelect, IODateTimeField} from './Fields';
-import I18n from '@iobroker/adapter-react/i18n';
+import { IOTextField, IOSelect, IODateTimeField } from './Fields';
+import I18n from '@iobroker/adapter-react-v5/i18n';
 
-import {IoMdTime as IconTime} from 'react-icons/all';
-import {FiRefreshCw as IconRefresh} from 'react-icons/all';
-import {IoMdArrowDropdown as IconDropDown} from 'react-icons/all';
-import {MdAdd as IconPlus} from 'react-icons/md';
+import { IoMdTime as IconTime } from 'react-icons/io';
+import { FiRefreshCw as IconRefresh } from 'react-icons/fi';
+import { IoMdArrowDropdown as IconDropDown } from 'react-icons/io';
+import { MdAdd as IconPlus } from 'react-icons/md';
 
 class IconAggregate extends React.Component {
     render() {
@@ -72,6 +72,7 @@ let styles = theme => ({
 const RefreshSelect = function (props) {
     return <div className={props.className}>
         <Select
+            variant="standard"
             onChange={e => props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             renderValue={props.renderValue}
@@ -194,11 +195,12 @@ class ChartSettings extends React.Component {
     render() {
         return <Toolbar className={this.props.classes.mainDiv} variant="dense">
             <Button
+                color="grey"
                 title={ I18n.t('Time span') }
                 size="small"
                 className={this.props.classes.settingsButton}
                 id="timeSpanOpenButton"
-                onClick={() => {this.setState({ timeSpanOpened: !this.state.timeSpanOpened })}}
+                onClick={() => this.setState({ timeSpanOpened: !this.state.timeSpanOpened })}
             >
                 <IconTime/>
                 {
@@ -240,11 +242,12 @@ class ChartSettings extends React.Component {
                 </div>
             </Popover>
             <Button
+                color="grey"
                 title={ I18n.t('Aggregate') }
                 size="small"
                 className={this.props.classes.settingsButton}
                 id="aggregateOpenButton"
-                onClick={() => {this.setState({aggregateOpened: !this.state.aggregateOpened})}}
+                onClick={() => this.setState({ aggregateOpened: !this.state.aggregateOpened })}
             >
                 <IconAggregate className={this.props.classes.aggregateIcon}/>
                 {CHART_TYPES[this.props.presetData.chartType] ? I18n.t(CHART_TYPES[this.props.presetData.chartType]) : ''}

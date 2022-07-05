@@ -1,40 +1,49 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { MuiThemeProvider} from '@material-ui/core/styles';
+import { createRoot } from 'react-dom/client';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { StylesProvider, createGenerateClassName } from '@mui/styles';
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { version } from '../package.json';
-import theme from '@iobroker/adapter-react/Theme';
-import Utils from '@iobroker/adapter-react/Components/Utils';
+import pack from '../package.json';
+import theme from '@iobroker/adapter-react-v5/Theme';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 
 window.adapterName = 'echarts-show';
+window.sentryDSN = 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95';
 let themeName = Utils.getThemeName();
 
-console.log('iobroker.' + window.adapterName + '@' + version + ' using theme "' + themeName + '"');
+console.log('iobroker.' + window.adapterName + '@' + pack.version + ' using theme "' + themeName + '"');
+
+const generateClassName = createGenerateClassName({
+    productionPrefix: 'iob',
+});
 
 function build() {
-    return ReactDOM.render(
-        <MuiThemeProvider theme={theme(themeName)}>
-            <App
-                onThemeChange={_theme => {
-                    themeName = _theme;
-                    build();
-                }}
-            />
-        </MuiThemeProvider>,
-        document.getElementById('root')
-    );
+    const container = document.getElementById('root');
+    const root = createRoot(container);
+    return root.render(<StylesProvider generateClassName={generateClassName}>
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme(themeName)}>
+                <App
+                    onThemeChange={_theme => {
+                        themeName = _theme;
+                        build();
+                    }}
+                />
+            </ThemeProvider>
+        </StyledEngineProvider>
+    </StylesProvider>);
 }
 
 // if not local development
 if (window.location.host !== 'localhost:3000') {
     Sentry.init({
-        dsn: 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95',
-        release: 'iobroker.' + window.adapterName + '@' + version,
+        dsn: window.sentryDSN,
+        release: 'iobroker.' + window.adapterName + '@' + pack.version,
         integrations: [
             new SentryIntegrations.Dedupe()
         ],

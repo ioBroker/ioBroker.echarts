@@ -1,18 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from '@mui/styles';
 
-//import IconButton from '@material-ui/core/IconButton';
+// import IconButton from '@mui/material/IconButton';
 
-//import I18n from '@iobroker/adapter-react/i18n';
-import {withStyles} from '@material-ui/core/styles/index';
-
+// import I18n from '@iobroker/adapter-react-v5/i18n';
 import PresetTabs from './Components/PresetTabs';
 
 // replace later with MdHorizontalSplit and MdVerticalSplit
-//const IconVerticalSplit   = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAACFJREFUeAFjAIJRwP////8PYIKWHCigNQdKj/pn1D+jAABTG16wVQqVpQAAAABJRU5ErkJggg==';
-//const IconHorizontalSplit = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAABtJREFUeAFjAIJRwP8fCj7QkENn/4z6Z5QzCgBjbWaoyx1PqQAAAABJRU5ErkJggg==';
+// const IconVerticalSplit   = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAACFJREFUeAFjAIJRwP////8PYIKWHCigNQdKj/pn1D+jAABTG16wVQqVpQAAAABJRU5ErkJggg==';
+// const IconHorizontalSplit = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgAQMAAADYVuV7AAAABlBMVEUAAAAzMzPI8eYgAAAAAXRSTlMAQObYZgAAABtJREFUeAFjAIJRwP8fCj7QkENn/4z6Z5QzCgBjbWaoyx1PqQAAAABJRU5ErkJggg==';
 
-const TOOLBOX_WIDTH = 0;//34;
+const TOOLBOX_WIDTH = 0; // 34;
 
 const styles = theme => ({
     logBox: {
@@ -22,7 +21,7 @@ const styles = theme => ({
         overflow: 'hidden'
     },
     logBoxInner: {
-        color: theme.palette.type === 'dark' ? 'white' : 'black',
+        color: theme.palette.mode === 'dark' ? 'white' : 'black',
         width: `calc(100% - ${TOOLBOX_WIDTH}px)`,
         height: '100%',
         marginLeft: TOOLBOX_WIDTH,
@@ -48,8 +47,8 @@ const styles = theme => ({
     layoutIcon: {
         width: 24,
         height: 24,
-        background: theme.palette.type === 'dark' ? '#9d9d9d' : undefined,
-        borderRadius: theme.palette.type === 'dark' ? 30 : undefined,
+        background: theme.palette.mode === 'dark' ? '#9d9d9d' : undefined,
+        borderRadius: theme.palette.mode === 'dark' ? 30 : undefined,
     },
 });
 

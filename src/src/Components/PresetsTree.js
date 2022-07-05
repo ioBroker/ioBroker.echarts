@@ -1,47 +1,47 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import withWidth from '@material-ui/core/withWidth';
-import {withStyles, withTheme} from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@mui/styles';
 import clsx from 'clsx';
 import { useDrag, useDrop, DndProvider as DragDropContext } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
-import IconButton from '@material-ui/core/IconButton';
-import ListItemText from '@material-ui/core/ListItemText';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import IconButton from '@mui/material/IconButton';
+import ListItemText from '@mui/material/ListItemText';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import CircularProgress from '@mui/material/CircularProgress';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
-import ConfirmDialog from '@iobroker/adapter-react/Dialogs/Confirm'
+import ConfirmDialog from '@iobroker/adapter-react-v5/Dialogs/Confirm'
 
 // icons
-import {MdExpandLess as IconCollapse} from 'react-icons/md';
-import {MdExpandMore as IconExpand} from 'react-icons/md';
-import {MdAdd as IconAdd} from 'react-icons/md';
-import {MdModeEdit as IconEdit} from 'react-icons/md';
-import {MdClose as IconCancel} from 'react-icons/md';
-import {MdCheck as IconCheck} from 'react-icons/md';
-import {MdDelete as IconDelete} from 'react-icons/md';
-import {FaScroll as IconScript} from 'react-icons/all';
-import {FaFolder as IconFolderClosed} from 'react-icons/all';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
-import IconCopy from '@iobroker/adapter-react/icons/IconCopy';
+import { MdExpandLess as IconCollapse } from 'react-icons/md';
+import { MdExpandMore as IconExpand } from 'react-icons/md';
+import { MdAdd as IconAdd } from 'react-icons/md';
+import { MdModeEdit as IconEdit } from 'react-icons/md';
+import { MdClose as IconCancel } from 'react-icons/md';
+import { MdCheck as IconCheck } from 'react-icons/md';
+import { MdDelete as IconDelete } from 'react-icons/md';
+import { FaScroll as IconScript } from 'react-icons/fa';
+import { FaFolder as IconFolderClosed } from 'react-icons/fa';
+import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
+import IconCopy from '@iobroker/adapter-react-v5/icons/IconCopy';
 
-import I18n from '@iobroker/adapter-react/i18n';
-import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
-import Utils from '@iobroker/adapter-react/Components/Utils';
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import { withWidth } from '@iobroker/adapter-react-v5';
+import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 
 /*function getFolderPrefix(presetId) {
     let result = presetId.split('.');
@@ -150,7 +150,7 @@ const styles = theme => ({
         fontStyle: 'italic'
     },
     mainList: {
-        width: 'calc(100% - ' + theme.spacing(1) + 'px)',
+        width: 'calc(100% - ' + theme.spacing(1) + ')',
         marginLeft: theme.spacing(1),
         '& .js-folder-dragover>li>.folder-reorder': {
             background: '#40adff'
@@ -366,7 +366,7 @@ class MenuList extends Component {
         </ListItem>;
 
         if (this.props.reorder) {
-            return <Draggable key={'draggable_' + item._id} name={item._id}>{listItem}</Draggable>;
+            return <Draggable key={'draggable_' + item._id} name={item._id} draggableId={item._id}>{listItem}</Draggable>;
         } else {
             return  listItem;
         }
@@ -441,6 +441,7 @@ class MenuList extends Component {
                 result.push(folder);
             } else {
                 result.push(<Droppable
+                    droppableId="tree"
                     key={'droppable_' + parent.prefix}
                     name={parent.prefix}
                     onDrop={e => this.onDragFinish(e.name, 'echarts.0' + (parent.prefix ? '.' : '') + parent.prefix)}
@@ -627,6 +628,7 @@ class MenuList extends Component {
                 <DialogTitle>{I18n.t('Create folder')}</DialogTitle>
                 <DialogContent className={ this.props.classes.p }>
                     <TextField
+                        variant="standard"
                         fullWidth={true}
                         autoFocus
                         label={ I18n.t('Title') }
@@ -661,6 +663,7 @@ class MenuList extends Component {
                         {I18n.t('Create')}
                     </Button>
                     <Button
+                        color="grey"
                         variant="contained"
                         onClick={() => this.props.onClosePresetFolderDialog()}
                         startIcon={<IconCancel/>}
@@ -688,6 +691,7 @@ class MenuList extends Component {
             <DialogTitle>{ I18n.t('Edit folder') }</DialogTitle>
             <DialogContent>
                 <TextField
+                    variant="standard"
                     fullWidth={true}
                     autoFocus
                     label={ I18n.t('Title') }
@@ -714,6 +718,7 @@ class MenuList extends Component {
                     { I18n.t('Rename') }
                 </Button>
                 <Button
+                    color="grey"
                     variant="contained"
                     onClick={ () => this.setState({editPresetFolderDialog: null}) }
                     startIcon={<IconCancel/>}
@@ -738,15 +743,16 @@ class MenuList extends Component {
         return <Dialog
             maxWidth="md"
             fullWidth={true}
-            open={ true }
+            open={true}
             key="movePresetDialog"
-            onClose={ () => this.setState({movePresetDialog: null}) }
+            onClose={() => this.setState({ movePresetDialog: null })}
         >
             <DialogTitle>{ I18n.t('Move to folder') }</DialogTitle>
             <DialogContent>
-                <FormControl classes={ {root: this.props.classes.width100} }>
-                    <InputLabel shrink={ true }>{ I18n.t('Folder') }</InputLabel>
+                <FormControl classes={{ root: this.props.classes.width100 }} variant="standard">
+                    <InputLabel shrink={true}>{ I18n.t('Folder') }</InputLabel>
                     <Select
+                        variant="standard"
                         autoFocus
                         fullWidth={true}
                         className={ this.props.classes.width100 }
@@ -771,7 +777,8 @@ class MenuList extends Component {
                 <Button
                     variant="contained"
                     disabled={ !isIdUnique }
-                    color="primary" onClick={() =>
+                    color="primary"
+                    onClick={() =>
                         this.setState({movePresetDialog: null}, () =>
                             this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))
                     }
@@ -780,6 +787,7 @@ class MenuList extends Component {
                     { I18n.t('Move to folder') }
                 </Button>
                 <Button
+                    color="grey"
                     variant="contained"
                     onClick={ () => this.setState({movePresetDialog: null}) }
                     startIcon={<IconCancel/>}
@@ -831,12 +839,13 @@ class MenuList extends Component {
             fullWidth={true}
             open={ true }
             key="renameDialog"
-            onClose={ () => this.setState({renameDialog: null}) }
+            onClose={() => this.setState({ renameDialog: null })}
         >
             <DialogTitle>{ I18n.t('Rename preset') }</DialogTitle>
             <DialogContent>
-                <FormControl classes={ {root: this.props.classes.width100} }>
+                <FormControl classes={{ root: this.props.classes.width100 }} variant="standard">
                     <TextField
+                        variant="standard"
                         fullWidth={true}
                         autoFocus
                         label={ I18n.t('Name') }
@@ -861,7 +870,8 @@ class MenuList extends Component {
                 <Button
                     variant="contained"
                     disabled={ !this.state.renamePresetDialogTitle || !this.isNameUnique(presetId, this.state.renamePresetDialogTitle) }
-                    color="primary" onClick={() =>
+                    color="primary"
+                    onClick={() =>
                         this.setState({renameDialog: null}, () =>
                             this.renamePreset(presetId, this.state.renamePresetDialogTitle))
                     }
@@ -870,6 +880,7 @@ class MenuList extends Component {
                     { I18n.t('Rename') }
                 </Button>
                 <Button
+                    color="grey"
                     variant="contained"
                     onClick={ () => this.setState({renameDialog: null}) }
                     startIcon={<IconCancel/>}
@@ -1005,15 +1016,15 @@ class MenuList extends Component {
     render() {
         return <>
             <DragDropContext backend={HTML5Backend}>
-                <List className={ clsx(this.props.classes.scroll, this.props.classes.mainList) }>
-                    { this.renderPresetsTree(this.state.presetFolders) }
+                <List className={clsx(this.props.classes.scroll, this.props.classes.mainList)}>
+                    {this.renderPresetsTree(this.state.presetFolders)}
                 </List>
             </DragDropContext>
-            { this.renderAddFolderDialog() }
-            { this.renderRenameFolderDialog() }
-            { this.renderDeleteDialog() }
-            { this.renderMoveDialog() }
-            { this.renderRenameDialog() }
+            {this.renderAddFolderDialog()}
+            {this.renderRenameFolderDialog()}
+            {this.renderDeleteDialog()}
+            {this.renderMoveDialog()}
+            {this.renderRenameDialog()}
         </>;
     }
 }

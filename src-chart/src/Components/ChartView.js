@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import withWidth from '@material-ui/core/withWidth';
-import {withStyles} from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Fab from '@material-ui/core/Fab';
+import LinearProgress from '@mui/material/LinearProgress';
+import Fab from '@mui/material/Fab';
 
-import {FaRedoAlt as IconReset}  from 'react-icons/fa'
-import {FaDownload as IconExport}  from 'react-icons/fa'
+import { FaRedoAlt as IconReset }  from 'react-icons/fa'
+import { FaDownload as IconExport }  from 'react-icons/fa'
 
 import moment from 'moment';
 import 'moment/locale/en-gb';
@@ -21,8 +20,9 @@ import 'moment/locale/ru';
 import 'moment/locale/zh-cn';
 import 'moment/locale/de';
 
-import I18n from '@iobroker/adapter-react/i18n';
+import I18n from '@iobroker/adapter-react-v5/i18n';
 import ReactEchartsCore from 'echarts-for-react/lib/core';
+import { withWidth } from '@iobroker/adapter-react-v5';
 
 import * as echarts from 'echarts/core';
 import { LineChart, ScatterChart} from 'echarts/charts';

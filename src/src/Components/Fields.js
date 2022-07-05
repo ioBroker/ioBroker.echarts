@@ -1,25 +1,25 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 import clsx from 'clsx';
 
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import MenuItem from '@material-ui/core/MenuItem';
-import IconButton from '@material-ui/core/IconButton';
-import Slider from '@material-ui/core/Slider';
-import Typography from '@material-ui/core/Typography';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import MenuItem from '@mui/material/MenuItem';
+import IconButton from '@mui/material/IconButton';
+import Slider from '@mui/material/Slider';
+import Typography from '@mui/material/Typography';
 
-import IconSelectID from '@material-ui/icons/Subject';
-import ClearIcon from '@material-ui/icons/Close';
-import HelpIcon from '@material-ui/icons/Help';
+import IconSelectID from '@mui/icons-material/Subject';
+import ClearIcon from '@mui/icons-material/Close';
+import HelpIcon from '@mui/icons-material/Help';
 
-import I18n from '@iobroker/adapter-react/i18n';
-import DialogSelectID from '@iobroker/adapter-react/Dialogs/SelectID';
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
 
 import ColorPicker from './ColorPicker';
 
@@ -64,12 +64,13 @@ const styles = theme => ({
 let IOSelect = function (props) {
     const label = I18n.t(props.label);
     return <div className={clsx(props.classes.fieldContainer, props.className)}>
-        <FormControl style={{minWidth: props.minWidth || 200, width: props.width}}>
+        <FormControl style={{ minWidth: props.minWidth || 200, width: props.width }} variant="standard">
             <InputLabel shrink={true}>{ label }</InputLabel>
             <Select
+                variant="standard"
                 disabled={!!props.disabled}
                 label={label}
-                style={{color: props.colors ? props.colors[props.formData[props.name]] || undefined : undefined}}
+                style={{ color: props.colors ? props.colors[props.formData[props.name]] || undefined : undefined }}
                 onChange={e => props.updateValue(props.name, e.target.value)}
                 value={props.formData[props.name] || ''}
                 renderValue={props.renderValue}
@@ -77,9 +78,9 @@ let IOSelect = function (props) {
             >{
                 props.options ?
                     Object.keys(props.options).map(key =>
-                        <MenuItem 
-                            key={key} 
-                            value={key} 
+                        <MenuItem
+                            key={key}
+                            value={key}
                             style={{color: props.colors ? props.colors[key] || undefined : undefined}}
                         >
                         {
@@ -134,6 +135,7 @@ export {IOCheckbox};
 let IOTextField = function (props) {
     return <div className={props.classes.fieldContainer}>
         <TextField
+            variant="standard"
             disabled={!!props.disabled}
             style={{width: props.formData[props.name] ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : (props.width || '100%')}}
             label={I18n.t(props.label)}
@@ -178,7 +180,7 @@ export {IOTextField};
 
 let IODateTimeField = function (props) {
     return <div className={props.classes.fieldContainer}>
-        <TextField type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{shrink: true}} onChange={e => {
+        <TextField variant="standard" type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{shrink: true}} onChange={e => {
             let date = e.target.value.split('T');
             props.updateValue(props.name, date[0], date[1]);
         }} value={props.formData[props.name] ? props.formData[props.name] + 'T' + props.formData[props.name + '_time'] : ''}/>
@@ -199,6 +201,7 @@ let IOObjectField = function (props) {
     return <div className={props.classes.fieldContainer} style={{width: props.width}}>
         <div className={props.classes.objectContainer}>
             <TextField
+                variant="standard"
                 disabled={!!props.disabled}
                 className={props.classes.objectField}
                 label={I18n.t(props.label)}

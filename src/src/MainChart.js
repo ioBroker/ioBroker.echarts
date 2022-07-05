@@ -1,9 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {MuiThemeProvider, withStyles} from '@material-ui/core/styles';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { withStyles, StylesProvider, createGenerateClassName } from '@mui/styles';
 
 import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
+
+const generateClassName = createGenerateClassName({
+    productionPrefix: 'iob',
+});
 
 const styles = theme => ({
     toolbar: {
@@ -129,12 +134,16 @@ class MainChart extends React.Component {
     }
 
     render() {
-        return <MuiThemeProvider theme={this.props.theme}>
-            <div className={this.props.classes.container}>
-                {this.renderToolbar()}
-                {this.getChartFrame()}
-            </div>
-        </MuiThemeProvider>
+        return <StylesProvider generateClassName={generateClassName}>
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.props.theme}>
+                    <div className={this.props.classes.container}>
+                        {this.renderToolbar()}
+                        {this.getChartFrame()}
+                    </div>
+                </ThemeProvider>
+            </StyledEngineProvider>
+        </StylesProvider>;
     }
 }
 

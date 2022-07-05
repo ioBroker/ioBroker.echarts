@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 import clsx from 'clsx';
 
-import IconButton from '@material-ui/core/IconButton';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@mui/material/IconButton';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 
 import {MdDelete as IconDelete} from 'react-icons/md';
 import {MdEdit as IconEdit} from 'react-icons/md';
@@ -15,13 +15,13 @@ import {MdContentPaste as IconPaste} from 'react-icons/md';
 import {FaFolder as IconFolderClosed} from 'react-icons/fa';
 import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
 
-import Utils from '@iobroker/adapter-react/Components/Utils';
-import I18n from '@iobroker/adapter-react/i18n';
-import ColorPicker from '@iobroker/adapter-react/Components/ColorPicker';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
 
 import {IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider} from './Fields';
-import TextField from '@material-ui/core/TextField';
-import ClearIcon from '@material-ui/icons/Close';
+import TextField from '@mui/material/TextField';
+import ClearIcon from '@mui/icons-material/Close';
 
 import LineDialog from './LineDialog';
 
@@ -397,6 +397,7 @@ class Line extends React.Component {
         }
         return <div className={className}>
             <TextField
+                variant="standard"
                 disabled={!!this.props.onPaste}
                 style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}

@@ -1,44 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {withStyles} from '@material-ui/core/styles';
+import { withStyles } from '@mui/styles';
 import clsx from 'clsx';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { ChromePicker } from 'react-color'
 
-import IconButton from '@material-ui/core/IconButton';
-import TabList from '@material-ui/lab/TabList';
-import Tab from '@material-ui/core/Tab';
-import TabPanel from '@material-ui/lab/TabPanel';
-import TabContext from '@material-ui/lab/TabContext';
-import AppBar from '@material-ui/core/AppBar';
-import Grid from '@material-ui/core/Grid';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import Button from '@material-ui/core/Button';
-import Fab from '@material-ui/core/Fab';
-import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox';
-import Snackbar from '@material-ui/core/Snackbar';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+import TabContext from '@mui/lab/TabContext';
+import IconButton from '@mui/material/IconButton';
+import Tab from '@mui/material/Tab';
+import AppBar from '@mui/material/AppBar';
+import Grid from '@mui/material/Grid';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import Fab from '@mui/material/Fab';
+import TextField from '@mui/material/TextField';
+import Checkbox from '@mui/material/Checkbox';
+import Snackbar from '@mui/material/Snackbar';
 
-import {MdAdd as IconAdd, MdClose as IconCancel} from 'react-icons/md';
-import {MdSave as IconSave} from 'react-icons/md';
-import {MdExpandLess as IconCollapse} from 'react-icons/md';
-import {MdExpandMore as IconExpand} from 'react-icons/md';
-import IconClear from '@material-ui/icons/Close';
-import {MdFullscreen as IconNewWindow} from 'react-icons/md';
-import IconClose from '@material-ui/icons/Close';
-import IconDelete from '@material-ui/icons/Delete';
+import { MdAdd as IconAdd, MdClose as IconCancel } from 'react-icons/md';
+import { MdSave as IconSave} from 'react-icons/md';
+import { MdExpandLess as IconCollapse } from 'react-icons/md';
+import { MdExpandMore as IconExpand } from 'react-icons/md';
+import IconClear from '@mui/icons-material/Close';
+import { MdFullscreen as IconNewWindow } from 'react-icons/md';
+import IconClose from '@mui/icons-material/Close';
+import IconDelete from '@mui/icons-material/Delete';
 
-import I18n from '@iobroker/adapter-react/i18n';
-import Utils from '@iobroker/adapter-react/Components/Utils';
-import IconCopy from '@iobroker/adapter-react/icons/IconCopy';
+import I18n from '@iobroker/adapter-react-v5/i18n';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
+import IconCopy from '@iobroker/adapter-react-v5/icons/IconCopy';
+import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
 
-import {IOTextField, IOCheckbox, IOSelect, IODateTimeField} from './Fields';
+import { IOTextField, IOCheckbox, IOSelect, IODateTimeField } from './Fields';
 import Line from './Line';
 import Mark from './Mark';
 import DefaultPreset from './DefaultPreset';
-import ColorPicker from '@iobroker/adapter-react/Components/ColorPicker';
 
 const styles = theme => ({
     tabsBody: {
@@ -61,14 +61,14 @@ const styles = theme => ({
     },
     buttonExpandAll: {
         position: 'absolute',
-        top: theme.spacing(1) + 42,
+        top: parseInt(theme.spacing(1), 10) + 42,
         right: theme.spacing(1),
         opacity: 0.5,
         zIndex: 3,
     },
     buttonCollapseAll: {
         position: 'absolute',
-        top: theme.spacing(1) + 42 * 2,
+        top: parseInt(theme.spacing(1), 10) + 42 * 2,
         right: theme.spacing(1),
         opacity: 0.5,
         zIndex: 3,
@@ -303,15 +303,16 @@ class PresetTabs extends React.Component {
                     autoFocus
                     onClick={() => {
                         this.deleteLine(this.state.deleteLineDialog);
-                        this.setState({deleteLineDialog: null});
+                        this.setState({ deleteLineDialog: null });
                     }}
                     startIcon={<IconDelete />}
                 >
                     { I18n.t('Delete') }
                 </Button>
                 <Button
+                    color="grey"
                     variant="contained"
-                    onClick={ () => this.setState({deleteLineDialog: null}) }
+                    onClick={() => this.setState({ deleteLineDialog: null })}
                     startIcon={<IconCancel/>}
                 >
                     {I18n.t('Cancel')}
@@ -333,15 +334,16 @@ class PresetTabs extends React.Component {
                     color="secondary"
                     onClick={() => {
                         this.deleteMark(this.state.deleteMarkDialog);
-                        this.setState({deleteMarkDialog: null});
+                        this.setState({ deleteMarkDialog: null });
                     }}
                     startIcon={<IconDelete/>}
                 >
                     { I18n.t('Delete') }
                 </Button>
                 <Button
+                    color="grey"
                     variant="contained"
-                    onClick={ () => this.setState({deleteMarkDialog: null}) }
+                    onClick={() => this.setState({ deleteMarkDialog: null })}
                     startIcon={<IconCancel/>}
                 >
                     {I18n.t('Cancel')}
@@ -376,7 +378,7 @@ class PresetTabs extends React.Component {
         const anyClosed = this.props.presetData.lines.length > 1 && this.props.presetData.lines.find((l, i) => !this.state.linesOpened[i]);
         const anyOpened = this.props.presetData.lines.length > 1 && this.props.presetData.lines.find((l, i) => this.state.linesOpened[i]);
 
-        return <Droppable droppableId="droppable">
+        return <Droppable droppableId="tabs">
             {(provided, snapshot) =>
                 <div
                     {...provided.droppableProps}
@@ -392,7 +394,7 @@ class PresetTabs extends React.Component {
                         {anyClosed ? <Fab onClick={this.expandAllLines}   size="small" color="default" className={this.props.classes.buttonExpandAll}  title={I18n.t('Expand all lines')}><IconExpand/></Fab> : null}
                         {anyOpened ? <Fab onClick={this.collapseAllLines} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all lines')}><IconCollapse/></Fab> : null}
                         {this.props.presetData.lines.length ? this.props.presetData.lines.map((line, index) =>
-                            <Draggable key={line.id + '_' + index} draggableId={line.id + '_' + index} index={index}>
+                            <Draggable key={`${line.id}_${index}`} draggableId={`${line.id}_${index}`} index={index}>
                                 {(provided, snapshot) =>
                                     <div
                                         ref={provided.innerRef}
@@ -443,6 +445,7 @@ class PresetTabs extends React.Component {
                                 opened={false}
                                 onPaste={() => this.addLine(this.state.copiedObject.data)}
                             /> : null}
+                        {provided.placeholder}
                         <div className={this.props.classes.dragHint}>{I18n.t('You can drag and drop simple lines from the left list.')}</div>
                     </TabPanel>
                 </div>}
@@ -708,6 +711,7 @@ class PresetTabs extends React.Component {
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Copy link to clipboard')}</p>
                 <Button
+                    color="grey"
                     variant="contained"
                     className={this.props.classes.buttonCopyLink}
                     onClick={() => {
@@ -721,6 +725,7 @@ class PresetTabs extends React.Component {
                 </Button>
                 {this.state.webInstances.map((instance, i) =>
                     <Button
+                        color="grey"
                         key={i}
                         variant="contained"
                         className={this.props.classes.buttonCopyLink}
@@ -872,6 +877,7 @@ class PresetTabs extends React.Component {
         }
         return <div className={className}>
             <TextField
+                variant="standard"
                 style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}
                 value={formData[name] || ''}
@@ -930,7 +936,7 @@ class PresetTabs extends React.Component {
                         this.setState({selectedTab: newValue})
                     }}
                     variant="scrollable"
-                    scrollButtons="on"
+                    scrollButtons
                 >
                     <Tab label={I18n.t('Data')} value="0"/>
                     <Tab label={I18n.t('Markings')} value="1"/>

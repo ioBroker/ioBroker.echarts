@@ -1,24 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import { withStyles } from '@mui/styles';
 
-import I18n from '@iobroker/adapter-react/i18n';
+import IconButton from '@mui/material/IconButton';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
 
-import {IOTextField, IOSelect, IOObjectField, IOSlider} from './Fields';
+import { MdContentCopy as IconCopy, MdContentPaste as IconPaste, MdDelete as IconDelete } from 'react-icons/md';
+import { FaFolder as IconFolderClosed } from 'react-icons/fa';
+import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
+import ClearIcon from '@mui/icons-material/Close';
 
-import {MdContentCopy as IconCopy, MdContentPaste as IconPaste, MdDelete as IconDelete} from 'react-icons/md';
-import IconButton from '@material-ui/core/IconButton';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import {withStyles} from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
+import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
+import I18n from '@iobroker/adapter-react-v5/i18n';
 
-import {FaFolder as IconFolderClosed} from 'react-icons/all';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/all';
-import ClearIcon from '@material-ui/icons/Close';
-
-import ColorPicker from '@iobroker/adapter-react/Components/ColorPicker';
-import Utils from '@iobroker/adapter-react/Components/Utils';
+import { IOTextField, IOSelect, IOObjectField, IOSlider } from './Fields';
 
 const WIDTHS = {
     lineId: 100,
@@ -206,6 +205,7 @@ class Mark extends React.Component {
 
         return <div className={className}>
             <TextField
+                variant="standard"
                 disabled={!!this.props.onPaste}
                 style={{minWidth, width: 'calc(100% - 8px)'}}
                 label={I18n.t(label)}
