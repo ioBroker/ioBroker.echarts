@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.0.12",
+    "version": "1.1.0",
     "news": {
+      "1.1.0": {
+        "en": "Made it work with ioBroker cloud\nGUI migrated to mui5",
+        "de": "Es funktioniert mit ioBroker Cloud\nGUI migriert zu mui5",
+        "ru": "Сделано в ioBroker cloud\nGUI мигрировано в mui5",
+        "pt": "Fez com que funcionasse com a nuvem ioBroker\nGUI migrado para mui5",
+        "nl": "Ik liet het werken met ioBrokerwolk\nQuality over Quantity (QoQ) Releases Vertaling:",
+        "fr": "Il a fait fonctionner avec ioBroker cloud\nGUI migré vers mui5",
+        "it": "Ha fatto funzionare con ioBroker cloud\nGUI migrato a mui5",
+        "es": "Lo hizo funcionar con la nube de yoBroker\nGUI migrated to mui5",
+        "pl": "Uprawiała się w chmurze ioBrokera\nGUI migruje do mui5",
+        "zh-cn": "马约恩岛与奥布罗克云合作\n古伊人移到马伊5人"
+      },
       "1.0.12": {
         "en": "Made it work with ioBroker cloud",
         "de": "Es funktioniert mit ioBroker Cloud",
@@ -74,18 +86,6 @@
         "es": "Se agregó \"i\" en la información sobre herramientas por valores interpolados",
         "pl": "Dodano „i” w podpowiedziach według wartości interpolowanych",
         "zh-cn": "通过插值在工具提示中添加“i”"
-      },
-      "1.0.4": {
-        "en": "License changed to Apache-2.0 (because of apache/echarts)\nUpdated some packages\nAdded fast properties editor",
-        "de": "Lizenz auf Apache-2.0 geändert (wegen Apache/Echarts)\nEinige Pakete aktualisiert\nSchneller Eigenschaftseditor hinzugefügt",
-        "ru": "Лицензия изменена на Apache-2.0 (из-за apache/echarts)\nОбновлены некоторые пакеты\nДобавлен быстрый редактор свойств",
-        "pt": "Licença alterada para Apache-2.0 (por causa do apache/echarts)\nAlguns pacotes atualizados\nAdicionado editor de propriedades rápidas",
-        "nl": "Licentie gewijzigd naar Apache-2.0 (vanwege apache/echarts)\nEnkele pakketten bijgewerkt\nSnelle eigenschappen-editor toegevoegd",
-        "fr": "Licence changée en Apache-2.0 (à cause d'apache/echarts)\nMise à jour de certains packages\nAjout de l'éditeur de propriétés rapides",
-        "it": "Licenza modificata in Apache-2.0 (a causa di apache/echarts)\nAggiornati alcuni pacchetti\nAggiunto editor di proprietà veloci",
-        "es": "Licencia cambiada a Apache-2.0 (debido a apache/echarts)\nActualizado algunos paquetes\nAgregado editor de propiedades rápidas",
-        "pl": "Licencja zmieniona na Apache-2.0 (z powodu apache/echarts)\nZaktualizowano niektóre pakiety\nDodano szybki edytor właściwości",
-        "zh-cn": "许可证更改为 Apache-2.0（因为 apache/echarts）\n更新了一些包\n添加了快速属性编辑器"
       }
     },
     "title": "E-Charts",

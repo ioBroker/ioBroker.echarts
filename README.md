@@ -80,7 +80,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.1.0 (2022-07-05)
 * (bluefox) Made it work with ioBroker cloud
 * (bluefox) GUI migrated to mui5
 
