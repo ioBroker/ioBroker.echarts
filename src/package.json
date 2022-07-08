@@ -12,7 +12,7 @@
     "@sentry/integrations": "^7.5.0",
     "babel-eslint": "^10.1.0",
     "moment": "^2.29.3",
-    "clsx": "^1.1.1",
+    "clsx": "^1.2.1",
     "eslint": "^8.19.0",
     "material-ui-color-picker": "^3.5.1",
     "react-dnd-html5-backend": "^16.0.1",
