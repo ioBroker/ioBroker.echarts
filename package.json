@@ -22,7 +22,7 @@
     "jsdom": "^20.0.0"
   },
   "dependencies": {
-    "moment": "^2.29.3"
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^3.5.9",
