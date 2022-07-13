@@ -11,7 +11,7 @@
     "@sentry/browser": "^7.5.1",
     "@sentry/integrations": "^7.5.0",
     "babel-eslint": "^10.1.0",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "clsx": "^1.2.1",
     "eslint": "^8.19.0",
     "material-ui-color-picker": "^3.5.1",
