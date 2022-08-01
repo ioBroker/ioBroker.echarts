@@ -9,7 +9,7 @@
     "@material-ui/icons": "^4.11.3",
     "@mui/styles": "^5.8.7",
     "@sentry/browser": "^7.8.0",
-    "@sentry/integrations": "^7.6.0",
+    "@sentry/integrations": "^7.8.0",
     "babel-eslint": "^10.1.0",
     "clsx": "^1.2.1",
     "eslint": "^8.19.0",
