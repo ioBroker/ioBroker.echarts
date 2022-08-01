@@ -13,7 +13,7 @@
     "babel-eslint": "^10.1.0",
     "moment": "^2.29.4",
     "clsx": "^1.2.1",
-    "eslint": "^8.19.0",
+    "eslint": "^8.20.0",
     "material-ui-color-picker": "^3.5.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dnd-touch-backend": "^16.0.1",
