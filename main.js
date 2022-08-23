@@ -236,7 +236,7 @@ function processMessage(adapter, obj) {
 }
 
 function fixSystemObject() {
-    adapter.getForeignObjectAsync('_design/system')
+    return adapter.getForeignObjectAsync('_design/system')
         .then(obj => {
             if (obj && obj.views && !obj.views.chart) {
                 obj.views.chart = {
