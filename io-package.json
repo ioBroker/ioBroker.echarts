@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "news": {
+      "1.1.1": {
+        "en": "Added preparations for vis2.0",
+        "de": "Präparate für Vis2.0 hinzugefügt",
+        "ru": "Добавлены препараты для vis2.0",
+        "pt": "Preparações adicionadas para vis2.0",
+        "nl": "Vervoegde voorbereidingen voor vis2.0",
+        "fr": "Préparations supplémentaires pour vis2.0",
+        "it": "Aggiunto preparazioni per vis2.0",
+        "es": "Preparativos adicionales para vis2.0",
+        "pl": "Zalecenia dla wizji 2.0",
+        "zh-cn": "增加2.0筹备工作"
+      },
       "1.1.0": {
         "en": "Made it work with ioBroker cloud\nGUI migrated to mui5",
         "de": "Es funktioniert mit ioBroker Cloud\nGUI migriert zu mui5",
@@ -74,18 +86,6 @@
         "es": "Añadido fondo para exportar imagen.\nMétodos agregados integrales y percentiles agregados",
         "pl": "Dodano tło do eksportu obrazu\nDodano metody agregacji całkowej i percentylowej",
         "zh-cn": "添加背景以导出图像\n添加了积分和百分位数聚合方法"
-      },
-      "1.0.5": {
-        "en": "Added \"i\" in tooltips by interpolated values",
-        "de": "„i“ in Tooltips durch interpolierte Werte hinzugefügt",
-        "ru": "Добавлено \"i\" в подсказках по интерполированным значениям",
-        "pt": "Adicionado \"i\" nas dicas de ferramentas por valores interpolados",
-        "nl": "Toegevoegd \"i\" in tooltips door geïnterpoleerde waarden",
-        "fr": "Ajout de \"i\" dans les info-bulles par valeurs interpolées",
-        "it": "Aggiunta \"i\" nelle descrizioni comandi tramite valori interpolati",
-        "es": "Se agregó \"i\" en la información sobre herramientas por valores interpolados",
-        "pl": "Dodano „i” w podpowiedziach według wartości interpolowanych",
-        "zh-cn": "通过插值在工具提示中添加“i”"
       }
     },
     "title": "E-Charts",
