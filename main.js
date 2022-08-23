@@ -235,6 +235,19 @@ function processMessage(adapter, obj) {
     }
 }
 
+function fixSystemObject() {
+    adapter.getForeignObjectAsync('_design/system')
+        .then(obj => {
+            if (obj && obj.views && !obj.views.chart) {
+                obj.views.chart = {
+                    map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc) }`
+                };
+                return adapter.setForeignObjectAsync(obj._id, obj)
+                    .then(() => true);
+            }
+        });
+}
+
 function main(adapter) {
     // fix _design/chart
     adapter.getForeignObject('_design/chart', (err, obj) => {
@@ -246,13 +259,16 @@ function main(adapter) {
     });
 
     // enabled mode daemon and message box
-    adapter.getForeignObject('system.adapter.' + adapter.namespace, (err, obj) => {
+    adapter.getForeignObject(`system.adapter.${adapter.namespace}`, (err, obj) => {
         if (obj && obj.common && (obj.common.mode !== 'daemon' || !obj.common.messagebox)) {
             obj.common.mode = 'daemon';
             obj.common.messagebox = true;
             adapter.setForeignObject(obj._id, obj);
         }
     });
+
+    fixSystemObject()
+        .then(fixed => fixed && adapter.log.debug('Added chart view to system object'));
 
     /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
         .then(data => {
