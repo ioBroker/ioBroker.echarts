@@ -8,7 +8,7 @@
     "@mui/icons-material": "^5.8.4",
     "@mui/styles": "^5.9.2",
     "@mui/lab": "^5.0.0-alpha.92",
-    "@sentry/browser": "^7.8.0",
+    "@sentry/browser": "^7.12.0",
     "@sentry/integrations": "^7.8.0",
     "babel-eslint": "^10.1.0",
     "moment": "^2.29.4",
