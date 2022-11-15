@@ -256,19 +256,23 @@ class ChartsTree extends Component {
         return new Promise(resolve =>
             this.props.socket._socket.emit('getObjectView', 'system', 'custom', {}, (err, objs) => {
                 // console.log(objs);
-                const ids = ((objs && objs.rows) || []).map(item => item.id);
+                const instancesIds = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
+                const ids = (objs?.rows || [])
+                    .filter(item => item?.common?.custom && instancesIds.find(_id => Object.keys(item.value).includes(_id)))
+                    .map(item => item.id);
+
                 this.getObjects(ids, objs => {
-                    const ids = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
                     const _instances = {};
                     newState.enums = newState.enums || this.state.enums;
                     const iconPromises = [];
                     Object.values(objs).forEach(obj => {
-                        const id = obj && obj.common && obj.common.custom && ids.find(id => Object.keys(obj.common.custom).includes(id));
+                        // find first instance with history
+                        const id = instancesIds.find(_id => Object.keys(obj.common.custom).includes(_id));
                         if (id) {
                             const instanceObj = this.props.instances.find(obj => obj._id.endsWith(id));
-                            _instances[id] = _instances[id] || {_id: 'system.adapter.' + id, enabledDP: {}, names: {}, statesEnums: {}, icon: instanceObj.common.icon, name: instanceObj.common.name || '', types: {}, icons: {}};
+                            _instances[id] = _instances[id] || {_id: `system.adapter.${id}`, enabledDP: {}, names: {}, statesEnums: {}, icon: instanceObj.common.icon, name: instanceObj.common.name || '', types: {}, icons: {}};
                             _instances[id].enabledDP[obj._id] = obj;
-                            _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()});
+                            _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
                             _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
                             _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
                             iconPromises.push(this.getChartIcon(id, obj));
@@ -345,7 +349,7 @@ class ChartsTree extends Component {
                                 let changed = false;
                                 result.forEach(res => {
                                     if (res && res.groupId) {
-                                        const inst = instances.find(ins => ins._id === 'system.adapter.' + res.groupId);
+                                        const inst = instances.find(ins => ins._id === `system.adapter.${res.groupId}`);
                                         if (inst) {
                                             inst.icons[res.id] = res.img;
                                             changed = true;
@@ -369,7 +373,7 @@ class ChartsTree extends Component {
             const id = ids.shift();
             this.props.socket.getObject(id)
                 .catch(e => {
-                    console.error('Cannot read ' + id + ': ' + e);
+                    console.error(`Cannot read ${id}: ${e}`);
                     return null;
                 })
                 .then(obj => {
@@ -425,7 +429,7 @@ class ChartsTree extends Component {
                 type={'state'}
                 title={ I18n.t('Enable logging for state')}
                 onOk={id => {
-                    console.log('Selected ' + id);
+                    console.log(`Selected ${id}`);
                     const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
                     if (id) {
                         this.props.socket.getObject(id)
@@ -522,7 +526,7 @@ class ChartsTree extends Component {
                             });
                             // if no charts selected => select this one
                             if (typeof this.props.selectedId !== 'object') {
-                                this.props.onSelectedChanged({id, instance}, () =>
+                                this.props.onSelectedChanged({ id, instance }, () =>
                                     this.props.onChangeList(chartsList));
                             } else {
                                 this.props.onChangeList(chartsList);
@@ -567,7 +571,7 @@ class ChartsTree extends Component {
                                 {this.renderListItem(group, id, false, level)}
                             </div>,
                             snapshot.isDragging ?
-                                <div className="react-beatiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
+                                <div className="react-beatiful-dnd-copy" key={`${instance}_${id}_dnd`}>
                                     {this.renderListItem(group, id, true)}
                                 </div>: null
                         ]

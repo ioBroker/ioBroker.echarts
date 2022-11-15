@@ -104,7 +104,7 @@ const styles = theme => ({
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
 
 function loadChartParam(name, defaultValue) {
-    return window.localStorage.getItem('App.echarts.__' + name) ? window.localStorage.getItem('App.echarts.__' + name) : defaultValue;
+    return window.localStorage.getItem(`App.echarts.__${name}`) ? window.localStorage.getItem(`App.echarts.__${name}`) : defaultValue;
 }
 
 function parseHash() {
@@ -117,7 +117,7 @@ function parseHash() {
                 const [name, val] = line.split('=');
                 result[name] = window.decodeURIComponent(val);
                 if (name === 'instance' && !result[name].startsWith('system.adapter')) {
-                    result[name] = 'system.adapter.' + result[name];
+                    result[name] = `system.adapter.${result[name]}`;
                 }
             });
         return result;
@@ -142,6 +142,7 @@ class App extends GenericApp {
             'pl': require('./i18n/pl'),
             'pt': require('./i18n/pt'),
             'ru': require('./i18n/ru'),
+            'uk': require('./i18n/uk'),
             'zh-cn': require('./i18n/zh-cn'),
         };
         settings.sentryDSN = window.sentryDSN;
@@ -227,7 +228,7 @@ class App extends GenericApp {
             .then(() => this.socket.getAdapterInstances(''))
             // get only history adapters
             .then(instances => instances.filter(entry => entry && entry.common && entry.common.getHistory && entry.common.enabled))
-            .then(instances => this.setState({ready: true, instances}))
+            .then(instances => this.setState({ ready: true, instances }))
             .catch(e => this.onError(e, 'Cannot read system config'));
     }
 
@@ -235,7 +236,7 @@ class App extends GenericApp {
         index  = index  || (prefix ? '' : '1');
         prefix = prefix || 'preset_';
 
-        return this.socket.getObject(`${this.adapterName}.${this.instance}.${parentId ? parentId + '.' : ''}${prefix}${index}`)
+        return this.socket.getObject(`${this.adapterName}.${this.instance}.${parentId ? `${parentId}.` : ''}${prefix}${index}`)
             .then(obj => {
                 if (!obj) {
                     return prefix + index;
@@ -253,8 +254,8 @@ class App extends GenericApp {
 
     getUniqueId(id, name, cb, _count) {
         _count = _count || 0;
-        const newId = id + '_' + I18n.t('copy');
-        const newName = name + ' ' + I18n.t('copy');
+        const newId = `${id}_${I18n.t('copy')}`;
+        const newName = `${name} ${I18n.t('copy')}`;
         this.socket.getObject(newId)
             .then(obj => {
                 if (obj) {
@@ -323,7 +324,7 @@ class App extends GenericApp {
                                 },
                                 type: 'chart'
                             };
-                            let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+                            let id = `${this.adapterName}.0.${parentId ? `${parentId}.` : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
 
                             return this.socket.setObject(id, template)
                                 .then(() => this.loadChartOrPreset(id))
@@ -347,7 +348,7 @@ class App extends GenericApp {
                         type: 'chart'
                     };
 
-                    let id = `${this.adapterName}.0.${parentId ? parentId + '.' : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+                    let id = `${this.adapterName}.0.${parentId ? `${parentId}.` : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
 
                     return this.socket.setObject(id, template)
                         .then(() => this.loadChartOrPreset(id))

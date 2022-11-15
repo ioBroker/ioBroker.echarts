@@ -76,6 +76,7 @@ class App extends Component {
             'it': require('@iobroker/adapter-react-v5/i18n/it'),
             'es': require('@iobroker/adapter-react-v5/i18n/es'),
             'pl': require('@iobroker/adapter-react-v5/i18n/pl'),
+            'uk': require('@iobroker/adapter-react-v5/i18n/uk'),
             'zh-cn': require('@iobroker/adapter-react-v5/i18n/zh-cn'),
         };
 
@@ -89,6 +90,7 @@ class App extends Component {
             'it': require('./i18n/it'),
             'es': require('./i18n/es'),
             'pl': require('./i18n/pl'),
+            'uk': require('./i18n/uk'),
             'zh-cn': require('./i18n/zh-cn'),
         };
 
@@ -166,7 +168,7 @@ class App extends Component {
     }
 
     createChartData(config) {
-        this.chartData = new ChartModel(this.socket, config, {compact: this.state.compact});
+        this.chartData = new ChartModel(this.socket, config, { compact: this.state.compact });
         this.chartData.onError(err => {
             if (err === ERRORS.NOT_CONNECTED) {
                 this.divRef.current && (this.divRef.current.style.opacity = 0.5);
@@ -277,7 +279,7 @@ class App extends Component {
         const hash = MD5(JSON.stringify(((config && config.l && config.l.map(item => item.id)) || []).sort())).toString();
 
         if (this.state.seriesData && config.debug) {
-            console.log('seriesData: ' + JSON.stringify(this.state.seriesData));
+            console.log(`seriesData: ${JSON.stringify(this.state.seriesData)}`);
         }
 
         return <StylesProvider generateClassName={generateClassName}>
