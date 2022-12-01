@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "news": {
       "1.1.1": {
         "en": "Added preparations for vis2.0",
@@ -74,18 +74,6 @@
         "es": "Se agregó la opción `shift + movimiento del mouse` para escalar el eje Y",
         "pl": "Dodano opcję `shift+mouse move` do skalowania osi Y",
         "zh-cn": "添加选项 `shift+mouse move` 来缩放 Y 轴"
-      },
-      "1.0.7": {
-        "en": "Added background to export image\nAdded integral and percentile aggregate methods",
-        "de": "Hintergrund zum Exportbild hinzugefügt\nIntegral- und Perzentil-Aggregationsmethoden hinzugefügt",
-        "ru": "Добавлен фон для экспорта изображения\nДобавлены интегральные и процентильные агрегатные методы.",
-        "pt": "Adicionado plano de fundo para exportar a imagem\nMétodos agregados integrais e percentuais adicionados",
-        "nl": "Achtergrond toegevoegd om afbeelding te exporteren\nIntegrale en percentielaggregatiemethoden toegevoegd",
-        "fr": "Ajout d'un arrière-plan pour exporter l'image\nAjout de méthodes d'agrégation intégrale et centile",
-        "it": "Aggiunto sfondo per esportare l'immagine\nAggiunti metodi di aggregazione integrale e percentile",
-        "es": "Añadido fondo para exportar imagen.\nMétodos agregados integrales y percentiles agregados",
-        "pl": "Dodano tło do eksportu obrazu\nDodano metody agregacji całkowej i percentylowej",
-        "zh-cn": "添加背景以导出图像\n添加了积分和百分位数聚合方法"
       }
     },
     "title": "E-Charts",
