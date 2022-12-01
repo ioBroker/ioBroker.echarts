@@ -147,7 +147,12 @@ const styles = theme => ({
     listItemSubTitle: {
         fontSize: 'smaller',
         opacity: 0.7,
-        fontStyle: 'italic'
+        fontStyle: 'italic',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        width: 'calc(100% - 32px)',
     },
     mainList: {
         width: 'calc(100% - ' + theme.spacing(1) + ')',
@@ -164,7 +169,20 @@ const styles = theme => ({
     },
     iconCopy: {
         width: 16,
-    }
+    },
+    listItemSecondaryAction: {
+        right: 7,
+    },
+    listItemTitle: {
+        lineHeight: 1,
+    },
+    listItemTitleDiv: {
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        width: 'calc(100% - 32px)',
+    },
 });
 
 class MenuList extends Component {
@@ -274,36 +292,27 @@ class MenuList extends Component {
         return _result;
     }
 
-    getAllPresets(newState) {
+    async getAllPresets(newState) {
         newState = newState || {};
         let presets = {};
 
-        return new Promise((resolve, reject) =>
-            this.props.socket.getRawSocket().emit('getObjectView', 'chart', 'chart', {
-                startkey: this.props.adapterName + '.',
-                endkey:   this.props.adapterName + '.\u9999'
-            }, (err, res) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    res && res.rows && res.rows.forEach(preset => preset.value._id && !preset.value._id.toString().endsWith('.') && (presets[preset.value._id] = preset.value));
-                    newState.presets = presets;
-                    newState.changingPreset = '';
+        const res = await this.props.socket.getObjectViewSystem('chart', `${this.props.adapterName}.`, `${this.props.adapterName}.\u9999`);
+        res && Object.values(res).forEach(preset => preset._id && !preset._id.toString().endsWith('.') && (presets[preset._id] = preset));
+        newState.presets = presets;
+        newState.changingPreset = '';
 
-                    // fill missing info
-                    Object.keys(newState.presets).forEach(id => {
-                        const presetObj = newState.presets[id];
-                        presetObj.common = presetObj.common || {};
-                        presetObj.native = presetObj.native || {};
-                    });
+        // fill missing info
+        Object.keys(newState.presets).forEach(id => {
+            const presetObj = newState.presets[id];
+            presetObj.common = presetObj.common || {};
+            presetObj.native = presetObj.native || {};
+        });
 
-                    // store all empty folders
-                    const emptyFolders = this.getEmptyFolders();
-                    newState.presetFolders = this.buildPresetTree(presets, emptyFolders);
-                    setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
-                    resolve(newState);
-                }
-            }));
+        // store all empty folders
+        const emptyFolders = this.getEmptyFolders();
+        newState.presetFolders = this.buildPresetTree(presets, emptyFolders);
+        setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
+        return newState;
     }
 
     renderTreePreset(item, level, anySubFolders) {
@@ -317,7 +326,7 @@ class MenuList extends Component {
         const depthPx = (this.props.reorder ? level : level - 1) * LEVEL_PADDING;
 
         const listItem = <ListItem
-            classes={ {gutters: clsx(this.props.classes.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && this.props.classes.changed)} }
+            classes={{ gutters: clsx(this.props.classes.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && this.props.classes.changed) }}
             style={ {paddingLeft: depthPx } }
             key={ item._id }
             className={ clsx(this.props.reorder && 'item-reorder') }
@@ -326,15 +335,13 @@ class MenuList extends Component {
             button
             onClick={() => this.props.onSelectedChanged(preset._id)}
         >
-            <ListItemIcon classes={ {root: clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset)} }><IconScript className={ this.props.classes.itemIcon }/></ListItemIcon>
+            <ListItemIcon classes={{ root: clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset) }}><IconScript className={this.props.classes.itemIcon}/></ListItemIcon>
             <ListItemText
-                classes={ {primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle} }
-                primary={ <>
-                    { Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}) }
-                </>}
+                classes={{ primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle }}
+                primary={<div className={this.props.classes.listItemTitleDiv}>{Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()})}</div>}
                 secondary={ Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}, true) }
             />
-            <ListItemSecondaryAction>
+            <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
                 {this.state.changingPreset === preset._id ?
                     <CircularProgress size={ 24 }/>
                     :
@@ -421,17 +428,19 @@ class MenuList extends Component {
                     <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
                     <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
                 }</ListItemIcon>
-                <ListItemText>{ parent.id || I18n.t('Root')}</ListItemText>
-                <ListItemSecondaryAction>
+                <ListItemText>{parent.id || I18n.t('Root')}</ListItemText>
+                <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
                     {!this.props.reorder && parent && parent.id && presetsOpened ? <IconButton
+                        size="small"
                         onClick={() => this.props.onCreatePreset(null, parent.id)}
                         title={ I18n.t('Create new preset') }
                     ><IconAdd/></IconButton> : null}
                     {!this.props.reorder ? <IconButton
+                        size="small"
                         onClick={() => this.setState({editPresetFolderDialog: parent, editPresetFolderName: parent.id, editFolderDialogTitleOrigin: parent.id})}
                         title={I18n.t('Edit folder name')}
                     ><IconEdit/></IconButton> : null}
-                        {!this.props.reorder ? <IconButton onClick={ () => this.togglePresetsFolder(parent) } title={ presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')  }>
+                        {!this.props.reorder ? <IconButton size="small" onClick={ () => this.togglePresetsFolder(parent) } title={ presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')  }>
                         { presetsOpened ? <IconCollapse/> : <IconExpand/> }
                     </IconButton> : null}
                 </ListItemSecondaryAction>

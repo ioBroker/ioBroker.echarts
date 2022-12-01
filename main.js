@@ -254,7 +254,15 @@ function main(adapter) {
         const _obj = require('./io-package.json').objects.find(ob => ob._id === '_design/chart');
         if (obj && _obj && JSON.stringify(obj.views) !== JSON.stringify(_obj.views)) {
             obj.views = _obj.views;
-            adapter.setForeignObject('_design/chart', _obj);
+            adapter.setForeignObject('_design/chart', obj);
+        }
+    });
+
+    // fix _design/system
+    adapter.getForeignObject('_design/system', (err, obj) => {
+        if (obj && obj.views && !obj.views.chart) {
+            obj.views.chart = {map: 'function(doc) { if (doc.type === \'chart\') emit(doc._id, doc); }'}
+            adapter.setForeignObject('_design/system', obj);
         }
     });
 

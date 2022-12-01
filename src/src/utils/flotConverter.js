@@ -184,20 +184,9 @@ function normalizeConfig(config) {
     return config;
 }
 
-function _readFlotSettings(socket) {
-    return new Promise((resolve, reject) =>
-        socket.getRawSocket().emit('getObjectView', 'chart', 'chart', {
-            startkey: 'flot.',
-            endkey: 'flot.\u9999'
-        }, (err, res) => {
-            if (err) {
-                reject(err);
-            } else {
-                const charts = [];
-                res && res.rows && res.rows.forEach(obj => charts.push(obj.value));
-                resolve(charts);
-            }
-        }));
+async function _readFlotSettings(socket) {
+    const objs =  this.props.socket.getObjectViewSystem('chart', 'flot.', 'flot.\u9999');
+    return Object.values(objs);
 }
 
 function _executeWriteTasks(socket, tasks, _resolve) {
@@ -312,13 +301,12 @@ function _flot2echarts(flotObj, instance) {
     return echartsObj;
 }
 
-
 function flotConverter(socket, instance) {
     instance = instance || 0;
 
     let instanceObj;
 
-    return socket.getObject('system.adapter.echarts.' + instance)
+    return socket.getObject(`system.adapter.echarts.${instance}`)
         .then(obj => {
             instanceObj = obj;
             if (obj && obj.native && !obj.native.convertDone) {
@@ -345,4 +333,4 @@ function flotConverter(socket, instance) {
         });
 }
 
-module.exports = flotConverter;
+export default flotConverter;

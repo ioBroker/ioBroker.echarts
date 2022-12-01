@@ -24,6 +24,7 @@
     "moment": "^2.29.4"
   },
   "homepage": ".",
+  "proxy": "http://localhost:8081",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

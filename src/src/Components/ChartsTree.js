@@ -72,6 +72,33 @@ const styles = theme => ({
     itemIconRoot: {
         minWidth: 24,
     },
+    itemNameDiv: {
+        lineHeight: '22px',
+        height: 22,
+    },
+    itemName: {
+        verticalAlign: 'top',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        width: 'calc(100% - 26px)',
+        display: 'inline-block',
+    },
+    groupName: {
+        verticalAlign: 'top',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        width: 'calc(100% - 66px)',
+        display: 'inline-block',
+    },
+    itemSecondaryName: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        width: '100%',
+        whiteSpace: 'nowrap',
+        display: 'inline-block',
+    },
     listItemSubTitle: {
         fontSize: 'smaller',
         opacity: 0.7,
@@ -81,10 +108,17 @@ const styles = theme => ({
         width: 20,
         height: 20,
         borderRadius: 2,
+        marginRight: 4,
     },
     mainList: {
-        width: 'calc(100% - ' + theme.spacing(1) + ')',
-        marginLeft: theme.spacing(1),
+        width: `100%`,
+    },
+    listItemSecondaryAction: {
+        right: 7,
+    },
+    folderItem: {
+        backgroundColor: theme.palette.secondary.main,
+        paddingLeft: theme.spacing(1),
     },
 });
 
@@ -134,11 +168,11 @@ class ChartsTree extends Component {
             .then(enums => {
                 newState.enums = [];
                 Object.keys(enums).forEach(id => {
-                    if ((id.startsWith('enum.functions.') || id.startsWith('enum.rooms.')) && enums[id] && enums[id].common && enums[id].common.members && enums[id].common.members.length)  {
+                    if ((id.startsWith('enum.functions.') || id.startsWith('enum.rooms.')) && enums[id] && enums[id].common && enums[id].common.members && enums[id].common.members.length) {
                         newState.enums[id] = {
                             common: {
                                 members: [...enums[id].common.members],
-                                name: Utils.getObjectNameFromObj(enums[id], null, {language: I18n.getLanguage()}),
+                                name: Utils.getObjectNameFromObj(enums[id], null, { language: I18n.getLanguage() }),
                             }
                         };
                     }
@@ -185,8 +219,7 @@ class ChartsTree extends Component {
     getChartIcon(groupId, obj) {
         if (!obj) {
             return Promise.resolve();
-        } else
-        if (obj.common && obj.common.icon) {
+        } else if (obj.common && obj.common.icon) {
             return Promise.resolve({groupId, id: obj._id, img: Utils.getObjectIcon(obj)});
         } else {
             // try to read parent
@@ -251,118 +284,135 @@ class ChartsTree extends Component {
         }
     }
 
-    getAllCharts(newState) {
+    async getAllCharts(newState) {
         newState = newState || {};
-        return new Promise(resolve =>
-            this.props.socket._socket.emit('getObjectView', 'system', 'custom', {}, (err, objs) => {
-                // console.log(objs);
-                const instancesIds = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
-                const ids = (objs?.rows || [])
-                    .filter(item => item?.common?.custom && instancesIds.find(_id => Object.keys(item.value).includes(_id)))
-                    .map(item => item.id);
+        const useFullCustom = await this.props.socket.checkFeatureSupported('CUSTOM_FULL_VIEW');
+        const instancesIds = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
+        let objs;
+        if (!useFullCustom) {
+            const customObjs = await this.props.socket.getObjectViewSystem('custom', '', '');
+            // console.log(objs);
+            const ids = Object.keys(customObjs)
+                .filter(id => customObjs[id] && instancesIds.find(_id => Object.keys(customObjs[id]).includes(_id)))
+                .map(id => id);
 
-                this.getObjects(ids, objs => {
-                    const _instances = {};
-                    newState.enums = newState.enums || this.state.enums;
-                    const iconPromises = [];
-                    Object.values(objs).forEach(obj => {
-                        // find first instance with history
-                        const id = instancesIds.find(_id => Object.keys(obj.common.custom).includes(_id));
-                        if (id) {
-                            const instanceObj = this.props.instances.find(obj => obj._id.endsWith(id));
-                            _instances[id] = _instances[id] || {_id: `system.adapter.${id}`, enabledDP: {}, names: {}, statesEnums: {}, icon: instanceObj.common.icon, name: instanceObj.common.name || '', types: {}, icons: {}};
-                            _instances[id].enabledDP[obj._id] = obj;
-                            _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
-                            _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
-                            _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
-                            iconPromises.push(this.getChartIcon(id, obj));
-                        }
-                    });
+            objs = await new Promise(resolve => this.getObjects(ids, resolve));
+        } else {
+            objs = await this.props.socket.getObjectViewSystem('custom-full', '', '');
+        }
 
-                    let chartsOpened = JSON.parse(JSON.stringify(this.state.chartsOpened));
-                    const funcIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.functions.'));
-                    const roomIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.rooms.'));
+        const _instances = {};
+        newState.enums = newState.enums || this.state.enums;
+        const iconPromises = [];
+        Object.values(objs)
+            .forEach(obj => {
+                // find first instance with history
+                const id = instancesIds.find(_id => Object.keys(obj.common.custom).includes(_id));
+                if (id) {
+                    const instanceObj = this.props.instances.find(obj => obj._id.endsWith(id));
+                    _instances[id] = _instances[id] || {
+                        _id: `system.adapter.${id}`,
+                        enabledDP: {},
+                        names: {},
+                        statesEnums: {},
+                        icon: instanceObj.common.icon,
+                        name: instanceObj.common.name || '',
+                        types: {},
+                        icons: {}
+                    };
+                    _instances[id].enabledDP[obj._id] = obj;
+                    _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()});
+                    _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
+                    _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
+                    iconPromises.push(this.getChartIcon(id, obj));
+                }
+            });
 
-                    const insts = Object.values(_instances).map(obj => {
-                        const enabledDP = {};
-                        Object.keys(obj.enabledDP).forEach(id => {
-                            enabledDP[id] = obj.enabledDP[id];
-                            enabledDP[id].group = obj._id;
-                        });
-                        obj.enabledDP = enabledDP;
-                        chartsOpened[obj._id] = chartsOpened[obj._id] !== undefined ? (this.state.chartsOpened[obj._id] || false) : true;
+        let chartsOpened = JSON.parse(JSON.stringify(this.state.chartsOpened));
+        const funcIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.functions.'));
+        const roomIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.rooms.'));
 
-                        // Build for every instance the list of enums
-                        Object.keys(newState.enums).forEach(eID => {
-                            if (Object.keys(enabledDP).find(id => newState.enums[eID].common.members.includes(id))) {
-                                obj.enums = obj.enums || [];
-                                if (!obj.enums.includes(eID)) {
-                                    obj.enums.push(eID);
-                                }
-                            }
-                        });
+        const insts = Object.values(_instances).map(obj => {
+            const enabledDP = {};
+            Object.keys(obj.enabledDP).forEach(id => {
+                enabledDP[id] = obj.enabledDP[id];
+                enabledDP[id].group = obj._id;
+            });
+            obj.enabledDP = enabledDP;
+            chartsOpened[obj._id] = chartsOpened[obj._id] !== undefined ? (this.state.chartsOpened[obj._id] || false) : true;
 
-                        // Collect all enum-loss IDs in enum
-                        const otherFuncs = {common: {members: [], name: I18n.t('Others')}};
-                        const otherRooms = {common: {members: [], name: I18n.t('Others')}};
-                        Object.keys(enabledDP).forEach(id => {
-                            if (!funcIds.find(eID => newState.enums[eID].common.members.includes(id))) {
-                                otherFuncs.common.members.push(id);
-                            }
-                            if (!roomIds.find(eID => newState.enums[eID].common.members.includes(id))) {
-                                otherRooms.common.members.push(id);
-                            }
-                        });
-                        if (otherFuncs.common.members.length) {
-                            obj.enums = obj.enums || [];
-                            obj.enums.push('enum.functions.' + obj._id);
-                            newState.enums['enum.functions.' + obj._id] = otherFuncs;
-                        }
-                        if (otherRooms.common.members.length) {
-                            obj.enums = obj.enums || [];
-                            obj.enums.push('enum.rooms.' + obj._id);
-                            newState.enums['enum.rooms.' + obj._id] = otherRooms;
-                        }
-
-                        obj.enums && obj.enums.sort((a, b) => newState.enums[a].common.name > newState.enums[b].common.name ? 1 : (newState.enums[a].common.name < newState.enums[b].common.name ? -1 : 0));
-
-                        return obj;
-                    });
-
-                    insts.sort(sortObj);
-
-                    if (!this.props.selectedId) {
-                        // find first chart
-                        let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
-                        if (selectedChartId) {
-                            setTimeout(() => this.props.onSelectedChanged({id: selectedChartId, instance: insts[0]._id}), 500);
-                        }
+            // Build for every instance the list of enums
+            Object.keys(newState.enums).forEach(eID => {
+                if (Object.keys(enabledDP).find(id => newState.enums[eID].common.members.includes(id))) {
+                    obj.enums = obj.enums || [];
+                    if (!obj.enums.includes(eID)) {
+                        obj.enums.push(eID);
                     }
-                    newState.instances = insts;
-                    newState.chartsOpened = chartsOpened;
+                }
+            });
 
-                    // update icons asynchronous
-                    setTimeout(() => {
-                        Promise.all(iconPromises)
-                            .then(result => {
-                                const instances = JSON.parse(JSON.stringify(this.state.instances));
-                                let changed = false;
-                                result.forEach(res => {
-                                    if (res && res.groupId) {
-                                        const inst = instances.find(ins => ins._id === `system.adapter.${res.groupId}`);
-                                        if (inst) {
-                                            inst.icons[res.id] = res.img;
-                                            changed = true;
-                                        }
-                                    }
-                                });
-                                changed && this.setState({instances});
-                            });
-                    }, 100);
+            // Collect all enum-loss IDs in enum
+            const otherFuncs = { common: { members: [], name: I18n.t('Others') } };
+            const otherRooms = { common: { members: [], name: I18n.t('Others') } };
+            Object.keys(enabledDP).forEach(id => {
+                if (!funcIds.find(eID => newState.enums[eID].common.members.includes(id))) {
+                    otherFuncs.common.members.push(id);
+                }
+                if (!roomIds.find(eID => newState.enums[eID].common.members.includes(id))) {
+                    otherRooms.common.members.push(id);
+                }
+            });
+            if (otherFuncs.common.members.length) {
+                obj.enums = obj.enums || [];
+                obj.enums.push('enum.functions.' + obj._id);
+                newState.enums['enum.functions.' + obj._id] = otherFuncs;
+            }
+            if (otherRooms.common.members.length) {
+                obj.enums = obj.enums || [];
+                obj.enums.push('enum.rooms.' + obj._id);
+                newState.enums['enum.rooms.' + obj._id] = otherRooms;
+            }
 
-                    resolve(newState);
+            obj.enums && obj.enums.sort((a, b) => newState.enums[a].common.name > newState.enums[b].common.name ? 1 : (newState.enums[a].common.name < newState.enums[b].common.name ? -1 : 0));
+
+            return obj;
+        });
+
+        insts.sort(sortObj);
+
+        if (!this.props.selectedId) {
+            // find first chart
+            let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
+            if (selectedChartId) {
+                setTimeout(() => this.props.onSelectedChanged({
+                    id: selectedChartId,
+                    instance: insts[0]._id
+                }), 500);
+            }
+        }
+        newState.instances = insts;
+        newState.chartsOpened = chartsOpened;
+
+        // update icons asynchronous
+        setTimeout(() => {
+            Promise.all(iconPromises)
+                .then(result => {
+                    const instances = JSON.parse(JSON.stringify(this.state.instances));
+                    let changed = false;
+                    result.forEach(res => {
+                        if (res && res.groupId) {
+                            const inst = instances.find(ins => ins._id === `system.adapter.${res.groupId}`);
+                            if (inst) {
+                                inst.icons[res.id] = res.img;
+                                changed = true;
+                            }
+                        }
+                    });
+                    changed && this.setState({instances});
                 });
-            }));
+        }, 100);
+
+        return newState;
     }
 
     getObjects(ids, cb, result) {
@@ -389,7 +439,7 @@ class ChartsTree extends Component {
         let index = prefix ? '' : '1';
         prefix = prefix || 'preset_';
 
-        while(!this.isNameUnique(prefix + index)) {
+        while (!this.isNameUnique(prefix + index)) {
             if (!index) {
                 index = 2;
             } else {
@@ -424,10 +474,10 @@ class ChartsTree extends Component {
         } else {
             return <DialogSelectID
                 key={'selectDialog_add'}
-                socket={ this.props.socket }
+                socket={this.props.socket}
                 dialogName={'Add'}
                 type={'state'}
-                title={ I18n.t('Enable logging for state')}
+                title={I18n.t('Enable logging for state')}
                 onOk={id => {
                     console.log(`Selected ${id}`);
                     const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
@@ -458,8 +508,8 @@ class ChartsTree extends Component {
                             .catch(e => this.onError(e, `Cannot read object ${id}`));
                     }
                     this.setState({showAddStateDialog: false});
-                } }
-                onClose={ () => this.setState({showAddStateDialog: false}) }
+                }}
+                onClose={() => this.setState({showAddStateDialog: false})}
             />;
         }
     }
@@ -473,15 +523,15 @@ class ChartsTree extends Component {
             this.props.selectedId.instance === instance;
 
         return <ListItem
-            key={instance + '_' + id}
+            key={`${instance}_${id}`}
             ref={selected ? this.refSelected : null}
-            classes={ {gutters: this.props.classes.noGutters} }
+            classes={{ gutters: this.props.classes.noGutters }}
             button
             style={{paddingLeft: LEVEL_PADDING * level}}
             selected={selected}
             onClick={dragging ? undefined : () => this.props.onSelectedChanged({id, instance})}
         >
-            <ListItemIcon classes={{root: this.props.classes.itemIconRoot}}>
+            <ListItemIcon classes={{ root: this.props.classes.itemIconRoot }}>
                 {group.types[id] === 'boolean' ?
                     <IconBooleanChart className={this.props.classes.itemIcon}/>
                     :
@@ -494,15 +544,21 @@ class ChartsTree extends Component {
                     secondary: this.props.classes.listItemSubTitle
                 }}
                 primary={
-                    <span>
-                        {Utils.getIcon({icon: group.icons[id], prefix: '../../'}, {width: 20, height: 20, borderRadius: 2})}
-                        {group.names[id]}
-                    </span>
+                    <div className={this.props.classes.itemNameDiv}>
+                        {Utils.getIcon({icon: group.icons[id], prefix: '../../'}, {
+                            width: 20,
+                            height: 20,
+                            borderRadius: 2,
+                            marginRight: 4,
+                        })}
+                        <div className={this.props.classes.itemName}>{group.names[id]}</div>
+                    </div>
                 }
-                secondary={id.replace('system.adapter.', '')}
+                secondary={<div className={this.props.classes.itemSecondaryName}>{id.replace('system.adapter.', '')}</div>}
             />
-            {!dragging && this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction>
+            {!dragging && this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
                 <Switch
+                    size="small"
                     edge="end"
                     onChange={e => {
                         const chartsList = JSON.parse(JSON.stringify(this.props.chartsList));
@@ -537,8 +593,8 @@ class ChartsTree extends Component {
                         }
                     }}
                     checked={!!this.props.chartsList.find(item => item.id === id && item.instance === instance)}
-                /> </ListItemSecondaryAction>: null}
-        </ListItem>
+                /> </ListItemSecondaryAction> : null}
+        </ListItem>;
     }
 
     renderListItems(group, ids, enumId, renderContext) {
@@ -552,7 +608,7 @@ class ChartsTree extends Component {
         const level = 1;
 
         if (!enumId) {
-            return ids.map(id=>
+            return ids.map(id =>
                 <Draggable
                     isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
                     key={`${instance}_${id}`}
@@ -571,15 +627,15 @@ class ChartsTree extends Component {
                                 {this.renderListItem(group, id, false, level)}
                             </div>,
                             snapshot.isDragging ?
-                                <div className="react-beatiful-dnd-copy" key={`${instance}_${id}_dnd`}>
+                                <div className="react-beautiful-dnd-copy" key={`${instance}_${id}_dnd`}>
                                     {this.renderListItem(group, id, true)}
-                                </div>: null
+                                </div> : null
                         ]
                     }
                 </Draggable>
             );
-        }  else {
-            const key = instance + '///' + enumId;
+        } else {
+            const key = `${instance}///${enumId}`;
             const opened = this.state.chartsOpened[key];
             if (opened) {
                 ids = ids.filter(id => this.state.enums[enumId].common.members.includes(id));
@@ -587,23 +643,29 @@ class ChartsTree extends Component {
             return [
                 <ListItem
                     key={key}
-                    style={{paddingLeft: LEVEL_PADDING * level}}
-                    classes={ {gutters: this.props.classes.noGutters} }
-                    className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
+                    style={{ paddingLeft: LEVEL_PADDING * level }}
+                    classes={{ gutters: this.props.classes.noGutters }}
+                    className={clsx(this.props.classes.width100, this.props.classes.folderItem)}
                 >
-                    <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(key) }>{ opened ?
-                        <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
-                        <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
+                    <ListItemIcon
+                        classes={{ root: this.props.classes.itemIconRoot }}
+                        onClick={() => this.toggleChartFolder(key)}
+                    >{opened ?
+                        <IconFolderOpened
+                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
+                        <IconFolderClosed
+                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} />
                     }</ListItemIcon>
-                    <ListItemText primary={this.state.enums[enumId].common.name}/>
-                    <ListItemSecondaryAction>
-                        <IconButton onClick={ () => this.toggleChartFolder(key) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
-                            { opened ? <IconCollapse/> : <IconExpand/> }
+                    <ListItemText primary={this.state.enums[enumId].common.name} />
+                    <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+                        <IconButton size="small" onClick={() => this.toggleChartFolder(key)}
+                                    title={opened ? I18n.t('Collapse') : I18n.t('Expand')}>
+                            {opened ? <IconCollapse /> : <IconExpand />}
                         </IconButton>
                     </ListItemSecondaryAction>
                 </ListItem>,
-                opened ? <List key={key + '_LIST'}>
-                    {ids.map(id=>
+                opened ? <List key={`${key}_LIST`}>
+                    {ids.map(id =>
                         <Draggable
                             isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
                             key={`${instance}_${id}`}
@@ -622,9 +684,9 @@ class ChartsTree extends Component {
                                         {this.renderListItem(group, id, false, 2)}
                                     </div>,
                                     snapshot.isDragging ?
-                                        <div className="react-beatiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
+                                        <div className="react-beautiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
                                             {this.renderListItem(group, id, true)}
-                                        </div>: null
+                                        </div> : null
                                 ]
                             }
                         </Draggable>
@@ -641,63 +703,72 @@ class ChartsTree extends Component {
             <Droppable droppableId="Lines" isDropDisabled={true} key="charts">
                 {(provided, snapshot) =>
                     <div ref={provided.innerRef} key="chartListDiv">
-                        <List className={ clsx(this.props.classes.scroll, this.props.classes.mainList) } key="chartList">
+                        <List className={clsx(this.props.classes.scroll, this.props.classes.mainList)} key="chartList">
                             {
                                 this.state.instances.map(group => {
-                                    let opened = this.state.chartsOpened[group._id];
-                                    let children = null;
+                                        let opened = this.state.chartsOpened[group._id];
+                                        let children = null;
 
-                                    // if instance opened
-                                    if (opened) {
-                                        // no groupBy
-                                        const ids = Object.keys(group.enabledDP)
-                                            .filter(id => !this.props.search || id.includes(this.props.search) || group.names[id].includes(this.props.search));
+                                        // if instance opened
+                                        if (opened) {
+                                            // no groupBy
+                                            const ids = Object.keys(group.enabledDP)
+                                                .filter(id => !this.props.search || id.includes(this.props.search) || group.names[id].includes(this.props.search));
 
-                                        if (!this.props.groupBy) {
-                                            ids.sort(sortObj);
-                                            children = this.renderListItems(group, ids, null, renderContext);
-                                        } else {
-                                            children = (group.enums || []).filter(id => id.startsWith('enum.' + this.props.groupBy + '.'))
-                                                .map(eID =>
-                                                    this.renderListItems(group, ids, eID, renderContext));
+                                            if (!this.props.groupBy) {
+                                                ids.sort(sortObj);
+                                                children = this.renderListItems(group, ids, null, renderContext);
+                                            } else {
+                                                children = (group.enums || []).filter(id => id.startsWith('enum.' + this.props.groupBy + '.'))
+                                                    .map(eID =>
+                                                        this.renderListItems(group, ids, eID, renderContext));
+                                            }
                                         }
-                                    }
 
-                                    return [
-                                        <ListItem
-                                            key={group._id}
-                                            classes={ {gutters: this.props.classes.noGutters} }
-                                            className={ clsx(this.props.classes.width100, this.props.classes.folderItem) }
-                                        >
-                                            <ListItemIcon classes={ {root: this.props.classes.itemIconRoot} } onClick={ () => this.toggleChartFolder(group._id) }>
-                                                { opened ?
-                                                    <IconFolderOpened className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/> :
-                                                    <IconFolderClosed className={ clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder) }/>
-                                                }
-                                            </ListItemIcon>
-                                            <ListItemText primary={
-                                                <span>
-                                                    <img className={ this.props.classes.adapterIcon } alt="" src={`../../adapter/${group.name}/${group.icon}`}/>
-                                                    {group._id.replace('system.adapter.', '')}
-                                                </span>
-                                            }/>
-                                                <ListItemSecondaryAction>
-                                                {opened ? <IconButton
-                                                        onClick={() => this.setState({showAddStateDialog: group._id})}
-                                                        title={ I18n.t('Enable logging for new state') }
+                                        return [
+                                            <ListItem
+                                                key={group._id}
+                                                classes={{ gutters: this.props.classes.noGutters }}
+                                                className={clsx(this.props.classes.width100, this.props.classes.folderItem)}
+                                            >
+                                                <ListItemIcon classes={{ root: this.props.classes.itemIconRoot }}
+                                                              onClick={() => this.toggleChartFolder(group._id)}>
+                                                    {opened ?
+                                                        <IconFolderOpened
+                                                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/> :
+                                                        <IconFolderClosed
+                                                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/>
+                                                    }
+                                                </ListItemIcon>
+                                                <ListItemText primary={
+                                                    <div className={this.props.classes.itemNameDiv}>
+                                                        <img className={this.props.classes.adapterIcon} alt=""
+                                                             src={`../../adapter/${group.name}/${group.icon}`}/>
+                                                        <div className={this.props.classes.groupName}>{group._id.replace('system.adapter.', '')}</div>
+                                                    </div>
+                                                }/>
+                                                <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+                                                    {opened ? <IconButton
+                                                        size="small"
+                                                        onClick={() => this.setState({ showAddStateDialog: group._id })}
+                                                        title={I18n.t('Enable logging for new state')}
                                                     ><IconAdd/></IconButton> : null}
-                                                <IconButton onClick={ () => this.toggleChartFolder(group._id) } title={ opened ? I18n.t('Collapse') : I18n.t('Expand')  }>
-                                                    { opened ? <IconCollapse/> : <IconExpand/> }
-                                                </IconButton>
-                                            </ListItemSecondaryAction>
-                                        </ListItem>,
-                                        children
-                                    ];
-                                }
-                            )}
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => this.toggleChartFolder(group._id)}
+                                                        title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
+                                                    >
+                                                        {opened ? <IconCollapse/> : <IconExpand/>}
+                                                    </IconButton>
+                                                </ListItemSecondaryAction>
+                                            </ListItem>,
+                                            children
+                                        ];
+                                    }
+                                )}
                             {provided.placeholder}
                         </List>
-                    </div> }
+                    </div>}
             </Droppable>
         ];
     }
