@@ -11,9 +11,9 @@ const path       = require('path');
 const del        = require('del');
 const cp         = require('child_process');
 
-const dir = __dirname + '/src-chart/src/i18n/';
-module.exports = function init(gulp) {
+const dir = `${__dirname}/src-chart/src/i18n/`;
 
+module.exports = function init(gulp) {
     gulp.task('[chart]i18n=>flat', done => {
         const files = fs.readdirSync(dir).filter(name => name.match(/\.json$/));
         const index = {};
@@ -51,19 +51,19 @@ module.exports = function init(gulp) {
 
     gulp.task('[chart]flat=>i18n', done => {
         if (!fs.existsSync(dir + '/flat/')) {
-            console.error(dir + '/flat/ directory not found');
+            console.error(`${dir}/flat/ directory not found`);
             return done();
         }
-        const keys = fs.readFileSync(dir + '/flat/index.txt').toString().split(/[\r\n]/);
+        const keys = fs.readFileSync(`${dir}/flat/index.txt`).toString().split(/[\r\n]/);
         while (!keys[keys.length - 1]) keys.splice(keys.length - 1, 1);
 
-        const files = fs.readdirSync(dir + '/flat/').filter(name => name.match(/\.txt$/) && name !== 'index.txt');
+        const files = fs.readdirSync(`${dir}/flat/`).filter(name => name.match(/\.txt$/) && name !== 'index.txt');
         const index = {};
         const langs = [];
         files.forEach(file => {
             const lang = file.replace(/\.txt$/, '');
             langs.push(lang);
-            const lines = fs.readFileSync(dir + '/flat/' + file).toString().split(/[\r\n]/);
+            const lines = fs.readFileSync(`${dir}/flat/${file}`).toString().split(/[\r\n]/);
             lines.forEach((word, i) => {
                 index[keys[i]] = index[keys[i]] || {};
                 index[keys[i]][lang] = word;
@@ -77,7 +77,7 @@ module.exports = function init(gulp) {
                 }
                 words[key] = index[key][lang];
             });
-            fs.writeFileSync(dir + '/' + lang + '.json', JSON.stringify(words, null, 2));
+            fs.writeFileSync(`${dir}/${lang}.json`, JSON.stringify(words, null, 2));
         });
         done();
     });

@@ -34,29 +34,29 @@ let JSDOM;
 let adapter;
 
 function prepareReactFiles() {
-    // there is a problem that node.js does not support "export default, so remove it manually from these files and create new
+    // there is a problem that node.js does not support "export default", so remove it manually from these files and create new
     // after that require changed files and not original ones.
-    let _chartModel = fs.readFileSync(__dirname + '/src-chart/src/Components/ChartModel.js').toString('utf8');
-    let _chartOption = fs.readFileSync(__dirname + '/src-chart/src/Components/ChartOption.js').toString('utf8');
+    let _chartModel = fs.readFileSync(`${__dirname}/src-chart/src/Components/ChartModel.js`).toString('utf8');
+    let _chartOption = fs.readFileSync(`${__dirname}/src-chart/src/Components/ChartOption.js`).toString('utf8');
     _chartModel = _chartModel.replace('export default ', 'module.exports = ');
     _chartOption = _chartOption.replace('export default ', 'module.exports = ');
 
-    if (fs.existsSync(__dirname + '/_helpers/ChartModel.js')) {
-        if (fs.readFileSync(__dirname + '/_helpers/ChartModel.js').toString('utf8') !== _chartModel) {
-            fs.writeFileSync(__dirname + '/_helpers/ChartModel.js', _chartModel);
+    if (fs.existsSync(`${__dirname}/_helpers/ChartModel.js`)) {
+        if (fs.readFileSync(`${__dirname}/_helpers/ChartModel.js`).toString('utf8') !== _chartModel) {
+            fs.writeFileSync(`${__dirname}/_helpers/ChartModel.js`, _chartModel);
         }
     } else {
-        !fs.existsSync(__dirname + '/_helpers') && fs.mkdirSync(__dirname + '/_helpers');
-        fs.writeFileSync(__dirname + '/_helpers/ChartModel.js', _chartModel);
+        !fs.existsSync(`${__dirname}/_helpers`) && fs.mkdirSync(__dirname + '/_helpers');
+        fs.writeFileSync(`${__dirname}/_helpers/ChartModel.js`, _chartModel);
     }
 
-    if (fs.existsSync(__dirname + '/_helpers/ChartOption.js')) {
-        if (fs.readFileSync(__dirname + '/_helpers/ChartOption.js').toString('utf8') !== _chartOption) {
-            fs.writeFileSync(__dirname + '/_helpers/ChartOption.js', _chartOption);
+    if (fs.existsSync(`${__dirname}/_helpers/ChartOption.js`)) {
+        if (fs.readFileSync(`${__dirname}/_helpers/ChartOption.js`).toString('utf8') !== _chartOption) {
+            fs.writeFileSync(`${__dirname}/_helpers/ChartOption.js`, _chartOption);
         }
     } else {
-        !fs.existsSync(__dirname + '/_helpers') && fs.mkdirSync(__dirname + '/_helpers');
-        fs.writeFileSync(__dirname + '/_helpers/ChartOption.js', _chartOption);
+        !fs.existsSync(`${__dirname}/_helpers`) && fs.mkdirSync(`${__dirname}/_helpers`);
+        fs.writeFileSync(`${__dirname}/_helpers/ChartOption.js`, _chartOption);
     }
 }
 
@@ -117,7 +117,7 @@ function renderImage(options) {
             Canvas  = Canvas  || require('canvas');
             JSDOM   = JSDOM   || require('jsdom').JSDOM;
         } catch (e) {
-            adapter.log.error('Cannot find required modules: ' + e);
+            adapter.log.error(`Cannot find required modules: ${e}`);
             return reject('Cannot find required modules: looks like it is not possible to generate charts on your Hardware/OS');
         }
 
@@ -154,7 +154,7 @@ function renderImage(options) {
                 root = global.document.createElement('div');
                 root.style.cssText = `width: ${options.width}px; height: ${options.height}px;${
                     options.background ? 
-                        (' background: ' + options.background) 
+                        ` background: ${options.background}` 
                         : 
                         (theme === 'dark' ? ' background: #000;' : '')
                 }`;
@@ -216,10 +216,10 @@ function processMessage(adapter, obj) {
         return;
     }
 
-    // filter out double messages
+    // filter out the double messages
     const json = JSON.stringify(obj.message);
     if (adapter.__lastMessageTime && adapter.__lastMessageText === json && Date.now() - adapter.__lastMessageTime < 300) {
-        return adapter.log.debug('Filter out double message [first was for ' + (Date.now() - adapter.__lastMessageTime) + 'ms]: ' + json);
+        return adapter.log.debug(`Filter out double message [first was for ${Date.now() - adapter.__lastMessageTime}ms]: ${json}`);
     }
 
     adapter.__lastMessageTime = Date.now();
