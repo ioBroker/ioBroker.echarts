@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from 'prop-types';
 import { withStyles, withTheme } from '@mui/styles';
-import clsx from 'clsx';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 import IconButton from '@mui/material/IconButton';
@@ -21,10 +20,8 @@ import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 import { AiOutlineAreaChart as IconChart } from 'react-icons/ai';
 import { FaWaveSquare as IconBooleanChart } from 'react-icons/fa';
 
-import I18n from '@iobroker/adapter-react-v5/i18n';
-import { withWidth } from '@iobroker/adapter-react-v5';
+import { I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
 import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 
 function sortObj(a, b) {
     const aid = typeof a === 'object' ? a._id.replace('system.adapter.', '') : a.replace('system.adapter.', '');
@@ -645,16 +642,16 @@ class ChartsTree extends Component {
                     key={key}
                     style={{ paddingLeft: LEVEL_PADDING * level }}
                     classes={{ gutters: this.props.classes.noGutters }}
-                    className={clsx(this.props.classes.width100, this.props.classes.folderItem)}
+                    className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
                 >
                     <ListItemIcon
                         classes={{ root: this.props.classes.itemIconRoot }}
                         onClick={() => this.toggleChartFolder(key)}
                     >{opened ?
                         <IconFolderOpened
-                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
+                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
                         <IconFolderClosed
-                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} />
+                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} />
                     }</ListItemIcon>
                     <ListItemText primary={this.state.enums[enumId].common.name} />
                     <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
@@ -700,10 +697,10 @@ class ChartsTree extends Component {
         const renderContext = { gIndex: 0 };
         return [
             this.renderSelectIdDialog(),
-            <Droppable droppableId="Lines" isDropDisabled={true} key="charts">
+            <Droppable droppableId="Lines" isDropDisabled key="charts">
                 {(provided, snapshot) =>
                     <div ref={provided.innerRef} key="chartListDiv">
-                        <List className={clsx(this.props.classes.scroll, this.props.classes.mainList)} key="chartList">
+                        <List className={Utils.clsx(this.props.classes.scroll, this.props.classes.mainList)} key="chartList">
                             {
                                 this.state.instances.map(group => {
                                         let opened = this.state.chartsOpened[group._id];
@@ -729,15 +726,15 @@ class ChartsTree extends Component {
                                             <ListItem
                                                 key={group._id}
                                                 classes={{ gutters: this.props.classes.noGutters }}
-                                                className={clsx(this.props.classes.width100, this.props.classes.folderItem)}
+                                                className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
                                             >
                                                 <ListItemIcon classes={{ root: this.props.classes.itemIconRoot }}
                                                               onClick={() => this.toggleChartFolder(group._id)}>
                                                     {opened ?
                                                         <IconFolderOpened
-                                                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/> :
+                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/> :
                                                         <IconFolderClosed
-                                                            className={clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/>
+                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/>
                                                     }
                                                 </ListItemIcon>
                                                 <ListItemText primary={

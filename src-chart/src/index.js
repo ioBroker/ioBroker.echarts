@@ -16,7 +16,7 @@ window.adapterName = 'echarts-show';
 window.sentryDSN = 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95';
 let themeName = Utils.getThemeName();
 
-console.log('iobroker.' + window.adapterName + '@' + pack.version + ' using theme "' + themeName + '"');
+console.log(`iobroker.${window.adapterName}@${pack.version} using theme "${themeName}"`);
 
 const generateClassName = createGenerateClassName({
     productionPrefix: 'iob',

@@ -161,7 +161,7 @@ class MenuList extends Component {
                     label={I18n.t('Multiple')}
                 /> : null}
                 <FormControl variant="standard">
-                    <InputLabel shrink={true} style={{whiteSpace: 'nowrap'}}>{I18n.t('Group by') }</InputLabel>
+                    <InputLabel shrink style={{ whiteSpace: 'nowrap' }}>{I18n.t('Group by') }</InputLabel>
                     <Select
                         variant="standard"
                         label={I18n.t('Group by')}

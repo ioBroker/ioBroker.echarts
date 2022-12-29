@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import { withStyles } from '@mui/styles';
 
 import IconButton from '@mui/material/IconButton';
@@ -14,8 +13,8 @@ import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 import ClearIcon from '@mui/icons-material/Close';
 
 import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import { I18n, Utils } from '@iobroker/adapter-react-v5';
+
 
 import { IOTextField, IOSelect, IOObjectField, IOSlider } from './Fields';
 
@@ -257,14 +256,14 @@ class Mark extends React.Component {
                 }
                 <IOSelect
                     disabled={!!this.props.onPaste}
-                    noTranslate={true}
+                    noTranslate
                     formData={this.props.mark}
                     updateValue={this.updateField}
                     name="lineId"
                     label="Line ID"
                     options={lines}
                     colors={colors}
-                    classes={{fieldContainer: this.props.classes.shortLineIdField}}
+                    classes={{ fieldContainer: this.props.classes.shortLineIdField }}
                     minWidth={WIDTHS.lineId}
                 />
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
@@ -353,7 +352,7 @@ class Mark extends React.Component {
                     formData={this.props.mark}
                     updateValue={this.updateField}
                     name="lineId"
-                    noTranslate={true}
+                    noTranslate
                     label="Line ID"
                     options={lines}
                     colors={colors}
@@ -403,7 +402,7 @@ class Mark extends React.Component {
 
             {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
             (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
-                <div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+                <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                     <p className={this.props.classes.title}>{I18n.t('Label')}</p>
                     <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
                     {this.props.mark.text ?
@@ -425,7 +424,7 @@ class Mark extends React.Component {
             lines[index] = index + ' - ' + (line.id || I18n.t('No ID yet'));
             colors[index] = line.color;
         });
-        return <Card className={clsx(this.props.classes.card, this.props.onPaste && this.props.classes.cardPaste)}>
+        return <Card className={Utils.clsx(this.props.classes.card, this.props.onPaste && this.props.classes.cardPaste)}>
             <CardContent className={this.props.classes.cardContent}>
                 { this.props.opened && !this.props.onPaste ? this.renderOpenedCard(lines, colors) : this.renderClosedLine(lines, colors)}
             </CardContent>

@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
-import clsx from 'clsx';
 
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
@@ -18,7 +17,7 @@ import IconSelectID from '@mui/icons-material/Subject';
 import ClearIcon from '@mui/icons-material/Close';
 import HelpIcon from '@mui/icons-material/Help';
 
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import { I18n, Utils } from '@iobroker/adapter-react-v5';
 import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
 
 import ColorPicker from './ColorPicker';
@@ -63,9 +62,9 @@ const styles = theme => ({
 
 let IOSelect = function (props) {
     const label = I18n.t(props.label);
-    return <div className={clsx(props.classes.fieldContainer, props.className)}>
+    return <div className={Utils.clsx(props.classes.fieldContainer, props.className)}>
         <FormControl style={{ minWidth: props.minWidth || 200, width: props.width }} variant="standard">
-            <InputLabel shrink={true}>{ label }</InputLabel>
+            <InputLabel shrink>{label}</InputLabel>
             <Select
                 variant="standard"
                 disabled={!!props.disabled}
@@ -205,7 +204,7 @@ let IOObjectField = function (props) {
                 disabled={!!props.disabled}
                 className={props.classes.objectField}
                 label={I18n.t(props.label)}
-                fullWidth={true}
+                fullWidth
                 InputLabelProps={{shrink: true}}
                 value={props.formData[props.name] || ''}
                 onChange={e => props.updateValue(props.name, e.target.value)}
@@ -280,10 +279,10 @@ IOColorPicker.propTypes = {
     formData: PropTypes.object,
 };
 IOColorPicker = withStyles(styles)(IOColorPicker);
-export {IOColorPicker};
+export { IOColorPicker };
 
 let IOSlider = function (props) {
-    return <div className={clsx(props.classes.fieldContainer, props.classes.sliderContainer)}>
+    return <div className={Utils.clsx(props.classes.fieldContainer, props.classes.sliderContainer)}>
         <Typography className={props.classes.sliderLabel}>{props.label}</Typography>
         <Slider
             disabled={!!props.disabled}

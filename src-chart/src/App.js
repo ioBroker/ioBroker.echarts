@@ -5,10 +5,7 @@ import MD5 from 'crypto-js/md5';
 
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { withWidth } from '@iobroker/adapter-react-v5';
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
-import Loader from '@iobroker/adapter-react-v5/Components/Loader'
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import { Loader, I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
 import Connection, { PROGRESS, ERRORS } from '@iobroker/adapter-react-v5/Connection';
 import DialogError from '@iobroker/adapter-react-v5/Dialogs/Error';
 import theme from '@iobroker/adapter-react-v5/Theme';
@@ -22,7 +19,7 @@ const generateClassName = createGenerateClassName({
     productionPrefix: 'iob-app',
 });
 
-const styles = theme => ({
+const styles = () => ({
     root: {
         width: '100%',
         height: '100%',
@@ -33,7 +30,7 @@ const styles = theme => ({
         top: 0,
         left: 0,
         right: 0,
-    }
+    },
 });
 
 class App extends Component {
@@ -98,6 +95,10 @@ class App extends Component {
         Object.keys(translations).forEach(lang => translations[lang] = Object.assign(translations[lang], ownTranslations[lang]));
 
         I18n.setTranslations(translations);
+
+        if (window.socketUrl && window.socketUrl.startsWith(':')) {
+            window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
+        }
 
         try {
             this.isIFrame = window.self !== window.top;

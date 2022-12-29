@@ -1,25 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
-import clsx from 'clsx';
 
 import IconButton from '@mui/material/IconButton';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 
-import {MdDelete as IconDelete} from 'react-icons/md';
-import {MdEdit as IconEdit} from 'react-icons/md';
-import {MdContentCopy as IconCopy} from 'react-icons/md';
-import {MdMenu as IconDrag} from 'react-icons/md';
-import {MdContentPaste as IconPaste} from 'react-icons/md';
-import {FaFolder as IconFolderClosed} from 'react-icons/fa';
-import {FaFolderOpen as IconFolderOpened} from 'react-icons/fa';
+import { MdDelete as IconDelete } from 'react-icons/md';
+import { MdEdit as IconEdit } from 'react-icons/md';
+import { MdContentCopy as IconCopy } from 'react-icons/md';
+import { MdMenu as IconDrag } from 'react-icons/md';
+import { MdContentPaste as IconPaste } from 'react-icons/md';
+import { FaFolder as IconFolderClosed } from 'react-icons/fa';
+import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import { I18n, Utils } from '@iobroker/adapter-react-v5';
 import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
 
-import {IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider} from './Fields';
+import { IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider } from './Fields';
 import TextField from '@mui/material/TextField';
 import ClearIcon from '@mui/icons-material/Close';
 
@@ -306,14 +304,14 @@ class Line extends React.Component {
                 updateValue={this.updateField}
                 name="instance"
                 label="Instance"
-                noTranslate={true}
+                noTranslate
                 options={(() => {
                     let result = {'': I18n.t('standard')};
                     this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
                     return result;
                 })()}
                 minWidth={WIDTHS.instance}
-                classes={{fieldContainer: clsx(this.props.classes.shortInstanceField, this.props.onPaste && this.props.classes.paste)}}
+                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortInstanceField, this.props.onPaste && this.props.classes.paste) }}
             />
             <IOObjectField
                 disabled={!!this.props.onPaste}
@@ -323,7 +321,7 @@ class Line extends React.Component {
                 width={idWidth}
                 label="ID"
                 customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
-                classes={{fieldContainer: clsx(this.props.classes.shortIdField, this.props.onPaste && this.props.classes.paste)}}
+                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortIdField, this.props.onPaste && this.props.classes.paste) }}
                 socket={this.props.socket}
             />
             {visible.chartType ? <IOSelect
@@ -342,7 +340,7 @@ class Line extends React.Component {
                     stepsStart: 'Steps on start',
                     spline: 'Spline',
                 }}
-                classes={{fieldContainer: clsx(this.props.classes.shortChartTypeField, this.props.onPaste && this.props.classes.paste)}}
+                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortChartTypeField, this.props.onPaste && this.props.classes.paste) }}
             /> : null}
             {visible.dataType && this.props.line.chartType !== 'auto' ? <IOSelect
                 disabled={!!this.props.onPaste}
@@ -361,9 +359,9 @@ class Line extends React.Component {
                     percentile: 'percentile',
                     integral: 'integral',
                 }}
-                classes={{fieldContainer: clsx(this.props.classes.shortDataTypeField, this.props.onPaste && this.props.classes.paste)}}
+                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortDataTypeField, this.props.onPaste && this.props.classes.paste) }}
             /> : null}
-            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, clsx(this.props.classes.shortColorField, this.props.onPaste && this.props.classes.paste), true) : null}
+            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, Utils.clsx(this.props.classes.shortColorField, this.props.onPaste && this.props.classes.paste), true) : null}
             {visible.name ? <IOTextField
                 disabled={!!this.props.onPaste}
                 width={WIDTHS.name}
@@ -371,7 +369,7 @@ class Line extends React.Component {
                 updateValue={this.updateField}
                 name="name"
                 label="Name"
-                classes={{fieldContainer: clsx(this.props.classes.shortNameField, this.props.onPaste && this.props.classes.paste)}}
+                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortNameField, this.props.onPaste && this.props.classes.paste) }}
             /> : null}
             <IconButton
                 className={this.props.classes.deleteButton}
@@ -479,7 +477,7 @@ class Line extends React.Component {
                     updateValue={this.updateField}
                     name="instance"
                     label="Instance"
-                    noTranslate={true}
+                    noTranslate
                     options={(() => {
                         let result = {};
                         this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
@@ -496,7 +494,7 @@ class Line extends React.Component {
                     customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
                     socket={this.props.socket}/>
             </div>
-            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
+            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
                 {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
                 <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
@@ -528,12 +526,12 @@ class Line extends React.Component {
                 {this.props.line.chartType !== 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')}/> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend"/> : null}
             </div>
-            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
+            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
             </div>
-            {this.props.line.chartType !== 'scatterplot' ? <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
+            {this.props.line.chartType !== 'scatterplot' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
                 <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
                 <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)"/>
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
@@ -542,7 +540,7 @@ class Line extends React.Component {
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={this.props.line.fill > 0.01 ? 0 : 1} type="number"/>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number"/>
             </div> : null}
-            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterAxis)}>
+            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterAxis)}>
                 <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
                 {!this.props.index ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis position" options={{
                     '': 'bottom',
@@ -588,7 +586,7 @@ class Line extends React.Component {
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number"/>
 
                 <br/>
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" noTranslate={true} options={xAxisOptions}/>
+                <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" noTranslate options={xAxisOptions}/>
 
                 {ownYAxis ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis position" options={{
                     '': '',
@@ -597,12 +595,12 @@ class Line extends React.Component {
                     right: 'right',
                     leftColor: 'left colored',
                     rightColor: 'right colored',
-                }}/> : null}
-                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null }
-                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null }
-                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number"/> : null }
+                }} /> : null}
+                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null}
+                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null}
+                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number"/> : null}
             </div>
-            <div className={clsx(this.props.classes.shortFields, this.props.classes.chapterOther)}>
+            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterOther)}>
                 <p className={this.props.classes.title}>{I18n.t('Others')}</p>
                 <IOSelect formData={this.props.line} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
                     'false': 'default',
@@ -617,7 +615,7 @@ class Line extends React.Component {
                     'dotted': 'dotted',
                 }}/>
             </div>
-            {/*<div className={clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+            {/*<div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                             <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
                             {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" min={1} type="number"/> : null}
                             {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" min={1} type="number"/> : null}
@@ -627,14 +625,14 @@ class Line extends React.Component {
 
     render() {
         return <Card
-            className={clsx(this.props.classes.card, this.props.onPaste && this.props.classes.cardPaste)}
-            style={{background: this.props.snapshot && this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined}}
+            className={Utils.clsx(this.props.classes.card, this.props.onPaste && this.props.classes.cardPaste)}
+            style={{ background: this.props.snapshot && this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined }}
         >
             <CardContent className={this.props.classes.cardContent}>
-                { this.props.opened && !this.props.onPaste ? this.renderOpenedLine() : this.renderClosedLine()}
+                {this.props.opened && !this.props.onPaste ? this.renderOpenedLine() : this.renderClosedLine()}
                 <LineDialog
                     open={this.state.dialogOpen}
-                    onClose={() => this.setState({dialogOpen: false})}
+                    onClose={() => this.setState({ dialogOpen: false })}
                     line={this.props.line}
                     index={this.props.index}
                     updateField={this.updateField}

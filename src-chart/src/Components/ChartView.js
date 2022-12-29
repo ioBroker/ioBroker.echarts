@@ -592,14 +592,14 @@ class ChartView extends React.Component {
 
             return <ReactEchartsCore
                 ref={e => this.echartsReact = e}
-                echarts={ echarts }
-                option={ this.option }
-                notMerge={ true }
-                lazyUpdate={ true }
-                theme={ this.option.theme }
-                style={{ height: this.state.chartHeight + 'px', width: '100%' }}
+                echarts={echarts}
+                option={this.option}
+                notMerge
+                lazyUpdate
+                theme={this.option.theme}
+                style={{ height: `${this.state.chartHeight}px`, width: '100%' }}
                 opts={this.option && this.option.useCanvas ? undefined : { renderer: 'svg' }}
-                onEvents={ {
+                onEvents={{
                     /*datazoom: e => {
                         const {startValue, endValue} = e.batch[0];
                         this.updateChart(startValue, endValue, true);
@@ -613,7 +613,7 @@ class ChartView extends React.Component {
                 }}
             />;
         } else {
-            return <LinearProgress/>;
+            return <LinearProgress />;
         }
     }
 
@@ -631,10 +631,10 @@ class ChartView extends React.Component {
 
     renderResetButton() {
         return <Fab
-            ref={ this.divResetButton }
+            ref={this.divResetButton}
             size="small"
             color="default"
-            style={{display: 'none'}}
+            style={{ display: 'none' }}
             className={this.props.classes.resetButton}
             title={I18n.t('Reset pan and zoom')}
             onClick={() => {
@@ -644,7 +644,7 @@ class ChartView extends React.Component {
                 this.props.onRangeChange && this.props.onRangeChange();
             }}
         >
-            <IconReset className={this.props.classes.resetButtonIcon}/>
+            <IconReset className={this.props.classes.resetButtonIcon} />
         </Fab>;
     }
 
@@ -668,11 +668,11 @@ class ChartView extends React.Component {
                                 const data = base64.split(',');
                                 // decode base64
                                 let xml = decodeURIComponent(data[1]);
-                                xml = xml.replace('fill="none"', 'fill="' + (this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')) + '"');
-                                xml = xml.replace('fill="transparent"', 'fill="' + (this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')) + '"');
-                                base64 = data[0] + ',' + encodeURIComponent(xml);
+                                xml = xml.replace('fill="none"', `fill="${this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')}"`);
+                                xml = xml.replace('fill="transparent"', `fill="${this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')}"`);
+                                base64 = `${data[0]},${encodeURIComponent(xml)}`;
                             } catch (e) {
-                                console.warn('cannot attach background: ' + e);
+                                console.warn(`cannot attach background: ${e}`);
                             }
                         }
 
@@ -681,7 +681,7 @@ class ChartView extends React.Component {
 
                         downloadLink.href = base64;
                         downloadLink.target = '_self';
-                        let name = '';
+                        let name;
                         if (this.props.config.l.length === 1) {
                             name = this.props.config.l[0].name;
                         } else {

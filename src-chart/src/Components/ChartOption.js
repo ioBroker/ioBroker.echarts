@@ -276,10 +276,7 @@ const Gradient = function (colorStops) {
 Gradient.prototype = {
     constructor: Gradient,
     addColorStop: function (offset, color) {
-        this.colorStops.push({
-            offset: offset,
-            color: color
-        });
+        this.colorStops.push({ offset, color });
     }
 };
 const LinearGradient = function (x, y, x2, y2, colorStops, globalCoord) {
@@ -330,7 +327,7 @@ class ChartOption {
         this.config = config ? JSON.parse(JSON.stringify(config)) : null;
         this.calcTextWidth = calcTextWidth;
         this.themeType = themeType || 'light';
-        this.chart = {yAxis: []};
+        this.chart = { yAxis: [] };
         this.isTouch = typeof window !== 'undefined' ? 'ontouchstart' in window.document.documentElement : false;
         this.compact = compact;
         this.lastFormattedTime = null;
@@ -751,9 +748,9 @@ class ChartOption {
                 }
                 if (showDate) {
                     if (isTop) {
-                        dateTxt = '{a|' + padding2(dateInMonth) + '.' + padding2(date.getMonth() + 1) + '.}\n';
+                        dateTxt = `{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}\n`;
                     } else {
-                        dateTxt = '{b|..}\n{a|' + padding2(dateInMonth) + '.' + padding2(date.getMonth() + 1) + '.}';
+                        dateTxt = `{b|..}\n{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}`;
                     }
                 }
 
@@ -761,19 +758,19 @@ class ChartOption {
 
                 if (isTop) {
                     if (this.chart.withSeconds) {
-                        return dateTxt + padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds()) + (dateTxt ? '{b|..}' : '');
+                        return `${dateTxt + padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}${dateTxt ? '{b|..}' : ''}`;
                     } else if (this.chart.withTime) {
-                        return dateTxt + padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + (dateTxt ? '{b|..}' : '');
+                        return `${dateTxt + padding2(date.getHours())}:${padding2(date.getMinutes())}${dateTxt ? '{b|..}' : ''}`;
                     }
                 } else {
                     if (this.chart.withSeconds) {
-                        return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + ':' + padding2(date.getSeconds()) + dateTxt;
+                        return `${padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}${dateTxt}`;
                     } else if (this.chart.withTime) {
-                        return padding2(date.getHours()) + ':' + padding2(date.getMinutes()) + dateTxt;
+                        return `${padding2(date.getHours())}:${padding2(date.getMinutes())}${dateTxt}`;
                     }
                 }
             } else {
-                return padding2(dateInMonth) + '.' + padding2(date.getMonth() + 1) + '\n' + date.getFullYear();
+                return `${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}\n${date.getFullYear()}`;
             }
         }
     }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { withStyles, withTheme } from '@mui/styles';
-import clsx from 'clsx';
 import SplitterLayout from 'react-splitter-layout';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { StylesProvider, createGenerateClassName } from '@mui/styles';
@@ -20,11 +19,8 @@ import { MdArrowBack as IconMenuOpened } from 'react-icons/md';
 import 'react-splitter-layout/lib/index.css';
 
 import GenericApp from '@iobroker/adapter-react-v5/GenericApp';
-import Loader from '@iobroker/adapter-react-v5/Components/Loader'
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import { I18n, Utils, Loader, withWidth } from '@iobroker/adapter-react-v5';
 import '@iobroker/adapter-react-v5/index.css';
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
-import { withWidth } from '@iobroker/adapter-react-v5';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
@@ -146,6 +142,13 @@ class App extends GenericApp {
             'zh-cn': require('./i18n/zh-cn'),
         };
         settings.sentryDSN = window.sentryDSN;
+
+        if (window.location.port === '3000') {
+            settings.socket = { port: '8081' };
+        }
+        if (window.socketUrl && window.socketUrl.startsWith(':')) {
+            window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
+        }
 
         super(props, settings);
 
@@ -511,8 +514,8 @@ class App extends GenericApp {
     discardChangesConfirmDialog() {
         return this.state.discardChangesConfirmDialog ? <Dialog
             maxWidth="lg"
-            fullWidth={true}
-            open={ true }
+            fullWidth
+            open={!0}
             key="discardChangesConfirmDialog"
             onClose={ () => this.setState({ discardChangesConfirmDialog: false }, () => this.confirmCB && this.confirmCB(false)) }>
                 <DialogTitle>{
@@ -520,7 +523,7 @@ class App extends GenericApp {
                     : (this.state.discardChangesConfirmDialog === 'preset' ? I18n.t('Are you sure for loading the preset and discard unsaved changes?') :
                         I18n.t('Are you sure for closing folder and discard unsaved changes?'))
                 }</DialogTitle>
-                <DialogActions className={ clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
+                <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
                     <Button
                         color="grey"
                         variant="outlined"
@@ -537,7 +540,7 @@ class App extends GenericApp {
                         onClick={() => this.savePreset()
                             .then(() => this.setState({ discardChangesConfirmDialog: false }, () =>
                                 this.confirmCB && this.confirmCB(true)))}
-                        startIcon={<IconSave/>}
+                        startIcon={<IconSave />}
                     >
 
                         { I18n.t('Save current preset and load') }
@@ -558,7 +561,7 @@ class App extends GenericApp {
     renderMain() {
         const {classes} = this.props;
         return [
-            <div className={clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
+            <div className={Utils.clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
                 <div key="confirmdiv" className={classes.menuOpenCloseButton} onClick={() => {
                     window.localStorage && window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
                     this.setState({ menuOpened: !this.state.menuOpened, resizing: true });
@@ -571,7 +574,7 @@ class App extends GenericApp {
                     vertical={!this.state.logHorzLayout}
                     primaryMinSize={100}
                     secondaryInitialSize={this.settingsSize}
-                    //customClassName={classes.menuDiv + ' ' + classes.splitterDivWithoutMenu}
+                    // customClassName={classes.menuDiv + ' ' + classes.splitterDivWithoutMenu}
                     onDragStart={() => this.setState({ resizing: true })}
                     onSecondaryPaneSizeChange={size => this.settingsSize = parseFloat(size)}
                     onDragEnd={() => {
@@ -700,7 +703,7 @@ class App extends GenericApp {
                                     primaryIndex={1}
                                     secondaryMinSize={300}
                                     secondaryInitialSize={this.menuSize}
-                                    customClassName={clsx(classes.splitterDivs, !this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
+                                    customClassName={Utils.clsx(classes.splitterDivs, !this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
                                     onDragStart={() => this.setState({ resizing: true })}
                                     onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
                                     onDragEnd={() => {

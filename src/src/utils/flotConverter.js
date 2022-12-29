@@ -1,6 +1,6 @@
 function deParam(params, coerce) {
     const obj = {};
-    const coerceTypes = {'true': true, 'false': false, 'null': null};
+    const coerceTypes = { 'true': true, 'false': false, 'null': null };
 
     // Iterate over all name=value pairs.
     params.replace(/\+/g, ' ').split('&').forEach(v => {
@@ -185,7 +185,7 @@ function normalizeConfig(config) {
 }
 
 async function _readFlotSettings(socket) {
-    const objs =  this.props.socket.getObjectViewSystem('chart', 'flot.', 'flot.\u9999');
+    const objs = socket.getObjectViewSystem('chart', 'flot.', 'flot.\u9999');
     return Object.values(objs);
 }
 
