@@ -83,29 +83,29 @@ class MenuList extends Component {
     }
 
     renderListToolbar() {
-        return <Toolbar key="toolbar" variant="dense" className={ this.props.classes.mainToolbar }>
+        return <Toolbar key="toolbar" variant="dense" className={this.props.classes.mainToolbar}>
             {!this.state.reorder ? <IconButton
-                onClick={ () => this.props.onCreatePreset(false) }
-                title={ I18n.t('Create new preset') }
-            ><IconAdd/></IconButton> : null}
+                onClick={() => this.props.onCreatePreset(false)}
+                title={I18n.t('Create new preset')}
+            ><IconAdd /></IconButton> : null}
 
             {!this.state.reorder ? <IconButton
-                onClick={ () => this.setState({ addPresetFolderDialog: true }) }
-                title={ I18n.t('Create new folder') }
-            ><IconFolderAdd/></IconButton> : null}
+                onClick={() => this.setState({ addPresetFolderDialog: true })}
+                title={I18n.t('Create new folder')}
+            ><IconFolderAdd /></IconButton> : null}
 
             {!this.state.reorder ? <span className={this.props.classes.right}>
-                <IconButton onClick={() => this.setState({showSearch: !this.state.showSearch, search: ''})}>
-                    <SearchIcon/>
+                <IconButton onClick={() => this.setState({ showSearch: !this.state.showSearch, search: '' })}>
+                    <SearchIcon />
                 </IconButton>
             </span> : null}
 
             {this.state.showSearch ?
                 <TextField
                     variant="standard"
-                    value={ this.state.search }
-                    className={ this.props.classes.textInput }
-                    onChange={ e => this.setState({search: e.target.value}) }
+                    value={this.state.search}
+                    className={this.props.classes.textInput}
+                    onChange={e => this.setState({ search: e.target.value })}
                     InputProps={{
                         endAdornment: this.state.search ?
                             <IconButton
@@ -116,23 +116,23 @@ class MenuList extends Component {
                     }}
                 /> : null
             }
-            <div style={{flexGrow: 1}}/>
+            <div style={{ flexGrow: 1 }}/>
 
             {(!this.state.showSearch && this.state.showReorder) || this.state.reorder ? <IconButton
                 key="reorder"
                 title={I18n.t('Reorder presets in folders')}
                 className={this.props.classes.toolbarButtons}
-                style={{color: this.state.reorder ? 'red' : 'inherit', float: 'right'}}
+                style={{ color: this.state.reorder ? 'red' : 'inherit', float: 'right' }}
                 onClick={e => {
                     e.stopPropagation();
-                    this.setState({reorder: !this.state.reorder});
+                    this.setState({ reorder: !this.state.reorder });
                 }}
-            ><IconReorder/></IconButton> : null }
+            ><IconReorder /></IconButton> : null}
 
             {!this.state.showSearch && this.isIFrame ? <IconButton
                 onClick={ () => window.open(window.location.href, 'own-echarts') }
                 title={ I18n.t('Open in own window') }
-                ><IconNewWindow/></IconButton> : null
+                ><IconNewWindow /></IconButton> : null
             }
         </Toolbar>;
     }
@@ -141,21 +141,21 @@ class MenuList extends Component {
         return <Toolbar key="toolbarBottom" variant="dense" className={ this.props.classes.secondaryColors }>
             <FormGroup row>
                 {!this.props.selectedPresetChanged ? <FormControlLabel
-                    classes={{root: this.props.secondaryColors}}
+                    classes={{ root: this.props.secondaryColors }}
                     control={<Switch
                         checked={this.state.multiple}
-                        classes={{root: this.props.secondaryColors}}
+                        classes={{ root: this.props.secondaryColors }}
                         onChange={e => {
                         window.localStorage.setItem('App.echarts.multiple', e.target.checked ? 'true' : 'false');
                         if (e.target.checked) {
                             const selectedId = this.props.selectedId;
                             if (selectedId && typeof selectedId === 'object') {
-                                this.setState({multiple: true}, () => this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]));
+                                this.setState({ multiple: true}, () => this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]));
                             } else {
-                                this.setState({multiple: true}, () => this.props.onChangeList([]));
+                                this.setState({ multiple: true }, () => this.props.onChangeList([]));
                             }
                         } else {
-                            this.setState({multiple: false}, () => this.props.onChangeList(null));
+                            this.setState({ multiple: false }, () => this.props.onChangeList(null));
                         }
                     }} />}
                     label={I18n.t('Multiple')}
@@ -167,7 +167,7 @@ class MenuList extends Component {
                         label={I18n.t('Group by')}
                         onChange={e => {
                             window.localStorage.setItem('App.echarts.groupBy', e.target.value);
-                            this.setState({groupBy: e.target.value});
+                            this.setState({ groupBy: e.target.value });
                         }}
                         value={this.state.groupBy || ''}
                         className={this.props.classes.smallMargin}

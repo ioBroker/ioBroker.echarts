@@ -294,7 +294,7 @@ class App extends Component {
                              background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
                              color: this.state.theme.palette.text.primary
                          }}>
-                        <LinearProgress ref={this.progressRef} style={{display: 'block'}} className={this.props.classes.progress}/>
+                        <LinearProgress ref={this.progressRef} style={{ display: 'block' }} className={this.props.classes.progress}/>
                         <ChartView
                             key={hash}
                             socket={this.socket}

@@ -202,17 +202,17 @@ class ChartSettings extends React.Component {
                 id="timeSpanOpenButton"
                 onClick={() => this.setState({ timeSpanOpened: !this.state.timeSpanOpened })}
             >
-                <IconTime/>
+                <IconTime />
                 {
                     this.props.presetData.timeType === 'relative' ?
                     `${I18n.t(rangeOptions[this.props.presetData.range])} ${I18n.t('to')} ${I18n.t(relativeEndOptions[this.props.presetData.relativeEnd])}` :
                     `${this.props.presetData.start} ${this.props.presetData.start_time} - ${this.props.presetData.end} ${this.props.presetData.end_time}`
                 }
-                <IconDropDown/>
+                <IconDropDown />
             </Button>
             <Popover className={this.props.classes.popOver}
                 open={this.state.timeSpanOpened}
-                onClose={()=>{this.setState({timeSpanOpened: false})}}
+                onClose={()=>{this.setState({ timeSpanOpened: false })}}
                 anchorEl={()=> document.getElementById('timeSpanOpenButton')}
                 anchorOrigin={{
                     vertical: 'bottom',
@@ -253,12 +253,12 @@ class ChartSettings extends React.Component {
                 {CHART_TYPES[this.props.presetData.chartType] ? I18n.t(CHART_TYPES[this.props.presetData.chartType]) : ''}
                 /
                 {AGGREGATES[this.props.presetData.aggregate] ? I18n.t(AGGREGATES[this.props.presetData.aggregate]) : ''}
-                <IconDropDown/>
+                <IconDropDown />
             </Button>
             <Popover
                 open={this.state.aggregateOpened}
                 anchorEl={()=> document.getElementById('aggregateOpenButton')}
-                onClose={()=>{this.setState({aggregateOpened: false})}}
+                onClose={()=>{this.setState({ aggregateOpened: false })}}
             >
                 <div className={this.props.classes.popOver}>
                     <div className={this.props.classes.fieldsContainer}>
@@ -296,7 +296,7 @@ class ChartSettings extends React.Component {
                 options={liveOptions}
                 renderValue={()=>
                     <div className={this.props.classes.refreshSelectButtonTitle}>
-                        <IconRefresh/>&nbsp;{I18n.t(liveOptions[this.props.presetData.live])}
+                        <IconRefresh />&nbsp;{I18n.t(liveOptions[this.props.presetData.live])}
                     </div>
                 }
             /> : null }

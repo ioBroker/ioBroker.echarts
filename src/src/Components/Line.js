@@ -284,18 +284,18 @@ class Line extends React.Component {
         }
 
         return <div className={this.props.classes.lineClosed}>
-            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : <div className={this.props.classes.emptyDrag}/> }
+            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag /></span> : <div className={this.props.classes.emptyDrag}/> }
             {this.props.onPaste && this.props.onPaste ?
                 <IconButton
                     title={I18n.t('Paste')}
                     onClick={() => this.props.onPaste()}>
-                    <IconPaste/>
+                    <IconPaste />
                 </IconButton>
                 :
                 <IconButton
                     title={I18n.t('Edit')}
                     onClick={() => this.props.lineOpenToggle(this.props.index)}>
-                    <IconFolderClosed/>
+                    <IconFolderClosed />
                 </IconButton>
             }
             <IOSelect
@@ -320,7 +320,7 @@ class Line extends React.Component {
                 name="id"
                 width={idWidth}
                 label="ID"
-                customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
+                customFilter={{ common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true }}}
                 classes={{ fieldContainer: Utils.clsx(this.props.classes.shortIdField, this.props.onPaste && this.props.classes.paste) }}
                 socket={this.props.socket}
             />
@@ -376,14 +376,14 @@ class Line extends React.Component {
                 aria-label="Delete"
                 title={I18n.t('Delete')}
                 onClick={() => this.props.deleteLine(this.props.index)}>
-                <IconDelete/>
+                <IconDelete />
             </IconButton>
             <IconButton
                 className={this.props.classes.editButton}
                 aria-label="Edit"
                 title={I18n.t('Edit')}
-                onClick={() => this.setState({dialogOpen: true})}>
-                <IconEdit/>
+                onClick={() => this.setState({ dialogOpen: true })}>
+                <IconEdit />
             </IconButton>
         </div>;
     }
@@ -397,21 +397,21 @@ class Line extends React.Component {
             <TextField
                 variant="standard"
                 disabled={!!this.props.onPaste}
-                style={{minWidth, width: 'calc(100% - 8px)'}}
+                style={{ minWidth, width: 'calc(100% - 8px)' }}
                 label={I18n.t(label)}
                 value={formData[name] || ''}
                 onClick={() =>
-                    !this.props.onPaste && this.setState({['_' + name]: formData[name]}, () =>
-                        this.props.onSelectColor(this.state['_' + name], color =>
-                            this.setState({['_' + name]: color}, () =>
+                    !this.props.onPaste && this.setState({[`_${name}`]: formData[name]}, () =>
+                        this.props.onSelectColor(this.state[`_${name}`], color =>
+                            this.setState({[`_${name}`]: color}, () =>
                                 onUpdate(name, ColorPicker.getColor(color, true)))))
                 }
                 onChange={e => {
                     const color = e.target.value;
-                    this.setState({['_' + name]: color}, () =>
+                    this.setState({[`_${name}`]: color}, () =>
                         onUpdate(name, color));
                 }}
-                inputProps={{style: {paddingLeft: noPadding ? 0 : 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000'}}}
+                inputProps={{ style: { paddingLeft: noPadding ? 0 : 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000' } }}
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton
@@ -419,13 +419,13 @@ class Line extends React.Component {
                             size="small"
                             onClick={e => {
                                 e.stopPropagation();
-                                this.setState({['_' + name]: ''}, () => onUpdate(name, ''));
+                                this.setState({[`_${name}`]: ''}, () => onUpdate(name, ''));
                             }}>
                             <ClearIcon />
                         </IconButton>
                         : undefined,
                 }}
-                InputLabelProps={{shrink: true}}
+                InputLabelProps={{ shrink: true }}
             />
         </div>;
     }
@@ -444,31 +444,31 @@ class Line extends React.Component {
         const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
         return <>
             <div>
-                {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag/></span> : null }
+                {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag /></span> : null }
                 <IconButton title={ I18n.t('Edit') }
                             onClick={() => this.props.lineOpenToggle(this.props.index)
-                            }><IconFolderOpened/></IconButton>
+                            }><IconFolderOpened /></IconButton>
                 {I18n.t('Line')} {this.props.index + 1}{this.props.line.name ? ' - ' + this.props.line.name : ''}
                 <IconButton
                     className={this.props.classes.deleteButtonFull}
                     aria-label="Delete"
                     title={I18n.t('Delete')}
                     onClick={() => this.props.deleteLine(this.props.index)}>
-                    <IconDelete/>
+                    <IconDelete />
                 </IconButton>
                 <IconButton
                     className={this.props.classes.editButtonFull}
                     aria-label="Edit"
                     title={I18n.t('Edit')}
-                    onClick={() => this.setState({dialogOpen: true})}>
-                    <IconEdit/>
+                    onClick={() => this.setState({ dialogOpen: true })}>
+                    <IconEdit />
                 </IconButton>
                 <IconButton
                     className={this.props.classes.copyButtonFull}
                     aria-label="Copy"
                     title={I18n.t('Copy')}
                     onClick={() => this.props.onCopy(this.props.line)}>
-                    <IconCopy/>
+                    <IconCopy />
                 </IconButton>
             </div>
             <div className={this.props.classes.shortFields}>
@@ -486,12 +486,12 @@ class Line extends React.Component {
                 />
                 <IOObjectField
                     formData={this.props.line}
-                    classes={{objectContainer: this.props.classes.fullWidth}}
+                    classes={{ objectContainer: this.props.classes.fullWidth }}
                     updateValue={this.updateField}
                     name="id"
                     label="ID"
                     width="calc(100% - 250px)"
-                    customFilter={{common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true}}}
+                    customFilter={{ common: { custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true } }}
                     socket={this.props.socket}/>
             </div>
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
@@ -585,7 +585,7 @@ class Line extends React.Component {
                 }}/>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number"/>
 
-                <br/>
+                <br />
                 <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" noTranslate options={xAxisOptions}/>
 
                 {ownYAxis ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis position" options={{

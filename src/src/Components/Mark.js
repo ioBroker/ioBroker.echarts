@@ -206,34 +206,34 @@ class Mark extends React.Component {
             <TextField
                 variant="standard"
                 disabled={!!this.props.onPaste}
-                style={{minWidth, width: 'calc(100% - 8px)'}}
+                style={{ minWidth, width: 'calc(100% - 8px)' }}
                 label={I18n.t(label)}
                 value={formData[name]}
                 onClick={() =>
-                    !this.props.onPaste && this.setState({['_' + name]: formData[name]}, () =>
-                        this.props.onSelectColor(this.state['_' + name], color =>
-                            this.setState({['_' + name]: color}, () =>
+                    !this.props.onPaste && this.setState({[`_${name}`]: formData[name]}, () =>
+                        this.props.onSelectColor(this.state[`_${name}`], color =>
+                            this.setState({[`_${name}`]: color}, () =>
                                 onUpdate(name, ColorPicker.getColor(color, true)))))
                 }
                 onChange={e => {
                     const color = e.target.value;
-                    this.setState({['_' + name]: color}, () =>
+                    this.setState({[`_${name}`]: color}, () =>
                         onUpdate(name, color));
                 }}
-                inputProps={{style: {paddingLeft: 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000'}}}
+                inputProps={{ style: { paddingLeft: 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000' } }}
                 InputProps={{
                     endAdornment: !this.props.onPaste && formData[name] ?
                         <IconButton
                             size="small"
                             onClick={e => {
                                 e.stopPropagation();
-                                this.setState({['_' + name]: ''}, () => onUpdate(name, ''));
+                                this.setState({[`_${name}`]: ''}, () => onUpdate(name, ''));
                             }}>
                             <ClearIcon />
                         </IconButton>
                         : undefined,
                 }}
-                InputLabelProps={{shrink: true}}
+                InputLabelProps={{ shrink: true }}
             />
         </div>;
     }
@@ -245,13 +245,13 @@ class Mark extends React.Component {
                     <IconButton
                         title={I18n.t('Paste')}
                         onClick={() => this.props.onPaste()}>
-                        <IconPaste/>
+                        <IconPaste />
                     </IconButton>
                     :
                     <IconButton
                         title={ I18n.t('Edit') }
                         onClick={() => this.props.markOpenToggle(this.props.index)}>
-                        <IconFolderClosed/>
+                        <IconFolderClosed />
                     </IconButton>
                 }
                 <IOSelect
@@ -274,7 +274,7 @@ class Mark extends React.Component {
                         name="upperValueOrId"
                         label="Upper value or ID"
                         socket={this.props.socket}
-                        classes={{fieldContainer: this.props.classes.shortUpperValueOrIdField}}
+                        classes={{ fieldContainer: this.props.classes.shortUpperValueOrIdField }}
                         minWidth={WIDTHS.upperValueOrId}
                     /> : null}
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
@@ -286,7 +286,7 @@ class Mark extends React.Component {
                         name="lowerValueOrId"
                         label="Lower value or ID"
                         socket={this.props.socket}
-                        classes={{fieldContainer: this.props.classes.shortLowerValueOrIdField}}
+                        classes={{ fieldContainer: this.props.classes.shortLowerValueOrIdField }}
                         minWidth={WIDTHS.lowerValueOrId}
                     /> : null}
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
@@ -300,7 +300,7 @@ class Mark extends React.Component {
                         formData={this.props.mark}
                         updateValue={this.updateField}
                         minWidth={WIDTHS.dataType}
-                        classes={{fieldContainer: this.props.classes.shortFillField, sliderRoot: this.props.classes.sliderRoot}}
+                        classes={{ fieldContainer: this.props.classes.shortFillField, sliderRoot: this.props.classes.sliderRoot }}
                         name="fill"
                         label="Fill (from 0 to 1)"
                     /> : null}
@@ -312,14 +312,14 @@ class Mark extends React.Component {
                         updateValue={this.updateField}
                         name="text"
                         label="Text"
-                        classes={{fieldContainer: this.props.classes.shortTextField}}
+                        classes={{ fieldContainer: this.props.classes.shortTextField }}
                         minWidth={WIDTHS.fill}
                     /> : null}
             </div>
             <IconButton
                 style={{ marginLeft: 5 }} aria-label="Delete" title={I18n.t('Delete')}
                 onClick={() => this.props.deleteMark(this.props.index)}>
-                <IconDelete/>
+                <IconDelete />
             </IconButton>
         </div>
     }
@@ -329,21 +329,21 @@ class Mark extends React.Component {
             <div>
                 <IconButton title={ I18n.t('Edit') }
                             onClick={() => this.props.markOpenToggle(this.props.index)
-                            }><IconFolderOpened/></IconButton>
+                            }><IconFolderOpened /></IconButton>
                 {I18n.t('Mark')} {this.props.index + 1}{this.props.mark.text ? ' - ' + this.props.mark.text : ''}
                 <IconButton
                     className={this.props.classes.deleteButtonFull}
                     aria-label="Delete"
                     title={I18n.t('Delete')}
                     onClick={() => this.props.deleteMark(this.props.index)}>
-                    <IconDelete/>
+                    <IconDelete />
                 </IconButton>
                 <IconButton
                     className={this.props.classes.copyButtonFull}
                     aria-label="Copy"
                     title={I18n.t('Copy')}
                     onClick={() => this.props.onCopy(this.props.mark)}>
-                    <IconCopy/>
+                    <IconCopy />
                 </IconButton>
             </div>
             <div className={this.props.classes.shortFields}>

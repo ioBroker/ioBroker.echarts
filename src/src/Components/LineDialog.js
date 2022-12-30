@@ -30,9 +30,9 @@ class LineDialog extends React.Component {
                     'dotted': 'dotted',
                 }}
                 icons={{
-                    'solid': <IconSolid/>,
-                    'dashed': <IconDashed/>,
-                    'dotted': <IconDotted/>,
+                    'solid': <IconSolid />,
+                    'dashed': <IconDashed />,
+                    'dotted': <IconDotted />,
                 }}
                 />
                 <div className={this.props.classes.dialogSlider}>
@@ -51,7 +51,7 @@ class LineDialog extends React.Component {
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="default" onClick={this.props.onClose} startIcon={<IconClose/>}>{I18n.t('Close')}</Button>
+                <Button variant="contained" color="default" onClick={this.props.onClose} startIcon={<IconClose />}>{I18n.t('Close')}</Button>
             </DialogActions>
         </Dialog>
     }

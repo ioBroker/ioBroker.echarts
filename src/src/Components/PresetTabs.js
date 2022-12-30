@@ -182,7 +182,7 @@ class PresetTabs extends React.Component {
                     index: obj._id.split('.').pop(),
                     link: `http${obj.native.secure ? 's' : ''}://${obj.native.bind === '0.0.0.0' ? window.location.hostname : obj.native.bind}:${obj.native.port}`}))
 
-                this.setState({webInstances});
+                this.setState({ webInstances });
             });
 
         this.colorPickerCb = null;
@@ -191,14 +191,14 @@ class PresetTabs extends React.Component {
     lineOpenToggle = index => {
         let linesOpened = JSON.parse(JSON.stringify(this.state.linesOpened));
         linesOpened[index] = !this.state.linesOpened[index];
-        this.setState({linesOpened});
+        this.setState({ linesOpened });
         window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify(linesOpened));
     };
 
     markOpenToggle = index => {
         let marksOpened = JSON.parse(JSON.stringify(this.state.marksOpened));
         marksOpened[index] = !this.state.marksOpened[index];
-        this.setState({marksOpened});
+        this.setState({ marksOpened });
         window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify(marksOpened));
     };
 
@@ -226,23 +226,23 @@ class PresetTabs extends React.Component {
     expandAllLines = () => {
         const linesOpened = this.props.presetData.lines.map(() => true);
         window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify(linesOpened));
-        this.setState({linesOpened});
+        this.setState({ linesOpened });
     };
 
     collapseAllLines = () => {
         window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify([]));
-        this.setState({linesOpened: []});
+        this.setState({ linesOpened: [] });
     };
 
     expandAllMarks = () => {
         const marksOpened = this.props.presetData.marks.map(() => true);
         window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify([]));
-        this.setState({marksOpened});
+        this.setState({ marksOpened });
     };
 
     collapseAllMarks = () => {
         window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify([]));
-        this.setState({marksOpened: []});
+        this.setState({ marksOpened: [] });
     };
 
     addMark(data) {
@@ -252,7 +252,7 @@ class PresetTabs extends React.Component {
         } else {
             const len = this.props.presetData.marks.length;
             const color = PREDEFINED_COLORS_MARKS[len % PREDEFINED_COLORS_MARKS.length];
-            presetData.marks.push({color});
+            presetData.marks.push({ color });
         }
         this.props.onChange(presetData);
     }
@@ -262,7 +262,7 @@ class PresetTabs extends React.Component {
         presetData.marks.splice(index, 1);
         const marksOpened = [...this.state.marksOpened];
         marksOpened.splice(index, 1);
-        this.setState({marksOpened}, () =>
+        this.setState({ marksOpened }, () =>
             this.props.onChange(presetData));
     };
 
@@ -284,7 +284,7 @@ class PresetTabs extends React.Component {
         presetData.lines.splice(index, 1);
         const linesOpened = [...this.state.linesOpened];
         linesOpened.splice(index, 1);
-        this.setState({linesOpened}, () => this.props.onChange(presetData));
+        this.setState({ linesOpened }, () => this.props.onChange(presetData));
     };
 
     renderDeleteLineDialog() {
@@ -410,7 +410,7 @@ class PresetTabs extends React.Component {
                                             presetData={this.props.presetData}
                                             width={this.props.width}
                                             updateLine={this.updateLine}
-                                            deleteLine={index => this.setState({deleteLineDialog: index})}
+                                            deleteLine={index => this.setState({ deleteLineDialog: index })}
                                             index={index}
                                             key={index}
                                             socket={this.props.socket}
@@ -455,9 +455,9 @@ class PresetTabs extends React.Component {
         const anyClosed = this.props.presetData.marks.length > 1 && this.props.presetData.marks.find((l, i) => !this.state.marksOpened[i]);
         const anyOpened = this.props.presetData.marks.length > 1 && this.props.presetData.marks.find((l, i) =>  this.state.marksOpened[i]);
 
-        return <TabPanel value="1" classes={{root: this.props.classes.tabContent}}>
+        return <TabPanel value="1" classes={{ root: this.props.classes.tabContent }}>
             <Fab onClick={() => this.addMark()} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add marking line to chart')}>
-                <IconAdd/>
+                <IconAdd />
             </Fab>
             {anyClosed ? <Fab onClick={this.expandAllMarks}   size="small" color="default" className={this.props.classes.buttonExpandAll}   title={I18n.t('Expand all markings')}><IconExpand /></Fab> : null}
             {anyOpened ? <Fab onClick={this.collapseAllMarks} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all markings')}><IconCollapse /></Fab> : null}
@@ -467,7 +467,7 @@ class PresetTabs extends React.Component {
                         mark={mark}
                         presetData={this.props.presetData}
                         updateMark={this.updateMark}
-                        deleteMark={(index) => {this.setState({deleteMarkDialog: index})}}
+                        deleteMark={index => {this.setState({ deleteMarkDialog: index })}}
                         index={index}
                         key={index}
                         socket={this.props.socket}
@@ -491,7 +491,7 @@ class PresetTabs extends React.Component {
                     instances={this.props.instances}
                     systemConfig={this.props.systemConfig}
                     width={this.props.width}
-                    deleteMark={() => this.setState({copiedObject: null})}
+                    deleteMark={() => this.setState({ copiedObject: null })}
                     key="copiedMark"
                     opened={false}
                     onPaste={() => this.addMark(this.state.copiedObject.data)}
@@ -500,7 +500,7 @@ class PresetTabs extends React.Component {
     }
 
     renderTabTime() {
-        return <TabPanel value="2" classes={{root: this.props.classes.tabContent}}>
+        return <TabPanel value="2" classes={{ root: this.props.classes.tabContent }}>
                     <div className={this.props.classes.group}>
                         <p className={this.props.classes.title}>{I18n.t('Type')}</p>
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
@@ -602,9 +602,9 @@ class PresetTabs extends React.Component {
                         '': 'Default',
                         'HH:mm DD.MM': 'HH:MM dd.mm',
                         'HH:mm DD.MM.': 'HH:MM dd.mm.',
-                        'HH:mm <br/> DD.MM': 'HH:MM / dd.mm',
-                        'HH:mm <br/> DD.MM.': 'HH:MM / dd.mm.',
-                        'HH:mm <br/> DD.MM.YY': 'HH:MM / dd.mm.yy',
+                        'HH:mm <br /> DD.MM': 'HH:MM / dd.mm',
+                        'HH:mm <br /> DD.MM.': 'HH:MM / dd.mm.',
+                        'HH:mm <br /> DD.MM.YY': 'HH:MM / dd.mm.yy',
                         'HH:mm:ss DD.MM.YY': 'HH:MM:SS dd.mm.yy',
                         'HH:mm DD.MM.YY': 'HH:MM dd.mm.yy',
                         'hh:mm:ss MM/DD/YY a': 'HH:MM:SS mm/dd/yy am (US)',
@@ -671,7 +671,7 @@ class PresetTabs extends React.Component {
     }
 
     renderTabOptions() {
-        return <TabPanel value="3" classes={{root: this.props.classes.tabContent}}>
+        return <TabPanel value="3" classes={{ root: this.props.classes.tabContent }}>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Legend')}</p>
                 <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Show legend" name="legend" options={{
@@ -715,11 +715,11 @@ class PresetTabs extends React.Component {
                     className={this.props.classes.buttonCopyLink}
                     onClick={() => {
                         const link = `${window.location.protocol}//${window.location.host}/adapter/echarts/chart/index.html?preset=${this.props.selectedId}`;
-                        this.setState({toast: `${I18n.t('copied')}: ${link}`}, () =>
+                        this.setState({ toast: `${I18n.t('copied')}: ${link}` }, () =>
                             Utils.copyToClipboard(link));
                     }}
                 >
-                    <IconCopy/>
+                    <IconCopy />
                     admin
                 </Button>
                 {this.state.webInstances.map((instance, i) =>
@@ -730,17 +730,17 @@ class PresetTabs extends React.Component {
                         className={this.props.classes.buttonCopyLink}
                         onClick={() => {
                             const link = `${instance.link}/echarts/index.html?preset=${this.props.selectedId}`;
-                            this.setState({toast: `${I18n.t('copied')}: ${link}`}, () =>
+                            this.setState({ toast: `${I18n.t('copied')}: ${link}` }, () =>
                                 Utils.copyToClipboard(link));
                         }}
 
-                    ><IconCopy/>{`web.${instance.index}`}</Button>)}
+                    ><IconCopy />{`web.${instance.index}`}</Button>)}
             </div>
         </TabPanel>;
     }
 
     renderTabTitle() {
-        return <TabPanel value="4" classes={{root: this.props.classes.tabContent}}>
+        return <TabPanel value="4" classes={{ root: this.props.classes.tabContent }}>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Title')}</p>
                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title"/>
@@ -877,7 +877,7 @@ class PresetTabs extends React.Component {
         return <div className={className}>
             <TextField
                 variant="standard"
-                style={{minWidth, width: 'calc(100% - 8px)'}}
+                style={{ minWidth, width: 'calc(100% - 8px)' }}
                 label={I18n.t(label)}
                 value={formData[name] || ''}
                 onClick={() =>
@@ -890,7 +890,7 @@ class PresetTabs extends React.Component {
                     this.setState({[`_c_${name}`]: color}, () =>
                         onUpdate(name, color));
                 }}
-                inputProps={{style: {paddingLeft: 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000'}}}
+                inputProps={{ style: { paddingLeft: 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000' } }}
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton
@@ -918,8 +918,8 @@ class PresetTabs extends React.Component {
                     inputProps={{ 'aria-label': 'primary checkbox' }}
                 /> : null}
                 {!this.props.selectedPresetChanged ? <IconButton
-                    classes={{root: this.props.classes.noPaddingOnSide}}
-                    onClick={ () => window.open(`chart/index.html?preset=${this.props.selectedId}`, 'own-preset-echarts') }
+                    classes={{ root: this.props.classes.noPaddingOnSide }}
+                    onClick={() => window.open(`chart/index.html?preset=${this.props.selectedId}`, 'own-preset-echarts')}
                     title={I18n.t('Open chart in own window')}
                 ><IconNewWindow /></IconButton> : null}
                 {!this.props.autoSave && this.props.selectedPresetChanged ? <IconButton
@@ -930,7 +930,7 @@ class PresetTabs extends React.Component {
                     <IconSave />
                 </IconButton> : null}
                 <TabList
-                    onChange={(event, newValue)=>{
+                    onChange={(event, newValue) => {
                         window.localStorage.setItem('App.echarts.presetTabs.selectedTab', newValue);
                         this.setState({ selectedTab: newValue })
                     }}

@@ -80,7 +80,7 @@ let IOSelect = function (props) {
                         <MenuItem
                             key={key}
                             value={key}
-                            style={{color: props.colors ? props.colors[key] || undefined : undefined}}
+                            style={{ color: props.colors ? props.colors[key] || undefined : undefined }}
                         >
                         {
                             props.icons && props.icons[key] ? <span className={props.classes.selectIcon}>{props.icons[key]}</span> : null
@@ -110,12 +110,10 @@ export {IOSelect};
 
 let IOCheckbox = function (props) {
     return <div className={props.classes.fieldContainer}>
-        <FormControlLabel style={{paddingTop: 10}} label={<span className={props.classes.checkBoxLabel}>{I18n.t(props.label)}</span>} control={
+        <FormControlLabel style={{ paddingTop: 10 }} label={<span className={props.classes.checkBoxLabel}>{I18n.t(props.label)}</span>} control={
             <Checkbox
                 disabled={!!props.disabled}
-                onChange={e => {
-                    props.updateValue(props.name, e.target.checked)
-                }}
+                onChange={e => props.updateValue(props.name, e.target.checked)}
                 checked={props.formData[props.name] || false}
             />
         }/>
@@ -136,10 +134,10 @@ let IOTextField = function (props) {
         <TextField
             variant="standard"
             disabled={!!props.disabled}
-            style={{width: props.formData[props.name] ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : (props.width || '100%')}}
+            style={{ width: props.formData[props.name] ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : (props.width || '100%') }}
             label={I18n.t(props.label)}
-            InputLabelProps={{shrink: true}}
-            inputProps={{min: props.min, max: props.max}}
+            InputLabelProps={{ shrink: true }}
+            inputProps={{ min: props.min, max: props.max }}
             onChange={e => props.updateValue(props.name, e.target.value)}
             value={props.formData[props.name] || ''}
             type={props.type}
@@ -179,10 +177,10 @@ export {IOTextField};
 
 let IODateTimeField = function (props) {
     return <div className={props.classes.fieldContainer}>
-        <TextField variant="standard" type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{shrink: true}} onChange={e => {
+        <TextField variant="standard" type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{ shrink: true }} onChange={e => {
             let date = e.target.value.split('T');
             props.updateValue(props.name, date[0], date[1]);
-        }} value={props.formData[props.name] ? props.formData[props.name] + 'T' + props.formData[props.name + '_time'] : ''}/>
+        }} value={props.formData[props.name] ? `${props.formData[props.name]}T${props.formData[props.name + '_time']}` : ''}/>
     </div>;
 };
 IODateTimeField.propTypes = {
@@ -197,7 +195,7 @@ export {IODateTimeField};
 let IOObjectField = function (props) {
     let [state, setState] = useState({});
 
-    return <div className={props.classes.fieldContainer} style={{width: props.width}}>
+    return <div className={props.classes.fieldContainer} style={{ width: props.width }}>
         <div className={props.classes.objectContainer}>
             <TextField
                 variant="standard"
@@ -205,7 +203,7 @@ let IOObjectField = function (props) {
                 className={props.classes.objectField}
                 label={I18n.t(props.label)}
                 fullWidth
-                InputLabelProps={{shrink: true}}
+                InputLabelProps={{ shrink: true }}
                 value={props.formData[props.name] || ''}
                 onChange={e => props.updateValue(props.name, e.target.value)}
             />
@@ -215,7 +213,7 @@ let IOObjectField = function (props) {
                 onClick={() => setState({showDialog: true})}
                 className={props.classes.objectButton}
             >
-                <IconSelectID/>
+                <IconSelectID />
             </IconButton>
         </div>
         {state.showDialog ? <DialogSelectID
@@ -266,7 +264,7 @@ let IOColorPicker = function (props) {
                     : undefined,
             }}
             onChange={color => props.updateValue(props.name, color)}
-            InputLabelProps={{shrink: true}}
+            InputLabelProps={{ shrink: true }}
             value={props.formData[props.name] || ''}
         />
     </div>;
@@ -286,7 +284,7 @@ let IOSlider = function (props) {
         <Typography className={props.classes.sliderLabel}>{props.label}</Typography>
         <Slider
             disabled={!!props.disabled}
-            classes={{root: props.classes.sliderRoot}}
+            classes={{ root: props.classes.sliderRoot }}
             value={parseFloat(props.formData[props.name] || props.min || 0) || 0}
             //getAriaValueText={(props.formData[props.name] || '').toString()}
             step={parseFloat(props.step || (((props.max || 1) - (props.min || 0)) / 10)) || 0.1}

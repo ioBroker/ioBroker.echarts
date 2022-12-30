@@ -125,7 +125,7 @@ class MainChart extends React.Component {
             delete data.lines[0].chartType;
         }
 
-        return <div style={{display: this.props.visible ? 'block' : 'none'}} className={typeof this.props.selectedId !== 'string' ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
+        return <div style={{ display: this.props.visible ? 'block' : 'none' }} className={typeof this.props.selectedId !== 'string' ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
             <ChartFrame
                 src={URL + 'index.html?edit=1'}
                 presetData={data}

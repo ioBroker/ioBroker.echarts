@@ -405,7 +405,7 @@ class ChartsTree extends Component {
                             }
                         }
                     });
-                    changed && this.setState({instances});
+                    changed && this.setState({ instances });
                 });
         }, 100);
 
@@ -497,16 +497,16 @@ class ChartsTree extends Component {
                                             const inst = instances.find(item => item._id === 'system.adapter.' + instance);
                                             inst.enabledDP = inst.enabledDP || {};
                                             inst.enabledDP[obj._id] = obj;
-                                            this.setState({instances});
+                                            this.setState({ instances });
                                         })
                                         .catch(e => this.onError(e, `Cannot read object ${id}`));
                                 }
                             })
                             .catch(e => this.onError(e, `Cannot read object ${id}`));
                     }
-                    this.setState({showAddStateDialog: false});
+                    this.setState({ showAddStateDialog: false });
                 }}
-                onClose={() => this.setState({showAddStateDialog: false})}
+                onClose={() => this.setState({ showAddStateDialog: false })}
             />;
         }
     }
@@ -524,7 +524,7 @@ class ChartsTree extends Component {
             ref={selected ? this.refSelected : null}
             classes={{ gutters: this.props.classes.noGutters }}
             button
-            style={{paddingLeft: LEVEL_PADDING * level}}
+            style={{ paddingLeft: LEVEL_PADDING * level }}
             selected={selected}
             onClick={dragging ? undefined : () => this.props.onSelectedChanged({id, instance})}
         >
@@ -749,13 +749,13 @@ class ChartsTree extends Component {
                                                         size="small"
                                                         onClick={() => this.setState({ showAddStateDialog: group._id })}
                                                         title={I18n.t('Enable logging for new state')}
-                                                    ><IconAdd/></IconButton> : null}
+                                                    ><IconAdd /></IconButton> : null}
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => this.toggleChartFolder(group._id)}
                                                         title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
                                                     >
-                                                        {opened ? <IconCollapse/> : <IconExpand/>}
+                                                        {opened ? <IconCollapse /> : <IconExpand />}
                                                     </IconButton>
                                                 </ListItemSecondaryAction>
                                             </ListItem>,

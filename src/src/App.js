@@ -550,7 +550,7 @@ class App extends GenericApp {
                         variant="contained"
                         onClick={() => this.setState({ discardChangesConfirmDialog: false }, () =>
                             this.confirmCB && this.confirmCB(false))}
-                        startIcon={<IconCancel/>}
+                        startIcon={<IconCancel />}
                     >
                         { I18n.t('Cancel') }
                     </Button>

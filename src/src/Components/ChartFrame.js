@@ -134,7 +134,7 @@ class ChartFrame extends React.Component {
 
     render() {
         if (window.location.port === '3000') {
-            return <Paper className={this.props.classes.iframe} style={{background: '#333'}}>
+            return <Paper className={this.props.classes.iframe} style={{ background: '#333' }}>
                 <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
             </Paper>;
         } else {

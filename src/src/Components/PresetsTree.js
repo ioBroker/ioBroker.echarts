@@ -352,7 +352,7 @@ class MenuList extends Component {
                             title={I18n.t('Rename')}
                             onClick={e => {
                                 e.stopPropagation();
-                                this.setState({renameDialog: preset._id, renamePresetDialogTitle: item.common.name})
+                                this.setState({ renameDialog: preset._id, renamePresetDialogTitle: item.common.name })
                             }}
                         >
                             <IconEdit />
@@ -362,11 +362,11 @@ class MenuList extends Component {
                                 size="small"
                                 aria-label="Move to folder"
                                 title={ I18n.t('Move to folder') }
-                                onClick={ () => this.setState({movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id)}) }>
-                                <IconMoveToFolder/>
+                                onClick={ () => this.setState({ movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id) }) }>
+                                <IconMoveToFolder />
                             </IconButton> : null*/}
                         <IconButton size="small" aria-label="Copy" title={ I18n.t('Copy') } onClick={ () => this.props.onCopyPreset(preset._id) }><IconCopy className={this.props.classes.iconCopy}/></IconButton>
-                        <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({deletePresetDialog: preset._id}) }><IconDelete/></IconButton>
+                        <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({ deletePresetDialog: preset._id }) }><IconDelete /></IconButton>
                     </> : null)
                 }
             </ListItemSecondaryAction>
@@ -439,7 +439,7 @@ class MenuList extends Component {
                     ><IconAdd /></IconButton> : null}
                     {!this.props.reorder ? <IconButton
                         size="small"
-                        onClick={() => this.setState({editPresetFolderDialog: parent, editPresetFolderName: parent.id, editFolderDialogTitleOrigin: parent.id})}
+                        onClick={() => this.setState({ editPresetFolderDialog: parent, editPresetFolderName: parent.id, editFolderDialogTitleOrigin: parent.id })}
                         title={I18n.t('Edit folder name')}
                     ><IconEdit /></IconButton> : null}
                         {!this.props.reorder ? <IconButton size="small" onClick={() => this.togglePresetsFolder(parent)} title={presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')}>
@@ -711,10 +711,10 @@ class MenuList extends Component {
                     onKeyPress={e => {
                         if (this.state.editPresetFolderName && e.which === 13 && this.state.editPresetFolderName !== HIDDEN_FOLDER) {
                             this.renamePresetFolder(this.state.editPresetFolderDialog, this.state.editPresetFolderName)
-                                .then(() => this.setState({editPresetFolderDialog: null}));
+                                .then(() => this.setState({ editPresetFolderDialog: null }));
                         }
                     }}
-                    onChange={e => this.setState({editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim()})}/>
+                    onChange={e => this.setState({ editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })}/>
             </DialogContent>
             <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
                 <Button
@@ -722,7 +722,7 @@ class MenuList extends Component {
                     disabled={!this.state.editPresetFolderName || this.state.editFolderDialogTitleOrigin === this.state.editPresetFolderName || !isUnique || this.state.editPresetFolderName === HIDDEN_FOLDER}
                     onClick={() => {
                         this.renamePresetFolder(this.state.editPresetFolderDialog, this.state.editPresetFolderName)
-                            .then(() => this.setState({editPresetFolderDialog: null}));
+                            .then(() => this.setState({ editPresetFolderDialog: null }));
                     }}
                     color="primary"
                     startIcon={<IconCheck />}
@@ -887,7 +887,7 @@ class MenuList extends Component {
                         this.setState({ renameDialog: null }, () =>
                             this.renamePreset(presetId, this.state.renamePresetDialogTitle))
                     }
-                    startIcon={<IconCheck/>}
+                    startIcon={<IconCheck />}
                 >
                     {I18n.t('Rename')}
                 </Button>
@@ -914,9 +914,9 @@ class MenuList extends Component {
             onClose={isYes => {
                 if (isYes) {
                     this.deletePreset(this.state.deletePresetDialog, () =>
-                        this.setState({deletePresetDialog: false}));
+                        this.setState({ deletePresetDialog: false }));
                 } else {
-                    this.setState({deletePresetDialog: false});
+                    this.setState({ deletePresetDialog: false });
                 }
             }}
         /> : null;
@@ -951,10 +951,10 @@ class MenuList extends Component {
                                     this.props.socket.setObject(id, obj)
                                         .then(() => {
                                             const instances = JSON.parse(JSON.stringify(this.state.instances));
-                                            const inst = instances.find(item => item._id === 'system.adapter.' + instance);
+                                            const inst = instances.find(item => item._id === `system.adapter.${instance}`);
                                             inst.enabledDP = inst.enabledDP || {};
                                             inst.enabledDP[obj._id] = obj;
-                                            this.setState({instances});
+                                            this.setState({ instances });
                                         })
                                         .catch(e => this.onError(e, `Cannot save object ${id}`));
                                 }

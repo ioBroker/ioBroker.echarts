@@ -43,7 +43,7 @@ const ColorPicker = ({
             setValue(e.target.value);
             onChange(e.target.value)
         }}
-        InputProps={{style: {color: value === undefined ? internalValue : value}}}
+        InputProps={{ style: { color: value === undefined ? internalValue : value } }}
         {...TextFieldProps}
         {...custom}
     />
@@ -56,7 +56,7 @@ const ColorPicker = ({
         onChange={c => {
             const newValue = converters[convert](c);
             setValue(newValue);
-            onChange(newValue)
+            onChange(newValue);
         }}
         className={pickerClassName}
     />}
