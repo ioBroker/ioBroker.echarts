@@ -80,7 +80,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 1.1.4 (2022-12-30)
+### **WORK IN PROGRESS**
 * (bluefox) Refactoring and packages update done
 
 ### 1.1.3 (2022-12-01)

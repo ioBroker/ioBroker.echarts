@@ -101,7 +101,7 @@ module.exports = function init(gulp) {
             // Install node modules
             const cwd = __dirname.replace(/\\/g, '/') + '/src/';
 
-            const cmd = `npm install`;
+            const cmd = `npm install -f`;
             console.log(`"${cmd} in ${cwd}`);
 
             // System call used for update of js-controller itself,
@@ -115,7 +115,7 @@ module.exports = function init(gulp) {
             child.on('exit', (code /* , signal */) => {
                 // code 1 is strange error that cannot be explained. Everything is installed but error :(
                 if (code && code !== 1) {
-                    reject('Cannot install: ' + code);
+                    reject(`Cannot install: ${code}`);
                 } else {
                     console.log(`"${cmd} in ${cwd} finished.`);
                     // command succeeded
@@ -126,7 +126,7 @@ module.exports = function init(gulp) {
     }
 
     gulp.task('[edit]2-npm', () => {
-        if (fs.existsSync(__dirname + '/src/node_modules')) {
+        if (fs.existsSync(`${__dirname}/src/node_modules`)) {
             return Promise.resolve();
         } else {
             return npmInstall();
@@ -139,30 +139,30 @@ module.exports = function init(gulp) {
         return new Promise((resolve, reject) => {
             const options = {
                 stdio: 'pipe',
-                cwd:   __dirname + '/src/'
+                cwd:   `${__dirname}/src/`
             };
 
-            const version = JSON.parse(fs.readFileSync(__dirname + '/package.json').toString('utf8')).version;
-            const data = JSON.parse(fs.readFileSync(__dirname + '/src/package.json').toString('utf8'));
+            const version = JSON.parse(fs.readFileSync(`${__dirname}/package.json`).toString('utf8')).version;
+            const data = JSON.parse(fs.readFileSync(`${__dirname}/src/package.json`).toString('utf8'));
             data.version = version;
-            fs.writeFileSync(__dirname + '/src/package.json', JSON.stringify(data, null, 2));
+            fs.writeFileSync(`${__dirname}/src/package.json`, JSON.stringify(data, null, 2));
 
             console.log(options.cwd);
 
-            let script = __dirname + '/src/node_modules/react-scripts/scripts/build.js';
+            let script = `${__dirname}/src/node_modules/react-scripts/scripts/build.js`;
             if (!fs.existsSync(script)) {
-                script = __dirname + '/node_modules/react-scripts/scripts/build.js';
+                script = `${__dirname}/node_modules/react-scripts/scripts/build.js`;
             }
             if (!fs.existsSync(script)) {
-                console.error('Cannot find execution file: ' + script);
-                reject('Cannot find execution file: ' + script);
+                console.error(`Cannot find execution file: ${script}`);
+                reject(`Cannot find execution file: ${script}`);
             } else {
                 const child = cp.fork(script, [], options);
                 child.stdout.on('data', data => console.log(data.toString()));
                 child.stderr.on('data', data => console.log(data.toString()));
                 child.on('close', code => {
                     console.log(`child process exited with code ${code}`);
-                    code ? reject('Exit code: ' + code) : resolve();
+                    code ? reject(`Exit code: ${code}`) : resolve();
                 });
             }
         });
