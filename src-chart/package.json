@@ -10,7 +10,7 @@
     "@sentry/browser": "^7.28.1",
     "@sentry/integrations": "^7.28.1",
     "babel-eslint": "^10.1.0",
-    "eslint": "^8.30.0",
+    "eslint": "^8.31.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^12.1.1",
