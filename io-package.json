@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.1.5",
+    "version": "1.2.0",
     "news": {
+      "1.2.0": {
+        "en": "Changed german translation\nAdded new positions for markings: inside, top, bottom",
+        "de": "Deutsch Übersetzung ändern\nNeue Positionen für Markierungen hinzugefügt: innen, oben, unten",
+        "ru": "Измененный немецкий перевод\nДобавлены новые позиции для маркировки: внутри, верх, дно",
+        "pt": "Tradução alemã alterada\nAdicionado novas posições para marcas: dentro, topo, fundo",
+        "nl": "Veranderde Duitse vertaling\nVoeg nieuwe posities toe voor markeringen:",
+        "fr": "Traduction allemande modifiée\nAjout de nouvelles positions pour les marquages: intérieur, haut, bas",
+        "it": "Cambiata traduzione tedesca\nAggiunto nuove posizioni per marcature: dentro, in alto, in basso",
+        "es": "Traducción modificada\nPosiciones adicionales para marcaciones: interior, superior, inferior",
+        "pl": "Zmienne tłumaczenie germanowe\nWstęp do nowych pozycji: wewnątrz, top, bottom, bottom",
+        "uk": "Змінений німецький переклад\nДодано нові позиції для маркування: всередині, верхній, нижній",
+        "zh-cn": "B. 修改后的电子翻译\n增加标记的新立场:在最底层内"
+      },
       "1.1.5": {
         "en": "Refactoring and packages update done",
         "de": "Refactoring und Pakete aktualisieren",
@@ -76,18 +89,6 @@
         "es": "Corregido el problema con el socket. io",
         "pl": "Poprawiono problem z gniazdem. i",
         "zh-cn": "把问题与袖手旁观。 0%"
-      },
-      "1.0.9": {
-        "en": "Added 2 weeks as relative period",
-        "de": "Zusätzlich 2 Wochen als relativer Zeitraum",
-        "ru": "Добавлено 2 недели как относительное время",
-        "pt": "Adicionado 2 semanas como período relativo",
-        "nl": "Twee weken als relatief ongesteld",
-        "fr": "Ajout de 2 semaines en période relative",
-        "it": "Aggiunto 2 settimane come periodo relativo",
-        "es": "Añadido 2 semanas como período relativo",
-        "pl": "Dodany 2 tygodnie jako okres względny",
-        "zh-cn": "在相对期间增加2个星期"
       }
     },
     "title": "E-Charts",
