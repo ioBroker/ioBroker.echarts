@@ -301,7 +301,6 @@
   "ØS": "Os",
   "Text": "Tekst",
   "Text position": "Tekstpositie",
-  "Text offset": "Tekst offset",
   "Text size": "Lettergrootte",
   "Text color": "Tekst kleur",
   "Add new markings": "Voeg nieuwe markeringen toe",
@@ -474,5 +473,16 @@
   "linear": "lineair",
   "none_no": "geen",
   "end of previous sunday": "eind vorige zondag (2 weken)",
-  "end of previous saturday": "eind vorige zaterdag (2 weken)"
+  "end of previous saturday": "eind vorige zaterdag (2 weken)",
+  "Text X offset": "Tekst X-offset",
+  "Text Y offset": "Tekst Y-offset",
+  "Inside start": "Binnen, aan het begin",
+  "Inside start top": "Binnen, aan het begin, bovenop",
+  "Inside start bottom": "Binnen, aan het begin, aan de onderkant",
+  "Inside middle": "Binnen, in het midden",
+  "Inside middle top": "Binnen, in het midden, bovenaan",
+  "Inside middle bottom": "Binnen, in het midden, onderaan",
+  "Inside end": "Binnen, aan het einde",
+  "Inside end top": "Binnen, aan het einde, bovenop",
+  "Inside end bottom": "Binnen, aan het einde, onderaan"
 }

@@ -301,7 +301,6 @@
   "ØS": "ØS",
   "Text": "Testo",
   "Text position": "Posizione del testo",
-  "Text offset": "Offset del testo",
   "Text size": "Dimensione del testo",
   "Text color": "Colore del testo",
   "Add new markings": "Aggiungi nuovi segni",
@@ -474,5 +473,16 @@
   "linear": "lineare",
   "none_no": "nessuno",
   "end of previous sunday": "fine della domenica precedente (2 settimane)",
-  "end of previous saturday": "fine del sabato precedente (2 settimane)"
+  "end of previous saturday": "fine del sabato precedente (2 settimane)",
+  "Text X offset": "X-Offset del testo",
+  "Text Y offset": "Offset Y del testo",
+  "Inside start": "All'interno, all'inizio",
+  "Inside start top": "Dentro, all'inizio, sopra",
+  "Inside start bottom": "All'interno, all'inizio, in basso",
+  "Inside middle": "Dentro, in mezzo",
+  "Inside middle top": "Dentro, in mezzo, in alto",
+  "Inside middle bottom": "Dentro, in mezzo, in basso",
+  "Inside end": "Dentro, alla fine",
+  "Inside end top": "Dentro, alla fine, sopra",
+  "Inside end bottom": "Dentro, alla fine, in fondo"
 }

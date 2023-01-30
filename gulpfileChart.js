@@ -1,17 +1,36 @@
 /**
- * Copyright 2018-2022 bluefox <dogafox@gmail.com>
+ * Copyright 2018-2023 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *
  **/
 'use strict';
 
-const fs         = require('fs');
-const path       = require('path');
-const del        = require('del');
-const cp         = require('child_process');
+const fs   = require('fs');
+const path = require('path');
+const cp   = require('child_process');
 
 const dir = `${__dirname}/src-chart/src/i18n/`;
+
+function deleteFoldersRecursive(path, exceptions) {
+    if (fs.existsSync(path)) {
+        const files = fs.readdirSync(path);
+        for (const file of files) {
+            const curPath = `${path}/${file}`;
+            if (exceptions && exceptions.find(e => curPath.endsWith(e))) {
+                continue;
+            }
+
+            const stat = fs.statSync(curPath);
+            if (stat.isDirectory()) {
+                deleteFoldersRecursive(curPath);
+                fs.rmdirSync(curPath);
+            } else {
+                fs.unlinkSync(curPath);
+            }
+        }
+    }
+}
 
 module.exports = function init(gulp) {
     gulp.task('[chart]i18n=>flat', done => {
@@ -82,16 +101,10 @@ module.exports = function init(gulp) {
         done();
     });
 
-    gulp.task('[chart]clean', () => {
-        return del([
-            // 'src/node_modules/**/*',
-            'admin/chart/**/*',
-            'admin/chart/*',
-            'src-chart/build/**/*'
-        ]).then(del([
-            // 'src/node_modules',
-            'src-chart/build',
-        ]));
+    gulp.task('[chart]clean', done => {
+        deleteFoldersRecursive(`${__dirname}/admin/chart`);
+        deleteFoldersRecursive(`${__dirname}/src-chart/build`);
+        done();
     });
 
     function npmInstall() {
@@ -175,30 +188,28 @@ module.exports = function init(gulp) {
     gulp.task('[chart]3-build-dep', gulp.series('[chart]2-npm', '[chart]3-build'));
 
     function copyFiles() {
-        return del([
-            'admin/chart/**/*'
-        ]).then(() => {
-            return Promise.all([
-                gulp.src([
-                    'src-chart/build/**/*',
-                    '!src-chart/build/index.html',
-                    '!src-chart/build/static/js/main.*.chunk.js',
-                    '!src-chart/build/i18n/**/*',
-                    '!src-chart/build/i18n',
-                ])
-                    .pipe(gulp.dest('admin/chart/')),
+        deleteFoldersRecursive(`${__dirname}/admin/chart`);
 
-                gulp.src([
-                    'src-chart/build/index.html',
-                ])
-                    .pipe(gulp.dest('admin/chart/')),
+        return Promise.all([
+            gulp.src([
+                'src-chart/build/**/*',
+                '!src-chart/build/index.html',
+                '!src-chart/build/static/js/main.*.chunk.js',
+                '!src-chart/build/i18n/**/*',
+                '!src-chart/build/i18n',
+            ])
+                .pipe(gulp.dest('admin/chart/')),
 
-                gulp.src([
-                    'src-chart/build/static/js/main.*.chunk.js',
-                ])
-                    .pipe(gulp.dest('admin/chart/static/js/')),
-            ]);
-        });
+            gulp.src([
+                'src-chart/build/index.html',
+            ])
+                .pipe(gulp.dest('admin/chart/')),
+
+            gulp.src([
+                'src-chart/build/static/js/main.*.chunk.js',
+            ])
+                .pipe(gulp.dest('admin/chart/static/js/')),
+        ]);
     }
 
     gulp.task('[chart]5-copy', () => copyFiles());
@@ -314,31 +325,29 @@ module.exports = function init(gulp) {
     }
 
     function copyFilesToWWW() {
-        return del([
-            'www/**/*'
-        ]).then(() => {
-            return checkChart()
-                .then(() =>
-                    copyFolderRecursiveSync(__dirname + '/admin/chart/', __dirname + '/www'))
-                .then(() =>
-                    new Promise(resolve => {
-                        if (fs.existsSync(__dirname + '/www/index.html')) {
-                            let code = fs.readFileSync(__dirname + '/www/index.html').toString('utf8');
-                            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                                `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`);
-                            code = code.replace('<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>',
-                                `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`);
+        deleteFoldersRecursive(`${__dirname}/www`);
 
-                            if (!code.includes('_socket/info.js')) {
-                                code = code.replace('<script type="text/javascript" src="./../lib/js/socket.io.js"></script>', '<script type="text/javascript" src="./../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>');
-                            }
+        return checkChart()
+            .then(() =>
+                copyFolderRecursiveSync(`${__dirname}/admin/chart/`, `${__dirname}/www`))
+            .then(() =>
+                new Promise(resolve => {
+                    if (fs.existsSync(`${__dirname}/www/index.html`)) {
+                        let code = fs.readFileSync(`${__dirname}/www/index.html`).toString('utf8');
+                        code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                            `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`);
+                        code = code.replace('<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>',
+                            `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`);
 
-                            fs.writeFileSync(__dirname + '/www/index.html', code);
+                        if (!code.includes('_socket/info.js')) {
+                            code = code.replace('<script type="text/javascript" src="./../lib/js/socket.io.js"></script>', '<script type="text/javascript" src="./../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>');
                         }
 
-                        resolve();
-                    }));
-        });
+                        fs.writeFileSync(`${__dirname}/www/index.html`, code);
+                    }
+
+                    resolve();
+                }));
     }
     gulp.task('[chart]7-copy-www', () =>
         copyFilesToWWW());

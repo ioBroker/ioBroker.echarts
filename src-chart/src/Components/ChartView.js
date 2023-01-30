@@ -708,7 +708,7 @@ class ChartView extends React.Component {
                         }
                     }
                 }}
-            />
+            />;
         } else {
             return null;
         }

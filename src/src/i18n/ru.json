@@ -301,7 +301,6 @@
   "ØS": "ØS",
   "Text": "Текст",
   "Text position": "Расположение текста",
-  "Text offset": "Сдвиг текста",
   "Text size": "Размер текста",
   "Text color": "Цвет текста",
   "Add new markings": "Добавить разметку",
@@ -474,5 +473,16 @@
   "linear": "линейный",
   "none_no": "нет",
   "end of previous sunday": "конец предыдущего воскресенья (2 недели)",
-  "end of previous saturday": "конец предыдущей субботы (2 недели)"
+  "end of previous saturday": "конец предыдущей субботы (2 недели)",
+  "Text X offset": "Сдвиг текста по X",
+  "Text Y offset": "Смещение текста по Y",
+  "Inside start": "Внутри, в начале",
+  "Inside start top": "Внутри, на старте, сверху",
+  "Inside start bottom": "Внутри, в начале, внизу",
+  "Inside middle": "Внутри, посередине",
+  "Inside middle top": "Внутри, посередине, вверху",
+  "Inside middle bottom": "Внутри, посередине, снизу",
+  "Inside end": "Внутри, на конце",
+  "Inside end top": "Внутри, в конце, сверху",
+  "Inside end bottom": "Внутри, в конце, внизу"
 }

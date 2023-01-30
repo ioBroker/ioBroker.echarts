@@ -409,8 +409,17 @@ class Mark extends React.Component {
                         <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
                             'l': 'Left',
                             'r': 'Right',
+                            'insideStart': 'Inside start',
+                            'insideStartTop': 'Inside start top',
+                            'insideStartBottom': 'Inside start bottom',
+                            'insideMiddle': 'Inside middle',
+                            'insideMiddleTop': 'Inside middle top',
+                            'insideMiddleBottom': 'Inside middle bottom',
+                            'insideEnd': 'Inside end',
+                            'insideEndTop': 'Inside end top',
+                            'insideEndBottom': 'Inside end bottom',
                         }}/> : null}
-                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text offset" type="number"/> : null}
+                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text X offset" type="number"/> : null}
                     {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
                     {this.props.mark.text ? this.renderColorField(this.props.mark, this.updateField, 'Text color', 'textColor') : null}
                 </div> : null }

@@ -301,7 +301,6 @@
   "ØS": "ØS",
   "Text": "文本",
   "Text position": "文的位置",
-  "Text offset": "文本偏",
   "Text size": "文字的大小",
   "Text color": "文字颜色",
   "Add new markings": "添加新的标记",
@@ -474,5 +473,16 @@
   "linear": "线性的",
   "none_no": "没有任何",
   "end of previous sunday": "上周日结束（2 周）",
-  "end of previous saturday": "上周六结束（2周）"
+  "end of previous saturday": "上周六结束（2周）",
+  "Text X offset": "文本偏 X",
+  "Text Y offset": "文本 Y 偏移",
+  "Inside start": "里面，一开始",
+  "Inside start top": "里面，开始，在上面",
+  "Inside start bottom": "里面，开始，底部",
+  "Inside middle": "在里面，在中间",
+  "Inside middle top": "里面，中间，顶部",
+  "Inside middle bottom": "里面，中间，底部",
+  "Inside end": "里面，尽头",
+  "Inside end top": "在里面，在最后，在上面",
+  "Inside end bottom": "里面，最后，底部"
 }

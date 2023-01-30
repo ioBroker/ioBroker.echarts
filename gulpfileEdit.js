@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2022 bluefox <dogafox@gmail.com>
+ * Copyright 2018-2023 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *
@@ -8,10 +8,30 @@
 
 const fs         = require('fs');
 const rename     = require('gulp-rename');
-const del        = require('del');
 const cp         = require('child_process');
 
-const dir = __dirname + '/src/src/i18n/';
+const dir = `${__dirname}/src/src/i18n/`;
+
+function deleteFoldersRecursive(path, exceptions) {
+    if (fs.existsSync(path)) {
+        const files = fs.readdirSync(path);
+        for (const file of files) {
+            const curPath = `${path}/${file}`;
+            if (exceptions && exceptions.find(e => curPath.endsWith(e))) {
+                continue;
+            }
+
+            const stat = fs.statSync(curPath);
+            if (stat.isDirectory()) {
+                deleteFoldersRecursive(curPath);
+                fs.rmdirSync(curPath);
+            } else {
+                fs.unlinkSync(curPath);
+            }
+        }
+    }
+}
+
 module.exports = function init(gulp) {
 
     gulp.task('[edit]i18n=>flat', done => {
@@ -34,7 +54,7 @@ module.exports = function init(gulp) {
         const keys = Object.keys(index);
         keys.sort();
 
-        if (!fs.existsSync(dir + '/flat/')) {
+        if (!fs.existsSync(`${dir}/flat/`)) {
             fs.mkdirSync(dir + '/flat/');
         }
 
@@ -43,15 +63,15 @@ module.exports = function init(gulp) {
             keys.forEach(key => {
                 words.push(index[key][lang]);
             });
-            fs.writeFileSync(dir + '/flat/' + lang + '.txt', words.join('\n'));
+            fs.writeFileSync(`${dir}/flat/${lang}.txt`, words.join('\n'));
         });
-        fs.writeFileSync(dir + '/flat/index.txt', keys.join('\n'));
+        fs.writeFileSync(`${dir}/flat/index.txt`, keys.join('\n'));
         done();
     });
 
     gulp.task('[edit]flat=>i18n', done => {
-        if (!fs.existsSync(dir + '/flat/')) {
-            console.error(dir + '/flat/ directory not found');
+        if (!fs.existsSync(`${dir}/flat/`)) {
+            console.error(`${dir}/flat/ directory not found`);
             return done();
         }
         const keys = fs.readFileSync(dir + '/flat/index.txt').toString().split(/[\r\n]/);
@@ -73,33 +93,25 @@ module.exports = function init(gulp) {
             const words = {};
             keys.forEach((key, line) => {
                 if (!index[key]) {
-                    console.log('No word ' + key + ', ' + lang + ', line: ' + line);
+                    console.log(`No word ${key}, ${lang}, line: ${line}`);
                 }
                 words[key] = index[key][lang];
             });
-            fs.writeFileSync(dir + '/' + lang + '.json', JSON.stringify(words, null, 2));
+            fs.writeFileSync(`${dir}/${lang}.json`, JSON.stringify(words, null, 2));
         });
         done();
     });
 
-    gulp.task('[edit]clean', () => {
-        return del([
-            // 'src/node_modules/**/*',
-            'admin/**/*',
-            'admin/*',
-            'src/build/**/*',
-            '!admin/chart/**/*',
-            '!admin/chart/*',
-        ]).then(del([
-            // 'src/node_modules',
-            'src/build',
-        ]));
+    gulp.task('[edit]clean', done => {
+        deleteFoldersRecursive(`${__dirname}/admin`, ['chart']);
+        deleteFoldersRecursive(`${__dirname}/src/build`);
+        done();
     });
 
     function npmInstall() {
         return new Promise((resolve, reject) => {
             // Install node modules
-            const cwd = __dirname.replace(/\\/g, '/') + '/src/';
+            const cwd = `${__dirname.replace(/\\/g, '/')}/src/`;
 
             const cmd = `npm install -f`;
             console.log(`"${cmd} in ${cwd}`);
@@ -173,32 +185,30 @@ module.exports = function init(gulp) {
     gulp.task('[edit]3-build-dep', gulp.series('[edit]2-npm', '[edit]3-build'));
 
     function copyFiles() {
-        return del([
-            'admin/**/*'
-        ]).then(() => {
-            return Promise.all([
-                gulp.src([
-                    'src/build/**/*',
-                    '!src/build/index.html',
-                    '!src/build/static/js/main.*.chunk.js',
-                    '!src/build/i18n/**/*',
-                    '!src/build/i18n',
-                    'admin-config/*'
-                ])
-                    .pipe(gulp.dest('admin/')),
+        deleteFoldersRecursive(`${__dirname}/admin`, ['chart']);
 
-                gulp.src([
-                    'src/build/index.html',
-                ])
-                    .pipe(rename('tab.html'))
-                    .pipe(gulp.dest('admin/')),
+        return Promise.all([
+            gulp.src([
+                'src/build/**/*',
+                '!src/build/index.html',
+                '!src/build/static/js/main.*.chunk.js',
+                '!src/build/i18n/**/*',
+                '!src/build/i18n',
+                'admin-config/*'
+            ])
+                .pipe(gulp.dest('admin/')),
 
-                gulp.src([
-                    'src/build/static/js/main.*.chunk.js',
-                ])
-                    .pipe(gulp.dest('admin/static/js/')),
-            ]);
-        });
+            gulp.src([
+                'src/build/index.html',
+            ])
+                .pipe(rename('tab.html'))
+                .pipe(gulp.dest('admin/')),
+
+            gulp.src([
+                'src/build/static/js/main.*.chunk.js',
+            ])
+                .pipe(gulp.dest('admin/static/js/')),
+        ]);
     }
 
     gulp.task('[edit]5-copy', () => copyFiles());
@@ -206,19 +216,19 @@ module.exports = function init(gulp) {
     gulp.task('[edit]5-copy-dep', gulp.series('[edit]3-build-dep', '[edit]5-copy'));
 
     gulp.task('[edit]6-patch', () => new Promise(resolve => {
-        if (fs.existsSync(__dirname + '/admin/tab.html')) {
-            let code = fs.readFileSync(__dirname + '/admin/tab.html').toString('utf8');
+        if (fs.existsSync(`${__dirname}/admin/tab.html`)) {
+            let code = fs.readFileSync(`${__dirname}/admin/tab.html`).toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
             fs.writeFileSync(__dirname + '/admin/tab.html', code);
         }
-        if (fs.existsSync(__dirname + '/src/build/index.html')) {
-            let code = fs.readFileSync(__dirname + '/src/build/index.html').toString('utf8');
+        if (fs.existsSync(`${__dirname}/src/build/index.html`)) {
+            let code = fs.readFileSync(`${__dirname}/src/build/index.html`).toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
-            fs.writeFileSync(__dirname + '/src/build/index.html', code);
+            fs.writeFileSync(`${__dirname}/src/build/index.html`, code);
         }
         resolve();
     }));

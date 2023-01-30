@@ -80,6 +80,10 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Changed german translation
+* (bluefox) Added new positions for markings: inside, top, bottom
+
 ### 1.1.5 (2022-12-31)
 * (bluefox) Refactoring and packages update done
 
@@ -208,10 +212,10 @@ You can debug view charts locally with:
 ## License
 ioBroker.echarts is available under the Apache License V2.
 
-Copyright (c) 2019-2022 bluefox <dogafox@gmail.com>
+Copyright (c) 2019-2023 bluefox <dogafox@gmail.com>
 
 Apache ECharts
-Copyright (c) 2017-2022 The Apache Software Foundation
+Copyright (c) 2017-2023 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (https://www.apache.org/).

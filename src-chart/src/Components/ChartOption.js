@@ -655,8 +655,8 @@ class ChartOption {
                         label: {
                             show: !!oneMark.text,
                             formatter: param => param.name,
-                            position: oneMark.textPosition === 'r' ? 'end' : 'start',
-                            distance: (-1 * oneMark.textOffset) || -35,
+                            position: oneMark.textPosition === 'r' ? 'end' : (oneMark.textPosition === 'l' ? 'start' : (oneMark.textPosition || 'start')),
+                            distance: [oneMark.textPosition === 'r' || oneMark.textPosition === 'l' ? (-1 * oneMark.textOffset) || -35 : (parseFloat(oneMark.textOffset) || 0), 0],
                             textStyle: {
                                 color: oneMark.textColor || '#FFF',
                                 fontStyle: 'normal',

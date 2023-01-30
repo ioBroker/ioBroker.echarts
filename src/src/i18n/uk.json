@@ -307,7 +307,6 @@
   "System settings": "Налаштування системи",
   "Text": "текст",
   "Text color": "Колір тексту",
-  "Text offset": "Зміщення тексту",
   "Text position": "Позиція тексту",
   "Text size": "Розмір тексту",
   "Texts": "Тексти",
@@ -474,5 +473,16 @@
   "ØL Line thickness": "ØL Товщина лінії",
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - розмір тіні",
-  "ØS Shadow size": "ØS Розмір тіні"
+  "ØS Shadow size": "ØS Розмір тіні",
+  "Text X offset": "Зміщення тексту X",
+  "Text Y offset": "Текст Y-зсув",
+  "Inside start": "Всередині, на початку",
+  "Inside start top": "Всередині, на початку, зверху",
+  "Inside start bottom": "Всередині, на початку, внизу",
+  "Inside middle": "Всередині, посередині",
+  "Inside middle top": "Всередині, посередині, зверху",
+  "Inside middle bottom": "Всередині, посередині, внизу",
+  "Inside end": "Всередині, на кінці",
+  "Inside end top": "Всередині, в кінці, зверху",
+  "Inside end bottom": "Всередині, на кінці, на дні"
 }
