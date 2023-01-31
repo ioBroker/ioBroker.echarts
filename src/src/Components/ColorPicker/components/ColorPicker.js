@@ -1,12 +1,12 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import compose from 'recompose/compose'
-import withState from 'recompose/withState'
+import React from 'react';
+import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+import withState from 'recompose/withState';
 
-import TextField from '@mui/material/TextField'
+import TextField from '@mui/material/TextField';
 
-import {DEFAULT_CONVERTER, converters} from '../transformers'
-import PickerDialog from './PickerDialog'
+import { DEFAULT_CONVERTER, converters } from '../transformers';
+import PickerDialog from './PickerDialog';
 
 const ColorPicker = ({
      // ColorPicker

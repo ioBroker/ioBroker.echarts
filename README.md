@@ -80,7 +80,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 1.2.0 (2023-01-30)
+### **WORK IN PROGRESS**
 * (bluefox) Changed german translation
 * (bluefox) Added new positions for markings: inside, top, bottom
 
