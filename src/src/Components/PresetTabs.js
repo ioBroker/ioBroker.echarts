@@ -71,6 +71,12 @@ const styles = theme => ({
         opacity: 0.5,
         zIndex: 3,
     },
+    button: {
+        height: 40,
+        width: 40,
+        marginTop: 5,
+        marginLeft: 5,
+    },
     buttonSave: {
         color: theme.type === 'dark' ? '#CC0000' : '#CC0000'
     },
@@ -220,6 +226,20 @@ class PresetTabs extends React.Component {
     updateLine = (index, lineData) => {
         let lines = JSON.parse(JSON.stringify(this.props.presetData.lines));
         lines[index] = lineData;
+
+        if (lines[index].chartType === 'bar') {
+            // apply bar to all lines
+            lines.forEach(line => {
+                line.chartType = 'bar';
+                if (line.aggregate === 'minmax') {
+                    line.aggregate = 'max';
+                }
+            });
+        } else if (lines.find(line => line.chartType === 'bar')) {
+            // remove bar from all lines
+            lines.forEach(line => line.chartType = lines[index].chartType);
+        }
+
         this.updateField('lines', lines);
     };
 
@@ -276,6 +296,15 @@ class PresetTabs extends React.Component {
             line.xaxe = !len ? undefined : 'off';
             presetData.lines.push(line);
         }
+        // if any bar already exists, apply bar to new line
+        if (presetData.lines.find(line => line.chartType === 'bar')) {
+            const line = presetData.lines[presetData.lines.length - 1];
+            line.chartType = 'bar';
+            if (line.aggregate === 'minmax') {
+                line.aggregate = 'max';
+            }
+        }
+
         this.props.onChange(presetData);
     }
 
@@ -500,100 +529,130 @@ class PresetTabs extends React.Component {
     }
 
     renderTabTime() {
+        const hasNotBar = this.props.presetData.lines.find(line => line.chartType !== 'bar');
+        const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
+        const anyNotOnChange = this.props.presetData.lines.find(line => line.aggregate !== 'onchange');
+
         return <TabPanel value="2" classes={{ root: this.props.classes.tabContent }}>
-                    <div className={this.props.classes.group}>
-                        <p className={this.props.classes.title}>{I18n.t('Type')}</p>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
-                            relative: 'relative',
-                            static: 'static',
-                        }}/>
-                    </div>
-                    <div className={this.props.classes.group}>
-                        { this.props.presetData.timeType === 'static' ?
-                            <>
-                                <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
-                                <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
-                                <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
-                            </> : <>
-                                <p className={this.props.classes.title}>{I18n.t('Relative')}</p>
-                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={{
-                                    'now': 'now',
-                                    '1minute': 'end of minute',
-                                    '5minutes': 'end of 5 minutes',
-                                    '10minutes': 'end of 10 minutes',
-                                    '30minutes': 'end of 30 minutes',
-                                    '1hour': 'end of hour',
-                                    '2hours': 'end of 2 hours',
-                                    '3hours': 'end of 3 hours',
-                                    '4hours': 'end of 4 hours',
-                                    '6hours': 'end of 6 hours',
-                                    '8hours': 'end of 8 hours',
-                                    '12hours': 'end of 12 hours',
-                                    'today': 'end of day',
-                                    'weekEurope': 'end of sunday',
-                                    'weekUsa': 'end of saturday',
-                                    'month': 'this month',
-                                    'year': 'this year',
-                                }}/>
-                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={{
-                                    '10': '10 minutes',
-                                    '30': '30 minutes',
-                                    '60': '1 hour',
-                                    '120': '2 hours',
-                                    '180': '3 hours',
-                                    '360': '6 hours',
-                                    '720': '12 hours',
-                                    '1440': '1 day',
-                                    '2880': '2 days',
-                                    '4320': '3 days',
-                                    '10080': '7 days',
-                                    '20160': '14 days',
-                                    '1m': '1 month',
-                                    '2m': '2 months',
-                                    '3m': '3 months',
-                                    '6m': '6 months',
-                                    '1y': '1 year',
-                                    '2y': '2 years',
-                                }}/>
-                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="live" label="Live update every" options={{
-                                    '': 'none',
-                                    '5': '5 seconds',
-                                    '10': '10 seconds',
-                                    '15': '15 seconds',
-                                    '20': '20 seconds',
-                                    '30': '30 seconds',
-                                    '60': '1 minute',
-                                    '120': '2 minutes',
-                                    '300': '5 minutes',
-                                    '600': '10 minutes',
-                                    '900': '15 minutes',
-                                    '1200': '20 minutes',
-                                    '1800': '30 minutes',
-                                    '3600': '1 hour',
-                                    '7200': '2 hours',
-                                    '10800': '3 hours',
-                                    '21600': '6 hours',
-                                    '43200': '12 hours',
-                                    '86400': '1 day',
-                                }}/>
-                            </>
-                        }
-                    </div>
-                    {/*<div className={this.props.classes.group}>
+            <div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Type')}</p>
+                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
+                    relative: 'relative',
+                    static: 'static',
+                }}/>
+            </div>
+            <div className={this.props.classes.group}>
+                { this.props.presetData.timeType === 'static' ?
+                    <>
                         <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
-                        <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
-                    </div>*/}
-                {this.props.presetData.lines.find(line => line.aggregate !== 'onchange') ?
-                    <div className={this.props.classes.group}>
-                        <p className={this.props.classes.title}>{I18n.t('Aggregate')}</p>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
+                        <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
+                        <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
+                    </> : <>
+                        <p className={this.props.classes.title}>{I18n.t('Relative')}</p>
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={{
+                            'now': 'now',
+                            '1minute': 'end of minute',
+                            '5minutes': 'end of 5 minutes',
+                            '10minutes': 'end of 10 minutes',
+                            '30minutes': 'end of 30 minutes',
+                            '1hour': 'end of hour',
+                            '2hours': 'end of 2 hours',
+                            '3hours': 'end of 3 hours',
+                            '4hours': 'end of 4 hours',
+                            '6hours': 'end of 6 hours',
+                            '8hours': 'end of 8 hours',
+                            '12hours': 'end of 12 hours',
+                            'today': 'end of day',
+                            'weekEurope': 'end of sunday',
+                            'weekUsa': 'end of saturday',
+                            'month': 'this month',
+                            'year': 'this year',
+                        }}/>
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={{
+                            '10': '10 minutes',
+                            '30': '30 minutes',
+                            '60': '1 hour',
+                            '120': '2 hours',
+                            '180': '3 hours',
+                            '360': '6 hours',
+                            '720': '12 hours',
+                            '1440': '1 day',
+                            '2880': '2 days',
+                            '4320': '3 days',
+                            '10080': '7 days',
+                            '20160': '14 days',
+                            '1m': '1 month',
+                            '2m': '2 months',
+                            '3m': '3 months',
+                            '6m': '6 months',
+                            '1y': '1 year',
+                            '2y': '2 years',
+                        }}/>
+                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="live" label="Live update every" options={{
+                            '': 'none',
+                            '5': '5 seconds',
+                            '10': '10 seconds',
+                            '15': '15 seconds',
+                            '20': '20 seconds',
+                            '30': '30 seconds',
+                            '60': '1 minute',
+                            '120': '2 minutes',
+                            '300': '5 minutes',
+                            '600': '10 minutes',
+                            '900': '15 minutes',
+                            '1200': '20 minutes',
+                            '1800': '30 minutes',
+                            '3600': '1 hour',
+                            '7200': '2 hours',
+                            '10800': '3 hours',
+                            '21600': '6 hours',
+                            '43200': '12 hours',
+                            '86400': '1 day',
+                        }}/>
+                    </>
+                }
+            </div>
+            {/*<div className={this.props.classes.group}>
+                <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
+                <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
+            </div>*/}
+            {anyNotOnChange && hasNotBar ?
+                <div className={this.props.classes.group}>
+                    <p className={this.props.classes.title}>{I18n.t('Aggregate for lines')}</p>
+                    <IOSelect
+                        formData={this.props.presetData}
+                        updateValue={this.updateField}
+                        name="aggregateType"
+                        label="Step type"
+                        options={{
                             count: 'counts',
                             step: 'seconds',
-                        }}/>
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
-                                     label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
-                        />
-                    </div> : null }
+                        }}
+                    />
+                    <IOTextField
+                        formData={this.props.presetData}
+                        updateValue={this.updateField}
+                        name="aggregateSpan"
+                        label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
+                    />
+                </div> : null }
+            {hasBar ?
+                <div className={this.props.classes.group}>
+                    <p className={this.props.classes.title}>{I18n.t('Aggregate for bars')}</p>
+                    <IOSelect
+                        formData={this.props.presetData}
+                        updateValue={this.updateField}
+                        name="aggregateBar"
+                        label={I18n.t('Intervalls')}
+                        options={{
+                            0: 'auto',
+                            15: 'i15min',
+                            60: 'i1hour',
+                            1440: 'i1day',
+                            43200: 'i30days',
+                        }}
+                    />
+                </div> : null }
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Time format')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Custom time format" name="timeFormatCustom" />
@@ -848,23 +907,21 @@ class PresetTabs extends React.Component {
 
                     </> : null}
             </div>
-            {
-                !!this.props.presetData.lines.find(line => line.chartType === 'bar') ?
-                    <Grid item sm={6} xs={12}>
-                        <h4>{I18n.t('Bar settings')}</h4>
-                        {this.renderColorField(this.props.presetData, this.updateField, 'Fill color', 'barColor')}
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="barLabels" label="Show labels" options={{
-                            '': 'none',
-                            'topover': 'top over',
-                            'topunder': 'top under',
-                            'bottom': 'bottom',
-                            'middle': 'middle',
-                        }}/>
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barWidth" label="Bars width" min={0} type="number"/>
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barFontSize" label="Label font size" min={0} type="number"/>
-                        {this.renderColorField(this.props.presetData, this.updateField, 'Label color', 'barFontColor')}
-                    </Grid>
-                    : null
+            {this.props.presetData.lines.find(line => line.chartType === 'bar') ?
+                <Grid item sm={6} xs={12}>
+                    <p className={this.props.classes.title}>{I18n.t('Bar settings')}</p>
+                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="barLabels" label="Show labels" options={{
+                        '': 'none',
+                        'topover': 'top over',
+                        'topunder': 'top under',
+                        'bottom': 'bottom',
+                        'middle': 'middle',
+                    }}/>
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barWidth" label="Bars width" min={0} type="number"/>
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barFontSize" label="Label font size" min={0} type="number"/>
+                    {this.renderColorField(this.props.presetData, this.updateField, 'Label color', 'barFontColor')}
+                </Grid>
+                : null
             }
         </TabPanel>;
     }
@@ -912,6 +969,7 @@ class PresetTabs extends React.Component {
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static" className={this.props.classes.tabsContainer}>
                 {this.props.selectedPresetChanged || this.props.autoSave ? <Checkbox
+                    className={this.props.classes.button}
                     checked={!!this.props.autoSave}
                     title={I18n.t('Auto save')}
                     onChange={e => this.props.onAutoSave(e.target.checked)}
@@ -919,12 +977,13 @@ class PresetTabs extends React.Component {
                 /> : null}
                 {!this.props.selectedPresetChanged ? <IconButton
                     classes={{ root: this.props.classes.noPaddingOnSide }}
+                    className={this.props.classes.button}
                     onClick={() => window.open(`chart/index.html?preset=${this.props.selectedId}`, 'own-preset-echarts')}
                     title={I18n.t('Open chart in own window')}
                 ><IconNewWindow /></IconButton> : null}
                 {!this.props.autoSave && this.props.selectedPresetChanged ? <IconButton
                     classes={{ root: this.props.classes.noPaddingOnSide }}
-                    className={this.props.classes.buttonSave}
+                    className={Utils.clsx(this.props.classes.button, this.props.classes.buttonSave)}
                     onClick={() => this.props.savePreset()}
                 >
                     <IconSave />
@@ -932,7 +991,7 @@ class PresetTabs extends React.Component {
                 <TabList
                     onChange={(event, newValue) => {
                         window.localStorage.setItem('App.echarts.presetTabs.selectedTab', newValue);
-                        this.setState({ selectedTab: newValue })
+                        this.setState({ selectedTab: newValue });
                     }}
                     variant="scrollable"
                     scrollButtons

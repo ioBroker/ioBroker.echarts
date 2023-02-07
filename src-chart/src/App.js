@@ -45,6 +45,7 @@ class App extends Component {
         this.state = {
             connected:  false,
             seriesData: null,
+            categories: null, // used for bar and pie charts
             actualValues: null,
             noLoader:   query.noLoader || queryHash.noLoader || false,
             theme:      themeInstance,
@@ -111,16 +112,20 @@ class App extends Component {
             onProgress: progress => {
                 if (progress === PROGRESS.CONNECTING) {
                     if (this.state.seriesData) {
-                        this.divRef.current && (this.divRef.current.style.opacity = 0.5);
-                        this.progressRef.current && (this.progressRef.current.style.display = 'block');
+                        if (this.divRef.current) {
+                            this.divRef.current.style.opacity = 0.5;
+                        }
+                        if (this.progressRef.current) {
+                            this.progressRef.current.style.display = 'block';
+                        }
                     } else {
-                        this.setState({connected: false});
+                        this.setState({ connected: false });
                     }
                 } else if (progress === PROGRESS.READY) {
-                    this.setState({connected: true});
+                    this.setState({ connected: true });
                     this.restoreAfterReconnection();
                 } else {
-                    this.setState({connected: true});
+                    this.setState({ connected: true });
                     this.restoreAfterReconnection();
                 }
             },
@@ -179,10 +184,15 @@ class App extends Component {
             }
         });
         this.chartData.onReading(reading => this.showProgress(reading));
-        this.chartData.onUpdate((seriesData, actualValues) => {
-            const newState = {connected: true, dataLoaded: true};
-            seriesData   && (newState.seriesData   = seriesData);
-            actualValues && (newState.actualValues = actualValues);
+        this.chartData.onUpdate((seriesData, actualValues, categories) => {
+            const newState = { connected: true, dataLoaded: true };
+            if (seriesData) {
+                newState.seriesData = seriesData;
+                newState.categories = categories; // used for bar charts and pie charts
+            }
+            if (actualValues) {
+                newState.actualValues = actualValues
+            }
             this.setState(newState, () =>
                 this.showProgress(false));
         });
@@ -302,6 +312,7 @@ class App extends Component {
                             noAnimation={this.state.noLoader}
                             data={this.state.seriesData}
                             actualValues={this.state.actualValues}
+                            categories={this.state.categories} // used for bar charts and pie charts
                             config={config}
                             compact={this.state.compact}
                             lang={I18n.getLanguage()}

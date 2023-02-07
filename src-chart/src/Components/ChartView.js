@@ -7,6 +7,7 @@ import Fab from '@mui/material/Fab';
 
 import { FaRedoAlt as IconReset }  from 'react-icons/fa'
 import { FaDownload as IconExport }  from 'react-icons/fa'
+import { FaCopy as IconCopy }  from 'react-icons/fa'
 
 import moment from 'moment';
 import 'moment/locale/en-gb';
@@ -20,7 +21,7 @@ import 'moment/locale/ru';
 import 'moment/locale/zh-cn';
 import 'moment/locale/de';
 
-import I18n from '@iobroker/adapter-react-v5/i18n';
+import { I18n, Utils } from '@iobroker/adapter-react-v5';
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import { withWidth } from '@iobroker/adapter-react-v5';
 
@@ -95,6 +96,17 @@ const styles = theme => ({
     exportButton: {
         position: 'absolute',
         top: 40,
+        right: 5,
+        width: 20,
+        height: 20,
+        zIndex: 2,
+        opacity: 0.7,
+        cursor: 'pointer'
+        //background: '#00000000',
+    },
+    copyButton: {
+        position: 'absolute',
+        top: 70,
         right: 5,
         width: 20,
         height: 20,
@@ -196,7 +208,7 @@ class ChartView extends React.Component {
                 chartInstance.clear();
             }
 
-            this.option = this.chartOption.getOption(props.data, props.config, props.actualValues);
+            this.option = this.chartOption.getOption(props.data, props.config, props.actualValues, props.categories);
             this.applySelected();
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] updateProperties: {min: ${this.option.xAxis[0].min}, ${this.option.xAxis[0].max}}`);
             try {
@@ -576,7 +588,8 @@ class ChartView extends React.Component {
 
     renderChart() {
         if (this.props.data) {
-            this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config, this.props.actualValues);
+            this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config, this.props.actualValues, this.props.categories);
+            const hasAnyBars = !!this.props.config.l.find(item => item.chartType === 'bar');
 
             if (this.props.config.title) {
                 window.document.title = this.props.config.title;
@@ -608,7 +621,7 @@ class ChartView extends React.Component {
                         this.selected = JSON.parse(JSON.stringify(e.selected));
                     },
                     rendered: e => {
-                        !this.props.compact && this.props.config.zoom && this.installEventHandlers();
+                        !this.props.compact && this.props.config.zoom && !hasAnyBars && this.installEventHandlers();
                     }
                 }}
             />;
@@ -714,6 +727,17 @@ class ChartView extends React.Component {
         }
     }
 
+    renderDevCopyButton() {
+        if (window.location.port === '3000') {
+            return <IconCopy
+                color={'default'}
+                className={this.props.classes.copyButton}
+                title="Copy option to clipboard"
+                onClick={() => Utils.copyToClipboard(JSON.stringify(this.option, null, 2))}
+            />;
+        }
+    }
+
     render() {
         if (!this.divRef.current) {
             setTimeout(() => this.forceUpdate(), 10);
@@ -736,6 +760,7 @@ class ChartView extends React.Component {
             }}>
             { this.renderExportButton() }
             { this.renderResetButton() }
+            { this.renderDevCopyButton() }
             { this.state.chartHeight !== null ? this.renderChart() : null }
         </div>;
     }
@@ -751,6 +776,7 @@ ChartView.propTypes = {
     noAnimation: PropTypes.bool,
     onRangeChange: PropTypes.func,
     compact: PropTypes.bool,
+    categories: PropTypes.array, // for bar and pie charts
 };
 
 export default withWidth()(withStyles(styles)(ChartView));

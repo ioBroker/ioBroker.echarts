@@ -16,6 +16,8 @@ Build useful charts in ioBroker:
 
 ![Screenshot](img/screenshot1.png)
 
+![Bars](img/bars.png)
+
 ## Usage
 Add after the restart the tab in the admin:
 ![Admin](img/admin.png)
@@ -80,6 +82,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Implemented bar chart
+
 ### 1.2.1 (2023-01-31)
 * (bluefox) Changed german translation
 * (bluefox) Added new positions for markings: inside, top, bottom

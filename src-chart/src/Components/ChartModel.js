@@ -334,6 +334,7 @@ class ChartModel {
         }
 
         this.seriesData = [];
+        this.barCategories = null;
 
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
@@ -342,7 +343,7 @@ class ChartModel {
 
         if (this.preset) {
             if ((!this.preset.startsWith('echarts.') && !this.preset.startsWith('flot.')) || !this.preset.includes('.')) {
-                this.preset = 'echarts.0.' + this.preset;
+                this.preset = `echarts.0.${this.preset}`;
             }
 
             this.socket.getObject(this.preset)
@@ -575,8 +576,7 @@ class ChartModel {
                 end   = new Date(this.config.end).setHours(endTime[0],   endTime[1]);
                 start = this.addTime(start, this.config.l[index].offset);
                 end   = this.addTime(end,   this.config.l[index].offset);
-            }
-            else {
+            } else {
                 this.config.relativeEnd = this.config.relativeEnd || 'now';
 
                 if (this.config.relativeEnd === 'now') {
@@ -681,6 +681,109 @@ class ChartModel {
                 addID:      false,
             };
 
+            if (this.config.l[index].chartType === 'bar') {
+                // calculate count of intervals
+                if (!this.config.aggregateBar) {
+                    if (end - start <= 3600000 * 12) { // less than 12 hours => 15 minutes
+                        this.config.aggregateBar = 15;
+                    } else if (end - start >= 3600000 * 24 * 60) { // more than 60 days => 1 month
+                        this.config.aggregateBar = 43200;
+                    } else if (end - start > 3600000 * 24 * 3) { // more than 3 days => 1 day
+                        this.config.aggregateBar = 1440;
+                    } else { // if (end - start > 3600000 * 12) { // more than 12 hours => 60 minutes
+                        this.config.aggregateBar = 60;
+                    }
+                }
+
+                if (this.config.aggregateBar === 15) {
+                    // align start and stop to 15 minutes
+                    start = new Date(start);
+                    start.setMinutes(Math.floor(start.getMinutes() / 15) * 15);
+                    if (this.config.postProcessing === 'diff') {
+                        start.setMinutes(start.getMinutes() - 15);
+                    }
+                    start.setSeconds(0);
+                    start.setMilliseconds(0);
+                    start = start.getTime();
+
+                    end = new Date(end);
+                    if (end.getMinutes() % 15) {
+                        end.setMinutes(Math.ceil(end.getMinutes() / 15) * 15);
+                    }
+                    end.setSeconds(0);
+                    end.setMilliseconds(0);
+                    end = end.getTime();
+                    option.count = Math.round((end - start) / 900000);
+                } else if (this.config.aggregateBar === 60) {
+                    // align start and stop to 1 hour
+                    start = new Date(start);
+                    start.setMinutes(0);
+                    start.setSeconds(0);
+                    start.setMilliseconds(0);
+                    start = start.getTime();
+                    if (this.config.postProcessing === 'diff') {
+                        start.setMinutes(start.getMinutes() - 60);
+                    }
+
+                    end = new Date(end);
+                    if (end.getMinutes()) {
+                        end.setMinutes(60);
+                    }
+                    end.setSeconds(0);
+                    end.setMilliseconds(0);
+                    end = end.getTime();
+                    option.count = Math.round((end - start) / 3600000);
+                } else if (this.config.aggregateBar === 1440) {
+                    // align start and stop to 1 day
+                    start = new Date(start);
+                    start.setHours(0);
+                    start.setMinutes(0);
+                    start.setSeconds(0);
+                    start.setMilliseconds(0);
+                    start = start.getTime();
+                    if (this.config.postProcessing === 'diff') {
+                        start.setDate(start.getDate() - 1);
+                    }
+
+                    end = new Date(end);
+                    if (end.getHours() || end.getMinutes()) {
+                        end.setHours(0);
+                        end.setMinutes(0)
+                        end.setDate(end.getDate() + 1);
+                    }
+                    end.setSeconds(0);
+                    end.setMilliseconds(0);
+                    end = end.getTime();
+                    option.count = Math.round((end - start) / 86400000);
+                } else if (this.config.aggregateBar === 43200) {
+                    // align start and stop to 1 month
+                    start = new Date(start);
+                    start.setDate(1);
+                    start.setHours(0);
+                    start.setMinutes(0);
+                    start.setSeconds(0);
+                    start.setMilliseconds(0);
+                    start = start.getTime();
+                    if (this.config.postProcessing === 'diff') {
+                        start.setDate(start.getDate() - 30);
+                    }
+
+                    end = new Date(end);
+                    if (end.getHours() || end.getMinutes() || end.getDate() > 1) {
+                        end.setDate(1);
+                        end.setHours(0);
+                        end.setMinutes(0)
+                        end.setMonth(end.getMonth() + 1);
+                    }
+                    end.setSeconds(0);
+                    end.setMilliseconds(0);
+                    end = end.getTime();
+                    option.count = Math.round((end - start) / 86400000 * 30); // todo it must be variable as every month has different count of days
+                }
+
+                option.start = start;
+                option.end   = end;
+            } else
             if (this.config.aggregateType === 'step') {
                 option.step = this.config.aggregateSpan * 1000;
             } else if (this.config.aggregateType === 'count') {
@@ -719,13 +822,63 @@ class ChartModel {
         }
     }
 
+    postProcessing(series, categories, aggregate, postProcessingMethod) {
+        for (let i = 0; i < series.length; i++) {
+            let interval = series[i];
+            if (!interval.length) {
+                series[i] = 0;
+            } else {
+                // sum all values
+                if (interval.length === 1) {
+                    series[i] = interval[0];
+                } else {
+                    if (aggregate === 'average') {
+                        const sum = interval.reduce((a, b) => a + b, 0);
+                        series[i] = sum / interval.length;
+                    } else if (aggregate === 'min') {
+                        let min = interval[0];
+                        for (let j = 1; j < interval.length; j++) {
+                            if (interval[j] < min) {
+                                min = interval[j];
+                            }
+                        }
+                        series[i] = min;
+                    } else if (aggregate === 'max') {
+                        let max = interval[0];
+                        for (let j = 1; j < interval.length; j++) {
+                            if (interval[j] > max) {
+                                max = interval[j];
+                            }
+                        }
+                        series[i] = max;
+                    } else if (aggregate === 'total') {
+                        series[i] = interval.reduce((a, b) => a + b, 0);
+                    } else {
+                        series[i] = interval[interval.length - 1]
+                    }
+                }
+            }
+        }
+
+        if (postProcessingMethod === 'diff') {
+            for (let i = series.length - 1; i > 0; i--) {
+                series[i] = series[i] - series[i - 1];
+            }
+            series.splice(0, 1);
+            categories.splice(0, 1);
+        }
+        for (let i = 0; i < series.length; i++) {
+            console.log(`${categories[i]}: ${series[i]}`);
+        }
+    }
+
     readOneChart(id, instance, index, cb) {
         const option = this.getStartStop(index);
         option.instance  = instance;
         option.sessionId = this.sessionId;
 
         //console.log(JSON.stringify(option));
-        this.debug && console.log('[ChartModel] ' + new Date(option.start) + ' - ' + new Date(option.end));
+        this.debug && console.log(`[ChartModel] ${new Date(option.start)} - ${new Date(option.end)}`);
 
         this.socket.getHistoryEx(id, option)
             .then(res => {
@@ -734,12 +887,27 @@ class ChartModel {
                 }
 
                 if (res && res.values) {
-                    //option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
+                    // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
                     option.yOffset = this.config.l[index].yOffset;
                     const values = res.values;
 
                     this.seriesData[index] = []; // not really needed
                     const _series = this.seriesData[index];
+                    let barCategories = this.barCategories;
+
+                    // fill categories for bars
+                    if (this.config.l[index].chartType === 'bar' && !barCategories) {
+                        barCategories = [];
+                        this.barCategories = barCategories;
+                        const start = new Date(option.start);
+                        while (start.getTime() < option.end) {
+                            barCategories.push(start.getTime());
+
+                            start.setMinutes(start.getMinutes() + this.config.aggregateBar);
+                        }
+                    }
+
+                    barCategories.forEach(() => _series.push([]));
 
                     for (let i = 0; i < values.length; i++) {
                         // Convert boolean values to numbers
@@ -752,41 +920,54 @@ class ChartModel {
                             values[i].val = parseFloat(values[i].val);
                         }
 
-                        const dp = {value: [values[i].ts, values[i].val !== null ? values[i].val + option.yOffset : null]};
+                        if (this.config.l[index].chartType === 'bar') {
+                            // find category
+                            for (let c = 0; c < barCategories.length; c++) {
+                                if (barCategories[c] >= values[i].ts && values[i].ts < barCategories[c] + this.config.aggregateBar * 60000) {
+                                    _series[c].push(values[i].val !== null ? values[i].val + option.yOffset : null);
+                                    break;
+                                }
+                            }
+                        } else {
+                            const dp = {value: [values[i].ts, values[i].val !== null ? values[i].val + option.yOffset : null]};
 
-                        // If value was interpolated by backend
-                        if (values[i].i) {
-                            dp.exact = false;
+                            // If value was interpolated by backend
+                            if (values[i].i) {
+                                dp.exact = false;
+                            }
+                            _series.push(dp);
                         }
-
-                        _series.push(dp);
                     }
 
                     // add start and end
-                    if (_series.length) {
-                        if (_series[0].value[0] > option.start) {
-                            _series.unshift({value: [option.start, null], exact: false});
-                        }
-                        const last = _series[_series.length - 1];
-                        if (last.value[0] < option.end) {
-                            if (this.config.l[index].validTime) {
-                                // If last value is not older than X seconds, assume it is still the same
-                                if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
-                                    _series.push({value: [option.end, last.value[1]], exact: false});
-                                } else {
-                                    _series.push({value: [option.end, null], exact: false});
-                                }
-                            } else {
-                                _series.push({value: [option.end, null], exact: false});
+                    if (this.config.l[index].chartType !== 'bar') {
+                        if (_series.length) {
+                            if (_series[0].value[0] > option.start) {
+                                _series.unshift({ value: [option.start, null], exact: false });
                             }
+                            const last = _series[_series.length - 1];
+                            if (last.value[0] < option.end) {
+                                if (this.config.l[index].validTime) {
+                                    // If last value is not older than X seconds, assume it is still the same
+                                    if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
+                                        _series.push({ value: [option.end, last.value[1]], exact: false });
+                                    } else {
+                                        _series.push({ value: [option.end, null], exact: false });
+                                    }
+                                } else {
+                                    _series.push({ value: [option.end, null], exact: false });
+                                }
+                            }
+                        } else {
+                            _series.push({ value: [option.start, null], exact: false });
+                            _series.push({ value: [option.end,   null], exact: false });
                         }
-                    } else {
-                        _series.push({value: [option.start, null], exact: false});
-                        _series.push({value: [option.end,   null], exact: false});
-                    }
 
-                    // TODO: May be not required?
-                    _series.sort((a, b) => a.value[0] > b.value[0] ? 1 : (a.value[0] < b.value[0] ? -1 : 0));
+                        // TODO: May be not required?
+                        _series.sort((a, b) => a.value[0] > b.value[0] ? 1 : (a.value[0] < b.value[0] ? -1 : 0));
+                    } else {
+                        this.postProcessing(_series, barCategories, this.config.l[index].aggregate, this.config.l[index].postProcessing);
+                    }
 
                     // free memory
                     res.values = null;
@@ -797,10 +978,10 @@ class ChartModel {
             })
             .catch(err => {
                 err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
-                err && console.error('[ChartModel] ' + err)
+                err && console.error(`[ChartModel] ${err}`)
             })
             .then(() => {
-                if (this.config.legActual) {
+                if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
                     // read current value
                     return this.socket.getState(id)
                         .then(state => this.actualValues[index] = state && (state.val || state.val === 0) ? state.val : null)
@@ -819,7 +1000,7 @@ class ChartModel {
                     return Promise.resolve();
                 }
             })
-            .then(() => cb(id, index))
+            .then(() => cb(id, index));
     }
 
     _readObject(id) {
@@ -1038,7 +1219,7 @@ class ChartModel {
             return;
         }
 
-        this.debug && console.log('State update ' + id + ' - ' + state.val);
+        this.debug && console.log(`State update ${id} - ${state.val}`);
 
         let changed = false;
         for (let m = 0; m < this.config.l.length; m++) {
@@ -1109,7 +1290,7 @@ class ChartModel {
         }
 
         this.now = Date.now();
-        console.log('Read till ' + new Date(this.now));
+        console.log(`Read till ${new Date(this.now)}`);
         this.sessionId = this.sessionId || 0;
         this.sessionId++;
         if (this.sessionId > 0xFFFFFF) {
@@ -1138,6 +1319,8 @@ class ChartModel {
 //                }
 //            } else {
             this.seriesData = [];
+            this.barCategories = null;
+
             this._readData(() =>
                 this.readTicks(_ticks =>
                     this.readMarkings(() => {
@@ -1147,7 +1330,7 @@ class ChartModel {
                                 this.onUpdateFunc(this.seriesData));
                         } else {*/
                             this.reading = false;
-                            this.onUpdateFunc(this.seriesData, this.actualValues);
+                            this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
                         //}
                     })));
         } else {

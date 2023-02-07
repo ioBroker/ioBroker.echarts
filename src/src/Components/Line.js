@@ -283,6 +283,22 @@ class Line extends React.Component {
             idWidth = `calc(100% - ${WIDTHS.buttons + WIDTHS.instance + padding * 2}px)`;
         }
 
+        const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
+        const aggregateTypes = {
+            minmax: 'minmax',
+            average: 'average',
+            min: 'min',
+            max: 'max',
+            total: 'total',
+            onchange: 'raw',
+            percentile: 'percentile',
+            integral: 'integral',
+        };
+
+        if (hasBar) {
+            delete aggregateTypes.minmax;
+        }
+
         return <div className={this.props.classes.lineClosed}>
             {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag /></span> : <div className={this.props.classes.emptyDrag}/> }
             {this.props.onPaste && this.props.onPaste ?
@@ -349,16 +365,7 @@ class Line extends React.Component {
                 minWidth={WIDTHS.dataType}
                 name="aggregate"
                 label="Type"
-                options={{
-                    minmax: 'minmax',
-                    average: 'average',
-                    min: 'min',
-                    max: 'max',
-                    total: 'total',
-                    onchange: 'raw',
-                    percentile: 'percentile',
-                    integral: 'integral',
-                }}
+                options={aggregateTypes}
                 classes={{ fieldContainer: Utils.clsx(this.props.classes.shortDataTypeField, this.props.onPaste && this.props.classes.paste) }}
             /> : null}
             {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, Utils.clsx(this.props.classes.shortColorField, this.props.onPaste && this.props.classes.paste), true) : null}
@@ -432,7 +439,7 @@ class Line extends React.Component {
 
     renderOpenedLine() {
         const xAxisOptions = {
-            '': I18n.t('own axis')
+            '': I18n.t('own axis'),
         };
         for (let i = 0; i < this.props.maxLines; i++) {
             if (i !== this.props.index) {
@@ -441,6 +448,33 @@ class Line extends React.Component {
                 }
             }
         }
+        const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
+
+        const chartTypes = {
+            auto: 'Auto (Line or Steps)',
+            line: 'Line',
+            bar: 'Bar',
+            scatterplot: 'Scatter plot',
+            steps: 'Steps',
+            stepsStart: 'Steps on start',
+            spline: 'Spline',
+        };
+
+        const aggregateTypes = {
+            minmax: 'minmax',
+            average: 'average',
+            min: 'min',
+            max: 'max',
+            total: 'total',
+            onchange: 'raw',
+            percentile: 'percentile',
+            integral: 'integral',
+        };
+
+        if (hasBar) {
+            delete aggregateTypes.minmax;
+        }
+
         const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
         return <>
             <div>
@@ -497,24 +531,17 @@ class Line extends React.Component {
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
                 {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="chartType" label="Chart type" options={{
-                    auto: 'Auto (Line or Steps)',
-                    line: 'Line',
-                    //bar: 'Bar',
-                    scatterplot: 'Scatter plot',
-                    steps: 'Steps',
-                    stepsStart: 'Steps on start',
-                    spline: 'Spline',
-                }}/>
-                {this.props.line.chartType !== 'auto' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={{
-                    minmax: 'minmax',
-                    average: 'average',
-                    min: 'min',
-                    max: 'max',
-                    total: 'total',
-                    onchange: 'raw',
-                    percentile: 'percentile',
-                    integral: 'integral',
+                <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="chartType"
+                    label="Chart type"
+                    options={chartTypes}
+                />
+                {this.props.line.chartType !== 'auto' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={aggregateTypes}/> : null }
+                {this.props.line.chartType === 'bar' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="postProcessing" label="Processing" options={{
+                    '': 'non-processed',
+                    'diff': 'difference',
                 }}/> : null }
                 {this.props.line.aggregate === 'percentile' ? <IOSlider formData={this.props.line} updateValue={this.updateField} name="percentile" step={5} max={100} label="Percentile"/> : null }
                 {this.props.line.aggregate === 'integral' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="integralUnit" label="Integral unit" min={1} type="number" title={I18n.t('In seconds')}/> : null }
@@ -523,7 +550,7 @@ class Line extends React.Component {
                     'linear': 'linear',
                 }}/> : null }
                 {this.props.line.chartType === 'scatterplot' || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number"/> : null }
-                {this.props.line.chartType !== 'scatterplot' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')}/> : null }
+                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')}/> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend"/> : null}
             </div>
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
@@ -531,7 +558,7 @@ class Line extends React.Component {
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name"/>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
             </div>
-            {this.props.line.chartType !== 'scatterplot' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
+            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
                 <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
                 <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)"/>
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points"/>
@@ -609,11 +636,11 @@ class Line extends React.Component {
                 }}/>
                 {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0}/>*/}
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0}/>
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
+                {this.props.line.chartType !== 'bar' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
                     'solid': 'solid',
                     'dashed': 'dashed',
                     'dotted': 'dotted',
-                }}/>
+                }} /> : null}
             </div>
             {/*<div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                             <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes"/>
