@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "news": {
+      "1.3.0": {
+        "en": "Implemented bar chart",
+        "de": "Ergänztes Balkendiagramm",
+        "ru": "Реализована барная карта",
+        "pt": "Gráfico de barras implementado",
+        "nl": "Vertaling:",
+        "fr": "Tableau barres mis en œuvre",
+        "it": "Grafico a barre implementato",
+        "es": "Gráfico de barras aplicado",
+        "pl": "Implementacja barowa",
+        "uk": "Реалізовано діаграму бару",
+        "zh-cn": "执行巴图图"
+      },
       "1.2.1": {
         "en": "Changed german translation\nAdded new positions for markings: inside, top, bottom",
         "de": "Deutsch Übersetzung ändern\nNeue Positionen für Markierungen hinzugefügt: innen, oben, unten",
@@ -77,18 +90,6 @@
         "es": "Lo hizo funcionar con la nube de yoBroker",
         "pl": "Uprawiała się w chmurze ioBrokera",
         "zh-cn": "马约恩岛与奥布罗克云合作"
-      },
-      "1.0.10": {
-        "en": "Corrected the problem with `socket.io`",
-        "de": "Hat das Problem mit der Steckdose korrigiert. io",
-        "ru": "Исправлена проблема с розеткой. io",
-        "pt": "Corrigido o problema com a tomada. I",
-        "nl": "Het probleem met de soket gecorrigeerd. io",
-        "fr": "Correction du problème avec la socket. io",
-        "it": "Corretto il problema con la presa. I",
-        "es": "Corregido el problema con el socket. io",
-        "pl": "Poprawiono problem z gniazdem. i",
-        "zh-cn": "把问题与袖手旁观。 0%"
       }
     },
     "title": "E-Charts",
