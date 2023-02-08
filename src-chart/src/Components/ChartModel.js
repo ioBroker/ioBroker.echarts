@@ -862,7 +862,11 @@ class ChartModel {
 
         if (postProcessingMethod === 'diff') {
             for (let i = series.length - 1; i > 0; i--) {
-                series[i] = series[i] - series[i - 1];
+                if (series[i - 1] && series[i]) {
+                    series[i] = series[i] - series[i - 1];
+                } else {
+                    series[i] = 0;
+                }
             }
             series.splice(0, 1);
             categories.splice(0, 1);
