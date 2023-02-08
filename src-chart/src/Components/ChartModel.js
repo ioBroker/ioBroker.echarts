@@ -896,18 +896,20 @@ class ChartModel {
                     let barCategories = this.barCategories;
 
                     // fill categories for bars
-                    if (this.config.l[index].chartType === 'bar' && !barCategories) {
-                        barCategories = [];
-                        this.barCategories = barCategories;
-                        const start = new Date(option.start);
-                        while (start.getTime() < option.end) {
-                            barCategories.push(start.getTime());
+                    if (this.config.l[index].chartType === 'bar') {
+                        if (!barCategories) {
+                            barCategories = [];
+                            this.barCategories = barCategories;
+                            const start = new Date(option.start);
+                            while (start.getTime() < option.end) {
+                                barCategories.push(start.getTime());
 
-                            start.setMinutes(start.getMinutes() + this.config.aggregateBar);
+                                start.setMinutes(start.getMinutes() + this.config.aggregateBar);
+                            }
                         }
-                    }
 
-                    barCategories.forEach(() => _series.push([]));
+                        barCategories.forEach(() => _series.push([]));
+                    }
 
                     for (let i = 0; i < values.length; i++) {
                         // Convert boolean values to numbers
