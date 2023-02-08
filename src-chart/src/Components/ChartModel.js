@@ -682,6 +682,7 @@ class ChartModel {
             };
 
             if (this.config.l[index].chartType === 'bar') {
+                this.config.aggregateBar = parseInt(this.config.aggregateBar, 10) || 0;
                 // calculate count of intervals
                 if (!this.config.aggregateBar) {
                     if (end - start <= 3600000 * 12) { // less than 12 hours => 15 minutes
