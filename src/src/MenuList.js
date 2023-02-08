@@ -116,7 +116,7 @@ class MenuList extends Component {
                     }}
                 /> : null
             }
-            <div style={{ flexGrow: 1 }}/>
+            <div style={{ flexGrow: 1 }} />
 
             {(!this.state.showSearch && this.state.showReorder) || this.state.reorder ? <IconButton
                 key="reorder"

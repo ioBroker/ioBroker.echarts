@@ -158,7 +158,6 @@
   "this year": "今年",
   "Start:": "开始：",
   "End:": "结束：",
-  "Aggregate": "集合体",
   "Step type:": "步骤类型：",
   "seconds": "几秒钟",
   "Seconds": "几秒钟",
@@ -484,5 +483,14 @@
   "Inside middle bottom": "里面，中间，底部",
   "Inside end": "里面，尽头",
   "Inside end top": "在里面，在最后，在上面",
-  "Inside end bottom": "里面，最后，底部"
+  "Inside end bottom": "里面，最后，底部",
+  "convert_help": "输入公式，如“val / 1000 + 3”。此公式将应用于所选数据点的所有值。",
+  "Aggregate for lines": "线路聚合",
+  "Convert formula": "换算公式",
+  "Intervalls": "间隔",
+  "auto": "汽车",
+  "i15min": "15分钟",
+  "i1hour": "1小时",
+  "i1day": "1天",
+  "i30days": "30天"
 }

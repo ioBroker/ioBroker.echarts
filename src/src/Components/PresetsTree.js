@@ -335,7 +335,7 @@ class MenuList extends Component {
             button
             onClick={() => this.props.onSelectedChanged(preset._id)}
         >
-            <ListItemIcon classes={{ root: Utils.clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset) }}><IconScript className={this.props.classes.itemIcon}/></ListItemIcon>
+            <ListItemIcon classes={{ root: Utils.clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset) }}><IconScript className={this.props.classes.itemIcon} /></ListItemIcon>
             <ListItemText
                 classes={{ primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle }}
                 primary={<div className={this.props.classes.listItemTitleDiv}>{Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()})}</div>}
@@ -343,7 +343,7 @@ class MenuList extends Component {
             />
             <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
                 {this.state.changingPreset === preset._id ?
-                    <CircularProgress size={24}/>
+                    <CircularProgress size={24} />
                     :
                     (!this.props.reorder ? <>
                         {this.props.selectedId !== preset._id || !this.props.selectedPresetChanged ? <IconButton
@@ -365,7 +365,7 @@ class MenuList extends Component {
                                 onClick={ () => this.setState({ movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id) }) }>
                                 <IconMoveToFolder />
                             </IconButton> : null*/}
-                        <IconButton size="small" aria-label="Copy" title={ I18n.t('Copy') } onClick={ () => this.props.onCopyPreset(preset._id) }><IconCopy className={this.props.classes.iconCopy}/></IconButton>
+                        <IconButton size="small" aria-label="Copy" title={ I18n.t('Copy') } onClick={ () => this.props.onCopyPreset(preset._id) }><IconCopy className={this.props.classes.iconCopy} /></IconButton>
                         <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({ deletePresetDialog: preset._id }) }><IconDelete /></IconButton>
                     </> : null)
                 }
@@ -714,7 +714,7 @@ class MenuList extends Component {
                                 .then(() => this.setState({ editPresetFolderDialog: null }));
                         }
                     }}
-                    onChange={e => this.setState({ editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })}/>
+                    onChange={e => this.setState({ editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })} />
             </DialogContent>
             <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
                 <Button

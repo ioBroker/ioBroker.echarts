@@ -158,7 +158,6 @@
   "this year": "cette année",
   "Start:": "Début:",
   "End:": "Fin:",
-  "Aggregate": "Agrégat",
   "Step type:": "Type d'étape:",
   "seconds": "secondes",
   "Seconds": "Secondes",
@@ -484,5 +483,14 @@
   "Inside middle bottom": "A l'intérieur, au milieu, en bas",
   "Inside end": "À l'intérieur, à la fin",
   "Inside end top": "À l'intérieur, à la fin, au-dessus",
-  "Inside end bottom": "À l'intérieur, à la fin, en bas"
+  "Inside end bottom": "À l'intérieur, à la fin, en bas",
+  "convert_help": "Entrez la formule comme \"val / 1000 + 3\". Cette formule sera appliquée à toutes les valeurs du point de données sélectionné.",
+  "Aggregate for lines": "Agrégation pour les lignes",
+  "Convert formula": "Formule de conversion",
+  "Intervalls": "Intervalles",
+  "auto": "auto",
+  "i15min": "15 minutes",
+  "i1hour": "1 heure",
+  "i1day": "Un jour",
+  "i30days": "30 jours"
 }

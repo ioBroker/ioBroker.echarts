@@ -8,18 +8,19 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Popover from '@mui/material/Popover';
 
-import { IOTextField, IOSelect, IODateTimeField } from './Fields';
-import I18n from '@iobroker/adapter-react-v5/i18n';
-
 import { IoMdTime as IconTime } from 'react-icons/io';
 import { FiRefreshCw as IconRefresh } from 'react-icons/fi';
 import { IoMdArrowDropdown as IconDropDown } from 'react-icons/io';
 import { MdAdd as IconPlus } from 'react-icons/md';
 
+import { IOTextField, IOSelect, IODateTimeField } from './Fields';
+import { I18n } from '@iobroker/adapter-react-v5';
+
 class IconAggregate extends React.Component {
     render() {
-        return <svg onClick={e => this.props.onClick && this.props.onClick(e)} viewBox="0 0 32 32" width={this.props.width || 20} height={this.props.width || 20} xmlns="http://www.w3.org/2000/svg" className={ this.props.className }>
-            <path fill='none' stroke="currentColor" strokeWidth='2' d='M16,9 L9,9 L9,16 L9,16 C9,19.8659932 12.1340068,23 16,23 L16,23 C19.8659932,23 23,19.8659932 23,16 C23,12.1340068 19.8659932,9 16,9 L16,9 Z M8,15 L15,15 L15,8 L15,8 C15,4.13400675 11.8659932,1 8,1 L8,1 C4.13400675,1 1,4.13400675 1,8 C1,11.8659932 4.13400675,15 8,15 L8,15 Z' transform='rotate(180 12 12)' />        </svg>;
+        return <svg onClick={e => this.props.onClick && this.props.onClick(e)} viewBox="0 0 32 32" width={this.props.width || 20} height={this.props.width || 20} xmlns="http://www.w3.org/2000/svg" className={this.props.className}>
+            <path fill='none' stroke="currentColor" strokeWidth='2' d='M16,9 L9,9 L9,16 L9,16 C9,19.8659932 12.1340068,23 16,23 L16,23 C19.8659932,23 23,19.8659932 23,16 C23,12.1340068 19.8659932,9 16,9 L16,9 Z M8,15 L15,15 L15,8 L15,8 C15,4.13400675 11.8659932,1 8,1 L8,1 C4.13400675,1 1,4.13400675 1,8 C1,11.8659932 4.13400675,15 8,15 L8,15 Z' transform='rotate(180 12 12)' />
+        </svg>;
     }
 }
 
@@ -228,14 +229,14 @@ class ChartSettings extends React.Component {
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
                             'relative': 'relative',
                             'static': 'static',
-                        }}/>
+                        }} />
                         { this.props.presetData.timeType === 'static' ?
                             <>
                                 <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
                                 <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
                             </> : <>
-                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={relativeEndOptions}/>
-                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={rangeOptions}/>
+                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={relativeEndOptions} />
+                                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={rangeOptions} />
                             </>
                         }
                     </div>
@@ -243,13 +244,13 @@ class ChartSettings extends React.Component {
             </Popover>
             <Button
                 color="grey"
-                title={ I18n.t('Aggregate') }
+                title={I18n.t('Aggregate')}
                 size="small"
                 className={this.props.classes.settingsButton}
                 id="aggregateOpenButton"
                 onClick={() => this.setState({ aggregateOpened: !this.state.aggregateOpened })}
             >
-                <IconAggregate className={this.props.classes.aggregateIcon}/>
+                <IconAggregate className={this.props.classes.aggregateIcon} />
                 {CHART_TYPES[this.props.presetData.chartType] ? I18n.t(CHART_TYPES[this.props.presetData.chartType]) : ''}
                 /
                 {AGGREGATES[this.props.presetData.aggregate] ? I18n.t(AGGREGATES[this.props.presetData.aggregate]) : ''}
@@ -274,11 +275,11 @@ class ChartSettings extends React.Component {
                             updateValue={this.updateField}
                             name="aggregate"
                             label="Aggregate"
-                            options={AGGREGATES}/> : null}
+                            options={AGGREGATES} /> : null}
                         {this.props.presetData.aggregate !== 'onchange' ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="aggregateType" label="Step type" options={{
                             'count': 'counts',
                             'step': 'seconds',
-                        }}/> : null}
+                        }} /> : null}
                         {this.props.presetData.aggregate !== 'onchange' ? <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="aggregateSpan"
                             label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                         /> : null}
@@ -300,14 +301,14 @@ class ChartSettings extends React.Component {
                     </div>
                 }
             /> : null }
-            <div className={this.props.classes.grow1}/>
+            <div className={this.props.classes.grow1} />
             <Button
                 variant="contained"
                 color="primary"
                 className={this.props.classes.hintButton}
                 onClick={() => this.props.onCreatePreset(true)}
             >
-                <IconPlus className={this.props.classes.buttonIcon}/>
+                <IconPlus className={this.props.classes.buttonIcon} />
                 {I18n.t('Create preset')}
             </Button>
         </Toolbar>;

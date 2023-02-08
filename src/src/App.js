@@ -684,7 +684,7 @@ class App extends GenericApp {
             return <StylesProvider generateClassName={generateClassName}>
                 <StyledEngineProvider injectFirst>
                     <ThemeProvider theme={this.state.theme}>
-                        <Loader theme={this.state.themeType}/>
+                        <Loader theme={this.state.themeType} />
                     </ThemeProvider>
                 </StyledEngineProvider>
             </StylesProvider>;

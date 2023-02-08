@@ -36,7 +36,7 @@ class LineDialog extends React.Component {
                 }}
                 />
                 <div className={this.props.classes.dialogSlider}>
-                    <IOSlider formData={this.props.line} updateValue={this.props.updateField} name="fill" label="Fill (from 0 to 1)"/>
+                    <IOSlider formData={this.props.line} updateValue={this.props.updateField} name="fill" label="Fill (from 0 to 1)" />
                 </div>
                 <div className={this.props.classes.dialogSlider}>
                     <IOSlider

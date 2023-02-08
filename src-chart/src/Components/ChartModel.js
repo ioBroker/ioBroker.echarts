@@ -199,7 +199,7 @@ function normalizeConfig(config) {
     config.marks = config.marks || [];
 
     if (!config.l.length) {
-        config.l.push({id: '', unit: ''});
+        config.l.push({ id: '', unit: '' });
     }
 
     // Set default values
@@ -916,6 +916,20 @@ class ChartModel {
                         barCategories.forEach(() => _series.push([]));
                     }
 
+                    let convertFunc;
+                    if (this.config.l[index].convert) {
+                        let convert = this.config.l[index].convert;
+                        if (!convert.includes('return')) {
+                            convert = `return ${convert}`;
+                        }
+                        try {
+                            // eslint-disable-next-line no-new-func
+                            convertFunc = new Function('val', convert);
+                        } catch (e) {
+                            console.error(`[ChartModel] Cannot parse convert function: ${e}`);
+                        }
+                    }
+
                     for (let i = 0; i < values.length; i++) {
                         // Convert boolean values to numbers
                         if (values[i].val === 'true' || values[i].val === true) {
@@ -931,12 +945,22 @@ class ChartModel {
                             // find category
                             for (let c = 0; c < barCategories.length; c++) {
                                 if (barCategories[c] >= values[i].ts && values[i].ts < barCategories[c] + this.config.aggregateBar * 60000) {
-                                    _series[c].push(values[i].val !== null ? values[i].val + option.yOffset : null);
+                                    if (convertFunc) {
+                                        _series[c].push(values[i].val !== null ? convertFunc(values[i].val + option.yOffset) : null);
+                                    } else {
+                                        _series[c].push(values[i].val !== null ? values[i].val + option.yOffset : null);
+                                    }
                                     break;
                                 }
                             }
                         } else {
-                            const dp = {value: [values[i].ts, values[i].val !== null ? values[i].val + option.yOffset : null]};
+                            let val;
+                            if (convertFunc) {
+                                val = values[i].val !== null ? convertFunc(values[i].val + option.yOffset) : null;
+                            } else {
+                                val = values[i].val !== null ? values[i].val + option.yOffset : null;
+                            }
+                            const dp = {value: [values[i].ts, val]};
 
                             // If value was interpolated by backend
                             if (values[i].i) {

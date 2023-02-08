@@ -158,7 +158,6 @@
   "this year": "Quest'anno",
   "Start:": "Inizio:",
   "End:": "Fine:",
-  "Aggregate": "Associa",
   "Step type:": "Tipo di passa:",
   "seconds": "secondi",
   "Seconds": "Secondi",
@@ -484,5 +483,14 @@
   "Inside middle bottom": "Dentro, in mezzo, in basso",
   "Inside end": "Dentro, alla fine",
   "Inside end top": "Dentro, alla fine, sopra",
-  "Inside end bottom": "Dentro, alla fine, in fondo"
+  "Inside end bottom": "Dentro, alla fine, in fondo",
+  "convert_help": "Inserisci la formula come \"val / 1000 + 3\". Questa formula verrà applicata a tutti i valori del datapoint selezionato.",
+  "Aggregate for lines": "Aggregazione per linee",
+  "Convert formula": "Formula di conversione",
+  "Intervalls": "Intervalli",
+  "auto": "auto",
+  "i15min": "15 minuti",
+  "i1hour": "1 ora",
+  "i1day": "1 giorno",
+  "i30days": "30 giorni"
 }

@@ -83,6 +83,9 @@ You can debug view charts locally with:
 -->
 ## Changelog
 ### **WORK IN PROGRESS**
+* (bluefox) added a formula for the values conversion
+
+### 1.3.3 (2023-02-08)
 * (bluefox) Implemented bar chart
 
 ### 1.2.1 (2023-01-31)

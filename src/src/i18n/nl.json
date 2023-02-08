@@ -158,7 +158,6 @@
   "this year": "dit jaar",
   "Start:": "Begin:",
   "End:": "Einde:",
-  "Aggregate": "Aggregaat",
   "Step type:": "Stap type:",
   "seconds": "seconden",
   "Seconds": "seconden",
@@ -484,5 +483,14 @@
   "Inside middle bottom": "Binnen, in het midden, onderaan",
   "Inside end": "Binnen, aan het einde",
   "Inside end top": "Binnen, aan het einde, bovenop",
-  "Inside end bottom": "Binnen, aan het einde, onderaan"
+  "Inside end bottom": "Binnen, aan het einde, onderaan",
+  "convert_help": "Voer de formule in zoals \"val / 1000 + 3\". Deze formule wordt toegepast op alle waarden van het geselecteerde datapunt.",
+  "Aggregate for lines": "Aggregatie voor lijnen",
+  "Convert formula": "Conversie formule",
+  "Intervalls": "intervallen",
+  "auto": "auto",
+  "i15min": "15 minuten",
+  "i1hour": "1 uur",
+  "i1day": "1 dag",
+  "i30days": "30 dagen"
 }

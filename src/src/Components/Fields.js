@@ -116,7 +116,7 @@ let IOCheckbox = function (props) {
                 onChange={e => props.updateValue(props.name, e.target.checked)}
                 checked={props.formData[props.name] || false}
             />
-        }/>
+        } />
     </div>;
 };
 IOCheckbox.propTypes = {
@@ -127,39 +127,44 @@ IOCheckbox.propTypes = {
     formData: PropTypes.object,
 };
 IOCheckbox = withStyles(styles)(IOCheckbox);
-export {IOCheckbox};
+export { IOCheckbox };
 
-let IOTextField = function (props) {
-    return <div className={props.classes.fieldContainer}>
-        <TextField
-            variant="standard"
-            disabled={!!props.disabled}
-            style={{ width: props.formData[props.name] ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : (props.width || '100%') }}
-            label={I18n.t(props.label)}
-            InputLabelProps={{ shrink: true }}
-            inputProps={{ min: props.min, max: props.max }}
-            onChange={e => props.updateValue(props.name, e.target.value)}
-            value={props.formData[props.name] || ''}
-            type={props.type}
-            title={props.title || ''}
-            InputProps={{
-                startAdornment: !props.disabled && props.helperLink ? <IconButton
+let IOTextField = props => <div className={props.classes.fieldContainer}>
+    <TextField
+        variant="standard"
+        disabled={!!props.disabled}
+        style={{ width: props.formData[props.name] ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : (props.width || '100%') }}
+        label={I18n.t(props.label)}
+        InputLabelProps={{ shrink: true }}
+        inputProps={{ min: props.min, max: props.max }}
+        onChange={e => props.updateValue(props.name, e.target.value)}
+        value={props.formData[props.name] || ''}
+        type={props.type}
+        title={props.title || ''}
+        InputProps={{
+            startAdornment: !props.disabled && props.helperLink ? <IconButton
+                size="small"
+                onClick={() => {
+                    if (typeof props.helperLink === 'function') {
+                        props.helperLink();
+                    } else {
+                        window.open(props.helperLink,'_blank');
+                    }
+                }}>
+                <HelpIcon />
+            </IconButton> : undefined,
+
+            endAdornment: !props.disabled && props.formData[props.name] ?
+                <IconButton
                     size="small"
-                    onClick={() => window.open(props.helperLink,'_blank')}>
-                    <HelpIcon />
-                </IconButton> : undefined,
+                    onClick={() => props.updateValue(props.name, '')}>
+                    <ClearIcon />
+                </IconButton>
+                : undefined,
+        }}
+    />
+</div>;
 
-                endAdornment: !props.disabled && props.formData[props.name] ?
-                    <IconButton
-                        size="small"
-                        onClick={() => props.updateValue(props.name, '')}>
-                        <ClearIcon />
-                    </IconButton>
-                    : undefined,
-            }}
-        />
-    </div>;
-};
 IOTextField.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string,
@@ -169,20 +174,18 @@ IOTextField.propTypes = {
     type: PropTypes.string,
     min: PropTypes.number,
     max: PropTypes.number,
-    helperLink: PropTypes.string,
+    helperLink: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     width: PropTypes.number,
 };
 IOTextField = withStyles(styles)(IOTextField);
-export {IOTextField};
+export { IOTextField };
 
-let IODateTimeField = function (props) {
-    return <div className={props.classes.fieldContainer}>
-        <TextField variant="standard" type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{ shrink: true }} onChange={e => {
-            let date = e.target.value.split('T');
-            props.updateValue(props.name, date[0], date[1]);
-        }} value={props.formData[props.name] ? `${props.formData[props.name]}T${props.formData[props.name + '_time']}` : ''}/>
-    </div>;
-};
+let IODateTimeField = props => <div className={props.classes.fieldContainer}>
+    <TextField variant="standard" type="datetime-local" label={I18n.t(props.label)} InputLabelProps={{ shrink: true }} onChange={e => {
+        let date = e.target.value.split('T');
+        props.updateValue(props.name, date[0], date[1]);
+    }} value={props.formData[props.name] ? `${props.formData[props.name]}T${props.formData[props.name + '_time']}` : ''} />
+</div>;
 IODateTimeField.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
@@ -190,7 +193,7 @@ IODateTimeField.propTypes = {
     formData: PropTypes.object,
 };
 IODateTimeField = withStyles(styles)(IODateTimeField);
-export {IODateTimeField};
+export { IODateTimeField };
 
 let IOObjectField = function (props) {
     let [state, setState] = useState({});
@@ -242,7 +245,7 @@ IOObjectField.propTypes = {
     customFilter: PropTypes.object,
 };
 IOObjectField = withStyles(styles)(IOObjectField);
-export {IOObjectField};
+export { IOObjectField };
 
 let IOColorPicker = function (props) {
     return <div className={props.classes.fieldContainer}>
@@ -258,7 +261,8 @@ let IOColorPicker = function (props) {
                 endAdornment: !props.disabled && props.formData[props.name] ?
                     <IconButton
                         size="small"
-                        onClick={() => props.updateValue(props.name, '')}>
+                        onClick={() => props.updateValue(props.name, '')}
+                    >
                         <ClearIcon />
                     </IconButton>
                     : undefined,
@@ -307,4 +311,4 @@ IOSlider.propTypes = {
     formData: PropTypes.object,
 };
 IOSlider = withStyles(styles)(IOSlider);
-export {IOSlider};
+export { IOSlider };

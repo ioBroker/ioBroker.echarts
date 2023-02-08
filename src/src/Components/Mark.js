@@ -385,26 +385,26 @@ class Mark extends React.Component {
 
                     <IOTextField
                         formData={this.props.mark}
-                        updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number"/>
+                        updateValue={this.updateField} name="ol" label="ØL Line thickness" type="number" />
 
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number"/>
+                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="os" label="ØS Shadow size" type="number" />
 
                     <IOSelect formData={this.props.mark} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
                         'solid': 'solid',
                         'dashed': 'dashed',
                         'dotted': 'dotted',
-                    }}/>
+                    }} />
 
                     {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') &&
                     (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
-                        <IOSlider formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)"/> : null}
+                        <IOSlider formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" /> : null}
                 </div> : null}
 
             {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
             (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
                 <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                     <p className={this.props.classes.title}>{I18n.t('Label')}</p>
-                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text"/>
+                    <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text" />
                     {this.props.mark.text ?
                         <IOSelect formData={this.props.mark} updateValue={this.updateField} name="textPosition" label="Text position" options={{
                             'l': 'Left',
@@ -418,9 +418,9 @@ class Mark extends React.Component {
                             'insideEnd': 'Inside end',
                             'insideEndTop': 'Inside end top',
                             'insideEndBottom': 'Inside end bottom',
-                        }}/> : null}
-                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text X offset" type="number"/> : null}
-                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number"/> : null}
+                        }} /> : null}
+                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text X offset" type="number" /> : null}
+                    {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number" /> : null}
                     {this.props.mark.text ? this.renderColorField(this.props.mark, this.updateField, 'Text color', 'textColor') : null}
                 </div> : null }
         </>;

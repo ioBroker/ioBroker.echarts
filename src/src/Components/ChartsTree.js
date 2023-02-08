@@ -530,9 +530,9 @@ class ChartsTree extends Component {
         >
             <ListItemIcon classes={{ root: this.props.classes.itemIconRoot }}>
                 {group.types[id] === 'boolean' ?
-                    <IconBooleanChart className={this.props.classes.itemIcon}/>
+                    <IconBooleanChart className={this.props.classes.itemIcon} />
                     :
-                    <IconChart className={this.props.classes.itemIcon}/>
+                    <IconChart className={this.props.classes.itemIcon} />
                 }
             </ListItemIcon>
             <ListItemText
@@ -732,18 +732,18 @@ class ChartsTree extends Component {
                                                               onClick={() => this.toggleChartFolder(group._id)}>
                                                     {opened ?
                                                         <IconFolderOpened
-                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/> :
+                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
                                                         <IconFolderClosed
-                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}/>
+                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} />
                                                     }
                                                 </ListItemIcon>
                                                 <ListItemText primary={
                                                     <div className={this.props.classes.itemNameDiv}>
                                                         <img className={this.props.classes.adapterIcon} alt=""
-                                                             src={`../../adapter/${group.name}/${group.icon}`}/>
+                                                             src={`../../adapter/${group.name}/${group.icon}`} />
                                                         <div className={this.props.classes.groupName}>{group._id.replace('system.adapter.', '')}</div>
                                                     </div>
-                                                }/>
+                                                } />
                                                 <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
                                                     {opened ? <IconButton
                                                         size="small"

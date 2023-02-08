@@ -533,16 +533,52 @@ class PresetTabs extends React.Component {
         const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
         const anyNotOnChange = this.props.presetData.lines.find(line => line.aggregate !== 'onchange');
 
+        const barIntervalOptions = {
+            0: 'auto',
+            15: 'i15min',
+            60: 'i1hour',
+            1440: 'i1day',
+            43200: 'i30days',
+        };
+        if (this.props.presetData.timeType !== 'static') {
+            if (this.props.presetData.range === '10' ||
+                this.props.presetData.range === '30' ||
+                this.props.presetData.range === '60'
+            ) {
+                delete barIntervalOptions[60];
+                delete barIntervalOptions[1440];
+                delete barIntervalOptions[43200];
+            } else if (
+                this.props.presetData.range === '120' ||
+                this.props.presetData.range === '180' ||
+                this.props.presetData.range === '360' ||
+                this.props.presetData.range === '720' ||
+                this.props.presetData.range === '1440'
+            ) {
+                delete barIntervalOptions[1440];
+                delete barIntervalOptions[43200];
+            } else if (
+                this.props.presetData.range === '2880' ||
+                this.props.presetData.range === '4320' ||
+                this.props.presetData.range === '10080' ||
+                this.props.presetData.range === '20160' ||
+                this.props.presetData.range === '1m'
+
+            ) {
+                delete barIntervalOptions[43200];
+            }
+        }
+
         return <TabPanel value="2" classes={{ root: this.props.classes.tabContent }}>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Type')}</p>
                 <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
                     relative: 'relative',
                     static: 'static',
-                }}/>
+                }} />
             </div>
             <div className={this.props.classes.group}>
-                { this.props.presetData.timeType === 'static' ?
+                {this.props.presetData.timeType === 'static' ?
                     <>
                         <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
                         <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
@@ -567,7 +603,7 @@ class PresetTabs extends React.Component {
                             'weekUsa': 'end of saturday',
                             'month': 'this month',
                             'year': 'this year',
-                        }}/>
+                        }} />
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={{
                             '10': '10 minutes',
                             '30': '30 minutes',
@@ -587,7 +623,7 @@ class PresetTabs extends React.Component {
                             '6m': '6 months',
                             '1y': '1 year',
                             '2y': '2 years',
-                        }}/>
+                        }} />
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="live" label="Live update every" options={{
                             '': 'none',
                             '5': '5 seconds',
@@ -608,7 +644,7 @@ class PresetTabs extends React.Component {
                             '21600': '6 hours',
                             '43200': '12 hours',
                             '86400': '1 day',
-                        }}/>
+                        }} />
                     </>
                 }
             </div>
@@ -644,13 +680,7 @@ class PresetTabs extends React.Component {
                         updateValue={this.updateField}
                         name="aggregateBar"
                         label={I18n.t('Intervalls')}
-                        options={{
-                            0: 'auto',
-                            15: 'i15min',
-                            60: 'i1hour',
-                            1440: 'i1day',
-                            43200: 'i30days',
-                        }}
+                        options={barIntervalOptions}
                     />
                 </div> : null }
             <div className={this.props.classes.group}>
@@ -684,7 +714,7 @@ class PresetTabs extends React.Component {
                         'mm': 'MM',
                         'ddd': 'dow',
                         'DD.MM.YY': 'dd.mm.yy',
-                    }}/> :
+                    }} /> :
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" helperLink="https://momentjs.com/docs/#/displaying/format/" />
                 }
                 {/*<IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Animation" name="animation" options={{
@@ -696,7 +726,7 @@ class PresetTabs extends React.Component {
                                 '3000': '3 seconds',
                                 '5000': '5 seconds',
                                 '10000': '10 seconds',
-                            }}/>*/}
+                            }} />*/}
             </div>
         </TabPanel>;
     }
@@ -739,7 +769,7 @@ class PresetTabs extends React.Component {
                     'ne': 'Top, right',
                     'sw': 'Bottom, left',
                     'se': 'Bottom, right',
-                }}/>
+                }} />
                 {this.props.presetData.legend ?
                     <>
                         {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" />*/}
@@ -750,9 +780,9 @@ class PresetTabs extends React.Component {
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Orientation" name="legendDirection" options={{
                             '': 'horizontal',
                             vertical: 'vertical'
-                        }}/>
+                        }} />
                         {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legFontSize" label="Font size" min={6} type="number"/>
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legFontSize" label="Font size" min={6} type="number" />
                     </> : null}
             </div>
             <div className={this.props.classes.group}>
@@ -802,7 +832,7 @@ class PresetTabs extends React.Component {
         return <TabPanel value="4" classes={{ root: this.props.classes.tabContent }}>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Title')}</p>
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title"/>
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title" />
                 {this.props.presetData.title ?
                     <>
                         <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="titlePos" label="Title position" options={{
@@ -819,7 +849,7 @@ class PresetTabs extends React.Component {
                             'top:50;right:-5': 'Middle, right, outside',
                             'bottom:5;right:-5': 'Bottom, right, outside',
                             'bottom:-5;left:50': 'Bottom, center, outside',*/
-                        }}/>
+                        }} />
                         {this.renderColorField(this.props.presetData, this.updateField, 'Title color', 'titleColor')}
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" min={0} type="number" />
                     </>
@@ -853,11 +883,11 @@ class PresetTabs extends React.Component {
                     'red': 'red',
                     'red-velvet': 'red-velvet',
                     'green': 'green',
-                }}/>
+                }} />
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Chart size')}</p>
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width"  label="Width"  classes={{ fieldContainer: this.props.classes.marginTop }}/>
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width"  label="Width"  classes={{ fieldContainer: this.props.classes.marginTop }} />
                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" classes={{ fieldContainer: this.props.classes.marginTop }} />
             </div>
             <div className={this.props.classes.group}>
@@ -869,10 +899,10 @@ class PresetTabs extends React.Component {
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Labels')}</p>
                 {this.renderColorField(this.props.presetData, this.updateField, 'X labels color', 'x_labels_color', undefined, this.props.classes.marginTop)}
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="x_labels_size" label="X labels size" min={6} type="number"/>
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="x_labels_size" label="X labels size" min={6} type="number" />
                 {this.renderColorField(this.props.presetData, this.updateField, 'X ticks color', 'x_ticks_color', undefined, this.props.classes.marginTop)}
                 {this.renderColorField(this.props.presetData, this.updateField, 'Y labels color', 'y_labels_color', undefined, this.props.classes.marginTop)}
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="y_labels_size" label="Y labels size" min={6} type="number"/>
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="y_labels_size" label="Y labels size" min={6} type="number" />
                 {this.renderColorField(this.props.presetData, this.updateField, 'Y ticks color', 'y_ticks_color', undefined, this.props.classes.marginTop)}
             </div>
             <div className={this.props.classes.group}>
@@ -888,10 +918,10 @@ class PresetTabs extends React.Component {
                 <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="noBorder" label="Border" options={{
                     '': 'With border',
                     noborder: 'Without border',
-                }}/>
+                }} />
                 {this.props.presetData.noBorder !== 'noborder' ?
                     <>
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_width" label="Border width" min={0} type="number"/>
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_width" label="Border width" min={0} type="number" />
                         {this.props.presetData.border_width ? this.renderColorField(this.props.presetData, this.updateField, 'Border color', 'border_color') : null}
                         {this.props.presetData.border_width ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="border_style" label="Border style" options={{
                             'solid':  'solid',
@@ -902,8 +932,8 @@ class PresetTabs extends React.Component {
                             'ridge':  'ridge',
                             'inset':  'inset',
                             'outset': 'outset',
-                        }}/> : null}
-                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min={0} type="number"/>
+                        }} /> : null}
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min={0} type="number" />
 
                     </> : null}
             </div>
@@ -916,9 +946,9 @@ class PresetTabs extends React.Component {
                         'topunder': 'top under',
                         'bottom': 'bottom',
                         'middle': 'middle',
-                    }}/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barWidth" label="Bars width" min={0} type="number"/>
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barFontSize" label="Label font size" min={0} type="number"/>
+                    }} />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barWidth" label="Bars width" min={0} type="number" />
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barFontSize" label="Label font size" min={0} type="number" />
                     {this.renderColorField(this.props.presetData, this.updateField, 'Label color', 'barFontColor')}
                 </Grid>
                 : null
@@ -996,12 +1026,12 @@ class PresetTabs extends React.Component {
                     variant="scrollable"
                     scrollButtons
                 >
-                    <Tab label={I18n.t('Data')} value="0"/>
-                    <Tab label={I18n.t('Markings')} value="1"/>
-                    <Tab label={I18n.t('Time')} value="2"/>
-                    <Tab label={I18n.t('Options')} value="3"/>
-                    <Tab label={I18n.t('Title')} value="4"/>
-                    <Tab label={I18n.t('Appearance')} value="5"/>
+                    <Tab label={I18n.t('Data')} value="0" />
+                    <Tab label={I18n.t('Markings')} value="1" />
+                    <Tab label={I18n.t('Time')} value="2" />
+                    <Tab label={I18n.t('Options')} value="3" />
+                    <Tab label={I18n.t('Title')} value="4" />
+                    <Tab label={I18n.t('Appearance')} value="5" />
                 </TabList>
             </AppBar>
             <div className={this.props.classes.tabsBody}>
