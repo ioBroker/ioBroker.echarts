@@ -82,7 +82,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.1 (2023-02-08)
 * (bluefox) Implemented bar chart
 
 ### 1.2.1 (2023-01-31)
