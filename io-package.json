@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.3.1",
+    "version": "1.3.2",
     "news": {
+      "1.3.2": {
+        "en": "Implemented bar chart",
+        "de": "Ergänztes Balkendiagramm",
+        "ru": "Реализована барная карта",
+        "pt": "Gráfico de barras implementado",
+        "nl": "Vertaling:",
+        "fr": "Tableau barres mis en œuvre",
+        "it": "Grafico a barre implementato",
+        "es": "Gráfico de barras aplicado",
+        "pl": "Implementacja barowa",
+        "uk": "Реалізовано діаграму бару",
+        "zh-cn": "执行巴图图"
+      },
       "1.2.1": {
         "en": "Changed german translation\nAdded new positions for markings: inside, top, bottom",
         "de": "Deutsch Übersetzung ändern\nNeue Positionen für Markierungen hinzugefügt: innen, oben, unten",
