@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "news": {
+      "1.3.4": {
+        "en": "added a formula for the values conversion",
+        "de": "eine formel für die wertekonversion hinzugefügt",
+        "ru": "добавлена формула для преобразования значений",
+        "pt": "adicionou uma fórmula para a conversão de valores",
+        "nl": "voegde een formule toe voor de waarden bekeren",
+        "fr": "a ajouté une formule pour la conversion des valeurs",
+        "it": "aggiunto una formula per la conversione dei valori",
+        "es": "agregó una fórmula para la conversión de valores",
+        "pl": "dodał formułę dla wartości konwersji",
+        "uk": "додано формулу перетворення значень",
+        "zh-cn": "a. 价值观转换的附加公式"
+      },
       "1.3.3": {
         "en": "Implemented bar chart",
         "de": "Ergänztes Balkendiagramm",
@@ -78,18 +91,6 @@
         "es": "Lo hizo funcionar con la nube de yoBroker\nGUI migrated to mui5",
         "pl": "Uprawiała się w chmurze ioBrokera\nGUI migruje do mui5",
         "zh-cn": "马约恩岛与奥布罗克云合作\n古伊人移到马伊5人"
-      },
-      "1.0.12": {
-        "en": "Made it work with ioBroker cloud",
-        "de": "Es funktioniert mit ioBroker Cloud",
-        "ru": "Сделано в ioBroker cloud",
-        "pt": "Fez com que funcionasse com a nuvem ioBroker",
-        "nl": "Ik liet het werken met ioBrokerwolk",
-        "fr": "Il a fait fonctionner avec ioBroker cloud",
-        "it": "Ha fatto funzionare con ioBroker cloud",
-        "es": "Lo hizo funcionar con la nube de yoBroker",
-        "pl": "Uprawiała się w chmurze ioBrokera",
-        "zh-cn": "马约恩岛与奥布罗克云合作"
       }
     },
     "title": "E-Charts",

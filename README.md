@@ -82,7 +82,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.4 (2023-02-08)
 * (bluefox) added a formula for the values conversion
 
 ### 1.3.3 (2023-02-08)
