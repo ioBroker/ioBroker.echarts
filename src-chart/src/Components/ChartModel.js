@@ -826,7 +826,7 @@ class ChartModel {
         for (let i = 0; i < series.length; i++) {
             let interval = series[i];
             if (!interval.length) {
-                series[i] = 0;
+                series[i] = null;
             } else {
                 // sum all values
                 if (interval.length === 1) {
@@ -862,7 +862,7 @@ class ChartModel {
 
         if (postProcessingMethod === 'diff') {
             for (let i = series.length - 1; i > 0; i--) {
-                if (series[i - 1] && series[i]) {
+                if (series[i - 1] !== null && series[i] !== null) {
                     series[i] = series[i] - series[i - 1];
                 } else {
                     series[i] = 0;
