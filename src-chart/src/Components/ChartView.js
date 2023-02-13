@@ -597,7 +597,7 @@ class ChartView extends React.Component {
                 window.document.title = this.props.config.presetId;
             }
 
-            // console.log(JSON.stringify(this.option, null, 2));
+            console.log(JSON.stringify(this.option, null, 2));
 
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 

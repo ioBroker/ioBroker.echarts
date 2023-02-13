@@ -31,6 +31,20 @@ Lower case `i` indicates that the value was interpolated from the 2 neighbour va
 
 ![Tooltip](img/tooltip.png) 
 
+### Data from JSON
+You can define the data source from JSON. In this case you can create some custom state of type `json` and store the value like this:
+```
+[
+  {"ts": 1675887847000, "val": 45},
+  {"ts": 1675887848000, "val": 77},
+  {"ts": 1675887849000, "val": 180}
+]
+```
+
+You cannot define start and start in echarts settings. The start and end will be calculated automatically from the data.
+Aggregation is not possible too. All manipulations must be done by writing of the JSON data.
+The chart will be automatically updated every time the value changes.
+
 ### Server side rendering
 You can render the presets on the server and get it as base64 URL or save it on disk on in ioBroker DB:
 

@@ -265,8 +265,6 @@ class ChartModel {
             this.onPresetUpdateBound = this.onPresetUpdate.bind(this);
         } // else node.js
 
-        this.onStateChangeBound = this.onStateChange.bind(this);
-
         this.socket.getSystemConfig()
             .catch(e => {
                 e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
@@ -477,7 +475,7 @@ class ChartModel {
 
     destroy() {
         if (this.subscribed) {
-            !this.serverSide && this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChangeBound));
+            !this.serverSide && this.subscribes.forEach(id => this.socket.unsubscribeState(id, this.onStateChange));
             this.subscribes = [];
             this.subscribed = null;
         }
@@ -877,161 +875,195 @@ class ChartModel {
         }
     }
 
-    readOneChart(id, instance, index, cb) {
-        const option = this.getStartStop(index);
-        option.instance  = instance;
-        option.sessionId = this.sessionId;
+    processRawData(id, index, values, option) {
+        if (!option) {
+            option = {
+                start: values[0].ts,
+                end: values[values.length - 1].ts,
+            };
+        }
 
-        //console.log(JSON.stringify(option));
-        this.debug && console.log(`[ChartModel] ${new Date(option.start)} - ${new Date(option.end)}`);
+        option.yOffset = this.config.l[index].yOffset;
 
-        this.socket.getHistoryEx(id, option)
-            .then(res => {
-                if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
-                    return console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+        this.seriesData[index] = []; // not really needed
+        const _series = this.seriesData[index];
+        let barCategories = this.barCategories;
+
+        // fill categories for bars
+        if (this.config.l[index].chartType === 'bar') {
+            if (!barCategories) {
+                barCategories = [];
+                this.barCategories = barCategories;
+                const start = new Date(option.start);
+                while (start.getTime() < option.end) {
+                    barCategories.push(start.getTime());
+
+                    start.setMinutes(start.getMinutes() + this.config.aggregateBar);
                 }
+            }
 
-                if (res && res.values) {
-                    // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
-                    option.yOffset = this.config.l[index].yOffset;
-                    const values = res.values;
+            barCategories.forEach(() => _series.push([]));
+        }
 
-                    this.seriesData[index] = []; // not really needed
-                    const _series = this.seriesData[index];
-                    let barCategories = this.barCategories;
+        let convertFunc;
+        if (this.config.l[index].convert) {
+            let convert = this.config.l[index].convert;
+            if (!convert.includes('return')) {
+                convert = `return ${convert}`;
+            }
+            try {
+                // eslint-disable-next-line no-new-func
+                convertFunc = new Function('val', convert);
+            } catch (e) {
+                console.error(`[ChartModel] Cannot parse convert function: ${e}`);
+            }
+        }
 
-                    // fill categories for bars
-                    if (this.config.l[index].chartType === 'bar') {
-                        if (!barCategories) {
-                            barCategories = [];
-                            this.barCategories = barCategories;
-                            const start = new Date(option.start);
-                            while (start.getTime() < option.end) {
-                                barCategories.push(start.getTime());
+        for (let i = 0; i < values.length; i++) {
+            // Convert boolean values to numbers
+            if (values[i].val === 'true' || values[i].val === true) {
+                values[i].val = 1;
+            } else if (values[i].val === 'false' || values[i].val === false) {
+                values[i].val = 0;
+            }
+            if (typeof values[i].val === 'string') {
+                values[i].val = parseFloat(values[i].val);
+            }
 
-                                start.setMinutes(start.getMinutes() + this.config.aggregateBar);
-                            }
-                        }
-
-                        barCategories.forEach(() => _series.push([]));
-                    }
-
-                    let convertFunc;
-                    if (this.config.l[index].convert) {
-                        let convert = this.config.l[index].convert;
-                        if (!convert.includes('return')) {
-                            convert = `return ${convert}`;
-                        }
-                        try {
-                            // eslint-disable-next-line no-new-func
-                            convertFunc = new Function('val', convert);
-                        } catch (e) {
-                            console.error(`[ChartModel] Cannot parse convert function: ${e}`);
-                        }
-                    }
-
-                    for (let i = 0; i < values.length; i++) {
-                        // Convert boolean values to numbers
-                        if (values[i].val === 'true' || values[i].val === true) {
-                            values[i].val = 1;
-                        } else if (values[i].val === 'false' || values[i].val === false) {
-                            values[i].val = 0;
-                        }
-                        if (typeof values[i].val === 'string') {
-                            values[i].val = parseFloat(values[i].val);
-                        }
-
-                        if (this.config.l[index].chartType === 'bar') {
-                            // find category
-                            for (let c = 0; c < barCategories.length; c++) {
-                                if (barCategories[c] >= values[i].ts && values[i].ts < barCategories[c] + this.config.aggregateBar * 60000) {
-                                    if (convertFunc) {
-                                        _series[c].push(values[i].val !== null ? convertFunc(values[i].val + option.yOffset) : null);
-                                    } else {
-                                        _series[c].push(values[i].val !== null ? values[i].val + option.yOffset : null);
-                                    }
-                                    break;
-                                }
-                            }
+            if (this.config.l[index].chartType === 'bar') {
+                // find category
+                for (let c = 0; c < barCategories.length; c++) {
+                    if (barCategories[c] >= values[i].ts && values[i].ts < barCategories[c] + this.config.aggregateBar * 60000) {
+                        if (convertFunc) {
+                            _series[c].push(values[i].val !== null ? convertFunc(values[i].val + option.yOffset) : null);
                         } else {
-                            let val;
-                            if (convertFunc) {
-                                val = values[i].val !== null ? convertFunc(values[i].val + option.yOffset) : null;
-                            } else {
-                                val = values[i].val !== null ? values[i].val + option.yOffset : null;
-                            }
-                            const dp = {value: [values[i].ts, val]};
-
-                            // If value was interpolated by backend
-                            if (values[i].i) {
-                                dp.exact = false;
-                            }
-                            _series.push(dp);
+                            _series[c].push(values[i].val !== null ? values[i].val + option.yOffset : null);
                         }
+                        break;
                     }
-
-                    // add start and end
-                    if (this.config.l[index].chartType !== 'bar') {
-                        if (_series.length) {
-                            if (_series[0].value[0] > option.start) {
-                                _series.unshift({ value: [option.start, null], exact: false });
-                            }
-                            const last = _series[_series.length - 1];
-                            if (last.value[0] < option.end) {
-                                if (this.config.l[index].validTime) {
-                                    // If last value is not older than X seconds, assume it is still the same
-                                    if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
-                                        _series.push({ value: [option.end, last.value[1]], exact: false });
-                                    } else {
-                                        _series.push({ value: [option.end, null], exact: false });
-                                    }
-                                } else {
-                                    _series.push({ value: [option.end, null], exact: false });
-                                }
-                            }
-                        } else {
-                            _series.push({ value: [option.start, null], exact: false });
-                            _series.push({ value: [option.end,   null], exact: false });
-                        }
-
-                        // TODO: May be not required?
-                        _series.sort((a, b) => a.value[0] > b.value[0] ? 1 : (a.value[0] < b.value[0] ? -1 : 0));
-                    } else {
-                        this.postProcessing(_series, barCategories, this.config.l[index].aggregate, this.config.l[index].postProcessing);
-                    }
-
-                    // free memory
-                    res.values = null;
-                    res = null;
                 }
-
-                return Promise.resolve();
-            })
-            .catch(err => {
-                err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
-                err && console.error(`[ChartModel] ${err}`)
-            })
-            .then(() => {
-                if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
-                    // read current value
-                    return this.socket.getState(id)
-                        .then(state => this.actualValues[index] = state && (state.val || state.val === 0) ? state.val : null)
-                        .catch(e => {
-                            console.warn(`Cannot read last value of ${id}: ${e}`);
-                            this.actualValues[index] = null;
-                        })
-                        .then(() => {
-                            if (!this.serverSide && !this.subscribes.includes(id)) {
-                                this.subscribes.push(id);
-                                this.subscribed = true;
-                                this.socket.subscribeState(id, this.onStateChangeBound);
-                            }
-                        });
+            } else {
+                let val;
+                if (convertFunc) {
+                    val = values[i].val !== null ? convertFunc(values[i].val + option.yOffset) : null;
                 } else {
-                    return Promise.resolve();
+                    val = values[i].val !== null ? values[i].val + option.yOffset : null;
                 }
-            })
-            .then(() => cb(id, index));
+                const dp = {value: [values[i].ts, val]};
+
+                // If value was interpolated by backend
+                if (values[i].i) {
+                    dp.exact = false;
+                }
+                _series.push(dp);
+            }
+        }
+
+        // add start and end
+        if (this.config.l[index].chartType !== 'bar') {
+            if (_series.length) {
+                if (_series[0].value[0] > option.start) {
+                    _series.unshift({ value: [option.start, null], exact: false });
+                }
+                const last = _series[_series.length - 1];
+                if (last.value[0] < option.end) {
+                    if (this.config.l[index].validTime) {
+                        // If last value is not older than X seconds, assume it is still the same
+                        if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
+                            _series.push({ value: [option.end, last.value[1]], exact: false });
+                        } else {
+                            _series.push({ value: [option.end, null], exact: false });
+                        }
+                    } else {
+                        _series.push({ value: [option.end, null], exact: false });
+                    }
+                }
+            } else {
+                _series.push({ value: [option.start, null], exact: false });
+                _series.push({ value: [option.end,   null], exact: false });
+            }
+
+            // TODO: May be not required?
+            _series.sort((a, b) => a.value[0] > b.value[0] ? 1 : (a.value[0] < b.value[0] ? -1 : 0));
+        } else {
+            this.postProcessing(_series, barCategories, this.config.l[index].aggregate, this.config.l[index].postProcessing);
+        }
+    }
+
+    readOneChart(id, instance, index, cb) {
+        if (instance === 'json') {
+            this.socket.getState(id)
+                .then(state => {
+                    try {
+                        let values = JSON.parse(state.val);
+                        if (values.history) {
+                            values = values.history;
+                        }
+                        this.processRawData(id, index, values);
+                    } catch (e) {
+                        console.error(`[ChartModel] Cannot parse values in JSON: ${e}`);
+                    }
+                })
+                .then(() => {
+                    if (!this.serverSide && !this.subscribes.includes(id)) {
+                        this.subscribes.push(id);
+                        this.subscribed = true;
+                        this.socket.subscribeState(id, this.onStateChange);
+                    }
+                    cb(id, index);
+                });
+        } else {
+            const option = this.getStartStop(index);
+            option.instance  = instance;
+            option.sessionId = this.sessionId;
+
+            //console.log(JSON.stringify(option));
+            this.debug && console.log(`[ChartModel] ${new Date(option.start)} - ${new Date(option.end)}`);
+
+            this.socket.getHistoryEx(id, option)
+                .then(res => {
+                    if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
+                        return console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+                    }
+
+                    if (res && res.values) {
+                        // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
+                        this.processRawData(id, index, res.values, option);
+
+                        // free memory
+                        res.values = null;
+                        res = null;
+                    }
+
+                    return Promise.resolve();
+                })
+                .catch(err => {
+                    err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
+                    err && console.error(`[ChartModel] ${err}`)
+                })
+                .then(() => {
+                    if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
+                        // read current value
+                        return this.socket.getState(id)
+                            .then(state => this.actualValues[index] = state && (state.val || state.val === 0) ? state.val : null)
+                            .catch(e => {
+                                console.warn(`Cannot read last value of ${id}: ${e}`);
+                                this.actualValues[index] = null;
+                            })
+                            .then(() => {
+                                if (!this.serverSide && !this.subscribes.includes(id)) {
+                                    this.subscribes.push(id);
+                                    this.subscribed = true;
+                                    this.socket.subscribeState(id, this.onStateChange);
+                                }
+                            });
+                    } else {
+                        return Promise.resolve();
+                    }
+                })
+                .then(() => cb(id, index));
+
+        }
     }
 
     _readObject(id) {
@@ -1240,13 +1272,13 @@ class ChartModel {
         if (this.serverSide || !subscribes || !subscribes.length || s >= subscribes.length) {
             cb();
         } else {
-            this.socket.subscribeState(subscribes[s], this.onStateChangeBound);
+            this.socket.subscribeState(subscribes[s], this.onStateChange);
             setTimeout(() => this.subscribeAll(subscribes, cb, s + 1), 0);
         }
     }
 
-    onStateChange(id, state) {
-        if (!id || !state || !this.actualValues || this.reading) {
+    onStateChange = (id, state) => {
+        if (!id || !state || this.reading) {
             return;
         }
 
@@ -1255,7 +1287,22 @@ class ChartModel {
         let changed = false;
         for (let m = 0; m < this.config.l.length; m++) {
             if (this.config.l[m].id === id) {
-                if (this.actualValues[m] !== state.val) {
+                // by update from json => update always all values
+                if (this.config.l[m].instance === 'json') {
+                    try {
+                        let data = JSON.parse(state.val);
+                        if (data.history) {
+                            data = data.history;
+                        }
+                        this.processRawData(id, m, data);
+                        this.onUpdateFunc(this.seriesData);
+                    } catch (e) {
+                        console.error(`Cannot parse JSON: ${e}`);
+                    }
+
+                    return;
+                } else
+                if (this.actualValues && this.actualValues[m] !== state.val) {
                     this.actualValues[m] = state.val;
                     changed = true;
                 }

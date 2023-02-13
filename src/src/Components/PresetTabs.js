@@ -533,6 +533,8 @@ class PresetTabs extends React.Component {
         const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
         const anyNotOnChange = this.props.presetData.lines.find(line => line.aggregate !== 'onchange');
 
+        const anyNotJson = this.props.presetData.lines.find(line => line.instance !== 'json');
+
         const barIntervalOptions = {
             0: 'auto',
             15: 'i15min',
@@ -570,14 +572,14 @@ class PresetTabs extends React.Component {
         }
 
         return <TabPanel value="2" classes={{ root: this.props.classes.tabContent }}>
-            <div className={this.props.classes.group}>
+            {anyNotJson ? <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Type')}</p>
                 <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
                     relative: 'relative',
                     static: 'static',
                 }} />
-            </div>
-            <div className={this.props.classes.group}>
+            </div> : null}
+            {anyNotJson ? <div className={this.props.classes.group}>
                 {this.props.presetData.timeType === 'static' ?
                     <>
                         <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
@@ -647,12 +649,12 @@ class PresetTabs extends React.Component {
                         }} />
                     </>
                 }
-            </div>
+            </div> : null}
             {/*<div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
                 <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
             </div>*/}
-            {anyNotOnChange && hasNotBar ?
+            {anyNotJson && anyNotOnChange && hasNotBar ?
                 <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Aggregate for lines')}</p>
                     <IOSelect
@@ -783,6 +785,7 @@ class PresetTabs extends React.Component {
                         }} />
                         {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legFontSize" label="Font size" min={6} type="number" />
+                        <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legendHeight" label="Height" min={6} type="number" />
                     </> : null}
             </div>
             <div className={this.props.classes.group}>
@@ -795,6 +798,7 @@ class PresetTabs extends React.Component {
                 {/*<IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />*/}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show export button'} name="export" />
                 {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Export button color', 'exportColor') : null}
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Auto padding'} name="autoGridPadding" />
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Copy link to clipboard')}</p>

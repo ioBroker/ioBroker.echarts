@@ -1011,6 +1011,7 @@ class ChartOption {
                 top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  this.chart.padTop    + 2 : undefined,
                 bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  this.chart.padBottom + 2 : undefined,
                 backgroundColor: this.config.legBg || undefined,
+                height: this.config.legendHeight || undefined,
                 formatter: (name, arg) => {
                     if (this.config.legActual && actualValues) {
                         for (let i = 0; i < this.config.l.length; i++) {
@@ -1029,9 +1030,13 @@ class ChartOption {
                 selected: {}
             };
 
+            // if (legend.height) {
+            //     legend.height = legend.height + 'px';
+            // }
+
             this.config.l.forEach(oneLine => legend.selected[oneLine.name] = oneLine.hide !== true);
 
-            return {};
+            return legend;
         }
     }
 
@@ -1103,11 +1108,11 @@ class ChartOption {
             grid: {
                 backgroundColor: this.config.bg_custom || 'transparent',
                 show: !!this.config.bg_custom,
-                left:   0,
+                left:   10,
                 top:    8,
                 right:  this.config.export === true || this.config.export === 'true' ? 30 : 0,
                 bottom: this.compact ? 4 : (this.isXLabelHasBreak() ? 40 : 24),
-                containLabel: true,
+                containLabel: this.config.autoGridPadding,
             },
             tooltip: !this.compact && this.config.hoverDetail ? {
                 trigger: 'axis',
@@ -1156,7 +1161,7 @@ class ChartOption {
 
         this.getMarkings(option);
 
-        if (false && !this.compact) {
+        if (!this.compact && !this.config.autoGridPadding) {
             // calculate padding: left and right
             let padLeft  = 0;
             let padRight = 0;
@@ -1173,10 +1178,13 @@ class ChartOption {
                         if (this.config.l[i].chartType === 'bar') {
                             _yAxis = { min: ser.data[0], max: ser.data[0] };
                             for (let s = 1; s < ser.data.length; s++) {
-                                if (ser.data[s] < _yAxis.min) {
+                                if (ser.data[s] === null) {
+                                    continue;
+                                }
+                                if (ser.data[s] < _yAxis.min || _yAxis.min === null) {
                                     _yAxis.min = ser.data[s];
                                 }
-                                if (ser.data[s] > _yAxis.max) {
+                                if (ser.data[s] > _yAxis.max || _yAxis.max === null) {
                                     _yAxis.max = ser.data[s];
                                 }
                             }

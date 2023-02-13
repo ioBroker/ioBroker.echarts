@@ -332,6 +332,7 @@ class Line extends React.Component {
                 options={(() => {
                     let result = {'': I18n.t('standard')};
                     this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
+                    result.json = 'JSON';
                     return result;
                 })()}
                 minWidth={WIDTHS.instance}
@@ -344,7 +345,11 @@ class Line extends React.Component {
                 name="id"
                 width={idWidth}
                 label="ID"
-                customFilter={{ common: {custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true }}}
+                customFilter={this.props.line.instance !== 'json' ? {
+                    common: {
+                        custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true,
+                    },
+                } : null}
                 classes={{ fieldContainer: Utils.clsx(this.props.classes.shortIdField, this.props.onPaste && this.props.classes.paste) }}
                 socket={this.props.socket}
             />
@@ -358,7 +363,7 @@ class Line extends React.Component {
                 options={{
                     auto: 'Auto',
                     line: 'Line',
-                    //bar: 'Bar',
+                    bar: 'Bar',
                     scatterplot: 'Scatter plot',
                     steps: 'Steps',
                     stepsStart: 'Steps on start',
@@ -366,7 +371,7 @@ class Line extends React.Component {
                 }}
                 classes={{ fieldContainer: Utils.clsx(this.props.classes.shortChartTypeField, this.props.onPaste && this.props.classes.paste) }}
             /> : null}
-            {visible.dataType && this.props.line.chartType !== 'auto' ? <IOSelect
+            {this.props.line.instance !== 'json' && visible.dataType && this.props.line.chartType !== 'auto' ? <IOSelect
                 disabled={!!this.props.onPaste}
                 formData={this.props.line}
                 updateValue={this.updateField}
@@ -517,10 +522,11 @@ class Line extends React.Component {
         return <>
             <div>
                 {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag /></span> : null }
-                <IconButton title={ I18n.t('Edit') }
-                            onClick={() => this.props.lineOpenToggle(this.props.index)
-                            }><IconFolderOpened /></IconButton>
-                {I18n.t('Line')} {this.props.index + 1}{this.props.line.name ? ' - ' + this.props.line.name : ''}
+                <IconButton
+                    title={ I18n.t('Edit') }
+                    onClick={() => this.props.lineOpenToggle(this.props.index)}
+                ><IconFolderOpened /></IconButton>
+                {I18n.t('Line')} {this.props.index + 1}{this.props.line.name ? ` - ${this.props.line.name}` : ''}
                 <IconButton
                     className={this.props.classes.deleteButtonFull}
                     aria-label="Delete"
@@ -553,6 +559,7 @@ class Line extends React.Component {
                     options={(() => {
                         let result = {};
                         this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
+                        result.json = 'JSON';
                         return result;
                     })()}
                 />
@@ -563,19 +570,23 @@ class Line extends React.Component {
                     name="id"
                     label="ID"
                     width="calc(100% - 250px)"
-                    customFilter={{ common: { custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true } }}
+                    customFilter={this.props.line.instance !== 'json' ? {
+                        common: {
+                            custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true,
+                        },
+                    } : undefined}
                     socket={this.props.socket} />
             </div>
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
                 {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
-                <IOSelect
+                {this.props.line.instance !== 'json' ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
                     name="chartType"
                     label="Chart type"
                     options={chartTypes}
-                />
+                /> : null}
                 {this.props.line.chartType !== 'auto' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={aggregateTypes} /> : null }
                 {this.props.line.chartType === 'bar' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="postProcessing" label="Processing" options={{
                     '': 'non-processed',
@@ -679,7 +690,7 @@ class Line extends React.Component {
                     'dashed': 'dashed',
                     'dotted': 'dotted',
                 }} /> : null}
-                <IOTextField formData={this.props.line} updateValue={this.updateField} name="convert" label={I18n.t('Convert formula')} helperLink={this.showConvertHelp}/>
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="convert" label="Convert formula" helperLink={this.showConvertHelp}/>
             </div>
             {/*<div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes" />
