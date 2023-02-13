@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.3.4",
+    "version": "1.4.0",
     "news": {
+      "1.4.0": {
+        "en": "Added possibility to load the history data from JSON state.",
+        "de": "Zusätzliche Möglichkeit, die Geschichtsdaten aus dem JSON-Zustand zu laden.",
+        "ru": "Добавлена возможность загрузки данных об истории из государства JSON.",
+        "pt": "Adicionado possibilidade de carregar os dados do histórico do estado de JSON.",
+        "nl": "Toegevoegd de mogelijkheid om de geschiedenisgegevens van JSON staat te laden.",
+        "fr": "Ajout de la possibilité de charger les données d'histoire de l'état JSON.",
+        "it": "Aggiunta possibilità di caricare i dati di storia da JSON stato.",
+        "es": "Se agregó la posibilidad de cargar los datos de historia del estado JSON.",
+        "pl": "Dokładna możliwość załadowania danych z JSON.",
+        "uk": "Додана можливість завантаження даних історії з стану JSON.",
+        "zh-cn": "增加可能将自联索行动州的历史数据载荷。."
+      },
       "1.3.4": {
         "en": "added a formula for the values conversion",
         "de": "eine formel für die wertekonversion hinzugefügt",
@@ -79,18 +92,6 @@
         "es": "Preparativos adicionales para vis2.0",
         "pl": "Zalecenia dla wizji 2.0",
         "zh-cn": "增加2.0筹备工作"
-      },
-      "1.1.0": {
-        "en": "Made it work with ioBroker cloud\nGUI migrated to mui5",
-        "de": "Es funktioniert mit ioBroker Cloud\nGUI migriert zu mui5",
-        "ru": "Сделано в ioBroker cloud\nGUI мигрировано в mui5",
-        "pt": "Fez com que funcionasse com a nuvem ioBroker\nGUI migrado para mui5",
-        "nl": "Ik liet het werken met ioBrokerwolk\nQuality over Quantity (QoQ) Releases Vertaling:",
-        "fr": "Il a fait fonctionner avec ioBroker cloud\nGUI migré vers mui5",
-        "it": "Ha fatto funzionare con ioBroker cloud\nGUI migrato a mui5",
-        "es": "Lo hizo funcionar con la nube de yoBroker\nGUI migrated to mui5",
-        "pl": "Uprawiała się w chmurze ioBrokera\nGUI migruje do mui5",
-        "zh-cn": "马约恩岛与奥布罗克云合作\n古伊人移到马伊5人"
       }
     },
     "title": "E-Charts",

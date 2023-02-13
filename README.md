@@ -96,7 +96,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.4.0 (2023-02-13)
 * (bluefox) Added possibility to load the history data from JSON state.
 
 ### 1.3.4 (2023-02-08)
