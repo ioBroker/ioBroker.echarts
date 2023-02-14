@@ -14,11 +14,11 @@ const styles = theme => ({
         height: '100%',
         overflow: 'auto',
         border: 0,
-        color: theme.palette.primary.main// && console.log(JSON.stringify(theme))
-    }
+        color: theme.palette.primary.main, // && console.log(JSON.stringify(theme))
+    },
 });
 
-/*function deParam(params, coerce) {
+/* function deParam(params, coerce) {
     const obj = {};
     const coerceTypes = {'true': true, 'false': false, 'null': null};
 
@@ -105,7 +105,7 @@ const styles = theme => ({
     });
 
     return obj;
-}*/
+} */
 
 class ChartFrame extends React.Component {
     constructor(props) {
@@ -137,18 +137,19 @@ class ChartFrame extends React.Component {
             return <Paper className={this.props.classes.iframe} style={{ background: '#333' }}>
                 <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
             </Paper>;
-        } else {
-            if (this.lastPresetData !== JSON.stringify(this.props.presetData) && this.ready) {
-                this.lastPresetData = JSON.stringify(this.props.presetData);
-                this.refIframe.contentWindow.postMessage(this.lastPresetData, '*');
-            }
-
-            return <iframe ref={el => this.refIframe = el}
-                title="iobrokerChart"
-                className={this.props.classes.iframe}
-                src={this.props.src}>
-            </iframe>;
         }
+        if (this.lastPresetData !== JSON.stringify(this.props.presetData) && this.ready) {
+            this.lastPresetData = JSON.stringify(this.props.presetData);
+            this.refIframe.contentWindow.postMessage(this.lastPresetData, '*');
+        }
+
+        return <iframe
+            ref={el => this.refIframe = el}
+            title="iobrokerChart"
+            className={this.props.classes.iframe}
+            src={this.props.src}
+        >
+        </iframe>;
     }
 }
 

@@ -6,11 +6,11 @@ import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
 
 import './index.css';
+import theme from '@iobroker/adapter-react-v5/Theme';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import pack from '../package.json';
-import theme from '@iobroker/adapter-react-v5/Theme';
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 
 window.adapterName = 'echarts-show';
 window.sentryDSN = 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95';
@@ -43,11 +43,11 @@ function build() {
 if (window.location.host !== 'localhost:3000') {
     Sentry.init({
         dsn: window.sentryDSN,
-        release: 'iobroker.' + window.adapterName + '@' + pack.version,
+        release: `iobroker.${window.adapterName}@${pack.version}`,
         integrations: [
-            new SentryIntegrations.Dedupe()
+            new SentryIntegrations.Dedupe(),
         ],
-        beforeSend: function (event, hint) {
+        beforeSend(event/* , hint */) {
             let ignore = false;
 
             // ignore errors from echarts lib
@@ -61,15 +61,15 @@ if (window.location.host !== 'localhost:3000') {
                         ignore = true;
                     } else if (event.exception.values[0].value === 'ResizeObserver loop completed with undelivered notifications.') {
                         ignore = true;
-                    } else if (event.exception.values[0].value === `undefined is not an object (evaluating 't.get')`) {
+                    } else if (event.exception.values[0].value === 'undefined is not an object (evaluating \'t.get\')') {
                         ignore = true;
-                    } else if (event.exception.values[0].value === `Cannot read property 'get' of undefined`) {
+                    } else if (event.exception.values[0].value === 'Cannot read property \'get\' of undefined') {
                         ignore = true;
-                    } else if (event.exception.values[0].value === `this.painter is null`) {
+                    } else if (event.exception.values[0].value === 'this.painter is null') {
                         ignore = true;
                     } else if (event.exception.values[0].value.includes('ioBroker is not connected')) {
                         ignore = true;
-                    } else if (event.exception.values[0].value === `Cannot read property 'getDisplayList' of null`) {
+                    } else if (event.exception.values[0].value === 'Cannot read property \'getDisplayList\' of null') {
                         ignore = true;
                     }
                 }

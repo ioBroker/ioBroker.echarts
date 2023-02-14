@@ -12,21 +12,20 @@ import DialogContentText from '@mui/material/DialogContentText';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
 
-import { MdDelete as IconDelete } from 'react-icons/md';
-import { MdEdit as IconEdit } from 'react-icons/md';
-import { MdContentCopy as IconCopy } from 'react-icons/md';
-import { MdMenu as IconDrag } from 'react-icons/md';
-import { MdContentPaste as IconPaste } from 'react-icons/md';
-import { FaFolder as IconFolderClosed } from 'react-icons/fa';
-import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
-import { MdClose as IconClose } from 'react-icons/md';
+import {
+    MdDelete as IconDelete, MdEdit as IconEdit, MdContentCopy as IconCopy, MdMenu as IconDrag, MdContentPaste as IconPaste, MdClose as IconClose,
+} from 'react-icons/md';
+
+import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
 import { I18n, Utils } from '@iobroker/adapter-react-v5';
 import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
 
-import { IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider } from './Fields';
 import TextField from '@mui/material/TextField';
 import ClearIcon from '@mui/icons-material/Close';
+import {
+    IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider,
+} from './Fields';
 
 import LineDialog from './LineDialog';
 
@@ -37,19 +36,19 @@ const WIDTHS = {
     dataType: 110,
     color: 100,
     name: 200,
-    buttons: 50 + 50 + 16 + 50
+    buttons: 50 + 50 + 16 + 50,
 };
 
 const LINE_HEIGHT = 48;
 
-let styles = theme => ({
+const styles = theme => ({
     card: {
         borderStyle: 'dashed',
         borderWidth: 1,
         marginBottom: theme.spacing(1),
         padding: theme.spacing(1),
         borderColor: theme.palette.grey['600'],
-        overflow: 'initial'
+        overflow: 'initial',
     },
     cardPaste: {
         borderColor: theme.type === 'dark' ? theme.palette.grey['400'] : theme.palette.grey['800'],
@@ -61,7 +60,7 @@ let styles = theme => ({
         margin: 0,
         '&:last-child': {
             padding: 0,
-        }
+        },
     },
     shortFields: {
         display: 'block',
@@ -72,7 +71,7 @@ let styles = theme => ({
         },
         position: 'relative',
         paddingBottom: theme.spacing(2),
-        borderBottom: '1px dotted ' + theme.palette.grey[400]
+        borderBottom: `1px dotted ${theme.palette.grey[400]}`,
     },
     title: {
         width: 'inherit',
@@ -97,7 +96,7 @@ let styles = theme => ({
         display: 'inline-block',
         minWidth: WIDTHS.instance,
         paddingTop: 0,
-        lineHeight: LINE_HEIGHT + 'px',
+        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortIdField: {
@@ -105,11 +104,11 @@ let styles = theme => ({
         minWidth: WIDTHS.id,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: LINE_HEIGHT + 'px',
+        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortDataTypeField: {
-        lineHeight: LINE_HEIGHT + 'px',
+        lineHeight: `${LINE_HEIGHT}px`,
         display: 'inline-block',
         minWidth: WIDTHS.dataType,
         marginLeft: theme.spacing(1),
@@ -121,7 +120,7 @@ let styles = theme => ({
         minWidth: WIDTHS.chartType,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: LINE_HEIGHT + 'px',
+        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortColorField: {
@@ -130,7 +129,7 @@ let styles = theme => ({
         width: WIDTHS.color,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: LINE_HEIGHT + 'px',
+        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortNameField: {
@@ -138,7 +137,7 @@ let styles = theme => ({
         minWidth: WIDTHS.name,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: LINE_HEIGHT + 'px',
+        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortButtonsField: {
@@ -146,33 +145,33 @@ let styles = theme => ({
         minWidth: WIDTHS.buttons,
         marginLeft: theme.spacing(1),
         paddingTop: 0,
-        lineHeight: LINE_HEIGHT + 'px',
+        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     editButton: {
-        float: 'right'
+        float: 'right',
     },
     deleteButton: {
         float: 'right',
-        marginRight: 12
+        marginRight: 12,
     },
     editButtonFull: {
-        float: 'right'
+        float: 'right',
     },
     deleteButtonFull: {
         float: 'right',
-        marginRight: 12
+        marginRight: 12,
     },
     copyButtonFull: {
         float: 'right',
-        marginRight: 0
+        marginRight: 0,
     },
     fullWidth: {
         width: '100%',
-        minWidth: 200
+        minWidth: 200,
     },
     paste: {
-        opacity: 0.3
+        opacity: 0.3,
     },
     emptyDrag: {
         display: 'inline-block',
@@ -207,18 +206,18 @@ class Line extends React.Component {
     }
 
     updateField = (name, value) => {
-        let line = JSON.parse(JSON.stringify(this.props.line));
+        const line = JSON.parse(JSON.stringify(this.props.line));
         line[name] = value;
 
         if (name === 'id') {
             // If ID changed => read unit and name
             if (this.props.line.id !== value) {
-                return this.props.socket.getObject(value)
+                this.props.socket.getObject(value)
                     .then(obj => {
                         if (obj && obj.common && obj.common.name) {
-                            name = Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()});
+                            name = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
                         } else {
-                            let _name = value.split('.');
+                            const _name = value.split('.');
                             name = _name.length ? _name[_name.length - 1] : '';
                         }
                         if (obj && obj.common && obj.common.unit) {
@@ -231,13 +230,14 @@ class Line extends React.Component {
                     })
                     .catch(e => {
                         console.error(e);
-                        let _name = value.split('.');
+                        const _name = value.split('.');
                         name = _name.length ? _name[_name.length - 1] : '';
                     })
                     .then(() => {
                         line.name = name;
                         this.props.updateLine(this.props.index, line);
                     });
+                return;
             }
         } else
         if (name === 'fill' && value < 0.01 && !parseFloat(line.thickness)) {
@@ -254,10 +254,9 @@ class Line extends React.Component {
 
     static getDerivedStateFromProps(props, state) {
         if (props.width !== state.width) {
-            return {width: props.width};
-        } else {
-            return null;
+            return { width: props.width };
         }
+        return null;
     }
 
     renderClosedLine() {
@@ -308,20 +307,21 @@ class Line extends React.Component {
         }
 
         return <div className={this.props.classes.lineClosed}>
-            {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag /></span> : <div className={this.props.classes.emptyDrag} /> }
+            {this.props.provided ? <span title={I18n.t('Drag me')} {...this.props.provided.dragHandleProps}><IconDrag /></span> : <div className={this.props.classes.emptyDrag} /> }
             {this.props.onPaste && this.props.onPaste ?
                 <IconButton
                     title={I18n.t('Paste')}
-                    onClick={() => this.props.onPaste()}>
+                    onClick={() => this.props.onPaste()}
+                >
                     <IconPaste />
                 </IconButton>
                 :
                 <IconButton
                     title={I18n.t('Edit')}
-                    onClick={() => this.props.lineOpenToggle(this.props.index)}>
+                    onClick={() => this.props.lineOpenToggle(this.props.index)}
+                >
                     <IconFolderClosed />
-                </IconButton>
-            }
+                </IconButton>}
             <IOSelect
                 disabled={!!this.props.onPaste}
                 formData={this.props.line}
@@ -330,7 +330,7 @@ class Line extends React.Component {
                 label="Instance"
                 noTranslate
                 options={(() => {
-                    let result = {'': I18n.t('standard')};
+                    const result = { '': I18n.t('standard') };
                     this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
                     result.json = 'JSON';
                     return result;
@@ -395,14 +395,16 @@ class Line extends React.Component {
                 className={this.props.classes.deleteButton}
                 aria-label="Delete"
                 title={I18n.t('Delete')}
-                onClick={() => this.props.deleteLine(this.props.index)}>
+                onClick={() => this.props.deleteLine(this.props.index)}
+            >
                 <IconDelete />
             </IconButton>
             <IconButton
                 className={this.props.classes.editButton}
                 aria-label="Edit"
                 title={I18n.t('Edit')}
-                onClick={() => this.setState({ dialogOpen: true })}>
+                onClick={() => this.setState({ dialogOpen: true })}
+            >
                 <IconEdit />
             </IconButton>
         </div>;
@@ -421,17 +423,17 @@ class Line extends React.Component {
                 label={I18n.t(label)}
                 value={formData[name] || ''}
                 onClick={() =>
-                    !this.props.onPaste && this.setState({[`_${name}`]: formData[name]}, () =>
+                    !this.props.onPaste && this.setState({ [`_${name}`]: formData[name] }, () =>
                         this.props.onSelectColor(this.state[`_${name}`], color =>
-                            this.setState({[`_${name}`]: color}, () =>
-                                onUpdate(name, ColorPicker.getColor(color, true)))))
-                }
+                            this.setState({ [`_${name}`]: color }, () =>
+                                onUpdate(name, ColorPicker.getColor(color, true)))))}
                 onChange={e => {
                     const color = e.target.value;
-                    this.setState({[`_${name}`]: color}, () =>
+                    this.setState({ [`_${name}`]: color }, () =>
                         onUpdate(name, color));
                 }}
                 inputProps={{ style: { paddingLeft: noPadding ? 0 : 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000' } }}
+                // eslint-disable-next-line react/jsx-no-duplicate-props
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton
@@ -439,8 +441,9 @@ class Line extends React.Component {
                             size="small"
                             onClick={e => {
                                 e.stopPropagation();
-                                this.setState({[`_${name}`]: ''}, () => onUpdate(name, ''));
-                            }}>
+                                this.setState({ [`_${name}`]: '' }, () => onUpdate(name, ''));
+                            }}
+                        >
                             <ClearIcon />
                         </IconButton>
                         : undefined,
@@ -521,31 +524,39 @@ class Line extends React.Component {
         const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
         return <>
             <div>
-                {this.props.provided ? <span title={ I18n.t('Drag me') } {...this.props.provided.dragHandleProps}><IconDrag /></span> : null }
+                {this.props.provided ? <span title={I18n.t('Drag me')} {...this.props.provided.dragHandleProps}><IconDrag /></span> : null }
                 <IconButton
-                    title={ I18n.t('Edit') }
+                    title={I18n.t('Edit')}
                     onClick={() => this.props.lineOpenToggle(this.props.index)}
-                ><IconFolderOpened /></IconButton>
-                {I18n.t('Line')} {this.props.index + 1}{this.props.line.name ? ` - ${this.props.line.name}` : ''}
+                >
+                    <IconFolderOpened />
+                </IconButton>
+                {I18n.t('Line')}
+                {' '}
+                {this.props.index + 1}
+                {this.props.line.name ? ` - ${this.props.line.name}` : ''}
                 <IconButton
                     className={this.props.classes.deleteButtonFull}
                     aria-label="Delete"
                     title={I18n.t('Delete')}
-                    onClick={() => this.props.deleteLine(this.props.index)}>
+                    onClick={() => this.props.deleteLine(this.props.index)}
+                >
                     <IconDelete />
                 </IconButton>
                 <IconButton
                     className={this.props.classes.editButtonFull}
                     aria-label="Edit"
                     title={I18n.t('Edit')}
-                    onClick={() => this.setState({ dialogOpen: true })}>
+                    onClick={() => this.setState({ dialogOpen: true })}
+                >
                     <IconEdit />
                 </IconButton>
                 <IconButton
                     className={this.props.classes.copyButtonFull}
                     aria-label="Copy"
                     title={I18n.t('Copy')}
-                    onClick={() => this.props.onCopy(this.props.line)}>
+                    onClick={() => this.props.onCopy(this.props.line)}
+                >
                     <IconCopy />
                 </IconButton>
             </div>
@@ -557,7 +568,7 @@ class Line extends React.Component {
                     label="Instance"
                     noTranslate
                     options={(() => {
-                        let result = {};
+                        const result = {};
                         this.props.instances.forEach(instance => result[instance._id] = instance._id.replace('system.adapter.', ''));
                         result.json = 'JSON';
                         return result;
@@ -575,7 +586,8 @@ class Line extends React.Component {
                             custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true,
                         },
                     } : undefined}
-                    socket={this.props.socket} />
+                    socket={this.props.socket}
+                />
             </div>
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
@@ -588,16 +600,28 @@ class Line extends React.Component {
                     options={chartTypes}
                 /> : null}
                 {this.props.line.chartType !== 'auto' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={aggregateTypes} /> : null }
-                {this.props.line.chartType === 'bar' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="postProcessing" label="Processing" options={{
-                    '': 'non-processed',
-                    'diff': 'difference',
-                }} /> : null }
+                {this.props.line.chartType === 'bar' ? <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="postProcessing"
+                    label="Processing"
+                    options={{
+                        '': 'non-processed',
+                        diff: 'difference',
+                    }}
+                /> : null }
                 {this.props.line.aggregate === 'percentile' ? <IOSlider formData={this.props.line} updateValue={this.updateField} name="percentile" step={5} max={100} label="Percentile" /> : null }
                 {this.props.line.aggregate === 'integral' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="integralUnit" label="Integral unit" min={1} type="number" title={I18n.t('In seconds')} /> : null }
-                {this.props.line.aggregate === 'integral' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="integralInterpolation" label="Interpolation method" options={{
-                    'none': 'none_no',
-                    'linear': 'linear',
-                }} /> : null }
+                {this.props.line.aggregate === 'integral' ? <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="integralInterpolation"
+                    label="Interpolation method"
+                    options={{
+                        none: 'none_no',
+                        linear: 'linear',
+                    }}
+                /> : null }
                 {this.props.line.chartType === 'scatterplot' || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number" /> : null }
                 {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')} /> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend" /> : null}
@@ -618,114 +642,144 @@ class Line extends React.Component {
             </div> : null}
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterAxis)}>
                 <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
-                {!this.props.index ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="xaxe" label="X Axis position" options={{
-                    '': 'bottom',
-                    'top': 'top',
-                    'off': 'off',
-                    /*off: 'off',
+                {!this.props.index ? <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="xaxe"
+                    label="X Axis position"
+                    options={{
+                        '': 'bottom',
+                        top: 'top',
+                        off: 'off',
+                    /* off: 'off',
                     left: 'left',
                     right: 'right',
                     topColor: 'top colored',
-                    bottomColor: 'bottom colored',*/
-                }} /> : null }
+                    bottomColor: 'bottom colored', */
+                    }}
+                /> : null }
                 {!this.props.index ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number" /> : null }
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="offset" label="X-Offset" options={{
-                    '0': '0 seconds',
-                    '10': '10 seconds',
-                    '30': '30 seconds',
-                    '60': '60 seconds',
-                    '120': '2 minutes',
-                    '180': '3 minutes',
-                    '240': '4 minutes',
-                    '300': '5 minutes',
-                    '600': '10 minutes',
-                    '900': '15 minutes',
-                    '1800': '30 minutes',
-                    '2700': '45 minutes',
-                    '3600': '1 hour',
-                    '7200': '2 hours',
-                    '21600': '6 hours',
-                    '43200': '12 hours',
-                    '86400': '1 day',
-                    '172800': '2 days',
-                    '259200': '3 days',
-                    '345600': '4 days',
-                    '604800': '1 week',
-                    '1209600': '2 weeks',
-                    '1m': '1 month',
-                    '2m': '2 months',
-                    '3m': '3 months',
-                    '6m': '6 months',
-                    '1y': '1 year',
-                    '2y': '2 years',
-                    '-10': '-10 seconds',
-                    '-30': '-30 seconds',
-                    '-60': '-60 seconds',
-                    '-120': '-2 minutes',
-                    '-180': '-3 minutes',
-                    '-240': '-4 minutes',
-                    '-300': '-5 minutes',
-                    '-600': '-10 minutes',
-                    '-900': '-15 minutes',
-                    '-1800': '-30 minutes',
-                    '-2700': '-45 minutes',
-                    '-3600': '-1 hour',
-                    '-7200': '-2 hours',
-                    '-21600': '-6 hours',
-                    '-43200': '-12 hours',
-                    '-86400': '-1 day',
-                    '-172800': '-2 days',
-                    '-259200': '-3 days',
-                    '-345600': '-4 days',
-                    '-604800': '-1 week',
-                    '-1209600': '-2 weeks',
-                    '-1m': '-1 month',
-                    '-2m': '-2 months',
-                    '-3m': '-3 months',
-                    '-6m': '-6 months',
-                    '-1y': '-1 year',
-                    '-2y': '-2 years',
+                <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="offset"
+                    label="X-Offset"
+                    options={{
+                        0: '0 seconds',
+                        10: '10 seconds',
+                        30: '30 seconds',
+                        60: '60 seconds',
+                        120: '2 minutes',
+                        180: '3 minutes',
+                        240: '4 minutes',
+                        300: '5 minutes',
+                        600: '10 minutes',
+                        900: '15 minutes',
+                        1800: '30 minutes',
+                        2700: '45 minutes',
+                        3600: '1 hour',
+                        7200: '2 hours',
+                        21600: '6 hours',
+                        43200: '12 hours',
+                        86400: '1 day',
+                        172800: '2 days',
+                        259200: '3 days',
+                        345600: '4 days',
+                        604800: '1 week',
+                        1209600: '2 weeks',
+                        '1m': '1 month',
+                        '2m': '2 months',
+                        '3m': '3 months',
+                        '6m': '6 months',
+                        '1y': '1 year',
+                        '2y': '2 years',
+                        '-10': '-10 seconds',
+                        '-30': '-30 seconds',
+                        '-60': '-60 seconds',
+                        '-120': '-2 minutes',
+                        '-180': '-3 minutes',
+                        '-240': '-4 minutes',
+                        '-300': '-5 minutes',
+                        '-600': '-10 minutes',
+                        '-900': '-15 minutes',
+                        '-1800': '-30 minutes',
+                        '-2700': '-45 minutes',
+                        '-3600': '-1 hour',
+                        '-7200': '-2 hours',
+                        '-21600': '-6 hours',
+                        '-43200': '-12 hours',
+                        '-86400': '-1 day',
+                        '-172800': '-2 days',
+                        '-259200': '-3 days',
+                        '-345600': '-4 days',
+                        '-604800': '-1 week',
+                        '-1209600': '-2 weeks',
+                        '-1m': '-1 month',
+                        '-2m': '-2 months',
+                        '-3m': '-3 months',
+                        '-6m': '-6 months',
+                        '-1y': '-1 year',
+                        '-2y': '-2 years',
 
-                }} />
+                    }}
+                />
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number" />
 
                 <br />
                 <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" noTranslate options={xAxisOptions} />
 
-                {ownYAxis ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="yaxe" label="Y Axis position" options={{
-                    '': '',
-                    off: 'off',
-                    left: 'left',
-                    right: 'right',
-                    leftColor: 'left colored',
-                    rightColor: 'right colored',
-                }} /> : null}
+                {ownYAxis ? <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="yaxe"
+                    label="Y Axis position"
+                    options={{
+                        '': '',
+                        off: 'off',
+                        left: 'left',
+                        right: 'right',
+                        leftColor: 'left colored',
+                        rightColor: 'right colored',
+                    }}
+                /> : null}
                 {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null}
                 {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null}
                 {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number" /> : null}
             </div>
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterOther)}>
                 <p className={this.props.classes.title}>{I18n.t('Others')}</p>
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="ignoreNull" label="NULL as" options={{
-                    'false': 'default',
-                    'true': 'ignore null values',
-                    '0': 'use 0 instead of null values',
-                }} />
-                {/*<IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0} />*/}
+                <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="ignoreNull"
+                    label="NULL as"
+                    options={{
+                        false: 'default',
+                        true: 'ignore null values',
+                        0: 'use 0 instead of null values',
+                    }}
+                />
+                {/* <IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0} /> */}
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0} />
-                {this.props.line.chartType !== 'bar' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="lineStyle" label="Line style" options={{
-                    'solid': 'solid',
-                    'dashed': 'dashed',
-                    'dotted': 'dotted',
-                }} /> : null}
-                <IOTextField formData={this.props.line} updateValue={this.updateField} name="convert" label="Convert formula" helperLink={this.showConvertHelp}/>
+                {this.props.line.chartType !== 'bar' ? <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    name="lineStyle"
+                    label="Line style"
+                    options={{
+                        solid: 'solid',
+                        dashed: 'dashed',
+                        dotted: 'dotted',
+                    }}
+                /> : null}
+                <IOTextField formData={this.props.line} updateValue={this.updateField} name="convert" label="Convert formula" helperLink={this.showConvertHelp} />
             </div>
-            {/*<div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+            {/* <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes" />
                 {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" min={1} type="number" /> : null}
                 {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" min={1} type="number" /> : null}
-            </div>*/}
-        < />
+            </div> */}
+        < />;
     }
 
     render() {

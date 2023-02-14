@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles, withTheme } from '@mui/styles';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
@@ -12,13 +12,18 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Switch from '@mui/material/Switch';
 
 // icons
-import { MdExpandLess as IconCollapse } from 'react-icons/md';
-import { MdExpandMore as IconExpand } from 'react-icons/md';
-import { MdAdd as IconAdd } from 'react-icons/md';
-import { FaFolder as IconFolderClosed } from 'react-icons/fa';
-import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
+import {
+    MdExpandLess as IconCollapse,
+    MdExpandMore as IconExpand,
+    MdAdd as IconAdd,
+} from 'react-icons/md';
+import {
+    FaFolder as IconFolderClosed,
+    FaFolderOpen as IconFolderOpened,
+    FaWaveSquare as IconBooleanChart,
+} from 'react-icons/fa';
+
 import { AiOutlineAreaChart as IconChart } from 'react-icons/ai';
-import { FaWaveSquare as IconBooleanChart } from 'react-icons/fa';
 
 import { I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
 import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
@@ -28,11 +33,10 @@ function sortObj(a, b) {
     const bid = typeof b === 'object' ? b._id.replace('system.adapter.', '') : b.replace('system.adapter.', '');
     if (aid > bid) {
         return 1;
-    } else if (aid < bid) {
+    } if (aid < bid) {
         return -1;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 function getEnumsForId(enums, id) {
@@ -53,10 +57,10 @@ const styles = theme => ({
         paddingTop: 0,
         paddingBottom: 0,
         paddingLeft: 0,
-        width: '100%'
+        width: '100%',
     },
     itemIconFolder: {
-        cursor: 'pointer'
+        cursor: 'pointer',
     },
     width100: {
         width: '100%',
@@ -99,7 +103,7 @@ const styles = theme => ({
     listItemSubTitle: {
         fontSize: 'smaller',
         opacity: 0.7,
-        fontStyle: 'italic'
+        fontStyle: 'italic',
     },
     adapterIcon: {
         width: 20,
@@ -108,7 +112,7 @@ const styles = theme => ({
         marginRight: 4,
     },
     mainList: {
-        width: `100%`,
+        width: '100%',
     },
     listItemSecondaryAction: {
         right: 7,
@@ -145,7 +149,7 @@ class ChartsTree extends Component {
                 this.props.selectedId && this.props.onSelectedChanged(this.props.selectedId)));
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps/* , nextContext */) {
         if (nextProps.scrollToSelect !== this.scrollToSelect) {
             this.scrollToSelect = nextProps.scrollToSelect;
 
@@ -153,7 +157,7 @@ class ChartsTree extends Component {
                 this.refSelected.current?.scrollIntoView({
                     behavior: 'auto',
                     block: 'center',
-                    inline: 'center'
+                    inline: 'center',
                 });
             }, 100);
         }
@@ -170,13 +174,13 @@ class ChartsTree extends Component {
                             common: {
                                 members: [...enums[id].common.members],
                                 name: Utils.getObjectNameFromObj(enums[id], null, { language: I18n.getLanguage() }),
-                            }
+                            },
                         };
                     }
                 });
                 return newState;
             })
-            .catch(e => this.onError(e, `Cannot read enums`));
+            .catch(e => this.onError(e, 'Cannot read enums'));
     }
 
     getAdapterIcon(groupId, id) {
@@ -184,28 +188,26 @@ class ChartsTree extends Component {
 
         if (p.length < 2 || (p[0] === '0_userdata')) {
             return Promise.resolve();
-        } else {
-            let instanceId;
-            if (p[0] === 'system') {
-                p.splice(4);
-                instanceId = p.join('.')
-            } else {
-                p.splice(2);
-                instanceId = 'system.adapter.' + p.join('.')
-            }
-
-            this.adapterPromises[instanceId] = this.adapterPromises[instanceId] || this.props.socket.getObject(instanceId);
-
-            return this.adapterPromises[instanceId]
-                .then(obj => {
-                    if (obj && obj.common && obj.common.icon) {
-                        return Promise.resolve({groupId, id, img: Utils.getObjectIcon(obj)});
-                    } else {
-                        return Promise.resolve();
-                    }
-                })
-                .catch(e => this.onError(e, `Cannot read object ${instanceId}`));
         }
+        let instanceId;
+        if (p[0] === 'system') {
+            p.splice(4);
+            instanceId = p.join('.');
+        } else {
+            p.splice(2);
+            instanceId = `system.adapter.${p.join('.')}`;
+        }
+
+        this.adapterPromises[instanceId] = this.adapterPromises[instanceId] || this.props.socket.getObject(instanceId);
+
+        return this.adapterPromises[instanceId]
+            .then(obj => {
+                if (obj && obj.common && obj.common.icon) {
+                    return Promise.resolve({ groupId, id, img: Utils.getObjectIcon(obj) });
+                }
+                return Promise.resolve();
+            })
+            .catch(e => this.onError(e, `Cannot read object ${instanceId}`));
     }
 
     onError(e, comment) {
@@ -216,69 +218,62 @@ class ChartsTree extends Component {
     getChartIcon(groupId, obj) {
         if (!obj) {
             return Promise.resolve();
-        } else if (obj.common && obj.common.icon) {
-            return Promise.resolve({groupId, id: obj._id, img: Utils.getObjectIcon(obj)});
-        } else {
-            // try to read parent
-            const id = obj._id;
-            const channelID = Utils.getParentId(obj._id);
-            if (channelID && channelID.split('.').length > 2) {
-                return this.props.socket.getObject(channelID)
-                    .then(obj => {
-                        if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
-                            return Promise.resolve({groupId, id, img: Utils.getObjectIcon(obj)});
-                        } else {
-                            const deviceID = Utils.getParentId(channelID);
-                            if (deviceID && deviceID.split('.').length > 2) {
-                                return this.props.socket.getObject(deviceID)
-                                    .then(obj => {
-                                        if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
-                                            return Promise.resolve({
-                                                groupId,
-                                                id,
-                                                img: Utils.getObjectIcon(obj)
-                                            });
-                                        } else {
-                                            const adapterID = Utils.getParentId(deviceID);
-                                            if (adapterID && adapterID.split('.').length > 2) {
-                                                return this.props.socket.getObject(adapterID)
-                                                    .then(obj => {
-                                                        if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
-                                                            return Promise.resolve({
-                                                                groupId,
-                                                                id,
-                                                                img: Utils.getObjectIcon(obj)
-                                                            });
-                                                        } else {
-                                                            // get Adapter Icon
-                                                            if (obj && (obj.type === 'channel' || obj.type === 'device') && obj.common && obj.common.icon) {
-                                                                return Promise.resolve({
-                                                                    groupId,
-                                                                    id,
-                                                                    img: Utils.getObjectIcon(obj)
-                                                                });
-                                                            } else {
-                                                                return this.getAdapterIcon(groupId, id);
-                                                            }
-                                                        }
-                                                    })
-                                                    .catch(e => this.onError(e, `Cannot read object ${adapterID}`));
-                                            } else {
-                                                return this.getAdapterIcon(groupId, id);
-                                            }
-                                        }
-                                    })
-                                    .catch(e => this.onError(e, `Cannot read object ${deviceID}`));
-                            } else {
-                                return this.getAdapterIcon(groupId, id);
-                            }
-                        }
-                    })
-                    .catch(e => this.onError(e, `Cannot read object ${channelID}`));
-            } else {
-                return this.getAdapterIcon(groupId, id);
-            }
+        } if (obj.common && obj.common.icon) {
+            return Promise.resolve({ groupId, id: obj._id, img: Utils.getObjectIcon(obj) });
         }
+        // try to read parent
+        const id = obj._id;
+        const channelID = Utils.getParentId(obj._id);
+        if (channelID && channelID.split('.').length > 2) {
+            return this.props.socket.getObject(channelID)
+                .then(_obj => {
+                    if (_obj && (_obj.type === 'channel' || _obj.type === 'device') && _obj.common && _obj.common.icon) {
+                        return Promise.resolve({ groupId, id, img: Utils.getObjectIcon(_obj) });
+                    }
+                    const deviceID = Utils.getParentId(channelID);
+                    if (deviceID && deviceID.split('.').length > 2) {
+                        return this.props.socket.getObject(deviceID)
+                            .then(__obj => {
+                                if (__obj && (__obj.type === 'channel' || __obj.type === 'device') && __obj.common && __obj.common.icon) {
+                                    return Promise.resolve({
+                                        groupId,
+                                        id,
+                                        img: Utils.getObjectIcon(__obj),
+                                    });
+                                }
+                                const adapterID = Utils.getParentId(deviceID);
+                                if (adapterID && adapterID.split('.').length > 2) {
+                                    return this.props.socket.getObject(adapterID)
+                                        .then(___obj => {
+                                            if (___obj && (___obj.type === 'channel' || ___obj.type === 'device') && ___obj.common && ___obj.common.icon) {
+                                                return Promise.resolve({
+                                                    groupId,
+                                                    id,
+                                                    img: Utils.getObjectIcon(___obj),
+                                                });
+                                            }
+                                            // get Adapter Icon
+                                            if (___obj && (___obj.type === 'channel' || ___obj.type === 'device') && ___obj.common && ___obj.common.icon) {
+                                                return Promise.resolve({
+                                                    groupId,
+                                                    id,
+                                                    img: Utils.getObjectIcon(___obj),
+                                                });
+                                            }
+                                            return this.getAdapterIcon(groupId, id);
+                                        })
+                                        .catch(e => this.onError(e, `Cannot read object ${adapterID}`));
+                                }
+                                return this.getAdapterIcon(groupId, id);
+                            })
+                            .catch(e => this.onError(e, `Cannot read object ${deviceID}`));
+                    }
+                    return this.getAdapterIcon(groupId, id);
+                })
+                .catch(e => this.onError(e, `Cannot read object ${channelID}`));
+        }
+
+        return this.getAdapterIcon(groupId, id);
     }
 
     async getAllCharts(newState) {
@@ -293,7 +288,9 @@ class ChartsTree extends Component {
                 .filter(id => customObjs[id] && instancesIds.find(_id => Object.keys(customObjs[id]).includes(_id)))
                 .map(id => id);
 
-            objs = await new Promise(resolve => this.getObjects(ids, resolve));
+            objs = await new Promise(resolve => {
+                this.getObjects(ids, resolve);
+            });
         } else {
             objs = await this.props.socket.getObjectViewSystem('custom-full', '', '');
         }
@@ -306,7 +303,7 @@ class ChartsTree extends Component {
                 // find first instance with history
                 const id = instancesIds.find(_id => Object.keys(obj.common.custom).includes(_id));
                 if (id) {
-                    const instanceObj = this.props.instances.find(obj => obj._id.endsWith(id));
+                    const instanceObj = this.props.instances.find(iObj => iObj._id.endsWith(id));
                     _instances[id] = _instances[id] || {
                         _id: `system.adapter.${id}`,
                         enabledDP: {},
@@ -315,17 +312,17 @@ class ChartsTree extends Component {
                         icon: instanceObj.common.icon,
                         name: instanceObj.common.name || '',
                         types: {},
-                        icons: {}
+                        icons: {},
                     };
                     _instances[id].enabledDP[obj._id] = obj;
-                    _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()});
+                    _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
                     _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
                     _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
                     iconPromises.push(this.getChartIcon(id, obj));
                 }
             });
 
-        let chartsOpened = JSON.parse(JSON.stringify(this.state.chartsOpened));
+        const chartsOpened = JSON.parse(JSON.stringify(this.state.chartsOpened));
         const funcIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.functions.'));
         const roomIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.rooms.'));
 
@@ -361,16 +358,16 @@ class ChartsTree extends Component {
             });
             if (otherFuncs.common.members.length) {
                 obj.enums = obj.enums || [];
-                obj.enums.push('enum.functions.' + obj._id);
-                newState.enums['enum.functions.' + obj._id] = otherFuncs;
+                obj.enums.push(`enum.functions.${obj._id}`);
+                newState.enums[`enum.functions.${obj._id}`] = otherFuncs;
             }
             if (otherRooms.common.members.length) {
                 obj.enums = obj.enums || [];
-                obj.enums.push('enum.rooms.' + obj._id);
-                newState.enums['enum.rooms.' + obj._id] = otherRooms;
+                obj.enums.push(`enum.rooms.${obj._id}`);
+                newState.enums[`enum.rooms.${obj._id}`] = otherRooms;
             }
 
-            obj.enums && obj.enums.sort((a, b) => newState.enums[a].common.name > newState.enums[b].common.name ? 1 : (newState.enums[a].common.name < newState.enums[b].common.name ? -1 : 0));
+            obj.enums && obj.enums.sort((a, b) => (newState.enums[a].common.name > newState.enums[b].common.name ? 1 : (newState.enums[a].common.name < newState.enums[b].common.name ? -1 : 0)));
 
             return obj;
         });
@@ -379,11 +376,11 @@ class ChartsTree extends Component {
 
         if (!this.props.selectedId) {
             // find first chart
-            let selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
+            const selectedChartId = Object.keys(insts).length && Object.keys(insts[0].enabledDP).length ? Object.keys(insts[0].enabledDP)[0] : null;
             if (selectedChartId) {
                 setTimeout(() => this.props.onSelectedChanged({
                     id: selectedChartId,
-                    instance: insts[0]._id
+                    instance: insts[0]._id,
                 }), 500);
             }
         }
@@ -432,28 +429,13 @@ class ChartsTree extends Component {
         }
     }
 
-    getNewPresetName(prefix) {
-        let index = prefix ? '' : '1';
-        prefix = prefix || 'preset_';
-
-        while (!this.isNameUnique(prefix + index)) {
-            if (!index) {
-                index = 2;
-            } else {
-                index++;
-            }
-        }
-
-        return prefix + index;
-    };
-
     toggleChartFolder = id => {
         const chartsOpened = JSON.parse(JSON.stringify(this.state.chartsOpened));
         chartsOpened[id] = !chartsOpened[id];
         window.localStorage.setItem('App.echarts.opened', JSON.stringify(chartsOpened));
-        const newState = {chartsOpened};
+        const newState = { chartsOpened };
 
-        let loadChart = null;
+        const loadChart = null;
 
         if (!chartsOpened[id]) {
             const instance = id.split('///')[0];
@@ -468,47 +450,47 @@ class ChartsTree extends Component {
     renderSelectIdDialog() {
         if (!this.state.showAddStateDialog) {
             return null;
-        } else {
-            return <DialogSelectID
-                key={'selectDialog_add'}
-                socket={this.props.socket}
-                dialogName={'Add'}
-                type={'state'}
-                title={I18n.t('Enable logging for state')}
-                onOk={id => {
-                    console.log(`Selected ${id}`);
-                    const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
-                    if (id) {
-                        this.props.socket.getObject(id)
-                            .then(obj => {
-                                if (!obj || !obj.common) {
-                                    return this.props.onShowError(I18n.t('Invalid object'));
-                                }
-                                if (obj.common.custom && obj.common.custom[instance]) {
-                                    return this.props.onShowToast(I18n.t('Already enabled'));
-                                } else {
-                                    obj.common.custom = obj.common.custom || {};
-                                    obj.common.custom[instance] = {
-                                        enabled: true,
-                                    };
-                                    this.props.socket.setObject(id, obj)
-                                        .then(() => {
-                                            const instances = JSON.parse(JSON.stringify(this.state.instances));
-                                            const inst = instances.find(item => item._id === 'system.adapter.' + instance);
-                                            inst.enabledDP = inst.enabledDP || {};
-                                            inst.enabledDP[obj._id] = obj;
-                                            this.setState({ instances });
-                                        })
-                                        .catch(e => this.onError(e, `Cannot read object ${id}`));
-                                }
-                            })
-                            .catch(e => this.onError(e, `Cannot read object ${id}`));
-                    }
-                    this.setState({ showAddStateDialog: false });
-                }}
-                onClose={() => this.setState({ showAddStateDialog: false })}
-            />;
         }
+        return <DialogSelectID
+            key="selectDialog_add"
+            socket={this.props.socket}
+            dialogName="Add"
+            type="state"
+            title={I18n.t('Enable logging for state')}
+            onOk={id => {
+                console.log(`Selected ${id}`);
+                const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
+                if (id) {
+                    this.props.socket.getObject(id)
+                        .then(obj => {
+                            if (!obj || !obj.common) {
+                                this.props.onShowError(I18n.t('Invalid object'));
+                                return;
+                            }
+                            if (obj.common.custom && obj.common.custom[instance]) {
+                                this.props.onShowToast(I18n.t('Already enabled'));
+                                return;
+                            }
+                            obj.common.custom = obj.common.custom || {};
+                            obj.common.custom[instance] = {
+                                enabled: true,
+                            };
+                            this.props.socket.setObject(id, obj)
+                                .then(() => {
+                                    const instances = JSON.parse(JSON.stringify(this.state.instances));
+                                    const inst = instances.find(item => item._id === `system.adapter.${instance}`);
+                                    inst.enabledDP = inst.enabledDP || {};
+                                    inst.enabledDP[obj._id] = obj;
+                                    this.setState({ instances });
+                                })
+                                .catch(e => this.onError(e, `Cannot read object ${id}`));
+                        })
+                        .catch(e => this.onError(e, `Cannot read object ${id}`));
+                }
+                this.setState({ showAddStateDialog: false });
+            }}
+            onClose={() => this.setState({ showAddStateDialog: false })}
+        />;
     }
 
     renderListItem(group, id, dragging, level) {
@@ -526,23 +508,22 @@ class ChartsTree extends Component {
             button
             style={{ paddingLeft: LEVEL_PADDING * level }}
             selected={selected}
-            onClick={dragging ? undefined : () => this.props.onSelectedChanged({id, instance})}
+            onClick={dragging ? undefined : () => this.props.onSelectedChanged({ id, instance })}
         >
             <ListItemIcon classes={{ root: this.props.classes.itemIconRoot }}>
                 {group.types[id] === 'boolean' ?
                     <IconBooleanChart className={this.props.classes.itemIcon} />
                     :
-                    <IconChart className={this.props.classes.itemIcon} />
-                }
+                    <IconChart className={this.props.classes.itemIcon} />}
             </ListItemIcon>
             <ListItemText
                 classes={{
                     primary: this.props.classes.listItemTitle,
-                    secondary: this.props.classes.listItemSubTitle
+                    secondary: this.props.classes.listItemSubTitle,
                 }}
                 primary={
                     <div className={this.props.classes.itemNameDiv}>
-                        {Utils.getIcon({icon: group.icons[id], prefix: '../../'}, {
+                        {Utils.getIcon({ icon: group.icons[id], prefix: '../../' }, {
                             width: 20,
                             height: 20,
                             borderRadius: 2,
@@ -559,23 +540,21 @@ class ChartsTree extends Component {
                     edge="end"
                     onChange={e => {
                         const chartsList = JSON.parse(JSON.stringify(this.props.chartsList));
-                        const item = chartsList.find(item => item.id === id && item.instance === instance);
+                        const item = chartsList.find(_item => _item.id === id && _item.instance === instance);
                         if (e.target.checked && !item) {
-                            chartsList.push({id, instance});
+                            chartsList.push({ id, instance });
                             chartsList.sort((a, b) => {
                                 if (a.instance > b.instance) {
                                     return 1;
-                                } else if (a.instance < b.instance) {
+                                } if (a.instance < b.instance) {
                                     return -1;
-                                } else {
-                                    if (a.id > b.id) {
-                                        return 1;
-                                    } else if (a.id < b.id) {
-                                        return -1;
-                                    } else {
-                                        return 0;
-                                    }
                                 }
+                                if (a.id > b.id) {
+                                    return 1;
+                                } if (a.id < b.id) {
+                                    return -1;
+                                }
+                                return 0;
                             });
                             // if no charts selected => select this one
                             if (typeof this.props.selectedId !== 'object') {
@@ -590,7 +569,9 @@ class ChartsTree extends Component {
                         }
                     }}
                     checked={!!this.props.chartsList.find(item => item.id === id && item.instance === instance)}
-                /> </ListItemSecondaryAction> : null}
+                />
+                {' '}
+            </ListItemSecondaryAction> : null}
         </ListItem>;
     }
 
@@ -610,7 +591,8 @@ class ChartsTree extends Component {
                     isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
                     key={`${instance}_${id}`}
                     draggableId={`${instance}***${id}`}
-                    index={renderContext.gIndex++}>
+                    index={renderContext.gIndex++}
+                >
                     {(provided, snapshot) =>
                         [
                             <div
@@ -626,71 +608,73 @@ class ChartsTree extends Component {
                             snapshot.isDragging ?
                                 <div className="react-beautiful-dnd-copy" key={`${instance}_${id}_dnd`}>
                                     {this.renderListItem(group, id, true)}
-                                </div> : null
-                        ]
-                    }
-                </Draggable>
-            );
-        } else {
-            const key = `${instance}///${enumId}`;
-            const opened = this.state.chartsOpened[key];
-            if (opened) {
-                ids = ids.filter(id => this.state.enums[enumId].common.members.includes(id));
-            }
-            return [
-                <ListItem
-                    key={key}
-                    style={{ paddingLeft: LEVEL_PADDING * level }}
-                    classes={{ gutters: this.props.classes.noGutters }}
-                    className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
-                >
-                    <ListItemIcon
-                        classes={{ root: this.props.classes.itemIconRoot }}
-                        onClick={() => this.toggleChartFolder(key)}
-                    >{opened ?
-                        <IconFolderOpened
-                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
-                        <IconFolderClosed
-                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} />
-                    }</ListItemIcon>
-                    <ListItemText primary={this.state.enums[enumId].common.name} />
-                    <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
-                        <IconButton size="small" onClick={() => this.toggleChartFolder(key)}
-                                    title={opened ? I18n.t('Collapse') : I18n.t('Expand')}>
-                            {opened ? <IconCollapse /> : <IconExpand />}
-                        </IconButton>
-                    </ListItemSecondaryAction>
-                </ListItem>,
-                opened ? <List key={`${key}_LIST`}>
-                    {ids.map(id =>
-                        <Draggable
-                            isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
-                            key={`${instance}_${id}`}
-                            draggableId={`${instance}***${id}`}
-                            index={renderContext.gIndex++}>
-                            {(provided, snapshot) =>
-                                [
-                                    <div
-                                        key={`${instance}_${id}_item`}
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        style={provided.draggableProps.style}
-                                        className="drag-items"
-                                    >
-                                        {this.renderListItem(group, id, false, 2)}
-                                    </div>,
-                                    snapshot.isDragging ?
-                                        <div className="react-beautiful-dnd-copy" key={instance + '_' + id + '_dnd'}>
-                                            {this.renderListItem(group, id, true)}
-                                        </div> : null
-                                ]
-                            }
-                        </Draggable>
-                    )}
-                </List> : null
-            ]
+                                </div> : null,
+                        ]}
+                </Draggable>);
         }
+        const key = `${instance}///${enumId}`;
+        const opened = this.state.chartsOpened[key];
+        if (opened) {
+            ids = ids.filter(id => this.state.enums[enumId].common.members.includes(id));
+        }
+        return [
+            <ListItem
+                key={key}
+                style={{ paddingLeft: LEVEL_PADDING * level }}
+                classes={{ gutters: this.props.classes.noGutters }}
+                className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
+            >
+                <ListItemIcon
+                    classes={{ root: this.props.classes.itemIconRoot }}
+                    onClick={() => this.toggleChartFolder(key)}
+                >
+                    {opened ?
+                        <IconFolderOpened
+                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
+                        /> :
+                        <IconFolderClosed
+                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
+                        />}
+                </ListItemIcon>
+                <ListItemText primary={this.state.enums[enumId].common.name} />
+                <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+                    <IconButton
+                        size="small"
+                        onClick={() => this.toggleChartFolder(key)}
+                        title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
+                    >
+                        {opened ? <IconCollapse /> : <IconExpand />}
+                    </IconButton>
+                </ListItemSecondaryAction>
+            </ListItem>,
+            opened ? <List key={`${key}_LIST`}>
+                {ids.map(id =>
+                    <Draggable
+                        isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
+                        key={`${instance}_${id}`}
+                        draggableId={`${instance}***${id}`}
+                        index={renderContext.gIndex++}
+                    >
+                        {(provided, snapshot) =>
+                            [
+                                <div
+                                    key={`${instance}_${id}_item`}
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={provided.draggableProps.style}
+                                    className="drag-items"
+                                >
+                                    {this.renderListItem(group, id, false, 2)}
+                                </div>,
+                                snapshot.isDragging ?
+                                    <div className="react-beautiful-dnd-copy" key={`${instance}_${id}_dnd`}>
+                                        {this.renderListItem(group, id, true)}
+                                    </div> : null,
+                            ]}
+                    </Draggable>)}
+            </List> : null,
+        ];
     }
 
     render() {
@@ -698,75 +682,84 @@ class ChartsTree extends Component {
         return [
             this.renderSelectIdDialog(),
             <Droppable droppableId="Lines" isDropDisabled key="charts">
-                {(provided, snapshot) =>
+                {(provided /* , snapshot */) =>
                     <div ref={provided.innerRef} key="chartListDiv">
                         <List className={Utils.clsx(this.props.classes.scroll, this.props.classes.mainList)} key="chartList">
                             {
                                 this.state.instances.map(group => {
-                                        let opened = this.state.chartsOpened[group._id];
-                                        let children = null;
+                                    const opened = this.state.chartsOpened[group._id];
+                                    let children = null;
 
-                                        // if instance opened
-                                        if (opened) {
-                                            // no groupBy
-                                            const ids = Object.keys(group.enabledDP)
-                                                .filter(id => !this.props.search || id.includes(this.props.search) || group.names[id].includes(this.props.search));
+                                    // if instance opened
+                                    if (opened) {
+                                        // no groupBy
+                                        const ids = Object.keys(group.enabledDP)
+                                            .filter(id => !this.props.search || id.includes(this.props.search) || group.names[id].includes(this.props.search));
 
-                                            if (!this.props.groupBy) {
-                                                ids.sort(sortObj);
-                                                children = this.renderListItems(group, ids, null, renderContext);
-                                            } else {
-                                                children = (group.enums || []).filter(id => id.startsWith('enum.' + this.props.groupBy + '.'))
-                                                    .map(eID =>
-                                                        this.renderListItems(group, ids, eID, renderContext));
-                                            }
+                                        if (!this.props.groupBy) {
+                                            ids.sort(sortObj);
+                                            children = this.renderListItems(group, ids, null, renderContext);
+                                        } else {
+                                            children = (group.enums || []).filter(id => id.startsWith(`enum.${this.props.groupBy}.`))
+                                                .map(eID =>
+                                                    this.renderListItems(group, ids, eID, renderContext));
                                         }
-
-                                        return [
-                                            <ListItem
-                                                key={group._id}
-                                                classes={{ gutters: this.props.classes.noGutters }}
-                                                className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
-                                            >
-                                                <ListItemIcon classes={{ root: this.props.classes.itemIconRoot }}
-                                                              onClick={() => this.toggleChartFolder(group._id)}>
-                                                    {opened ?
-                                                        <IconFolderOpened
-                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
-                                                        <IconFolderClosed
-                                                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} />
-                                                    }
-                                                </ListItemIcon>
-                                                <ListItemText primary={
-                                                    <div className={this.props.classes.itemNameDiv}>
-                                                        <img className={this.props.classes.adapterIcon} alt=""
-                                                             src={`../../adapter/${group.name}/${group.icon}`} />
-                                                        <div className={this.props.classes.groupName}>{group._id.replace('system.adapter.', '')}</div>
-                                                    </div>
-                                                } />
-                                                <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
-                                                    {opened ? <IconButton
-                                                        size="small"
-                                                        onClick={() => this.setState({ showAddStateDialog: group._id })}
-                                                        title={I18n.t('Enable logging for new state')}
-                                                    ><IconAdd /></IconButton> : null}
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => this.toggleChartFolder(group._id)}
-                                                        title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
-                                                    >
-                                                        {opened ? <IconCollapse /> : <IconExpand />}
-                                                    </IconButton>
-                                                </ListItemSecondaryAction>
-                                            </ListItem>,
-                                            children
-                                        ];
                                     }
-                                )}
+
+                                    return [
+                                        <ListItem
+                                            key={group._id}
+                                            classes={{ gutters: this.props.classes.noGutters }}
+                                            className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
+                                        >
+                                            <ListItemIcon
+                                                classes={{ root: this.props.classes.itemIconRoot }}
+                                                onClick={() => this.toggleChartFolder(group._id)}
+                                            >
+                                                {opened ?
+                                                    <IconFolderOpened
+                                                        className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
+                                                    /> :
+                                                    <IconFolderClosed
+                                                        className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
+                                                    />}
+                                            </ListItemIcon>
+                                            <ListItemText primary={
+                                                <div className={this.props.classes.itemNameDiv}>
+                                                    <img
+                                                        className={this.props.classes.adapterIcon}
+                                                        alt=""
+                                                        src={`../../adapter/${group.name}/${group.icon}`}
+                                                    />
+                                                    <div className={this.props.classes.groupName}>{group._id.replace('system.adapter.', '')}</div>
+                                                </div>
+                                            }
+                                            />
+                                            <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+                                                {opened ? <IconButton
+                                                    size="small"
+                                                    onClick={() => this.setState({ showAddStateDialog: group._id })}
+                                                    title={I18n.t('Enable logging for new state')}
+                                                >
+                                                    <IconAdd />
+                                                </IconButton> : null}
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => this.toggleChartFolder(group._id)}
+                                                    title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
+                                                >
+                                                    {opened ? <IconCollapse /> : <IconExpand />}
+                                                </IconButton>
+                                            </ListItemSecondaryAction>
+                                        </ListItem>,
+                                        children,
+                                    ];
+                                })
+                            }
                             {provided.placeholder}
                         </List>
                     </div>}
-            </Droppable>
+            </Droppable>,
         ];
     }
 }
@@ -786,7 +779,7 @@ ChartsTree.propTypes = {
     scrollToSelect: PropTypes.bool,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.string
+        PropTypes.string,
     ]),
     onSelectedChanged: PropTypes.func.isRequired,
 };

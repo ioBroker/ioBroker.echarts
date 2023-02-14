@@ -1,4 +1,4 @@
-import Utils from "@iobroker/adapter-react-v5/Components/Utils";
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 
 const DEFAULT_PRESET = {
     lines:[
@@ -112,13 +112,13 @@ function getDefaultLine(systemSettings, instance, obj, language) {
     const isBoolean = obj && obj.common && obj.common.type === 'boolean';
 
     const line = {
-        name:       ((obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, {language})) || '').trim(),
+        name:       ((obj && obj.common && obj.common.name && Utils.getObjectNameFromObj(obj, null, { language })) || '').trim(),
         id:         obj ? obj._id : '',
         instance:   instance === systemSettings.common.defaultHistory ? '' : instance || '',
         thickness:  2,
         chartType:  isBoolean ? 'steps'    : 'line',
         aggregate:  isBoolean ? 'onchange' : 'minmax',
-        isBoolean:  isBoolean,
+        isBoolean,
         symbolSize: 3,
         validTime:  35, // 35 seconds
     };
@@ -146,7 +146,7 @@ function getDefaultPreset(systemSettings, instance, obj, language) {
     preset.useComma = systemSettings.common.isFloatComma || false;
 
     if (systemSettings.common.dateFormat) {
-        //preset.timeFormat = 'HH:mm:ss ' + systemSettings.common.dateFormat;
+        // preset.timeFormat = 'HH:mm:ss ' + systemSettings.common.dateFormat;
     }
 
     preset.lines.push(getDefaultLine(systemSettings, instance, obj, language));
@@ -157,5 +157,5 @@ function getDefaultPreset(systemSettings, instance, obj, language) {
 // eslint-disable-next-line
 export default {
     getDefaultPreset,
-    getDefaultLine
+    getDefaultLine,
 };

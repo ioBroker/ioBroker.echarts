@@ -12,24 +12,24 @@ const generateClassName = createGenerateClassName({
 
 const styles = theme => ({
     toolbar: {
-        //a: console.log(JSON.stringify(theme)),
+        // a: console.log(JSON.stringify(theme)),
         minHeight: theme.mixins.toolbar.minHeight,
-        boxShadow: '0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12)'
+        boxShadow: '0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12)',
     },
     toolbarButtons: {
         padding: 4,
-        marginLeft: 4
+        marginLeft: 4,
     },
     editorDiv: {
         height: `calc(100% - ${theme.mixins.toolbar.minHeight + 38 + 1}px)`,
         width: '100%',
         overflow: 'hidden',
-        position: 'relative'
+        position: 'relative',
     },
     textButton: {
         marginRight: 10,
         minHeight: 24,
-        padding: '6px 16px'
+        padding: '6px 16px',
     },
     tabIcon: {
         width: 24,
@@ -37,14 +37,14 @@ const styles = theme => ({
         verticalAlign: 'middle',
         marginBottom: 2,
         marginRight: 2,
-        borderRadius: 3
+        borderRadius: 3,
     },
     hintIcon: {
-        //fontSize: 32,
-        padding: '0 8px 0 8px'
+        // fontSize: 32,
+        padding: '0 8px 0 8px',
     },
     hintText: {
-        //fontSize: 18
+        // fontSize: 18
     },
     tabMenuButton: {
         position: 'absolute',
@@ -52,7 +52,7 @@ const styles = theme => ({
         right: 0,
     },
     tabChanged: {
-        color: theme.palette.secondary.main
+        color: theme.palette.secondary.main,
     },
     tabText: {
         maxWidth: 130,
@@ -64,7 +64,7 @@ const styles = theme => ({
     },
     tabChangedIcon: {
         color: '#FF0000',
-        fontSize: 16
+        fontSize: 16,
     },
     closeButton: {
         position: 'absolute',
@@ -72,10 +72,10 @@ const styles = theme => ({
         right: 0,
         zIndex: 10,
         padding: 8,
-        cursor: 'pointer'
+        cursor: 'pointer',
     },
     notRunning: {
-        color: '#ffbc00'
+        color: '#ffbc00',
     },
     tabButton: {
 
@@ -87,7 +87,7 @@ const styles = theme => ({
         width: 18,
         height: 18,
         borderRadius: 2,
-        marginRight: 5
+        marginRight: 5,
     },
     container: {
         height: '100%',
@@ -99,7 +99,7 @@ const styles = theme => ({
     },
     height100: {
         height: '100%',
-    }
+    },
 });
 
 class MainChart extends React.Component {
@@ -127,7 +127,7 @@ class MainChart extends React.Component {
 
         return <div style={{ display: this.props.visible ? 'block' : 'none' }} className={typeof this.props.selectedId !== 'string' ? this.props.classes.heightWithoutToolbar : this.props.classes.height100}>
             <ChartFrame
-                src={URL + 'index.html?edit=1'}
+                src={`${URL}index.html?edit=1`}
                 presetData={data}
             />
         </div>;
@@ -151,13 +151,11 @@ MainChart.propTypes = {
     onChange: PropTypes.func.isRequired,
     onCreatePreset: PropTypes.func.isRequired,
     visible: PropTypes.bool,
-    runningInstances: PropTypes.object,
     presetData: PropTypes.object,
-    chartsList: PropTypes.array,
     selectedId: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.object]),
-    theme: PropTypes.object
+    theme: PropTypes.object,
 };
 
 export default withStyles(styles)(MainChart);

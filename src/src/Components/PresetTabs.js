@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import { ChromePicker } from 'react-color'
+import { ChromePicker } from 'react-color';
 
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
@@ -20,20 +20,24 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import Snackbar from '@mui/material/Snackbar';
 
-import { MdAdd as IconAdd, MdClose as IconCancel } from 'react-icons/md';
-import { MdSave as IconSave } from 'react-icons/md';
-import { MdExpandLess as IconCollapse } from 'react-icons/md';
-import { MdExpandMore as IconExpand } from 'react-icons/md';
-import IconClear from '@mui/icons-material/Close';
-import { MdFullscreen as IconNewWindow } from 'react-icons/md';
+import {
+    MdAdd as IconAdd,
+    MdClose as IconCancel,
+    MdSave as IconSave,
+    MdExpandLess as IconCollapse,
+    MdExpandMore as IconExpand,
+    MdFullscreen as IconNewWindow,
+} from 'react-icons/md';
 import IconClose from '@mui/icons-material/Close';
 import IconDelete from '@mui/icons-material/Delete';
 
-import { I18n, Utils } from '@iobroker/adapter-react-v5';
-import IconCopy from '@iobroker/adapter-react-v5/icons/IconCopy';
-import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
+import {
+    I18n, Utils, IconCopy, ColorPicker,
+} from '@iobroker/adapter-react-v5';
 
-import { IOTextField, IOCheckbox, IOSelect, IODateTimeField } from './Fields';
+import {
+    IOTextField, IOCheckbox, IOSelect, IODateTimeField,
+} from './Fields';
 import Line from './Line';
 import Mark from './Mark';
 import DefaultPreset from './DefaultPreset';
@@ -41,15 +45,15 @@ import DefaultPreset from './DefaultPreset';
 const styles = theme => ({
     tabsBody: {
         overflowY: 'auto',
-        flex: 1
+        flex: 1,
     },
     tabsContainer: {
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     tabContent: {
         paddingTop: theme.spacing(1),
         position: 'relative',
-        minHeight: 'calc(100% - 32px)'
+        minHeight: 'calc(100% - 32px)',
     },
     buttonAdd: {
         position: 'absolute',
@@ -78,7 +82,7 @@ const styles = theme => ({
         marginLeft: 5,
     },
     buttonSave: {
-        color: theme.type === 'dark' ? '#CC0000' : '#CC0000'
+        color: theme.type === 'dark' ? '#CC0000' : '#CC0000',
     },
     noContent : {
         padding: theme.spacing(1),
@@ -97,8 +101,8 @@ const styles = theme => ({
         marginTop: theme.spacing(2),
     },
     noPaddingOnSide: {
-        //paddingRight: 0,
-        //paddingLeft: 0,
+        // paddingRight: 0,
+        // paddingLeft: 0,
     },
     group: {
         display: 'block',
@@ -109,7 +113,7 @@ const styles = theme => ({
         },
         position: 'relative',
         paddingBottom: theme.spacing(2),
-        borderBottom: '1px dotted ' + theme.palette.grey[400]
+        borderBottom: `1px dotted ${theme.palette.grey[400]}`,
     },
     title: {
         width: 'inherit',
@@ -131,7 +135,7 @@ const styles = theme => ({
         marginTop: 20,
         marginBottom: 10,
         marginLeft: theme.spacing(2),
-    }
+    },
 });
 
 const PREDEFINED_COLORS_MARKS = [
@@ -152,7 +156,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
     // change background colour if dragging
     background: isDragging ? 'lightgreen' : 'grey',
     // styles we need to apply on draggables
-    ...draggableStyle
+    ...draggableStyle,
 });
 
 class PresetTabs extends React.Component {
@@ -162,7 +166,7 @@ class PresetTabs extends React.Component {
         let copiedObject = window.sessionStorage.getItem('echarts.copiedObject');
         if (copiedObject) {
             try {
-                copiedObject = JSON.parse(copiedObject)
+                copiedObject = JSON.parse(copiedObject);
             } catch (e) {
                 copiedObject = null;
             }
@@ -186,7 +190,8 @@ class PresetTabs extends React.Component {
             .then(instances => {
                 const webInstances = instances.map(obj => ({
                     index: obj._id.split('.').pop(),
-                    link: `http${obj.native.secure ? 's' : ''}://${obj.native.bind === '0.0.0.0' ? window.location.hostname : obj.native.bind}:${obj.native.port}`}))
+                    link: `http${obj.native.secure ? 's' : ''}://${obj.native.bind === '0.0.0.0' ? window.location.hostname : obj.native.bind}:${obj.native.port}`,
+                }));
 
                 this.setState({ webInstances });
             });
@@ -195,14 +200,14 @@ class PresetTabs extends React.Component {
     }
 
     lineOpenToggle = index => {
-        let linesOpened = JSON.parse(JSON.stringify(this.state.linesOpened));
+        const linesOpened = JSON.parse(JSON.stringify(this.state.linesOpened));
         linesOpened[index] = !this.state.linesOpened[index];
         this.setState({ linesOpened });
         window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify(linesOpened));
     };
 
     markOpenToggle = index => {
-        let marksOpened = JSON.parse(JSON.stringify(this.state.marksOpened));
+        const marksOpened = JSON.parse(JSON.stringify(this.state.marksOpened));
         marksOpened[index] = !this.state.marksOpened[index];
         this.setState({ marksOpened });
         window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify(marksOpened));
@@ -212,19 +217,19 @@ class PresetTabs extends React.Component {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
         presetData[name] = value;
         if (time) {
-            presetData[name + '_time'] = time;
+            presetData[`${name}_time`] = time;
         }
         this.props.onChange(presetData);
     };
 
     updateMark = (index, markData) => {
-        let marks = JSON.parse(JSON.stringify(this.props.presetData.marks));
+        const marks = JSON.parse(JSON.stringify(this.props.presetData.marks));
         marks[index] = markData;
         this.updateField('marks', marks);
     };
 
     updateLine = (index, lineData) => {
-        let lines = JSON.parse(JSON.stringify(this.props.presetData.lines));
+        const lines = JSON.parse(JSON.stringify(this.props.presetData.lines));
         lines[index] = lineData;
 
         if (lines[index].chartType === 'bar') {
@@ -266,7 +271,7 @@ class PresetTabs extends React.Component {
     };
 
     addMark(data) {
-        let presetData = JSON.parse(JSON.stringify(this.props.presetData));
+        const presetData = JSON.parse(JSON.stringify(this.props.presetData));
         if (data) {
             presetData.marks.push(JSON.parse(JSON.stringify(data)));
         } else {
@@ -419,19 +424,19 @@ class PresetTabs extends React.Component {
                 >
                     <TabPanel value="0" classes={{ root: this.props.classes.tabContent }}>
                         <Fab onClick={() => this.addLine()} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add line to chart')}><IconAdd /></Fab>
-                        {anyClosed ? <Fab onClick={this.expandAllLines}   size="small" color="default" className={this.props.classes.buttonExpandAll}  title={I18n.t('Expand all lines')}><IconExpand /></Fab> : null}
+                        {anyClosed ? <Fab onClick={this.expandAllLines} size="small" color="default" className={this.props.classes.buttonExpandAll} title={I18n.t('Expand all lines')}><IconExpand /></Fab> : null}
                         {anyOpened ? <Fab onClick={this.collapseAllLines} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all lines')}><IconCollapse /></Fab> : null}
                         {this.props.presetData.lines.length ? this.props.presetData.lines.map((line, index) =>
                             <Draggable key={`${line.id}_${index}`} draggableId={`${line.id}_${index}`} index={index}>
-                                {(provided, snapshot) =>
+                                {(_provided, _snapshot) =>
                                     <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                                        ref={_provided.innerRef}
+                                        {..._provided.draggableProps}
+                                        style={getItemStyle(_snapshot.isDragging, _provided.draggableProps.style)}
                                     >
                                         <Line
-                                            provided={provided}
-                                            snapshot={snapshot}
+                                            provided={_provided}
+                                            snapshot={_snapshot}
                                             theme={this.props.theme}
                                             instances={this.props.instances}
                                             systemConfig={this.props.systemConfig}
@@ -439,7 +444,7 @@ class PresetTabs extends React.Component {
                                             presetData={this.props.presetData}
                                             width={this.props.width}
                                             updateLine={this.updateLine}
-                                            deleteLine={index => this.setState({ deleteLineDialog: index })}
+                                            deleteLine={_index => this.setState({ deleteLineDialog: _index })}
                                             index={index}
                                             key={index}
                                             socket={this.props.socket}
@@ -447,19 +452,17 @@ class PresetTabs extends React.Component {
                                             lineOpenToggle={this.lineOpenToggle}
                                             maxLines={this.props.presetData.lines.length}
                                             onSelectColor={(value, cb) => this.showColorPicker(value, cb)}
-                                            onCopy={line => {
-                                                this.setState({ copiedObject: { type: 'line', data: JSON.parse(JSON.stringify(line)) } });
-                                                window.sessionStorage.setItem('echarts.copiedObject', JSON.stringify({ type: 'line', data: line }));
+                                            onCopy={_line => {
+                                                this.setState({ copiedObject: { type: 'line', data: JSON.parse(JSON.stringify(_line)) } });
+                                                window.sessionStorage.setItem('echarts.copiedObject', JSON.stringify({ type: 'line', data: _line }));
                                             }}
                                         />
-                                    </div>
-                                }
+                                    </div>}
                             </Draggable>)
-                        :
+                            :
                             <div className={this.props.classes.noContent}>
                                 {I18n.t('Create a new line with a "+" on the right.')}
-                            </div>
-                        }
+                            </div>}
                         {this.state.copiedObject && this.state.copiedObject.type === 'line' ?
                             <Line
                                 presetData={this.props.presetData}
@@ -477,7 +480,7 @@ class PresetTabs extends React.Component {
                         <div className={this.props.classes.dragHint}>{I18n.t('You can drag and drop simple lines from the left list.')}</div>
                     </TabPanel>
                 </div>}
-            </Droppable>;
+        </Droppable>;
     }
 
     renderTabMarkings() {
@@ -488,7 +491,7 @@ class PresetTabs extends React.Component {
             <Fab onClick={() => this.addMark()} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add marking line to chart')}>
                 <IconAdd />
             </Fab>
-            {anyClosed ? <Fab onClick={this.expandAllMarks}   size="small" color="default" className={this.props.classes.buttonExpandAll}   title={I18n.t('Expand all markings')}><IconExpand /></Fab> : null}
+            {anyClosed ? <Fab onClick={this.expandAllMarks} size="small" color="default" className={this.props.classes.buttonExpandAll} title={I18n.t('Expand all markings')}><IconExpand /></Fab> : null}
             {anyOpened ? <Fab onClick={this.collapseAllMarks} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all markings')}><IconCollapse /></Fab> : null}
             {
                 this.props.presetData.marks.length ?
@@ -496,7 +499,7 @@ class PresetTabs extends React.Component {
                         mark={mark}
                         presetData={this.props.presetData}
                         updateMark={this.updateMark}
-                        deleteMark={index => {this.setState({ deleteMarkDialog: index })}}
+                        deleteMark={_index => { this.setState({ deleteMarkDialog: _index }); }}
                         index={index}
                         key={index}
                         socket={this.props.socket}
@@ -574,10 +577,16 @@ class PresetTabs extends React.Component {
         return <TabPanel value="2" classes={{ root: this.props.classes.tabContent }}>
             {anyNotJson ? <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Type')}</p>
-                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="timeType" label="Type" options={{
-                    relative: 'relative',
-                    static: 'static',
-                }} />
+                <IOSelect
+                    formData={this.props.presetData}
+                    updateValue={this.updateField}
+                    name="timeType"
+                    label="Type"
+                    options={{
+                        relative: 'relative',
+                        static: 'static',
+                    }}
+                />
             </div> : null}
             {anyNotJson ? <div className={this.props.classes.group}>
                 {this.props.presetData.timeType === 'static' ?
@@ -587,73 +596,90 @@ class PresetTabs extends React.Component {
                         <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
                     </> : <>
                         <p className={this.props.classes.title}>{I18n.t('Relative')}</p>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={{
-                            'now': 'now',
-                            '1minute': 'end of minute',
-                            '5minutes': 'end of 5 minutes',
-                            '10minutes': 'end of 10 minutes',
-                            '30minutes': 'end of 30 minutes',
-                            '1hour': 'end of hour',
-                            '2hours': 'end of 2 hours',
-                            '3hours': 'end of 3 hours',
-                            '4hours': 'end of 4 hours',
-                            '6hours': 'end of 6 hours',
-                            '8hours': 'end of 8 hours',
-                            '12hours': 'end of 12 hours',
-                            'today': 'end of day',
-                            'weekEurope': 'end of sunday',
-                            'weekUsa': 'end of saturday',
-                            'month': 'this month',
-                            'year': 'this year',
-                        }} />
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={{
-                            '10': '10 minutes',
-                            '30': '30 minutes',
-                            '60': '1 hour',
-                            '120': '2 hours',
-                            '180': '3 hours',
-                            '360': '6 hours',
-                            '720': '12 hours',
-                            '1440': '1 day',
-                            '2880': '2 days',
-                            '4320': '3 days',
-                            '10080': '7 days',
-                            '20160': '14 days',
-                            '1m': '1 month',
-                            '2m': '2 months',
-                            '3m': '3 months',
-                            '6m': '6 months',
-                            '1y': '1 year',
-                            '2y': '2 years',
-                        }} />
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="live" label="Live update every" options={{
-                            '': 'none',
-                            '5': '5 seconds',
-                            '10': '10 seconds',
-                            '15': '15 seconds',
-                            '20': '20 seconds',
-                            '30': '30 seconds',
-                            '60': '1 minute',
-                            '120': '2 minutes',
-                            '300': '5 minutes',
-                            '600': '10 minutes',
-                            '900': '15 minutes',
-                            '1200': '20 minutes',
-                            '1800': '30 minutes',
-                            '3600': '1 hour',
-                            '7200': '2 hours',
-                            '10800': '3 hours',
-                            '21600': '6 hours',
-                            '43200': '12 hours',
-                            '86400': '1 day',
-                        }} />
-                    </>
-                }
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="relativeEnd"
+                            label="End"
+                            options={{
+                                now: 'now',
+                                '1minute': 'end of minute',
+                                '5minutes': 'end of 5 minutes',
+                                '10minutes': 'end of 10 minutes',
+                                '30minutes': 'end of 30 minutes',
+                                '1hour': 'end of hour',
+                                '2hours': 'end of 2 hours',
+                                '3hours': 'end of 3 hours',
+                                '4hours': 'end of 4 hours',
+                                '6hours': 'end of 6 hours',
+                                '8hours': 'end of 8 hours',
+                                '12hours': 'end of 12 hours',
+                                today: 'end of day',
+                                weekEurope: 'end of sunday',
+                                weekUsa: 'end of saturday',
+                                month: 'this month',
+                                year: 'this year',
+                            }}
+                        />
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="range"
+                            label="Range"
+                            options={{
+                                10: '10 minutes',
+                                30: '30 minutes',
+                                60: '1 hour',
+                                120: '2 hours',
+                                180: '3 hours',
+                                360: '6 hours',
+                                720: '12 hours',
+                                1440: '1 day',
+                                2880: '2 days',
+                                4320: '3 days',
+                                10080: '7 days',
+                                20160: '14 days',
+                                '1m': '1 month',
+                                '2m': '2 months',
+                                '3m': '3 months',
+                                '6m': '6 months',
+                                '1y': '1 year',
+                                '2y': '2 years',
+                            }}
+                        />
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="live"
+                            label="Live update every"
+                            options={{
+                                '': 'none',
+                                5: '5 seconds',
+                                10: '10 seconds',
+                                15: '15 seconds',
+                                20: '20 seconds',
+                                30: '30 seconds',
+                                60: '1 minute',
+                                120: '2 minutes',
+                                300: '5 minutes',
+                                600: '10 minutes',
+                                900: '15 minutes',
+                                1200: '20 minutes',
+                                1800: '30 minutes',
+                                3600: '1 hour',
+                                7200: '2 hours',
+                                10800: '3 hours',
+                                21600: '6 hours',
+                                43200: '12 hours',
+                                86400: '1 day',
+                            }}
+                        />
+                    </>}
             </div> : null}
-            {/*<div className={this.props.classes.group}>
+            {/* <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
                 <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
-            </div>*/}
+            </div> */}
             {anyNotJson && anyNotOnChange && hasNotBar ?
                 <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Aggregate for lines')}</p>
@@ -689,37 +715,42 @@ class PresetTabs extends React.Component {
                 <p className={this.props.classes.title}>{I18n.t('Time format')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Custom time format" name="timeFormatCustom" />
                 {!this.props.presetData.timeFormatCustom ?
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" options={{
-                        '': 'Default',
-                        'HH:mm DD.MM': 'HH:MM dd.mm',
-                        'HH:mm DD.MM.': 'HH:MM dd.mm.',
-                        'HH:mm <br /> DD.MM': 'HH:MM / dd.mm',
-                        'HH:mm <br /> DD.MM.': 'HH:MM / dd.mm.',
-                        'HH:mm <br /> DD.MM.YY': 'HH:MM / dd.mm.yy',
-                        'HH:mm:ss DD.MM.YY': 'HH:MM:SS dd.mm.yy',
-                        'HH:mm DD.MM.YY': 'HH:MM dd.mm.yy',
-                        'hh:mm:ss MM/DD/YY a': 'HH:MM:SS mm/dd/yy am (US)',
-                        'HH:mm:ss DD/MM/YY': 'HH:MM:SS dd/mm/yy (UK)',
-                        'HH:mm:ss MM.DD.YY': 'HH:MM:SS mm.dd.yy',
-                        'HH:mm ddd': 'HH:MM dow',
-                        'HH:mm:ss ddd': 'HH:MM:SS dow',
-                        'HH:mm MM.DD': 'HH:MM mm.dd',
-                        'HH:mm:ss': 'HH:MM:SS',
-                        'HH:mm': 'HH:MM',
-                        'DD.MM': 'dd.mm',
-                        'DD.MM.': 'dd.mm.',
-                        'MM/DD': 'mm/dd',
-                        'DD': 'dd',
-                        'MM': 'mm',
-                        'YY': 'y',
-                        'HH': 'HH',
-                        'mm': 'MM',
-                        'ddd': 'dow',
-                        'DD.MM.YY': 'dd.mm.yy',
-                    }} /> :
-                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" helperLink="https://momentjs.com/docs/#/displaying/format/" />
-                }
-                {/*<IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Animation" name="animation" options={{
+                    <IOSelect
+                        formData={this.props.presetData}
+                        updateValue={this.updateField}
+                        label="Time format"
+                        name="timeFormat"
+                        options={{
+                            '': 'Default',
+                            'HH:mm DD.MM': 'HH:MM dd.mm',
+                            'HH:mm DD.MM.': 'HH:MM dd.mm.',
+                            'HH:mm <br /> DD.MM': 'HH:MM / dd.mm',
+                            'HH:mm <br /> DD.MM.': 'HH:MM / dd.mm.',
+                            'HH:mm <br /> DD.MM.YY': 'HH:MM / dd.mm.yy',
+                            'HH:mm:ss DD.MM.YY': 'HH:MM:SS dd.mm.yy',
+                            'HH:mm DD.MM.YY': 'HH:MM dd.mm.yy',
+                            'hh:mm:ss MM/DD/YY a': 'HH:MM:SS mm/dd/yy am (US)',
+                            'HH:mm:ss DD/MM/YY': 'HH:MM:SS dd/mm/yy (UK)',
+                            'HH:mm:ss MM.DD.YY': 'HH:MM:SS mm.dd.yy',
+                            'HH:mm ddd': 'HH:MM dow',
+                            'HH:mm:ss ddd': 'HH:MM:SS dow',
+                            'HH:mm MM.DD': 'HH:MM mm.dd',
+                            'HH:mm:ss': 'HH:MM:SS',
+                            'HH:mm': 'HH:MM',
+                            'DD.MM': 'dd.mm',
+                            'DD.MM.': 'dd.mm.',
+                            'MM/DD': 'mm/dd',
+                            DD: 'dd',
+                            MM: 'mm',
+                            YY: 'y',
+                            HH: 'HH',
+                            mm: 'MM',
+                            ddd: 'dow',
+                            'DD.MM.YY': 'dd.mm.yy',
+                        }}
+                    /> :
+                    <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Time format" name="timeFormat" helperLink="https://momentjs.com/docs/#/displaying/format/" />}
+                {/* <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Animation" name="animation" options={{
                                 '0': 'no',
                                 '300': '300ms',
                                 '500': '500ms',
@@ -728,7 +759,7 @@ class PresetTabs extends React.Component {
                                 '3000': '3 seconds',
                                 '5000': '5 seconds',
                                 '10000': '10 seconds',
-                            }} />*/}
+                            }} /> */}
             </div>
         </TabPanel>;
     }
@@ -745,7 +776,7 @@ class PresetTabs extends React.Component {
             open={!0}
             autoHideDuration={2000}
             onClose={() => this.setState({ toast: '' })}
-            ContentProps={{'aria-describedby': 'message-id'}}
+            ContentProps={{ 'aria-describedby': 'message-id' }}
             message={<span id="message-id">{this.state.toast}</span>}
             action={[
                 <IconButton
@@ -765,39 +796,51 @@ class PresetTabs extends React.Component {
         return <TabPanel value="3" classes={{ root: this.props.classes.tabContent }}>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Legend')}</p>
-                <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Show legend" name="legend" options={{
-                    '': 'none',
-                    'nw': 'Top, left',
-                    'ne': 'Top, right',
-                    'sw': 'Bottom, left',
-                    'se': 'Bottom, right',
-                }} />
+                <IOSelect
+                    formData={this.props.presetData}
+                    updateValue={this.updateField}
+                    label="Show legend"
+                    name="legend"
+                    options={{
+                        '': 'none',
+                        nw: 'Top, left',
+                        ne: 'Top, right',
+                        sw: 'Bottom, left',
+                        se: 'Bottom, right',
+                    }}
+                />
                 {this.props.presetData.legend ?
                     <>
-                        {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" />*/}
-                        {/*<IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity (0-1)" name="legBgOpacity" />*/}
+                        {/* <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend columns" name="legColumns" min="1" type="number" /> */}
+                        {/* <IOTextField formData={this.props.presetData} updateValue={this.updateField} label="Legend opacity (0-1)" name="legBgOpacity" /> */}
                         {this.renderColorField(this.props.presetData, this.updateField, 'Legend text color', 'legColor')}
                         {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
-                        <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show values'} name="legActual" />
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} label="Orientation" name="legendDirection" options={{
-                            '': 'horizontal',
-                            vertical: 'vertical'
-                        }} />
+                        <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Show values" name="legActual" />
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            label="Orientation"
+                            name="legendDirection"
+                            options={{
+                                '': 'horizontal',
+                                vertical: 'vertical',
+                            }}
+                        />
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legFontSize" label="Font size" min={6} type="number" />
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legendHeight" label="Height" min={6} type="number" />
                     </> : null}
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Options')}</p>
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hover details'} name="hoverDetail" />
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'No interpolate in hover'} name="hoverNoInterpolate" />
-                {this.props.presetData.hoverDetail ? <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide nulls in tooltip'} name="hoverNoNulls" /> : null}
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Use comma'} name="useComma" />
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Enable zoom and pan'} name="zoom" />
-                {/*<IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" />*/}
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Show export button'} name="export" />
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Hover details" name="hoverDetail" />
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="No interpolate in hover" name="hoverNoInterpolate" />
+                {this.props.presetData.hoverDetail ? <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Hide nulls in tooltip" name="hoverNoNulls" /> : null}
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Use comma" name="useComma" />
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Enable zoom and pan" name="zoom" />
+                {/* <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" /> */}
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Show export button" name="export" />
                 {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Export button color', 'exportColor') : null}
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Auto padding'} name="autoGridPadding" />
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Auto padding" name="autoGridPadding" />
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Copy link to clipboard')}</p>
@@ -826,7 +869,10 @@ class PresetTabs extends React.Component {
                                 Utils.copyToClipboard(link));
                         }}
 
-                    ><IconCopy />{`web.${instance.index}`}</Button>)}
+                    >
+                        <IconCopy />
+                        {`web.${instance.index}`}
+                    </Button>)}
             </div>
         </TabPanel>;
     }
@@ -838,21 +884,27 @@ class PresetTabs extends React.Component {
                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title" />
                 {this.props.presetData.title ?
                     <>
-                        <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="titlePos" label="Title position" options={{
-                            '': 'default',
-                            'top:35;left:65': 'Top, left, inside',
-                            'top:35;right:5': 'Top, right, inside',
-                            'top:35;left:50': 'Top, center, inside',
-                            'top:50;left:65': 'Middle, left, inside',
-                            'top:50;right:5': 'Middle, right, inside',
-                            'bottom:5;left:65': 'Bottom, left, inside',
-                            'bottom:5;right:5': 'Bottom, right, inside',
-                            'bottom:5;left:50': 'Bottom, center, inside',
-                            /*'top:5;right:-5': 'Top, right, outside',
+                        <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="titlePos"
+                            label="Title position"
+                            options={{
+                                '': 'default',
+                                'top:35;left:65': 'Top, left, inside',
+                                'top:35;right:5': 'Top, right, inside',
+                                'top:35;left:50': 'Top, center, inside',
+                                'top:50;left:65': 'Middle, left, inside',
+                                'top:50;right:5': 'Middle, right, inside',
+                                'bottom:5;left:65': 'Bottom, left, inside',
+                                'bottom:5;right:5': 'Bottom, right, inside',
+                                'bottom:5;left:50': 'Bottom, center, inside',
+                            /* 'top:5;right:-5': 'Top, right, outside',
                             'top:50;right:-5': 'Middle, right, outside',
                             'bottom:5;right:-5': 'Bottom, right, outside',
-                            'bottom:-5;left:50': 'Bottom, center, outside',*/
-                        }} />
+                            'bottom:-5;left:50': 'Bottom, center, outside', */
+                            }}
+                        />
                         {this.renderColorField(this.props.presetData, this.updateField, 'Title color', 'titleColor')}
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" min={0} type="number" />
                     </>
@@ -863,34 +915,41 @@ class PresetTabs extends React.Component {
 
     renderTabAppearance() {
         return <TabPanel value="5" classes={{ root: this.props.classes.tabContent }}>
-            {/*<h4>{I18n.t('Appearance')}</h4>*/}
+            {/* <h4>{I18n.t('Appearance')}</h4> */}
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Theme')}</p>
-                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="theme" label="Theme" noTranslate options={{
-                    '': 'auto',
-                    'default': 'default',
-                    'dark': 'dark',
-                    'dark-bold': 'dark-bold',
-                    'dark-blue': 'dark-blue',
-                    'gray': 'gray',
-                    'vintage': 'vintage',
-                    'macarons': 'macarons',
-                    'infographic': 'infographic',
-                    'shine': 'shine',
-                    'roma': 'roma',
-                    'azul': 'azul',
-                    'bee-inspired': '',
-                    'blue': 'blue',
-                    'royal': 'royal',
-                    'tech-blue': 'tech-blue',
-                    'red': 'red',
-                    'red-velvet': 'red-velvet',
-                    'green': 'green',
-                }} />
+                <IOSelect
+                    formData={this.props.presetData}
+                    updateValue={this.updateField}
+                    name="theme"
+                    label="Theme"
+                    noTranslate
+                    options={{
+                        '': 'auto',
+                        default: 'default',
+                        dark: 'dark',
+                        'dark-bold': 'dark-bold',
+                        'dark-blue': 'dark-blue',
+                        gray: 'gray',
+                        vintage: 'vintage',
+                        macarons: 'macarons',
+                        infographic: 'infographic',
+                        shine: 'shine',
+                        roma: 'roma',
+                        azul: 'azul',
+                        'bee-inspired': '',
+                        blue: 'blue',
+                        royal: 'royal',
+                        'tech-blue': 'tech-blue',
+                        red: 'red',
+                        'red-velvet': 'red-velvet',
+                        green: 'green',
+                    }}
+                />
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Chart size')}</p>
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width"  label="Width"  classes={{ fieldContainer: this.props.classes.marginTop }} />
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" classes={{ fieldContainer: this.props.classes.marginTop }} />
                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" classes={{ fieldContainer: this.props.classes.marginTop }} />
             </div>
             <div className={this.props.classes.group}>
@@ -918,24 +977,36 @@ class PresetTabs extends React.Component {
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Border')}</p>
-                <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="noBorder" label="Border" options={{
-                    '': 'With border',
-                    noborder: 'Without border',
-                }} />
+                <IOSelect
+                    formData={this.props.presetData}
+                    updateValue={this.updateField}
+                    name="noBorder"
+                    label="Border"
+                    options={{
+                        '': 'With border',
+                        noborder: 'Without border',
+                    }}
+                />
                 {this.props.presetData.noBorder !== 'noborder' ?
                     <>
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_width" label="Border width" min={0} type="number" />
                         {this.props.presetData.border_width ? this.renderColorField(this.props.presetData, this.updateField, 'Border color', 'border_color') : null}
-                        {this.props.presetData.border_width ? <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="border_style" label="Border style" options={{
-                            'solid':  'solid',
-                            'dotted': 'dotted',
-                            'dashed': 'dashed',
-                            'double': 'double',
-                            'groove': 'groove',
-                            'ridge':  'ridge',
-                            'inset':  'inset',
-                            'outset': 'outset',
-                        }} /> : null}
+                        {this.props.presetData.border_width ? <IOSelect
+                            formData={this.props.presetData}
+                            updateValue={this.updateField}
+                            name="border_style"
+                            label="Border style"
+                            options={{
+                                solid:  'solid',
+                                dotted: 'dotted',
+                                dashed: 'dashed',
+                                double: 'double',
+                                groove: 'groove',
+                                ridge:  'ridge',
+                                inset:  'inset',
+                                outset: 'outset',
+                            }}
+                        /> : null}
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min={0} type="number" />
 
                     </> : null}
@@ -943,19 +1014,24 @@ class PresetTabs extends React.Component {
             {this.props.presetData.lines.find(line => line.chartType === 'bar') ?
                 <Grid item sm={6} xs={12}>
                     <p className={this.props.classes.title}>{I18n.t('Bar settings')}</p>
-                    <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="barLabels" label="Show labels" options={{
-                        '': 'none',
-                        'topover': 'top over',
-                        'topunder': 'top under',
-                        'bottom': 'bottom',
-                        'middle': 'middle',
-                    }} />
+                    <IOSelect
+                        formData={this.props.presetData}
+                        updateValue={this.updateField}
+                        name="barLabels"
+                        label="Show labels"
+                        options={{
+                            '': 'none',
+                            topover: 'top over',
+                            topunder: 'top under',
+                            bottom: 'bottom',
+                            middle: 'middle',
+                        }}
+                    />
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barWidth" label="Bars width" min={0} type="number" />
                     <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="barFontSize" label="Label font size" min={0} type="number" />
                     {this.renderColorField(this.props.presetData, this.updateField, 'Label color', 'barFontColor')}
                 </Grid>
-                : null
-            }
+                : null}
         </TabPanel>;
     }
 
@@ -971,25 +1047,27 @@ class PresetTabs extends React.Component {
                 label={I18n.t(label)}
                 value={formData[name] || ''}
                 onClick={() =>
-                    this.setState({[`_c_${name}`]: formData[name]}, () =>
+                    this.setState({ [`_c_${name}`]: formData[name] }, () =>
                         this.showColorPicker(this.state[`_${name}`], color =>
-                            this.setState({[`_c_${name}`]: color}, () =>
+                            this.setState({ [`_c_${name}`]: color }, () =>
                                 onUpdate(name, ColorPicker.getColor(color, true)))))}
                 onChange={e => {
                     const color = e.target.value;
-                    this.setState({[`_c_${name}`]: color}, () =>
+                    this.setState({ [`_c_${name}`]: color }, () =>
                         onUpdate(name, color));
                 }}
                 inputProps={{ style: { paddingLeft: 8, backgroundColor: formData[name], color: textColor ? '#FFF' : '#000' } }}
+                // eslint-disable-next-line react/jsx-no-duplicate-props
                 InputProps={{
                     endAdornment: formData[name] ?
                         <IconButton
                             size="small"
                             onClick={e => {
                                 e.stopPropagation();
-                                this.setState({[`_c_${name}`]: ''}, () => onUpdate(name, ''));
-                            }}>
-                            <IconClear />
+                                this.setState({ [`_c_${name}`]: '' }, () => onUpdate(name, ''));
+                            }}
+                        >
+                            <IconClose />
                         </IconButton>
                         : undefined,
                 }}
@@ -1013,7 +1091,9 @@ class PresetTabs extends React.Component {
                     className={this.props.classes.button}
                     onClick={() => window.open(`chart/index.html?preset=${this.props.selectedId}`, 'own-preset-echarts')}
                     title={I18n.t('Open chart in own window')}
-                ><IconNewWindow /></IconButton> : null}
+                >
+                    <IconNewWindow />
+                </IconButton> : null}
                 {!this.props.autoSave && this.props.selectedPresetChanged ? <IconButton
                     classes={{ root: this.props.classes.noPaddingOnSide }}
                     className={Utils.clsx(this.props.classes.button, this.props.classes.buttonSave)}
@@ -1068,4 +1148,4 @@ PresetTabs.propTypes = {
     autoSave: PropTypes.bool,
 };
 
-export default withStyles(styles)(PresetTabs)
+export default withStyles(styles)(PresetTabs);

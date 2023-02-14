@@ -4,11 +4,11 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { StylesProvider, createGenerateClassName } from '@mui/styles';
 
 import './index.css';
+import theme from '@iobroker/adapter-react-v5/Theme';
+import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import pack from '../package.json';
-import theme from '@iobroker/adapter-react-v5/Theme';
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
 
 window.adapterName = 'echarts';
 window.sentryDSN = 'https://709f116e1de34029921e4f2696d6740f@sentry.iobroker.net/88';

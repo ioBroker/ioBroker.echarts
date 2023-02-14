@@ -18,7 +18,7 @@ const styles = theme => ({
         width: '100%',
         height: '100%',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
     },
     logBoxInner: {
         color: theme.palette.mode === 'dark' ? 'white' : 'black',
@@ -28,7 +28,7 @@ const styles = theme => ({
         overflow: 'none',
         position: 'relative',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
     },
     toolbox: {
         position: 'absolute',
@@ -37,12 +37,12 @@ const styles = theme => ({
         marginLeft: 2,
         width: TOOLBOX_WIDTH,
         height: '100%',
-        boxShadow: '2px 0px 4px -1px rgba(0, 0, 0, 0.2), 4px 0px 5px 0px rgba(0, 0, 0, 0.14), 1px 0px 10px 0px rgba(0, 0, 0, 0.12)'
+        boxShadow: '2px 0px 4px -1px rgba(0, 0, 0, 0.2), 4px 0px 5px 0px rgba(0, 0, 0, 0.14), 1px 0px 10px 0px rgba(0, 0, 0, 0.12)',
     },
     iconButtons: {
         width: 32,
         height: 32,
-        padding: 4
+        padding: 4,
     },
     layoutIcon: {
         width: 24,
@@ -55,7 +55,7 @@ const styles = theme => ({
 class SettingsEditor extends React.Component {
     render() {
         return <div className={this.props.classes.logBox}>
-            {/*false ? <div className={this.props.classes.toolbox} key="toolbox">
+            {/* false ? <div className={this.props.classes.toolbox} key="toolbox">
                 {this.props.onLayoutChange ?
                     (<IconButton
                         className={this.props.classes.iconButtons}
@@ -68,7 +68,7 @@ class SettingsEditor extends React.Component {
                             src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit}
                         />
                     </IconButton>) : null}
-            </div> : null*/ }
+            </div> : null */ }
             <div className={this.props.classes.logBoxInner} key="logList">
                 <PresetTabs
                     width={this.props.width}
@@ -94,9 +94,9 @@ SettingsEditor.propTypes = {
     selectedId: PropTypes.string,
     presetData: PropTypes.object,
     instances: PropTypes.array,
-    onLayoutChange: PropTypes.func,
+    // onLayoutChange: PropTypes.func,
     onChange: PropTypes.func,
-    verticalLayout: PropTypes.bool,
+    // verticalLayout: PropTypes.bool,
     savePreset: PropTypes.func,
     selectedPresetChanged: PropTypes.bool,
     width: PropTypes.number,

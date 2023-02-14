@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import { StylesProvider, createGenerateClassName, withStyles, withTheme } from '@mui/styles';
+import {
+    StylesProvider, createGenerateClassName, withStyles, withTheme,
+} from '@mui/styles';
 import MD5 from 'crypto-js/md5';
 
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { Loader, I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
+import {
+    Loader, I18n, Utils, withWidth,
+} from '@iobroker/adapter-react-v5';
 import Connection, { PROGRESS, ERRORS } from '@iobroker/adapter-react-v5/Connection';
 import DialogError from '@iobroker/adapter-react-v5/Dialogs/Error';
 import theme from '@iobroker/adapter-react-v5/Theme';
@@ -37,10 +41,10 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        const themeInstance = this.createTheme();
+        const themeInstance = App.createTheme();
 
         const query     = Utils.parseQuery(window.location.search);
-        const queryHash = Utils.parseQuery((window.location.hash || '').replace(/^#/,''));
+        const queryHash = Utils.parseQuery((window.location.hash || '').replace(/^#/, ''));
 
         this.state = {
             connected:  false,
@@ -49,8 +53,7 @@ class App extends Component {
             actualValues: null,
             noLoader:   query.noLoader || queryHash.noLoader || false,
             theme:      themeInstance,
-            themeName:  this.getThemeName(themeInstance),
-            themeType:  this.getThemeType(themeInstance),
+            themeType:  App.getThemeType(themeInstance),
             noBackground: query.noBG || queryHash.noBG || false,
             compact:    query.compact || queryHash.compact || false,
         };
@@ -65,30 +68,30 @@ class App extends Component {
 
         // init translations
         const translations = {
-            'en': require('@iobroker/adapter-react-v5/i18n/en'),
-            'de': require('@iobroker/adapter-react-v5/i18n/de'),
-            'ru': require('@iobroker/adapter-react-v5/i18n/ru'),
-            'pt': require('@iobroker/adapter-react-v5/i18n/pt'),
-            'nl': require('@iobroker/adapter-react-v5/i18n/nl'),
-            'fr': require('@iobroker/adapter-react-v5/i18n/fr'),
-            'it': require('@iobroker/adapter-react-v5/i18n/it'),
-            'es': require('@iobroker/adapter-react-v5/i18n/es'),
-            'pl': require('@iobroker/adapter-react-v5/i18n/pl'),
-            'uk': require('@iobroker/adapter-react-v5/i18n/uk'),
+            en: require('@iobroker/adapter-react-v5/i18n/en'),
+            de: require('@iobroker/adapter-react-v5/i18n/de'),
+            ru: require('@iobroker/adapter-react-v5/i18n/ru'),
+            pt: require('@iobroker/adapter-react-v5/i18n/pt'),
+            nl: require('@iobroker/adapter-react-v5/i18n/nl'),
+            fr: require('@iobroker/adapter-react-v5/i18n/fr'),
+            it: require('@iobroker/adapter-react-v5/i18n/it'),
+            es: require('@iobroker/adapter-react-v5/i18n/es'),
+            pl: require('@iobroker/adapter-react-v5/i18n/pl'),
+            uk: require('@iobroker/adapter-react-v5/i18n/uk'),
             'zh-cn': require('@iobroker/adapter-react-v5/i18n/zh-cn'),
         };
 
         const ownTranslations = {
-            'en': require('./i18n/en'),
-            'de': require('./i18n/de'),
-            'ru': require('./i18n/ru'),
-            'pt': require('./i18n/pt'),
-            'nl': require('./i18n/nl'),
-            'fr': require('./i18n/fr'),
-            'it': require('./i18n/it'),
-            'es': require('./i18n/es'),
-            'pl': require('./i18n/pl'),
-            'uk': require('./i18n/uk'),
+            en: require('./i18n/en'),
+            de: require('./i18n/de'),
+            ru: require('./i18n/ru'),
+            pt: require('./i18n/pt'),
+            nl: require('./i18n/nl'),
+            fr: require('./i18n/fr'),
+            it: require('./i18n/it'),
+            es: require('./i18n/es'),
+            pl: require('./i18n/pl'),
+            uk: require('./i18n/uk'),
             'zh-cn': require('./i18n/zh-cn'),
         };
 
@@ -101,11 +104,13 @@ class App extends Component {
             window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
         }
 
+        /*
         try {
             this.isIFrame = window.self !== window.top;
         } catch (e) {
             this.isIFrame = true;
         }
+        */
 
         // some people uses invalid URL to access charts
         if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/chart/')) {
@@ -138,41 +143,29 @@ class App extends Component {
                     this.restoreAfterReconnection();
                 }
             },
-            onReady: (objects, scripts) => {
+            onReady: () => {
                 this.adminCorrectTimeout && clearTimeout(this.adminCorrectTimeout);
                 this.adminCorrectTimeout = null;
                 I18n.setLanguage(this.socket.systemLang);
 
-                this.socket.getSystemConfig()
-                    .then(systemConfig => {
-                        this.systemLang   = systemConfig?.common?.language || 'en';
-                        this.isFloatComma = systemConfig?.common?.isFloatComma || false;
-                        if (this.inEdit) {
-                            window.addEventListener('message', this.onReceiveMessage);
-                            if (window.self !== window.parent) {
-                                try {
-                                    window.parent.postMessage('chartReady','*');
-                                } catch (e) {
-                                    console.warn('Cannot send ready event to parent window');
-                                    console.error(e);
-                                }
-                            }
-                        } else {
-                            this.createChartData();
+                if (this.inEdit) {
+                    window.addEventListener('message', this.onReceiveMessage);
+                    if (window.self !== window.parent) {
+                        try {
+                            window.parent.postMessage('chartReady', '*');
+                        } catch (e) {
+                            console.warn('Cannot send ready event to parent window');
+                            console.error(e);
                         }
-                    })
-                    .catch(err => {
-                        if (err === ERRORS.NOT_CONNECTED) {
-                            this.setState({connected: false});
-                        } else {
-                            this.showError(I18n.t(err));
-                        }
-                    })
+                    }
+                } else {
+                    this.createChartData();
+                }
             },
             onError: err => {
                 console.error(err);
                 this.showError(err);
-            }
+            },
         });
     }
 
@@ -202,7 +195,7 @@ class App extends Component {
                 newState.categories = categories; // used for bar charts and pie charts
             }
             if (actualValues) {
-                newState.actualValues = actualValues
+                newState.actualValues = actualValues;
             }
             this.setState(newState, () =>
                 this.showProgress(false));
@@ -231,7 +224,7 @@ class App extends Component {
                     this.chartData.setConfig(config);
                 }
             } catch (e) {
-                return console.log(`Cannot parse ${message.data}`);
+                console.log(`Cannot parse ${message.data}`);
             }
         }
     };
@@ -241,41 +234,31 @@ class App extends Component {
      * @param {string} name Theme name
      * @returns {Theme}
      */
-    createTheme(name = '') {
+    static createTheme(name = '') {
         return theme(Utils.getThemeName(name));
     }
 
     /**
-     * Get the theme name
-     * @param {Theme} theme Theme
-     * @returns {string} Theme name
-     */
-    getThemeName(theme) {
-        return theme.name;
-    }
-
-    /**
      * Get the theme type
-     * @param {Theme} theme Theme
+     * @param {Theme} theme_ Theme
      * @returns {string} Theme type
      */
-    getThemeType(theme) {
-        return theme.palette.mode;
+    static getThemeType(theme_) {
+        return theme_.palette.mode;
     }
 
     showError(text) {
-        this.setState({errorText: text});
+        this.setState({ errorText: text });
     }
 
     renderError() {
         if (!this.state.errorText) {
             return null;
-        } else {
-            return <DialogError classes={{}} text={this.state.errorText} onClose={() => this.setState({errorText: ''})}/>;
         }
+        return <DialogError classes={{}} text={this.state.errorText} onClose={() => this.setState({ errorText: '' })} />;
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
+    componentDidUpdate(/* prevProps, prevState, snapshot */) {
         if (!this.progressShown && this.progressRef.current && this.progressRef.current.style.display !== 'none') {
             this.progressRef.current.style.display = 'none';
         }
@@ -285,15 +268,14 @@ class App extends Component {
         if (!this.state.connected || !this.state.seriesData) {
             if (this.state.noLoader) {
                 return null;
-            } else {
-                return <StylesProvider generateClassName={generateClassName}>
-                    <StyledEngineProvider injectFirst>
-                        <ThemeProvider theme={this.state.theme}>
-                            <Loader theme={this.state.themeType}/>
-                        </ThemeProvider>
-                    </StyledEngineProvider>
-                </StylesProvider>;
             }
+            return <StylesProvider generateClassName={generateClassName}>
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={this.state.theme}>
+                        <Loader theme={this.state.themeType} />
+                    </ThemeProvider>
+                </StyledEngineProvider>
+            </StylesProvider>;
         }
 
         const config = this.chartData.getConfig();
@@ -307,15 +289,17 @@ class App extends Component {
         return <StylesProvider generateClassName={generateClassName}>
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={this.state.theme}>
-                    <div ref={this.divRef}
-                         className={this.props.classes.root}
-                         style={{
-                             width: config.width,
-                             height: config.height,
-                             background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
-                             color: this.state.theme.palette.text.primary
-                         }}>
-                        <LinearProgress ref={this.progressRef} style={{ display: 'block' }} className={this.props.classes.progress}/>
+                    <div
+                        ref={this.divRef}
+                        className={this.props.classes.root}
+                        style={{
+                            width: config.width,
+                            height: config.height,
+                            background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
+                            color: this.state.theme.palette.text.primary,
+                        }}
+                    >
+                        <LinearProgress ref={this.progressRef} style={{ display: 'block' }} className={this.props.classes.progress} />
                         <ChartView
                             key={hash}
                             socket={this.socket}

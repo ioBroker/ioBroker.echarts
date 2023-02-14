@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles, withTheme } from '@mui/styles';
 import { useDrag, useDrop, DndProvider as DragDropContext } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
@@ -23,16 +23,20 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
 // icons
-import { MdExpandLess as IconCollapse } from 'react-icons/md';
-import { MdExpandMore as IconExpand } from 'react-icons/md';
-import { MdAdd as IconAdd } from 'react-icons/md';
-import { MdModeEdit as IconEdit } from 'react-icons/md';
-import { MdClose as IconCancel } from 'react-icons/md';
-import { MdCheck as IconCheck } from 'react-icons/md';
-import { MdDelete as IconDelete } from 'react-icons/md';
-import { FaScroll as IconScript } from 'react-icons/fa';
-import { FaFolder as IconFolderClosed } from 'react-icons/fa';
-import { FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
+import {
+    MdExpandLess as IconCollapse,
+    MdExpandMore as IconExpand,
+    MdAdd as IconAdd,
+    MdModeEdit as IconEdit,
+    MdClose as IconCancel,
+    MdCheck as IconCheck,
+    MdDelete as IconDelete,
+} from 'react-icons/md';
+import {
+    FaScroll as IconScript,
+    FaFolder as IconFolderClosed,
+    FaFolderOpen as IconFolderOpened,
+} from 'react-icons/fa';
 
 import {
     I18n,
@@ -40,17 +44,17 @@ import {
     withWidth,
     Confirm as ConfirmDialog,
     IconCopy,
-    SelectID as DialogSelectID,
+//    SelectID as DialogSelectID,
 } from '@iobroker/adapter-react-v5';
 
-/*function getFolderPrefix(presetId) {
+/* function getFolderPrefix(presetId) {
     let result = presetId.split('.');
     result.shift();
     result.shift();
     result.pop();
     result = result.join('.');
     return result;
-}*/
+} */
 const HIDDEN_FOLDER = '_consumption_';
 
 const hideFolder = !window.location.search.includes('hidden=false');
@@ -64,12 +68,12 @@ function getFolderList(folder) {
     return result;
 }
 
-export const Droppable = (props) => {
+export const Droppable = props => {
     const { onDrop } = props;
 
-    const [{ isOver, isOverAny}, drop] = useDrop({
+    const [{ isOver, isOverAny }, drop] = useDrop({
         accept: 'item',
-        drop: e => isOver ? onDrop(e) : undefined,
+        drop: e => (isOver ? onDrop(e) : undefined),
         collect: monitor => ({
             isOver: monitor.isOver({ shallow: true }),
             isOverAny: monitor.isOver(),
@@ -81,12 +85,12 @@ export const Droppable = (props) => {
     </div>;
 };
 
-export const Draggable = (props) => {
+export const Draggable = props => {
     const { name } = props;
     const [{ opacity }, drag] = useDrag({
         type: 'item',
-        item: () => ({name}),
-        collect: monitor => ({opacity: monitor.isDragging() ? 0.3 : 1}),
+        item: () => ({ name }),
+        collect: monitor => ({ opacity: monitor.isDragging() ? 0.3 : 1 }),
     });
     // About transform: https://github.com/react-dnd/react-dnd/issues/832#issuecomment-442071628
     return <div ref={drag} style={{ opacity, transform: 'translate3d(0, 0, 0)' }}>
@@ -101,7 +105,7 @@ const styles = theme => ({
     noGutters: {
         paddingTop: 0,
         paddingBottom: 0,
-        width: '100%'
+        width: '100%',
     },
     changed: {
         position: 'relative',
@@ -114,7 +118,7 @@ const styles = theme => ({
             height: 5,
             borderRadius: 5,
             background: theme.type === 'dark' ? '#CC0000' : '#CC0000',
-        }
+        },
     },
     itemIcon: {
         width: 32,
@@ -122,18 +126,18 @@ const styles = theme => ({
         marginRight: 4,
     },
     itemIconFolder: {
-        cursor: 'pointer'
+        cursor: 'pointer',
     },
     buttonsContainer: {
         '& button': {
-            whiteSpace: 'nowrap'
-        }
+            whiteSpace: 'nowrap',
+        },
     },
     itemIconPreset: {
-        color: theme.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark
+        color: theme.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
     },
     folderIconPreset: {
-        color: theme.type === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary.light
+        color: theme.type === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary.light,
     },
     width100: {
         width: '100%',
@@ -158,7 +162,7 @@ const styles = theme => ({
         width: `calc(100% - ${theme.spacing(1)})`,
         marginLeft: theme.spacing(1),
         '& .js-folder-dragover>li>.folder-reorder': {
-            background: '#40adff'
+            background: '#40adff',
         },
         '& .js-folder-dragging .folder-reorder': {
             opacity: 1,
@@ -206,7 +210,6 @@ class MenuList extends Component {
             deletePresetDialog: null,
             movePresetDialog: null,
             newPresetFolder: '',
-            addPresetFolderDialog: null,
             addPresetFolderName: '',
             editPresetFolderDialog: null,
             editPresetFolderName: '',
@@ -218,7 +221,7 @@ class MenuList extends Component {
             .then(newState => this.setState(newState));
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps/* , nextContext */) {
         if (nextProps.scrollToSelect !== this.scrollToSelect) {
             this.scrollToSelect = nextProps.scrollToSelect;
 
@@ -262,7 +265,7 @@ class MenuList extends Component {
 
         if (changed) {
             const emptyFolders = this.getEmptyFolders();
-            const newState = {presets, changingPreset: '', presetFolders: this.buildPresetTree(presets, emptyFolders)};
+            const newState = { presets, changingPreset: '', presetFolders: MenuList.buildPresetTree(presets, emptyFolders) };
             setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
             this.setState(newState);
         }
@@ -278,9 +281,9 @@ class MenuList extends Component {
         _path   = _path   || [];
         presetFolders = presetFolders || this.state.presetFolders || {};
 
-        if (presetFolders.id/* && !Object.keys(presetFolders.subFolders).length && !Object.keys(presetFolders.presets).length*/) {
+        if (presetFolders.id/* && !Object.keys(presetFolders.subFolders).length && !Object.keys(presetFolders.presets).length */) {
             const __path = [..._path];
-            __path.push(presetFolders.id)
+            __path.push(presetFolders.id);
             _result.push(__path.join('.'));
         }
 
@@ -294,7 +297,7 @@ class MenuList extends Component {
 
     async getAllPresets(newState) {
         newState = newState || {};
-        let presets = {};
+        const presets = {};
 
         const res = await this.props.socket.getObjectViewSystem('chart', `${this.props.adapterName}.`, `${this.props.adapterName}.\u9999`);
         res && Object.values(res).forEach(preset => preset._id && !preset._id.toString().endsWith('.') && (presets[preset._id] = preset));
@@ -310,12 +313,12 @@ class MenuList extends Component {
 
         // store all empty folders
         const emptyFolders = this.getEmptyFolders();
-        newState.presetFolders = this.buildPresetTree(presets, emptyFolders);
+        newState.presetFolders = MenuList.buildPresetTree(presets, emptyFolders);
         setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
         return newState;
     }
 
-    renderTreePreset(item, level, anySubFolders) {
+    renderTreePreset(item, level) {
         const preset = this.state.presets[item._id];
         if (!preset || (this.props.search && !item.common.name.includes(this.props.search))) {
             return null;
@@ -338,8 +341,8 @@ class MenuList extends Component {
             <ListItemIcon classes={{ root: Utils.clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset) }}><IconScript className={this.props.classes.itemIcon} /></ListItemIcon>
             <ListItemText
                 classes={{ primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle }}
-                primary={<div className={this.props.classes.listItemTitleDiv}>{Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()})}</div>}
-                secondary={Utils.getObjectNameFromObj(preset, null, {language: I18n.getLanguage()}, true)}
+                primary={<div className={this.props.classes.listItemTitleDiv}>{Utils.getObjectNameFromObj(preset, null, { language: I18n.getLanguage() })}</div>}
+                secondary={Utils.getObjectNameFromObj(preset, null, { language: I18n.getLanguage() }, true)}
             />
             <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
                 {this.state.changingPreset === preset._id ?
@@ -352,38 +355,36 @@ class MenuList extends Component {
                             title={I18n.t('Rename')}
                             onClick={e => {
                                 e.stopPropagation();
-                                this.setState({ renameDialog: preset._id, renamePresetDialogTitle: item.common.name })
+                                this.setState({ renameDialog: preset._id, renamePresetDialogTitle: item.common.name });
                             }}
                         >
                             <IconEdit />
                         </IconButton> : null }
-                        {/*level || anySubFolders ?
+                        {/* level || anySubFolders ?
                             <IconButton
                                 size="small"
                                 aria-label="Move to folder"
                                 title={ I18n.t('Move to folder') }
                                 onClick={ () => this.setState({ movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id) }) }>
                                 <IconMoveToFolder />
-                            </IconButton> : null*/}
-                        <IconButton size="small" aria-label="Copy" title={ I18n.t('Copy') } onClick={ () => this.props.onCopyPreset(preset._id) }><IconCopy className={this.props.classes.iconCopy} /></IconButton>
-                        <IconButton size="small" aria-label="Delete" title={ I18n.t('Delete') } onClick={ () => this.setState({ deletePresetDialog: preset._id }) }><IconDelete /></IconButton>
-                    </> : null)
-                }
+                            </IconButton> : null */}
+                        <IconButton size="small" aria-label="Copy" title={I18n.t('Copy')} onClick={() => this.props.onCopyPreset(preset._id)}><IconCopy className={this.props.classes.iconCopy} /></IconButton>
+                        <IconButton size="small" aria-label="Delete" title={I18n.t('Delete')} onClick={() => this.setState({ deletePresetDialog: preset._id })}><IconDelete /></IconButton>
+                    </> : null)}
             </ListItemSecondaryAction>
         </ListItem>;
 
         if (this.props.reorder) {
             return <Draggable key={`draggable_${item._id}`} name={item._id} draggableId={item._id}>{listItem}</Draggable>;
-        } else {
-            return  listItem;
         }
+        return  listItem;
     }
 
     renderPresetsTree(parent, level) {
-        let result = [];
+        const result = [];
 
         level = level || 0;
-        let presetsOpened = this.props.reorder || (this.state.presetsOpened && parent ? this.state.presetsOpened.includes(parent.prefix) : false);
+        const presetsOpened = this.props.reorder || (this.state.presetsOpened && parent ? this.state.presetsOpened.includes(parent.prefix) : false);
 
         const depthPx = (this.props.reorder ? level : level - 1) * LEVEL_PADDING;
 
@@ -394,7 +395,7 @@ class MenuList extends Component {
 
             // add first sub-folders
             subFolders
-                .sort((a, b) => a.id > b.id ? 1 : (a.id < b.id ? -1 : 0))
+                .sort((a, b) => (a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)))
                 .filter(subFolder => !(hideFolder && subFolder.id === HIDDEN_FOLDER))
                 .forEach(subFolder =>
                     reactChildren.push(this.renderPresetsTree(subFolder, level + 1)));
@@ -402,12 +403,12 @@ class MenuList extends Component {
             // Add as second the presets
             if (values.length || subFolders.length) {
                 values
-                    .sort((a, b) => a._id > b._id ? 1 : (a._id < b._id ? -1 : 0))
+                    .sort((a, b) => (a._id > b._id ? 1 : (a._id < b._id ? -1 : 0)))
                     .forEach(preset =>
-                        reactChildren.push(this.renderTreePreset(preset, level + 1, subFolders.length)));
+                        reactChildren.push(this.renderTreePreset(preset, level + 1)));
             } else {
-                reactChildren.push(<ListItem key="no presets" classes={ {gutters: this.props.classes.noGutters} }>
-                    <ListItemText className={ this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText>
+                reactChildren.push(<ListItem key="no presets" classes={{ gutters: this.props.classes.noGutters }}>
+                    <ListItemText className={this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText>
                 </ListItem>);
             }
         }
@@ -420,11 +421,13 @@ class MenuList extends Component {
                 className={Utils.clsx(
                     this.props.classes.width100,
                     this.props.classes.folderItem,
-                    this.props.reorder && 'folder-reorder'
+                    this.props.reorder && 'folder-reorder',
                 )}
                 style={{ paddingLeft: depthPx }}
             >
-                <ListItemIcon classes={{ root: Utils.clsx(this.props.classes.itemIconRoot, this.props.classes.folderIconPreset) }} onClick={() => this.togglePresetsFolder(parent)}
+                <ListItemIcon
+                    classes={{ root: Utils.clsx(this.props.classes.itemIconRoot, this.props.classes.folderIconPreset) }}
+                    onClick={() => this.togglePresetsFolder(parent)}
                 >
                     { presetsOpened ?
                         <IconFolderOpened className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
@@ -436,13 +439,17 @@ class MenuList extends Component {
                         size="small"
                         onClick={() => this.props.onCreatePreset(null, parent.id)}
                         title={I18n.t('Create new preset')}
-                    ><IconAdd /></IconButton> : null}
+                    >
+                        <IconAdd />
+                    </IconButton> : null}
                     {!this.props.reorder ? <IconButton
                         size="small"
                         onClick={() => this.setState({ editPresetFolderDialog: parent, editPresetFolderName: parent.id, editFolderDialogTitleOrigin: parent.id })}
                         title={I18n.t('Edit folder name')}
-                    ><IconEdit /></IconButton> : null}
-                        {!this.props.reorder ? <IconButton size="small" onClick={() => this.togglePresetsFolder(parent)} title={presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')}>
+                    >
+                        <IconEdit />
+                    </IconButton> : null}
+                    {!this.props.reorder ? <IconButton size="small" onClick={() => this.togglePresetsFolder(parent)} title={presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')}>
                         {presetsOpened ? <IconCollapse /> : <IconExpand />}
                     </IconButton> : null}
                 </ListItemSecondaryAction>
@@ -465,15 +472,18 @@ class MenuList extends Component {
         reactChildren && reactChildren.forEach(r => result.push(r));
 
         return result;
-    };
+    }
 
     renamePresetFolder(folder, newName) {
-        return new Promise(resolve => this.setState({ changingPreset: folder }, () => resolve()))
+        return new Promise(resolve => {
+            this.setState({ changingPreset: folder }, () =>
+                resolve());
+        })
             .then(() => {
                 let newSelectedId;
-                let pos;
+                const pos = this.state.presetsOpened.indexOf(folder.prefix);
                 // if selected folder opened, replace its ID in this.state.opened
-                if ((pos = this.state.presetsOpened.indexOf(folder.prefix)) !== -1) {
+                if (pos !== -1) {
                     const presetsOpened = [...this.state.presetsOpened];
                     presetsOpened.splice(pos, 1);
                     presetsOpened.push(newName);
@@ -509,15 +519,17 @@ class MenuList extends Component {
             .find(id => len === id.split('.').length && this.state.presets[id].common.name === name);
     }
 
-    buildPresetTree(presets, emptyFolders) {
+    static buildPresetTree(presets, emptyFolders) {
         // console.log(presets);
         presets = Object.values(presets);
 
-        let presetFolders = { subFolders: {}, presets: {}, id: '', prefix: '' };
+        const presetFolders = {
+            subFolders: {}, presets: {}, id: '', prefix: '',
+        };
 
         // create missing folders
         presets.forEach(preset => {
-            let id = preset._id;
+            const id = preset._id;
             const parts = id.split('.');
             parts.shift();
             parts.shift();
@@ -527,7 +539,7 @@ class MenuList extends Component {
                 if (prefix) {
                     prefix = `${prefix}.`;
                 }
-                prefix = prefix + parts[i];
+                prefix += parts[i];
                 if (!currentFolder.subFolders[parts[i]]) {
                     currentFolder.subFolders[parts[i]] = {
                         subFolders: {},
@@ -548,16 +560,16 @@ class MenuList extends Component {
                 let prefix = '';
                 for (let i = 0; i < parts.length; i++) {
                     if (prefix) {
-                        prefix = prefix + '.';
+                        prefix += '.';
                     }
-                    prefix = prefix + parts[i];
+                    prefix += parts[i];
                     if (!currentFolder.subFolders[parts[i]]) {
                         currentFolder.subFolders[parts[i]] = {
                             subFolders: {},
                             presets: {},
                             id: parts[i],
                             prefix,
-                        }
+                        };
                     }
                     currentFolder = currentFolder.subFolders[parts[i]];
                 }
@@ -572,12 +584,11 @@ class MenuList extends Component {
             return parent;
         }
         if (parent && parent.subFolders) {
-            for (let index in parent.subFolders) {
-                if (parent.subFolders.hasOwnProperty(index)) {
-                    let result = this.findFolder(parent.subFolders[index], folder);
-                    if (result) {
-                        return result;
-                    }
+            const ids = Object.keys(parent.subFolders);
+            for (let i = 0; i < ids.length; i++) {
+                const result = this.findFolder(parent.subFolders[ids[i]], folder);
+                if (result) {
+                    return result;
                 }
             }
         }
@@ -586,11 +597,11 @@ class MenuList extends Component {
     }
 
     addFolder(parentFolder, id) {
-        let presetFolders = JSON.parse(JSON.stringify(this.state.presetFolders));
+        const presetFolders = JSON.parse(JSON.stringify(this.state.presetFolders));
         parentFolder = parentFolder || presetFolders;
-        let _parentFolder = this.findFolder(presetFolders, parentFolder);
+        const _parentFolder = this.findFolder(presetFolders, parentFolder);
 
-        let presetsOpened = JSON.parse(JSON.stringify(this.state.presetsOpened));
+        const presetsOpened = JSON.parse(JSON.stringify(this.state.presetsOpened));
 
         _parentFolder.subFolders[id] = {
             presets: {},
@@ -601,8 +612,10 @@ class MenuList extends Component {
 
         presetsOpened.push(id);
 
-        return new Promise(resolve =>
-            this.setState({ presetFolders, presetsOpened }, () => resolve()));
+        return new Promise(resolve => {
+            this.setState({ presetFolders, presetsOpened }, () =>
+                resolve());
+        });
     }
 
     togglePresetsFolder(folder) {
@@ -615,12 +628,13 @@ class MenuList extends Component {
 
             // If active preset is inside this folder select the first preset
             if (Object.keys(folder.presets).includes(this.props.selectedId)) {
-                return this.props.onSelectedChanged(null, allowedId => {
+                this.props.onSelectedChanged(null, allowedId => {
                     if (allowedId !== false) {
                         window.localStorage.setItem('App.echarts.presets.opened', JSON.stringify(presetsOpened));
                         this.setState({ presetsOpened });
                     }
                 });
+                return;
             }
         }
 
@@ -645,7 +659,7 @@ class MenuList extends Component {
                         autoFocus
                         label={I18n.t('Title')}
                         value={this.state.addPresetFolderName}
-                        onChange={ e => this.setState({ addPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })}
+                        onChange={e => this.setState({ addPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })}
                         onKeyPress={e => {
                             if (this.state.addPresetFolderName && e.which === 13 && this.state.addPresetFolderName !== HIDDEN_FOLDER) {
                                 this.addFolder(null, this.state.addPresetFolderName)
@@ -655,7 +669,7 @@ class MenuList extends Component {
                         }}
                     />
                 </DialogContent>
-                <DialogActions className={ Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer) }>
+                <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
                     <Button
                         variant="contained"
                         disabled={
@@ -666,8 +680,7 @@ class MenuList extends Component {
                         onClick={() =>
                             this.addFolder(null, this.state.addPresetFolderName)
                                 .then(() => this.props.onClosePresetFolderDialog(() =>
-                                    this.informAboutSubFolders()))
-                        }
+                                    this.informAboutSubFolders()))}
                         color="primary"
                         autoFocus
                         startIcon={<IconCheck />}
@@ -714,7 +727,8 @@ class MenuList extends Component {
                                 .then(() => this.setState({ editPresetFolderDialog: null }));
                         }
                     }}
-                    onChange={e => this.setState({ editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })} />
+                    onChange={e => this.setState({ editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })}
+                />
             </DialogContent>
             <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
                 <Button
@@ -771,8 +785,7 @@ class MenuList extends Component {
                         value={this.state.newPresetFolder || '__root__'}
                         onChange={e => this.setState({ newPresetFolder: e.target.value })}
                         onKeyPress={e => e.which === 13 && this.setState({ movePresetDialog: null }, () =>
-                            this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))
-                        }
+                            this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))}
                     >
                         { getFolderList(this.state.presetFolders || {}).map(folder =>
                             <MenuItem
@@ -780,8 +793,7 @@ class MenuList extends Component {
                                 value={folder.prefix || '__root__'}
                             >
                                 { folder.prefix ? folder.prefix.replace('.', ' > ') : I18n.t('Root') }
-                            </MenuItem>)
-                        }
+                            </MenuItem>)}
                     </Select>
                 </FormControl>
             </DialogContent>
@@ -792,8 +804,7 @@ class MenuList extends Component {
                     color="primary"
                     onClick={() =>
                         this.setState({ movePresetDialog: null }, () =>
-                            this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))
-                    }
+                            this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))}
                     startIcon={<IconCheck />}
                 >
                     {I18n.t('Move to folder')}
@@ -869,14 +880,14 @@ class MenuList extends Component {
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle));
                             }
                         }}
-                        onChange={ e => this.setState({ renamePresetDialogTitle: e.target.value })}
-                        /*onKeyPress={e => {
+                        onChange={e => this.setState({ renamePresetDialogTitle: e.target.value })}
+                        /* onKeyPress={e => {
                             if (e.which === 13 && this.isNameUnique(presetId, this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle) {
                                 e.stopPropagation();
                                 this.setState({ renameDialog: null }, () =>
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle));
                             }
-                        }}*/
+                        }} */
                     />
                 </FormControl>
             </DialogContent>
@@ -887,8 +898,7 @@ class MenuList extends Component {
                     color="primary"
                     onClick={() =>
                         this.setState({ renameDialog: null }, () =>
-                            this.renamePreset(presetId, this.state.renamePresetDialogTitle))
-                    }
+                            this.renamePreset(presetId, this.state.renamePresetDialogTitle))}
                     startIcon={<IconCheck />}
                 >
                     {I18n.t('Rename')}
@@ -924,51 +934,53 @@ class MenuList extends Component {
         /> : null;
     }
 
+    /*
     renderSelectIdDialog() {
         if (!this.state.showAddStateDialog) {
             return null;
-        } else {
-            return <DialogSelectID
-                key="selectDialog_add"
-                socket={this.props.socket}
-                dialogName="Add"
-                type="state"
-                title={I18n.t('Enable logging for state')}
-                onOk={id => {
-                    console.log(`Selected ${id}`);
-                    const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
-                    if (id) {
-                        this.props.socket.getObject(id)
-                            .then(obj => {
-                                if (!obj || !obj.common) {
-                                    return this.props.onShowError(I18n.t('Invalid object'));
-                                }
-                                if (obj.common.custom && obj.common.custom[instance]) {
-                                    return this.showToast(I18n.t('Already enabled'));
-                                } else {
-                                    obj.common.custom = obj.common.custom || {};
-                                    obj.common.custom[instance] = {
-                                        enabled: true,
-                                    };
-                                    this.props.socket.setObject(id, obj)
-                                        .then(() => {
-                                            const instances = JSON.parse(JSON.stringify(this.state.instances));
-                                            const inst = instances.find(item => item._id === `system.adapter.${instance}`);
-                                            inst.enabledDP = inst.enabledDP || {};
-                                            inst.enabledDP[obj._id] = obj;
-                                            this.setState({ instances });
-                                        })
-                                        .catch(e => this.onError(e, `Cannot save object ${id}`));
-                                }
-                            })
-                            .catch(e => this.onError(e, `Cannot read object ${id}`));
-                    }
-                    this.setState({ showAddStateDialog: false });
-                } }
-                onClose={ () => this.setState({ showAddStateDialog: false }) }
-            />;
         }
+        return <DialogSelectID
+            key="selectDialog_add"
+            socket={this.props.socket}
+            dialogName="Add"
+            type="state"
+            title={I18n.t('Enable logging for state')}
+            onOk={id => {
+                console.log(`Selected ${id}`);
+                const instance = this.state.showAddStateDialog.replace('system.adapter.', '');
+                if (id) {
+                    this.props.socket.getObject(id)
+                        .then(obj => {
+                            if (!obj || !obj.common) {
+                                this.props.onShowError(I18n.t('Invalid object'));
+                                return;
+                            }
+                            if (obj.common.custom && obj.common.custom[instance]) {
+                                this.showToast(I18n.t('Already enabled'));
+                                return;
+                            }
+                            obj.common.custom = obj.common.custom || {};
+                            obj.common.custom[instance] = {
+                                enabled: true,
+                            };
+                            this.props.socket.setObject(id, obj)
+                                .then(() => {
+                                    const instances = JSON.parse(JSON.stringify(this.state.instances));
+                                    const inst = instances.find(item => item._id === `system.adapter.${instance}`);
+                                    inst.enabledDP = inst.enabledDP || {};
+                                    inst.enabledDP[obj._id] = obj;
+                                    this.setState({ instances });
+                                })
+                                .catch(e => this.onError(e, `Cannot save object ${id}`));
+                        })
+                        .catch(e => this.onError(e, `Cannot read object ${id}`));
+                }
+                this.setState({ showAddStateDialog: false });
+            }}
+            onClose={() => this.setState({ showAddStateDialog: false })}
+        />;
     }
+*/
 
     deletePreset(id, cb) {
         return this.props.socket.delObject(id)
@@ -976,8 +988,7 @@ class MenuList extends Component {
                 this.getAllPresets()
                     .then(newState =>
                         this.setState(newState, () =>
-                            this.props.onSelectedChanged(null)))
-            )
+                            this.props.onSelectedChanged(null))))
             .catch(e => this.onError(e, `Cannot delete object ${id}`))
             .then(() => cb && cb());
     }
@@ -1010,8 +1021,8 @@ class MenuList extends Component {
     }
 
     addPresetToFolderPrefix = (preset, folderPrefix, noRefresh) => {
-        let oldId = preset._id;
-        let presetId = preset._id.split('.').pop();
+        const oldId = preset._id;
+        const presetId = preset._id.split('.').pop();
         preset._id = `${this.props.adapterName}.0.${folderPrefix}${folderPrefix ? '.' : ''}${presetId}`;
 
         return this.props.socket.setObject(preset._id, preset)
@@ -1021,7 +1032,7 @@ class MenuList extends Component {
             })
             .then(() => {
                 console.log(`Set new ID: ${preset._id}`);
-                return !noRefresh && this.refreshData(presetId)
+                return !noRefresh && this.refreshData(presetId);
             })
             .catch(e =>
                 this.onError(e, `Cannot delete object ${oldId}`));
@@ -1044,9 +1055,7 @@ class MenuList extends Component {
 }
 
 MenuList.propTypes = {
-    onChange: PropTypes.func,
     socket: PropTypes.object,
-    addPresetFolderDialog: PropTypes.bool,
     onClosePresetFolderDialog: PropTypes.func,
     onCreatePreset: PropTypes.func,
     onCopyPreset: PropTypes.func,
@@ -1059,9 +1068,8 @@ MenuList.propTypes = {
     scrollToSelect: PropTypes.bool,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.string
+        PropTypes.string,
     ]),
-    systemConfig: PropTypes.object,
     selectedPresetChanged: PropTypes.bool,
 };
 

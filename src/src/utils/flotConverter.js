@@ -1,6 +1,6 @@
 function deParam(params, coerce) {
     const obj = {};
-    const coerceTypes = { 'true': true, 'false': false, 'null': null };
+    const coerceTypes = { true: true, false: false, null: null };
 
     // Iterate over all name=value pairs.
     params.replace(/\+/g, ' ').split('&').forEach(v => {
@@ -36,7 +36,7 @@ function deParam(params, coerce) {
 
             // Coerce values.
             if (coerce) {
-                val = val && !isNaN(val) && ((+val + '') === val) ? +val        // number
+                val = val && !Number.isNaN(val) && ((`${+val}`) === val) ? +val        // number
                     : val === 'undefined' ? undefined         // undefined
                         : coerceTypes[val] !== undefined ? coerceTypes[val] // true, false, null
                             : val;                                                          // string
@@ -49,32 +49,30 @@ function deParam(params, coerce) {
                 // * [] = array push (n is set to array length), [n] = array if n is
                 //   numeric, otherwise object.
                 // * If at the last keys part, set the value.
-                // * For each keys part, if the current level is undefined create an
+                // * For each key's part, if the current level is undefined create an
                 //   object or array based on the type of the next keys part.
                 // * Move the 'cur' pointer to the next level.
                 // * Rinse & repeat.
                 for (; i <= keysLast; i++) {
                     key = keys[i] === '' ? cur.length : keys[i];
+                    // eslint-disable-next-line no-multi-assign
                     cur = cur[key] = i < keysLast
-                        ? cur[key] || (keys[i + 1] && isNaN(keys[i + 1]) ? {} : [])
+                        ? cur[key] || (keys[i + 1] && Number.isNaN(keys[i + 1]) ? {} : [])
                         : val;
                 }
-
+            } else
+            // Simple key, even simpler rules, since only scalars and shallow
+            // arrays are allowed.
+            if (Object.prototype.toString.call(obj[key]) === '[object Array]') {
+                // val is already an array, so push on the next value.
+                obj[key].push(val);
+            } else if ({}.hasOwnProperty.call(obj, key)) {
+                // val isn't an array, but since a second value has been specified,
+                // convert val into an array.
+                obj[key] = [obj[key], val];
             } else {
-                // Simple key, even simpler rules, since only scalars and shallow
-                // arrays are allowed.
-
-                if (Object.prototype.toString.call(obj[key]) === '[object Array]') {
-                    // val is already an array, so push on the next value.
-                    obj[key].push(val);
-                } else if ({}.hasOwnProperty.call(obj, key)) {
-                    // val isn't an array, but since a second value has been specified,
-                    // convert val into an array.
-                    obj[key] = [obj[key], val];
-                } else {
-                    // val is a scalar.
-                    obj[key] = val;
-                }
+                // val is a scalar.
+                obj[key] = val;
             }
         } else if (key) {
             // No value was defined, so set something meaningful.
@@ -111,7 +109,7 @@ function normalizeConfig(config) {
                 shadowsize: config.strokeWidth || 1,
                 min:        config.min || '',
                 max:        config.max || '',
-                unit:       units[i]   || ''
+                unit:       units[i]   || '',
             });
         }
         config.aggregateType = 'step';
@@ -163,7 +161,7 @@ function normalizeConfig(config) {
     config.marks = config.marks || [];
 
     if (!config.l.length) {
-        config.l.push({id: '', unit: ''});
+        config.l.push({ id: '', unit: '' });
     }
 
     // Set default values
@@ -191,33 +189,42 @@ async function _readFlotSettings(socket) {
 
 function _executeWriteTasks(socket, tasks, _resolve) {
     if (!_resolve) {
-        return new Promise(resolve => _executeWriteTasks(socket, tasks, resolve));
-    } else if (!tasks || !tasks.length) {
+        return new Promise(resolve => {
+            const result = _executeWriteTasks(socket, tasks, resolve);
+            // satisfy linter
+            if (result) {
+                result.then(() => {});
+            }
+        });
+    } if (!tasks || !tasks.length) {
         _resolve();
-    } else {
-        const obj = tasks.shift();
-        if (obj) {
-            socket.getObject(obj._id)
-                .catch(() => null)
-                .then(exists => {
-                    if (!exists) {
-                        socket.setObject(obj._id, obj)
-                            .then(() => setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50));
-                    } else {
-                        console.log(`Object ${obj._id} already exists and will not be converted`);
-                        setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50);
-                    }
-                });
-        } else {
-            setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50);
-        }
+        return null;
     }
+
+    const obj = tasks.shift();
+    if (obj) {
+        socket.getObject(obj._id)
+            .catch(() => null)
+            .then(exists => {
+                if (!exists) {
+                    socket.setObject(obj._id, obj)
+                        .then(() => setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50));
+                } else {
+                    console.log(`Object ${obj._id} already exists and will not be converted`);
+                    setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50);
+                }
+            });
+    } else {
+        setTimeout(() => _executeWriteTasks(socket, tasks, _resolve), 50);
+    }
+
+    return null;
 }
 
 function _flot2echarts(flotObj, instance) {
     // convert name
     const echartsObj = {
-        _id: flotObj._id.replace(/^flot.\d+/, 'echarts.' + instance),
+        _id: flotObj._id.replace(/^flot.\d+/, `echarts.${instance}`),
         common: {
             name: flotObj.common.name,
             expert: true,
@@ -229,7 +236,7 @@ function _flot2echarts(flotObj, instance) {
     };
 
     if (echartsObj._id.endsWith('.')) {
-        echartsObj._id = 'empty_' + Math.round(Math.random() * 10000);
+        echartsObj._id = `empty_${Math.round(Math.random() * 10000)}`;
     }
 
     /*
@@ -311,21 +318,18 @@ function flotConverter(socket, instance) {
             instanceObj = obj;
             if (obj && obj.native && !obj.native.convertDone) {
                 return _readFlotSettings(socket);
-            } else {
-                return Promise.resolve([]);
             }
+            return Promise.resolve([]);
         })
         .then(charts =>
             // convert every chart
-            _executeWriteTasks(socket, charts.map(obj => _flot2echarts(obj, instance)))
-        )
+            _executeWriteTasks(socket, charts.map(obj => _flot2echarts(obj, instance))))
         .then(() => {
             if (!instanceObj.native.convertDone) {
                 instanceObj.native.convertDone = true;
                 return socket.setObject(instanceObj._id, instanceObj);
-            } else {
-                return Promise.resolve();
             }
+            return Promise.resolve();
         })
         .catch(e => {
             console.error(`Cannot convert flot: ${e}`);

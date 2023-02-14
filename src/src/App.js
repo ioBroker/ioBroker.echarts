@@ -1,8 +1,10 @@
 import React from 'react';
-import { withStyles, withTheme } from '@mui/styles';
+import {
+    withStyles, withTheme, StylesProvider, createGenerateClassName,
+} from '@mui/styles';
 import SplitterLayout from 'react-splitter-layout';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import { StylesProvider, createGenerateClassName } from '@mui/styles';
+
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import Dialog from '@mui/material/Dialog';
@@ -11,15 +13,19 @@ import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 
 // icons
-import { MdClose as IconCancel } from 'react-icons/md';
-import { MdSave as IconSave } from 'react-icons/md';
-import { MdMenu as IconMenuClosed } from 'react-icons/md';
-import { MdArrowBack as IconMenuOpened } from 'react-icons/md';
+import {
+    MdClose as IconCancel,
+    MdSave as IconSave,
+    MdMenu as IconMenuClosed,
+    MdArrowBack as IconMenuOpened,
+} from 'react-icons/md';
 
 import 'react-splitter-layout/lib/index.css';
 
 import GenericApp from '@iobroker/adapter-react-v5/GenericApp';
-import { I18n, Utils, Loader, withWidth } from '@iobroker/adapter-react-v5';
+import {
+    I18n, Utils, Loader, withWidth,
+} from '@iobroker/adapter-react-v5';
 import '@iobroker/adapter-react-v5/index.css';
 
 import SettingsEditor from './SettingsEditor';
@@ -53,25 +59,25 @@ const styles = theme => ({
             height: '100%',
         },
         '& .layout-splitter': {
-            background: theme.type === 'dark' ? '#595858' : '#ccc;'
-        }
+            background: theme.type === 'dark' ? '#595858' : '#ccc;',
+        },
     },
     content: {
         width: '100%',
         height: '100%',
         backgroundColor: theme.palette.background.default,
-        position: 'relative'
+        position: 'relative',
     },
     menuDivWithoutMenu: {
         '&>div:first-child': {
-            display: 'none'
+            display: 'none',
         },
         '&>.layout-splitter': {
-            display: 'none'
+            display: 'none',
         },
     },
     progress: {
-        margin: 100
+        margin: 100,
     },
     menuOpenCloseButton: {
         position: 'absolute',
@@ -87,13 +93,13 @@ const styles = theme => ({
         color: theme.palette.primary.main,
         paddingLeft: 3,
         '&:hover': {
-            color: 'white'
-        }
+            color: 'white',
+        },
     },
     buttonsContainer: {
         '& button': {
-            whiteSpace: 'nowrap'
-        }
+            whiteSpace: 'nowrap',
+        },
     },
 });
 
@@ -117,28 +123,27 @@ function parseHash() {
                 }
             });
         return result;
-    } else {
-        return null;
     }
+    return null;
 }
 
 class App extends GenericApp {
     constructor(props) {
-        let settings = { socket: {} };
+        const settings = { socket: {} };
         const query = getUrlQuery();
         settings.socket.port = query.port || (parseInt(window.location.port) >= 3000 && parseInt(window.location.port) <= 3020 ? 8081 : window.location.port);
         settings.socket.host = query.host || window.location.hostname;
         settings.translations = {
-            'en': require('./i18n/en'),
-            'de': require('./i18n/de'),
-            'es': require('./i18n/es'),
-            'fr': require('./i18n/fr'),
-            'it': require('./i18n/it'),
-            'nl': require('./i18n/nl'),
-            'pl': require('./i18n/pl'),
-            'pt': require('./i18n/pt'),
-            'ru': require('./i18n/ru'),
-            'uk': require('./i18n/uk'),
+            en: require('./i18n/en'),
+            de: require('./i18n/de'),
+            es: require('./i18n/es'),
+            fr: require('./i18n/fr'),
+            it: require('./i18n/it'),
+            nl: require('./i18n/nl'),
+            pl: require('./i18n/pl'),
+            pt: require('./i18n/pt'),
+            ru: require('./i18n/ru'),
+            uk: require('./i18n/uk'),
             'zh-cn': require('./i18n/zh-cn'),
         };
         settings.sentryDSN = window.sentryDSN;
@@ -170,7 +175,7 @@ class App extends GenericApp {
 
     onConnectionReady() {
         let selectedId = window.localStorage.getItem('App.echarts.selectedId');
-        let presetData = null;
+        const presetData = null;
 
         if (selectedId && typeof selectedId === 'string') {
             try {
@@ -218,7 +223,7 @@ class App extends GenericApp {
                 newState.presetData = DefaultPreset.getDefaultPreset(systemConfig);
 
                 if (this.config && this.config.id) {
-                    newState.selectedId = {id: this.config.id, instance: this.config.instance};
+                    newState.selectedId = { id: this.config.id, instance: this.config.instance };
                     if (this.config.menuOpened !== undefined) {
                         newState.menuOpened = this.config.menuOpened === 'true' || this.config.menuOpened === true;
                     }
@@ -243,16 +248,15 @@ class App extends GenericApp {
             .then(obj => {
                 if (!obj) {
                     return prefix + index;
-                } else {
-                    if (!index) {
-                        index = 2;
-                    } else {
-                        index++;
-                    }
-                    return this.getNewPresetName(parentId, prefix, index);
                 }
+                if (!index) {
+                    index = 2;
+                } else {
+                    index++;
+                }
+                return this.getNewPresetName(parentId, prefix, index);
             })
-            .catch(e => prefix + index);
+            .catch(() => prefix + index);
     }
 
     getUniqueId(id, name, cb, _count) {
@@ -267,13 +271,13 @@ class App extends GenericApp {
                     cb(null, newId, newName);
                 }
             })
-            .catch(e => {
+            .catch(() => {
                 if (_count > 10) {
                     cb(I18n.t('Cannot create unique ID'));
                 } else {
                     setTimeout(() => this.getUniqueId(newId, newName, cb, _count + 1));
                 }
-            })
+            });
     }
 
     onCopyPreset = presetId => {
@@ -304,30 +308,30 @@ class App extends GenericApp {
             // create from list selectedId
             return new Promise(resolve => {
                 if (chartsList.length === 1) {
-                    return this.socket.getObject(chartsList[0].id)
+                    this.socket.getObject(chartsList[0].id)
                         .then(obj => resolve(obj));
-                } else {
-                    resolve(null);
+                    return;
                 }
+                resolve(null);
             })
                 .then(obj => {
                     if (obj) {
-                        name = (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, {language: I18n.getLanguage()}) : '').trim();
+                        name = (obj && obj.common && obj.common.name ? Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() }) : '').trim();
                     }
 
                     return this.getNewPresetName(parentId, name)
-                        .then(name => {
-                            let template = {
+                        .then(_name => {
+                            const template = {
                                 common: {
-                                    name,
+                                    name: _name,
                                     expert: true,
                                 },
                                 native: {
-                                    data: JSON.parse(JSON.stringify(this.state.presetData))
+                                    data: JSON.parse(JSON.stringify(this.state.presetData)),
                                 },
-                                type: 'chart'
+                                type: 'chart',
                             };
-                            let id = `${this.adapterName}.0.${parentId ? `${parentId}.` : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+                            const id = `${this.adapterName}.0.${parentId ? `${parentId}.` : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
 
                             return this.socket.setObject(id, template)
                                 .then(() => this.loadChartOrPreset(id))
@@ -335,30 +339,28 @@ class App extends GenericApp {
                         });
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
-
-        } else {
-            // create empty preset
-            return this.getNewPresetName(parentId)
-                .then(name => {
-                    let template = {
-                        common: {
-                            name,
-                        },
-                        native: {
-                            url: '',
-                            data: DefaultPreset.getDefaultPreset(this.state.systemConfig, null, null, I18n.getLanguage()),
-                        },
-                        type: 'chart'
-                    };
-
-                    let id = `${this.adapterName}.0.${parentId ? `${parentId}.` : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
-
-                    return this.socket.setObject(id, template)
-                        .then(() => this.loadChartOrPreset(id))
-                        .catch(e => this.onError(e, 'Cannot save object'));
-                })
-                .catch(e => this.showError(e));
         }
+        // create empty preset
+        return this.getNewPresetName(parentId)
+            .then(name => {
+                const template = {
+                    common: {
+                        name,
+                    },
+                    native: {
+                        url: '',
+                        data: DefaultPreset.getDefaultPreset(this.state.systemConfig, null, null, I18n.getLanguage()),
+                    },
+                    type: 'chart',
+                };
+
+                const id = `${this.adapterName}.0.${parentId ? `${parentId}.` : ''}${name.replace(FORBIDDEN_CHARS, '_')}`;
+
+                return this.socket.setObject(id, template)
+                    .then(() => this.loadChartOrPreset(id))
+                    .catch(e => this.onError(e, 'Cannot save object'));
+            })
+            .catch(e => this.showError(e));
     };
 
     onError(e, comment) {
@@ -370,20 +372,18 @@ class App extends GenericApp {
         if (!this.state.presetData) {
             this.showError(I18n.t('Empty preset cannot be saved!'));
             return Promise.reject();
-        } else {
-            return this.socket.getObject(this.state.selectedId)
-                .then(obj => {
-                    if (!obj || !obj.native) {
-                        return this.showError(I18n.t('Invalid object'));
-                    } else {
-                        obj.native.data = this.state.presetData;
-                        return this.socket.setObject(obj._id, obj)
-                            .then(() => this.setState({ originalPresetData: JSON.stringify(this.state.presetData), selectedPresetChanged: false }))
-                            .catch(e => this.onError(e, 'Cannot save object'));
-                    }
-                })
-                .catch(e => this.onError(e, 'Cannot read object'));
         }
+        return this.socket.getObject(this.state.selectedId)
+            .then(obj => {
+                if (!obj || !obj.native) {
+                    return this.showError(I18n.t('Invalid object'));
+                }
+                obj.native.data = this.state.presetData;
+                return this.socket.setObject(obj._id, obj)
+                    .then(() => this.setState({ originalPresetData: JSON.stringify(this.state.presetData), selectedPresetChanged: false }))
+                    .catch(e => this.onError(e, 'Cannot save object'));
+            })
+            .catch(e => this.onError(e, 'Cannot read object'));
     };
 
     loadChartOrPreset(selectedId, cb) {
@@ -400,7 +400,7 @@ class App extends GenericApp {
                 promises.push(this.socket.getObject(selectedId.id));
             }
 
-            return Promise.all(promises)
+            Promise.all(promises)
                 .then(results => {
                     results.forEach(obj => obj && (this.objects[obj._id] = obj));
 
@@ -440,9 +440,9 @@ class App extends GenericApp {
                         }
                     }
 
-                    let presetData = {
+                    const presetData = {
                         marks:          [],
-                        lines:          lines,
+                        lines,
                         zoom:           true,
                         hoverDetail:    true,
                         aggregate:      loadChartParam('aggregate', 'minmax'),
@@ -461,7 +461,7 @@ class App extends GenericApp {
                         noBorder:       'noborder',
                         noedit:         false,
                         animation:      0,
-                        legend:         lines.length > 1 ? 'nw' : ''
+                        legend:         lines.length > 1 ? 'nw' : '',
                     };
 
                     this.setState({
@@ -474,13 +474,14 @@ class App extends GenericApp {
                         if (window.location.hash !== hash) {
                             window.location.hash = hash;
                         }
-                        cb && cb()
+                        cb && cb();
                     });
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
-        } else if (selectedId) {
+            return;
+        } if (selectedId) {
             // load preset
-            return this.socket.getObject(selectedId)
+            this.socket.getObject(selectedId)
                 .then(obj => {
                     if (obj && obj.native && obj.native.data) {
                         const hash = `#preset=${selectedId}`;
@@ -501,14 +502,15 @@ class App extends GenericApp {
                     }
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
-        } else {
-            this.setState({
-                presetData: null,
-                originalPresetData: '',
-                selectedPresetChanged: false,
-                selectedId: null,
-            }, () => cb && cb());
+            return;
         }
+
+        this.setState({
+            presetData: null,
+            originalPresetData: '',
+            selectedPresetChanged: false,
+            selectedId: null,
+        }, () => cb && cb());
     }
 
     discardChangesConfirmDialog() {
@@ -517,56 +519,63 @@ class App extends GenericApp {
             fullWidth
             open={!0}
             key="discardChangesConfirmDialog"
-            onClose={ () => this.setState({ discardChangesConfirmDialog: false }, () => this.confirmCB && this.confirmCB(false)) }>
-                <DialogTitle>{
+            onClose={() => this.setState({ discardChangesConfirmDialog: false }, () => this.confirmCB && this.confirmCB(false))}
+        >
+            <DialogTitle>
+                {
                     this.state.discardChangesConfirmDialog === 'chart' ? I18n.t('Are you sure for loading the chart and discard unsaved changes?')
-                    : (this.state.discardChangesConfirmDialog === 'preset' ? I18n.t('Are you sure for loading the preset and discard unsaved changes?') :
-                        I18n.t('Are you sure for closing folder and discard unsaved changes?'))
-                }</DialogTitle>
-                <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
-                    <Button
-                        color="grey"
-                        variant="outlined"
-                        onClick={() =>
-                            this.setState({ discardChangesConfirmDialog: false }, () =>
-                                this.confirmCB && this.confirmCB(true))}
-                    >
-                            { I18n.t('Load without save')}
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        autoFocus
-                        onClick={() => this.savePreset()
-                            .then(() => this.setState({ discardChangesConfirmDialog: false }, () =>
-                                this.confirmCB && this.confirmCB(true)))}
-                        startIcon={<IconSave />}
-                    >
+                        : (this.state.discardChangesConfirmDialog === 'preset' ? I18n.t('Are you sure for loading the preset and discard unsaved changes?') :
+                            I18n.t('Are you sure for closing folder and discard unsaved changes?'))
+                }
+            </DialogTitle>
+            <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+                <Button
+                    color="grey"
+                    variant="outlined"
+                    onClick={() =>
+                        this.setState({ discardChangesConfirmDialog: false }, () =>
+                            this.confirmCB && this.confirmCB(true))}
+                >
+                    { I18n.t('Load without save')}
+                </Button>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    autoFocus
+                    onClick={() => this.savePreset()
+                        .then(() => this.setState({ discardChangesConfirmDialog: false }, () =>
+                            this.confirmCB && this.confirmCB(true)))}
+                    startIcon={<IconSave />}
+                >
 
-                        { I18n.t('Save current preset and load') }
-                    </Button>
-                    <Button
-                        color="grey"
-                        variant="contained"
-                        onClick={() => this.setState({ discardChangesConfirmDialog: false }, () =>
-                            this.confirmCB && this.confirmCB(false))}
-                        startIcon={<IconCancel />}
-                    >
-                        { I18n.t('Cancel') }
-                    </Button>
-                </DialogActions>
-            </Dialog> : null;
-    };
+                    { I18n.t('Save current preset and load') }
+                </Button>
+                <Button
+                    color="grey"
+                    variant="contained"
+                    onClick={() => this.setState({ discardChangesConfirmDialog: false }, () =>
+                        this.confirmCB && this.confirmCB(false))}
+                    startIcon={<IconCancel />}
+                >
+                    { I18n.t('Cancel') }
+                </Button>
+            </DialogActions>
+        </Dialog> : null;
+    }
 
     renderMain() {
-        const {classes} = this.props;
+        const { classes } = this.props;
         return [
             <div className={Utils.clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
-                <div key="confirmdiv" className={classes.menuOpenCloseButton} onClick={() => {
-                    window.localStorage && window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
-                    this.setState({ menuOpened: !this.state.menuOpened, resizing: true });
-                    setTimeout(() => this.setState({ resizing: false }), 300);
-                }}>
+                <div
+                    key="confirmdiv"
+                    className={classes.menuOpenCloseButton}
+                    onClick={() => {
+                        window.localStorage && window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
+                        this.setState({ menuOpened: !this.state.menuOpened, resizing: true });
+                        setTimeout(() => this.setState({ resizing: false }), 300);
+                    }}
+                >
                     {this.state.menuOpened ? <IconMenuOpened /> : <IconMenuClosed />}
                 </div>
                 <SplitterLayout
@@ -624,12 +633,11 @@ class App extends GenericApp {
                                 } else {
                                     this.setState({ autoSave });
                                 }
-
                             }}
                         /> : null
                     }
                 </SplitterLayout>
-            </div>
+            </div>,
         ];
     }
 
@@ -639,8 +647,8 @@ class App extends GenericApp {
             const [instance, stateId] = draggableId.split('***');
             this.socket.getObject(stateId)
                 .then(obj => {
-                    //const len = this.state.presetData.lines.length;
-                    //const color = (obj && obj.common && obj.common.color) || PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
+                    // const len = this.state.presetData.lines.length;
+                    // const color = (obj && obj.common && obj.common.color) || PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
                     const presetData = JSON.parse(JSON.stringify(this.state.presetData));
                     const newLine = DefaultPreset.getDefaultLine(this.state.systemConfig, instance, obj, I18n.getLanguage());
                     if (!destination) {
@@ -663,7 +671,6 @@ class App extends GenericApp {
                     this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
-
         } else if (destination && source.droppableId === destination.droppableId) {
             const presetData = JSON.parse(JSON.stringify(this.state.presetData));
             const [removed] = presetData.lines.splice(source.index, 1);
@@ -693,7 +700,7 @@ class App extends GenericApp {
         return <StylesProvider generateClassName={generateClassName}>
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={this.state.theme}>
-                    <React.Fragment>
+                    <>
                         <div className={classes.root} key="divSide">
                             <DragDropContext onDragEnd={this.onDragEnd}>
                                 <SplitterLayout
@@ -765,7 +772,7 @@ class App extends GenericApp {
                         { this.discardChangesConfirmDialog() }
                         { this.renderError() }
                         { this.renderToast() }
-                    </React.Fragment>
+                    </>
                 </ThemeProvider>
             </StyledEngineProvider>
         </StylesProvider>;

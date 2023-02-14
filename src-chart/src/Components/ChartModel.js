@@ -147,7 +147,7 @@ function normalizeConfig(config) {
                 shadowsize: config.strokeWidth || 1,
                 min:        config.min || '',
                 max:        config.max || '',
-                unit:       units[i]   || ''
+                unit:       units[i]   || '',
             });
         }
         config.aggregateType = 'step';
@@ -225,7 +225,7 @@ const NOT_CONNECTED = 'notConnectedError';
 
 class ChartModel {
     constructor(socket, config, options) {
-        options = Object.assign({updateTimeout: 300}, options || {});
+        options = { updateTimeout: 300, ...options || {} };
         this.socket = socket;
 
         this.updateTimeout    = options.updateTimeout || 300; // how often the new data will be requested by zoom and pan
@@ -240,7 +240,7 @@ class ChartModel {
         this.navOptions       = {};
 
         this.subscribes       = [];
-        //this.subscribed       = false;
+        // this.subscribed       = false;
         this.sessionId        = 1;
         this.updateInterval   = null; // update interval by time
         this.presetSubscribed = false; // Is preset subscribed yet or not
@@ -275,7 +275,7 @@ class ChartModel {
                 this.systemConfig = systemConfig && systemConfig.common ? systemConfig.common : {};
                 this.defaultHistory = this.systemConfig.defaultHistory;
                 return this.analyseAndLoadConfig(config);
-            })
+            });
     }
 
     analyseAndLoadConfig(config) {
@@ -313,7 +313,7 @@ class ChartModel {
                     if (hQuery.range || hQuery.relativeEnd) {
                         this.hash = {
                             range: hQuery.range,
-                            relativeEnd: hQuery.relativeEnd
+                            relativeEnd: hQuery.relativeEnd,
                         };
                     }
                 } else {
@@ -326,7 +326,7 @@ class ChartModel {
                         _config.noLoader = query.noLoader === true || query.noLoader === 'true' || query.noLoader === 1 || query.noLoader === '1';
                     }
                     this.config = normalizeConfig(_config);
-                    //console.log(this.config);
+                    // console.log(this.config);
                 }
             }
         }
@@ -347,7 +347,8 @@ class ChartModel {
             this.socket.getObject(this.preset)
                 .then(obj => {
                     if (!obj || !obj.native || !obj.native.data || obj.type !== 'chart') {
-                        return console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
+                        console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
+                        return;
                     }
                     this.config          = normalizeConfig(obj.native.data);
                     this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
@@ -371,7 +372,7 @@ class ChartModel {
                         this.presetSubscribed = this.preset;
                         this.socket.subscribeObject(this.preset, this.onPresetUpdateBound);
                     }
-                    if (!this.serverSide && this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
+                    if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
                         this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                     }
                 })
@@ -379,14 +380,13 @@ class ChartModel {
                     e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
                     console.error(`Cannot read "${this.preset}": ${e}`);
                 });
-
         } else {
             this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
             this.config.lang     = this.systemConfig.language;
             this.config.live     = parseInt(this.config.live, 10) || 0;
             this.config.debug    = this.debug;
             this.readData();
-            if (!this.serverSide && this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
+            if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
         }
@@ -397,7 +397,7 @@ class ChartModel {
             this.lastHash = window.location.hash;
             this.analyseAndLoadConfig();
         }
-    };
+    }
 
     onPresetUpdate(id, obj) {
         if (id !== this.preset) {
@@ -417,14 +417,14 @@ class ChartModel {
                 this.updateInterval && clearInterval(this.updateInterval);
                 this.updateInterval = null;
 
-                if (this.config.live && (!this.zoomData|| !this.zoomData.stopLive)) {
+                if (this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
                     this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                 }
 
                 this.readData();
             }
         }, 100);
-    };
+    }
 
     setNewRange(options) {
         this.debug && console.log(`[ChartModel] [${new Date().toISOString()}] setNewRange: ${JSON.stringify(options)}`);
@@ -540,7 +540,7 @@ class ChartModel {
             for (let a = 0; a < this.config.l.length; a++) {
                 if (this.config.l[a].offset && this.config.l[a].offset !== 0) {
                     // Check what the month has first index
-                    _now = this.addTime(this.now, this.config.l[0].offset);
+                    _now = ChartModel.addTime(this.now, this.config.l[0].offset);
                     const minusMonth = new Date(_now);
                     minusMonth.setMonth(minusMonth.getMonth() - monthRange);
                     this.config.range = Math.floor((_now - minusMonth.getTime()) / 60000).toString();
@@ -572,8 +572,8 @@ class ChartModel {
                 // offset is in seconds
                 start = new Date(this.config.start).setHours(startTime[0], startTime[1]);
                 end   = new Date(this.config.end).setHours(endTime[0],   endTime[1]);
-                start = this.addTime(start, this.config.l[index].offset);
-                end   = this.addTime(end,   this.config.l[index].offset);
+                start = ChartModel.addTime(start, this.config.l[index].offset);
+                end   = ChartModel.addTime(end,   this.config.l[index].offset);
             } else {
                 this.config.relativeEnd = this.config.relativeEnd || 'now';
 
@@ -600,7 +600,7 @@ class ChartModel {
                     _now.setSeconds(0);
                     _now.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'weekUsa') {
-                    //const week = parseInt(config.relativeEnd, 10) || 1;
+                    // const week = parseInt(config.relativeEnd, 10) || 1;
                     _now = new Date(this.now);
                     _now.setDate(_now.getDate() - _now.getDay() + 7);
                     _now.setHours(0);
@@ -608,7 +608,7 @@ class ChartModel {
                     _now.setSeconds(0);
                     _now.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'weekEurope') {
-                    //const _week = parseInt(config.relativeEnd, 10) || 1;
+                    // const _week = parseInt(config.relativeEnd, 10) || 1;
                     _now = new Date(this.now);
                     // If
                     if (_now.getDay() === 0) {
@@ -621,7 +621,7 @@ class ChartModel {
                     _now.setSeconds(0);
                     _now.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'week2Usa') {
-                    //const week = parseInt(config.relativeEnd, 10) || 1;
+                    // const week = parseInt(config.relativeEnd, 10) || 1;
                     _now = new Date(this.now);
                     _now.setDate(_now.getDate() - _now.getDay() + 7);
                     _now.setDate(_now.getDate() - 7);
@@ -630,7 +630,7 @@ class ChartModel {
                     _now.setSeconds(0);
                     _now.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'week2Europe') {
-                    //const _week = parseInt(config.relativeEnd, 10) || 1;
+                    // const _week = parseInt(config.relativeEnd, 10) || 1;
                     _now = new Date(this.now);
                     // If
                     if (_now.getDay() === 0) {
@@ -664,8 +664,8 @@ class ChartModel {
 
                 this.config.range = this.config.range || '30m';
 
-                end   = this.addTime(_now, this.config.l[index].offset);
-                start = this.addTime(end,  this.config.range, false, true);
+                end   = ChartModel.addTime(_now, this.config.l[index].offset);
+                start = ChartModel.addTime(end,  this.config.range, false, true);
             }
 
             option = {
@@ -747,7 +747,7 @@ class ChartModel {
                     end = new Date(end);
                     if (end.getHours() || end.getMinutes()) {
                         end.setHours(0);
-                        end.setMinutes(0)
+                        end.setMinutes(0);
                         end.setDate(end.getDate() + 1);
                     }
                     end.setSeconds(0);
@@ -771,13 +771,13 @@ class ChartModel {
                     if (end.getHours() || end.getMinutes() || end.getDate() > 1) {
                         end.setDate(1);
                         end.setHours(0);
-                        end.setMinutes(0)
+                        end.setMinutes(0);
                         end.setMonth(end.getMonth() + 1);
                     }
                     end.setSeconds(0);
                     end.setMilliseconds(0);
                     end = end.getTime();
-                    option.count = Math.round((end - start) / 86400000 * 30); // todo it must be variable as every month has different count of days
+                    option.count = Math.round((end - start) / (86400000 * 30)); // todo it must be variable as every month has different count of days
                 }
 
                 option.start = start;
@@ -793,76 +793,72 @@ class ChartModel {
             this.config.end   = end;
 
             return option;
-        } else {
-            if (this.zoomData) {
-                start = this.zoomData.start;
-                end = this.zoomData.end;
-            } else {
-                end   = this.addTime(this.now, this.config.l[index].offset);
-                start = end - step;
-            }
-
-            option = {
-                start,
-                end,
-                ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
-                aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
-                count:      1,
-                from:       false,
-                ack:        false,
-                q:          false,
-                addID:      false,
-            };
-
-            this.config.start = this.addTime(end, this.config.range, false, true);
-            this.config.end   = end;
-
-            return option;
         }
+        if (this.zoomData) {
+            start = this.zoomData.start;
+            end = this.zoomData.end;
+        } else {
+            end   = ChartModel.addTime(this.now, this.config.l[index].offset);
+            start = end - step;
+        }
+
+        option = {
+            start,
+            end,
+            ignoreNull: this.config.l[index].ignoreNull === undefined ? this.config.ignoreNull : this.config.l[index].ignoreNull,
+            aggregate:  this.config.l[index].aggregate || this.config.aggregate || 'minmax',
+            count:      1,
+            from:       false,
+            ack:        false,
+            q:          false,
+            addID:      false,
+        };
+
+        this.config.start = ChartModel.addTime(end, this.config.range, false, true);
+        this.config.end   = end;
+
+        return option;
     }
 
-    postProcessing(series, categories, aggregate, postProcessingMethod) {
+    static postProcessing(series, categories, aggregate, postProcessingMethod) {
         for (let i = 0; i < series.length; i++) {
-            let interval = series[i];
+            const interval = series[i];
             if (!interval.length) {
                 series[i] = null;
-            } else {
-                // sum all values
-                if (interval.length === 1) {
-                    series[i] = interval[0];
-                } else {
-                    if (aggregate === 'average') {
-                        const sum = interval.reduce((a, b) => a + b, 0);
-                        series[i] = sum / interval.length;
-                    } else if (aggregate === 'min') {
-                        let min = interval[0];
-                        for (let j = 1; j < interval.length; j++) {
-                            if (interval[j] < min) {
-                                min = interval[j];
-                            }
-                        }
-                        series[i] = min;
-                    } else if (aggregate === 'max') {
-                        let max = interval[0];
-                        for (let j = 1; j < interval.length; j++) {
-                            if (interval[j] > max) {
-                                max = interval[j];
-                            }
-                        }
-                        series[i] = max;
-                    } else if (aggregate === 'total') {
-                        series[i] = interval.reduce((a, b) => a + b, 0);
-                    } else {
-                        series[i] = interval[interval.length - 1]
+            } else
+            // sum all values
+            if (interval.length === 1) {
+                series[i] = interval[0];
+            } else if (aggregate === 'average') {
+                const sum = interval.reduce((a, b) => a + b, 0);
+                series[i] = sum / interval.length;
+            } else if (aggregate === 'min') {
+                let min = interval[0];
+                for (let j = 1; j < interval.length; j++) {
+                    if (interval[j] < min) {
+                        min = interval[j];
                     }
                 }
+                series[i] = min;
+            } else if (aggregate === 'max') {
+                let max = interval[0];
+                for (let j = 1; j < interval.length; j++) {
+                    if (interval[j] > max) {
+                        max = interval[j];
+                    }
+                }
+                series[i] = max;
+            } else if (aggregate === 'total') {
+                series[i] = interval.reduce((a, b) => a + b, 0);
+            } else {
+                series[i] = interval[interval.length - 1];
             }
         }
 
         if (postProcessingMethod === 'diff') {
             for (let i = series.length - 1; i > 0; i--) {
                 if (series[i - 1] !== null && series[i] !== null) {
-                    series[i] = series[i] - series[i - 1];
+                    series[i] -= series[i - 1];
                 } else {
                     series[i] = 0;
                 }
@@ -949,7 +945,7 @@ class ChartModel {
                 } else {
                     val = values[i].val !== null ? values[i].val + option.yOffset : null;
                 }
-                const dp = {value: [values[i].ts, val]};
+                const dp = { value: [values[i].ts, val] };
 
                 // If value was interpolated by backend
                 if (values[i].i) {
@@ -984,9 +980,9 @@ class ChartModel {
             }
 
             // TODO: May be not required?
-            _series.sort((a, b) => a.value[0] > b.value[0] ? 1 : (a.value[0] < b.value[0] ? -1 : 0));
+            _series.sort((a, b) => (a.value[0] > b.value[0] ? 1 : (a.value[0] < b.value[0] ? -1 : 0)));
         } else {
-            this.postProcessing(_series, barCategories, this.config.l[index].aggregate, this.config.l[index].postProcessing);
+            ChartModel.postProcessing(_series, barCategories, this.config.l[index].aggregate, this.config.l[index].postProcessing);
         }
     }
 
@@ -1017,7 +1013,7 @@ class ChartModel {
             option.instance  = instance;
             option.sessionId = this.sessionId;
 
-            //console.log(JSON.stringify(option));
+            // console.log(JSON.stringify(option));
             this.debug && console.log(`[ChartModel] ${new Date(option.start)} - ${new Date(option.end)}`);
 
             this.socket.getHistoryEx(id, option)
@@ -1039,7 +1035,7 @@ class ChartModel {
                 })
                 .catch(err => {
                     err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
-                    err && console.error(`[ChartModel] ${err}`)
+                    err && console.error(`[ChartModel] ${err}`);
                 })
                 .then(() => {
                     if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
@@ -1057,12 +1053,10 @@ class ChartModel {
                                     this.socket.subscribeState(id, this.onStateChange);
                                 }
                             });
-                    } else {
-                        return Promise.resolve();
                     }
+                    return Promise.resolve();
                 })
                 .then(() => cb(id, index));
-
         }
     }
 
@@ -1074,7 +1068,6 @@ class ChartModel {
                     console.error(`Cannot read "${id}": ${e}`);
                     return null;
                 });
-
         }
         return this.objectPromises[id];
     }
@@ -1116,20 +1109,20 @@ class ChartModel {
     _readData(cb, j) {
         j = j || 0;
         if (j >= this.config.l.length) {
-            return cb();
-        } else {
-            if (this.config.l[j] !== '' && this.config.l[j] !== undefined) {
-                this.seriesData.push([]);
-            }
-
-            if (!this.config.l[j].id) {
-                setTimeout(() => this._readData(cb, j + 1), 10);
-                return;
-            }
-
-            this._readOneLine(j, () =>
-                setTimeout(() => this._readData(cb, j + 1), 10));
+            cb();
+            return;
         }
+        if (this.config.l[j] !== '' && this.config.l[j] !== undefined) {
+            this.seriesData.push([]);
+        }
+
+        if (!this.config.l[j].id) {
+            setTimeout(() => this._readData(cb, j + 1), 10);
+            return;
+        }
+
+        this._readOneLine(j, () =>
+            setTimeout(() => this._readData(cb, j + 1), 10));
     }
 
     readTicks(cb) {
@@ -1142,7 +1135,7 @@ class ChartModel {
             option.sessionId = this.sessionId;
             option.aggregate = 'onchange';
 
-            this.debug && console.log('[ChartModel] Ticks: ' + new Date(option.start) + ' - ' + new Date(option.end));
+            this.debug && console.log(`[ChartModel] Ticks: ${new Date(option.start)} - ${new Date(option.end)}`);
 
             this.socket.getHistoryEx(this.config.ticks, option)
                 .then(res => {
@@ -1159,23 +1152,22 @@ class ChartModel {
                         const values = res.values;
 
                         for (let i = 0; i < values.length; i++) {
-
                             if (values[i].val !== null) {
-                                _series.push({value: [values[i].ts, values[i].val]});
+                                _series.push({ value: [values[i].ts, values[i].val] });
                             }
                         }
 
                         // add start and end
                         if (_series.length) {
                             if (_series[0][0] > option.start) {
-                                _series.unshift({value: [option.start, '']});
+                                _series.unshift({ value: [option.start, ''] });
                             }
                             if (_series[_series.length - 1][0] < option.end) {
-                                _series.push({value: [option.end, '']});
+                                _series.push({ value: [option.end, ''] });
                             }
                         } else {
-                            _series.push({value: [option.start, '']});
-                            _series.push({value: [option.end,   '']});
+                            _series.push({ value: [option.start, ''] });
+                            _series.push({ value: [option.end,   ''] });
                         }
                         // free memory
                         res.values = null;
@@ -1193,6 +1185,7 @@ class ChartModel {
         }
     }
 
+    /*
     readValue(id, index, cb) {
         this.socket.getState(id)
             .then(state => {
@@ -1208,67 +1201,67 @@ class ChartModel {
                 cb(index, 0);
             });
     }
+    */
 
     readMarkings(cb, m) {
         m = m || 0;
         if (!this.config.marks || !this.config.marks.length || m >= this.config.marks.length) {
             return cb();
-        } else {
-            // read markings
-            return new Promise(resolve => {
-                if ((this.config.marks[m].upperValueOrId || this.config.marks[m].upperValueOrId === 0) &&
+        }
+        // read markings
+        return new Promise(resolve => {
+            if ((this.config.marks[m].upperValueOrId || this.config.marks[m].upperValueOrId === 0) &&
                     parseFloat(this.config.marks[m].upperValueOrId).toString() !== this.config.marks[m].upperValueOrId.toString().replace(/\.0*$/, '') &&
                     this.config.marks[m].upperValueOrId.toString().includes('.')
-                ) {
-                    /*if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
+            ) {
+                /* if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
                         this.subscribes.push(this.config.marks[m].upperValueOrId);
-                    }*/
+                    } */
 
-                    this.socket.getState(this.config.marks[m].upperValueOrId)
+                this.socket.getState(this.config.marks[m].upperValueOrId)
+                    .then(state => {
+                        if (state && state.val !== undefined && state.val !== null) {
+                            this.config.marks[m].upperValue = parseFloat(state.val) || 0;
+                        } else {
+                            this.config.marks[m].upperValue = null;
+                        }
+                        resolve();
+                    })
+                    .catch(e => {
+                        e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                        console.error(`Cannot read marking ${this.config.marks[m].upperValueOrId}: ${e}`);
+                        resolve();
+                    });
+            } else {
+                resolve();
+            }
+        })
+            .then(() => new Promise(resolve => {
+                if ((this.config.marks[m].lowerValueOrId || this.config.marks[m].lowerValueOrId === 0) && parseFloat(this.config.marks[m].lowerValueOrId).toString() !== this.config.marks[m].lowerValueOrId.replace(/\.0*$/, '') && this.config.marks[m].lowerValueOrId.includes('.')) {
+                    /* if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
+                            this.subscribes.push(this.config.marks[m].upperValueOrId);
+                        } */
+
+                    this.socket.getState(this.config.marks[m].lowerValueOrId)
                         .then(state => {
                             if (state && state.val !== undefined && state.val !== null) {
-                                this.config.marks[m].upperValue = parseFloat(state.val) || 0;
+                                this.config.marks[m].lowerValue = parseFloat(state.val) || 0;
                             } else {
-                                this.config.marks[m].upperValue = null;
+                                this.config.marks[m].lowerValue = null;
                             }
                             resolve();
                         })
                         .catch(e => {
                             e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                            console.error(`Cannot read marking ${this.config.marks[m].upperValueOrId}: ${e}`);
+                            console.error(`Cannot read marking ${this.config.marks[m].lowerValueOrId}: ${e}`);
                             resolve();
                         });
                 } else {
                     resolve();
                 }
-            })
-                .then(() => new Promise(resolve => {
-                    if ((this.config.marks[m].lowerValueOrId || this.config.marks[m].lowerValueOrId === 0) && parseFloat(this.config.marks[m].lowerValueOrId).toString() !== this.config.marks[m].lowerValueOrId.replace(/\.0*$/, '') && this.config.marks[m].lowerValueOrId.includes('.')) {
-                        /*if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
-                            this.subscribes.push(this.config.marks[m].upperValueOrId);
-                        }*/
-
-                        this.socket.getState(this.config.marks[m].lowerValueOrId)
-                            .then(state => {
-                                if (state && state.val !== undefined && state.val !== null) {
-                                    this.config.marks[m].lowerValue = parseFloat(state.val) || 0;
-                                } else {
-                                    this.config.marks[m].lowerValue = null;
-                                }
-                                resolve();
-                            })
-                            .catch(e => {
-                                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                                console.error(`Cannot read marking ${this.config.marks[m].lowerValueOrId}: ${e}`);
-                                resolve();
-                            });
-                    } else {
-                        resolve();
-                    }
-                }))
-                .then(() =>
-                    setTimeout(() => this.readMarkings(cb, m + 1), 0));
-        }
+            }))
+            .then(() =>
+                setTimeout(() => this.readMarkings(cb, m + 1), 0));
     }
 
     subscribeAll(subscribes, cb, s) {
@@ -1306,8 +1299,7 @@ class ChartModel {
                     }
 
                     return;
-                } else
-                if (this.actualValues && this.actualValues[m] !== state.val) {
+                } if (this.actualValues && this.actualValues[m] !== state.val) {
                     this.actualValues[m] = state.val;
                     changed = true;
                 }
@@ -1317,7 +1309,7 @@ class ChartModel {
         changed && this.onUpdateFunc(null, this.actualValues);
     };
 
-    addTime(time, offset, plusOrMinus, isOffsetInMinutes) {
+    static addTime(time, offset, plusOrMinus, isOffsetInMinutes) {
         time = new Date(time);
 
         if (typeof offset === 'string') {
@@ -1337,12 +1329,10 @@ class ChartModel {
                     } else {
                         time -= (parseInt(offset, 10) || 0) * 60000;
                     }
+                } else if (plusOrMinus) {
+                    time += (parseInt(offset, 10) || 0) * 1000;
                 } else {
-                    if (plusOrMinus) {
-                        time += (parseInt(offset, 10) || 0) * 1000;
-                    } else {
-                        time -= (parseInt(offset, 10) || 0) * 1000;
-                    }
+                    time -= (parseInt(offset, 10) || 0) * 1000;
                 }
             }
         } else {
@@ -1353,13 +1343,10 @@ class ChartModel {
                 } else {
                     time -= (parseInt(offset, 10) || 0) * 60000;
                 }
-
+            } else if (plusOrMinus) {
+                time += (parseInt(offset, 10) || 0) * 1000;
             } else {
-                if (plusOrMinus) {
-                    time += (parseInt(offset, 10) || 0) * 1000;
-                } else {
-                    time -= (parseInt(offset, 10) || 0) * 1000;
-                }
+                time -= (parseInt(offset, 10) || 0) * 1000;
             }
         }
         return time;
@@ -1384,36 +1371,36 @@ class ChartModel {
             this.onReadingFunc && this.onReadingFunc(true);
 
             // todo
-//            if (config.renderer === 'pie' || (config.renderer === 'bar' && config._ids.length > 1)) {
-//
-//                seriesData = [[]];
-//                for (const j = 0; j < config._ids.length; j++) {
-//                    readOneValue(config._ids[j], j, function (_id, _index, value) {
-//                        if (config.renderer === 'pie') {
-//                            seriesData[0][_index] = {label: config.l[_index].name, data: value};
-//                        } else {
-//                            seriesData[0][_index] = [config.l[_index].name, value];
-//                        }
-//                        if (_index === config._ids.length - 1) {
-//                            graphCreate(divId, );
-//                        }
-//                    });
-//                }
-//            } else {
+            //            if (config.renderer === 'pie' || (config.renderer === 'bar' && config._ids.length > 1)) {
+            //
+            //                seriesData = [[]];
+            //                for (const j = 0; j < config._ids.length; j++) {
+            //                    readOneValue(config._ids[j], j, function (_id, _index, value) {
+            //                        if (config.renderer === 'pie') {
+            //                            seriesData[0][_index] = {label: config.l[_index].name, data: value};
+            //                        } else {
+            //                            seriesData[0][_index] = [config.l[_index].name, value];
+            //                        }
+            //                        if (_index === config._ids.length - 1) {
+            //                            graphCreate(divId, );
+            //                        }
+            //                    });
+            //                }
+            //            } else {
             this.seriesData = [];
             this.barCategories = null;
 
             this._readData(() =>
-                this.readTicks(_ticks =>
+                this.readTicks(() =>
                     this.readMarkings(() => {
-                        /*if (!this.subscribed) {
+                        /* if (!this.subscribed) {
                             this.subscribed = true;
                             this.subscribeAll(this.subscribes, () =>
                                 this.onUpdateFunc(this.seriesData));
-                        } else {*/
-                            this.reading = false;
-                            this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
-                        //}
+                        } else { */
+                        this.reading = false;
+                        this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
+                        // }
                     })));
         } else {
             this.onErrorFunc && this.onErrorFunc('No config provided');

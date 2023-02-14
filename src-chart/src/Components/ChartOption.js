@@ -7,7 +7,7 @@ const THEMES = {
         '#c1d7a8',
         '#4dffd2',
         '#fccfd7',
-        '#d5f6f6'
+        '#d5f6f6',
     ],
     'bee-inspired': [
         '#001727',
@@ -17,9 +17,9 @@ const THEMES = {
         '#f2d71f',
         '#f2be19',
         '#f3a81a',
-        '#fff5cc'
+        '#fff5cc',
     ],
-    'blue': [
+    blue: [
         '#1790cf',
         '#1bb2d8',
         '#99d2dd',
@@ -27,7 +27,7 @@ const THEMES = {
         '#1c7099',
         '#038cc4',
         '#75abd0',
-        '#afd6dd'
+        '#afd6dd',
     ],
     infographic: [
         '#C1232B',
@@ -44,7 +44,7 @@ const THEMES = {
         '#C6E579',
         '#F4E001',
         '#F0805A',
-        '#26C0C0'
+        '#26C0C0',
     ],
     vintage: [
         '#d87c7c',
@@ -56,7 +56,7 @@ const THEMES = {
         '#787464',
         '#cc7e63',
         '#724e58',
-        '#4b565b'
+        '#4b565b',
     ],
     dark: [
         '#dd6b66',
@@ -69,7 +69,7 @@ const THEMES = {
         '#73b9bc',
         '#7289ab',
         '#91ca8c',
-        '#f49f42'
+        '#f49f42',
     ],
     macarons: [
         '#2ec7c9',
@@ -91,7 +91,7 @@ const THEMES = {
         '#c9ab00',
         '#7eb00a',
         '#6f5553',
-        '#c14089'
+        '#c14089',
     ],
     shine: [
         '#c12e34',
@@ -101,7 +101,7 @@ const THEMES = {
         '#005eaa',
         '#339ca8',
         '#cda819',
-        '#32a487'
+        '#32a487',
     ],
     roma: [
         '#E01F54',
@@ -123,7 +123,7 @@ const THEMES = {
         '#ff6666',
         '#3cb371',
         '#d5b158',
-        '#38b6b6'
+        '#38b6b6',
     ],
     royal: [
         '#3f7ea6',
@@ -133,7 +133,7 @@ const THEMES = {
         '#a65149',
         '#731f17',
         '#adc2eb',
-        '#d9c3b0'
+        '#d9c3b0',
     ],
     'dark-blue': [
         '#00305a',
@@ -143,7 +143,7 @@ const THEMES = {
         '#7abaf2',
         '#99cce6',
         '#d6ebf5',
-        '#eeeeee'
+        '#eeeeee',
     ],
     'tech-blue': [
         '#4d4d4d',
@@ -155,7 +155,7 @@ const THEMES = {
         '#00bdec',
         '#33ccff',
         '#ccddff',
-        '#eeeeee'
+        '#eeeeee',
     ],
     red: [
         '#d8361b',
@@ -164,7 +164,7 @@ const THEMES = {
         '#d26666',
         '#99311c',
         '#c42703',
-        '#d07e75'
+        '#d07e75',
     ],
     'red-velvet': [
         '#8b1a2d',
@@ -174,7 +174,7 @@ const THEMES = {
         '#8e5c4e',
         '#ff1a66',
         '#d6c582',
-        '#f0d4af'
+        '#f0d4af',
     ],
     green: [
         '#408829',
@@ -184,7 +184,7 @@ const THEMES = {
         '#397b29',
         '#8abb6f',
         '#759c6a',
-        '#bfd3b7'
+        '#bfd3b7',
     ],
     light: ['#37A2DA', '#32C5E9', '#67E0E3', '#9FE6B8', '#FFDB5C', '#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5', '#8378EA', '#96BFFF'],
     gray: [
@@ -193,7 +193,7 @@ const THEMES = {
         '#dadada',
         '#8b8b8b',
         '#b5b5b5',
-        '#e9e9e9'
+        '#e9e9e9',
     ],
     'dark-bold': [
         '#458c6b',
@@ -203,8 +203,8 @@ const THEMES = {
         '#a62424',
         '#76bc9b',
         '#cce6da',
-        '#eeeeee'
-    ]
+        '#eeeeee',
+    ],
 };
 
 function padding2(num) {
@@ -215,19 +215,18 @@ function padding2(num) {
     // return num.toString().padStart(2, '0');
     num = (num || '').toString();
     if (num.length < 2) {
-        return '0' + num;
-    } else {
-        return num;
+        return `0${num}`;
     }
+    return num;
 }
 
 function rgba2hex(color) {
     const rgb = color.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
     return rgb ?
-        '#' +
-        padding2(parseInt(rgb[1], 10).toString(16)) +
-        padding2(parseInt(rgb[2], 10).toString(16)) +
-        padding2(parseInt(rgb[3], 10).toString(16)) : color;
+        `#${
+            padding2(parseInt(rgb[1], 10).toString(16))
+        }${padding2(parseInt(rgb[2], 10).toString(16))
+        }${padding2(parseInt(rgb[3], 10).toString(16))}` : color;
 }
 
 function brighterColor(color, amt) {
@@ -242,8 +241,9 @@ function brighterColor(color, amt) {
         usePound = true;
     }
 
-    const num = parseInt(color,16);
+    const num = parseInt(color, 16);
 
+    // eslint-disable-next-line no-bitwise
     let r = (num >> 16) + amt;
     if (r > 255) {
         r = 255;
@@ -251,6 +251,7 @@ function brighterColor(color, amt) {
         r = 0;
     }
 
+    // eslint-disable-next-line no-bitwise
     let b = ((num >> 8) & 0x00FF) + amt;
     if (b > 255) {
         b = 255;
@@ -258,6 +259,7 @@ function brighterColor(color, amt) {
         b = 0;
     }
 
+    // eslint-disable-next-line no-bitwise
     let g = (num & 0x0000FF) + amt;
     if (g > 255) {
         g = 255;
@@ -265,28 +267,29 @@ function brighterColor(color, amt) {
         g = 0;
     }
 
+    // eslint-disable-next-line no-bitwise
     return (usePound ? '#' : '') + (g | (b << 8) | (r << 16)).toString(16);
 }
 
-//----- copied from
-const Gradient = function (colorStops) {
+// ----- copied from
+const Gradient = colorStops => {
     this.colorStops = colorStops || [];
 };
 
 Gradient.prototype = {
     constructor: Gradient,
-    addColorStop: function (offset, color) {
+    addColorStop(offset, color) {
         this.colorStops.push({ offset, color });
-    }
+    },
 };
-const LinearGradient = function (x, y, x2, y2, colorStops, globalCoord) {
+const LinearGradient = (x, y, x2, y2, colorStops, globalCoord) => {
     // Should do nothing more in this constructor. Because gradient can be
     // declared by `color: {type: 'linear', colorStops: ...}`, where
     // this constructor will not be called.
-    this.x = x == null ? 0 : x;
-    this.y = y == null ? 0 : y;
-    this.x2 = x2 == null ? 1 : x2;
-    this.y2 = y2 == null ? 0 : y2; // Can be cloned
+    this.x = x === null ? 0 : x;
+    this.y = y === null ? 0 : y;
+    this.x2 = x2 === null ? 1 : x2;
+    this.y2 = y2 === null ? 0 : y2; // Can be cloned
 
     this.type = 'linear'; // If use global coord
 
@@ -295,7 +298,7 @@ const LinearGradient = function (x, y, x2, y2, colorStops, globalCoord) {
 };
 
 LinearGradient.prototype = {
-    constructor: LinearGradient
+    constructor: LinearGradient,
 };
 
 function zrUtilInherits(clazz, baseClazz) {
@@ -306,11 +309,7 @@ function zrUtilInherits(clazz, baseClazz) {
     F.prototype = baseClazz.prototype;
     clazz.prototype = new F();
 
-    for (const prop in clazzPrototype) {
-        if (clazzPrototype.hasOwnProperty(prop)) {
-            clazz.prototype[prop] = clazzPrototype[prop];
-        }
-    }
+    Object.keys(clazzPrototype).forEach(prop => clazz.prototype[prop] = clazzPrototype[prop]);
 
     clazz.prototype.constructor = clazz;
     clazz.superClass = baseClazz;
@@ -351,19 +350,19 @@ class ChartOption {
             return [];
         }
 
-        const yAxis = this.chart.yAxis[yAxisIndex] || {max: null, min: null};
+        const yAxis = this.chart.yAxis[yAxisIndex] || { max: null, min: null };
         this.chart.yAxis[yAxisIndex] = yAxis;
 
-        for (let i = 0; i < values.length; i++) {
-            if (values[i].value[1] === null) {
+        for (let ii = 0; ii < values.length; ii++) {
+            if (values[ii].value[1] === null) {
                 continue;
             }
 
-            if (yAxis.min === null || yAxis.min > values[i].value[1]) {
-                yAxis.min = values[i].value[1];
+            if (yAxis.min === null || yAxis.min > values[ii].value[1]) {
+                yAxis.min = values[ii].value[1];
             }
-            if (yAxis.max === null || yAxis.max < values[i].value[1]) {
-                yAxis.max = values[i].value[1];
+            if (yAxis.max === null || yAxis.max < values[ii].value[1]) {
+                yAxis.max = values[ii].value[1];
             }
         }
 
@@ -432,7 +431,7 @@ class ChartOption {
                     // itemStyle: {color},
                     // symbolSize: (oneLine.chartType === 'scatterplot' || oneLine.points) ? (oneLine.symbolSize || 3) : undefined,
                     // symbol: 'circle',
-                    /*emphasis: {
+                    /* emphasis: {
                         scale: false,
                         focus: 'none',
                         blurScope: 'none',
@@ -450,7 +449,7 @@ class ChartOption {
                         shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowColor:    color,
                         type:           oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
-                    }*/
+                    } */
                 };
             } else {
                 cfg = {
@@ -462,12 +461,12 @@ class ChartOption {
                     yAxisIndex,
                     type: oneLine.chartType === 'scatterplot' ? 'scatter' : 'line',
                     showSymbol: oneLine.chartType === 'scatterplot' || oneLine.points,
-                    //hoverAnimation: false,
+                    // hoverAnimation: false,
                     animation: false,
-                    step: oneLine.chartType === 'steps' ? 'end' : (oneLine.chartType === 'stepsStart' ? 'start' : undefined) ,
+                    step: oneLine.chartType === 'steps' ? 'end' : (oneLine.chartType === 'stepsStart' ? 'start' : undefined),
                     smooth: oneLine.chartType === 'spline',
                     data: this.convertData(data, i, yAxisIndex),
-                    itemStyle: {color},
+                    itemStyle: { color },
                     symbolSize: (oneLine.chartType === 'scatterplot' || oneLine.points) ? (oneLine.symbolSize || 3) : undefined,
                     symbol: 'circle',
                     emphasis: {
@@ -488,7 +487,7 @@ class ChartOption {
                         shadowOffsetY:  oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowColor:    color,
                         type:           oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
-                    }
+                    },
                 };
 
                 if (parseFloat(oneLine.fill)) {
@@ -496,10 +495,10 @@ class ChartOption {
                     if (!this.isTouch) {
                         _color = new LinearGradient(0, 0, 0, 1, [{
                             offset: 0,
-                            color: brighterColor(color, 30)
+                            color: brighterColor(color, 30),
                         }, {
                             offset: 1,
-                            color
+                            color,
                         }]);
                     } else {
                         _color = color;
@@ -523,7 +522,7 @@ class ChartOption {
                     data: categories.map(i => `b${i}`),
                     splitLine: {
                         show: !this.config.grid_hideX,
-                        lineStyle: this.config.l[0].xaxe === 'off' ? {color: 'rgba(0,0,0,0)', type: 'dashed'} : this.config.grid_color ? {
+                        lineStyle: this.config.l[0].xaxe === 'off' ? { color: 'rgba(0,0,0,0)', type: 'dashed' } : this.config.grid_color ? {
                             color: this.config.grid_color,
                             type: 'dashed',
                         } : { type: 'dashed' },
@@ -551,9 +550,9 @@ class ChartOption {
                             b: {
                                 opacity: 0,
                             },
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             ];
         }
 
@@ -562,10 +561,10 @@ class ChartOption {
                 type: 'time',
                 splitLine: {
                     show: !this.config.grid_hideX,
-                    lineStyle: this.config.l[0].xaxe === 'off' ? {color: 'rgba(0,0,0,0)', type: 'dashed'} : this.config.grid_color ? {
+                    lineStyle: this.config.l[0].xaxe === 'off' ? { color: 'rgba(0,0,0,0)', type: 'dashed' } : this.config.grid_color ? {
                         color: this.config.grid_color,
                         type: 'dashed',
-                    } : {type: 'dashed'},
+                    } : { type: 'dashed' },
                 },
                 splitNumber: parseInt(this.config.l[0].xticks, 10) || undefined,
                 position: this.config.l[0].xaxe === 'top' ? 'top' : 'bottom',
@@ -574,9 +573,9 @@ class ChartOption {
                 axisTick: {
                     alignWithLabel: true,
                     lineStyle: this.config.l[0].xaxe === 'off' ?
-                        {color: 'rgba(0,0,0,0)'}
+                        { color: 'rgba(0,0,0,0)' }
                         :
-                        (this.config.x_ticks_color ? {color: this.config.x_ticks_color} : undefined),
+                        (this.config.x_ticks_color ? { color: this.config.x_ticks_color } : undefined),
                 },
                 axisLabel: {
                     show: !this.compact,
@@ -590,9 +589,9 @@ class ChartOption {
                         b: {
                             opacity: 0,
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         ];
     }
 
@@ -608,7 +607,7 @@ class ChartOption {
             const yAxis = this.chart.yAxis;
             if (yAxis[i]) {
                 const diff = yAxis[i].max - yAxis[i].min;
-                if (isNaN(yMin)) {
+                if (Number.isNaN(yMin)) {
                     // auto calculate
                     yMin = yAxis[i].min - diff * 0.1; // min - 10%
                     if (diff > 25000) {
@@ -625,7 +624,7 @@ class ChartOption {
                         yMin = Math.floor(yMin * 10) / 10;
                     }
                 }
-                if (isNaN(yMax)) {
+                if (Number.isNaN(yMax)) {
                     // auto calculate
                     yMax = yAxis[i].max + diff * 0.1; // max + 10%
                     if (diff > 25000) {
@@ -643,10 +642,10 @@ class ChartOption {
                     }
                 }
             } else {
-                if (isNaN(yMin)) {
+                if (Number.isNaN(yMin)) {
                     yMin = undefined;
                 }
-                if (isNaN(yMax)) {
+                if (Number.isNaN(yMax)) {
                     yMax = undefined;
                 }
             }
@@ -663,8 +662,8 @@ class ChartOption {
                 position: (oneLine.yaxe === 'left' || oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor') ?
                     'left' :
                     (oneLine.yaxe === 'right' || oneLine.yaxe === 'rightColor' ?
-                            'right' :
-                            (!i ? 'left' : 'right')
+                        'right' :
+                        (!i ? 'left' : 'right')
                     ), // by default only first line is on the left
                 splitLine: !i ? { // grid has only first line
                     show: !this.config.grid_hideY,
@@ -678,12 +677,12 @@ class ChartOption {
                     show: !this.compact,
                     formatter: value => this.yFormatter(value, i, true),
                     color: oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor' ? color : (this.config.y_labels_color || undefined),
-                    fontSize: parseInt(this.config.y_labels_size, 10) || 12
+                    fontSize: parseInt(this.config.y_labels_size, 10) || 12,
                 },
                 axisTick: {
                     alignWithLabel: true,
-                    lineStyle: color ? {color} : (this.config.y_ticks_color ? {color: this.config.y_ticks_color} : undefined)
-                }
+                    lineStyle: color ? { color } : (this.config.y_ticks_color ? { color: this.config.y_ticks_color } : undefined),
+                },
             };
         });
     }
@@ -696,8 +695,8 @@ class ChartOption {
             }
             const lowerLimitFloat = oneMark.lowerValue !== undefined ? oneMark.lowerValue : parseFloat(oneMark.lowerValueOrId);
             const upperLimitFloat = oneMark.upperValue !== undefined ? oneMark.upperValue : parseFloat(oneMark.upperValueOrId);
-            const isLowerNumber   = lowerLimitFloat !== null && !isNaN(lowerLimitFloat);
-            const isUpperNumber   = upperLimitFloat !== null && !isNaN(upperLimitFloat);
+            const isLowerNumber   = lowerLimitFloat !== null && !Number.isNaN(lowerLimitFloat);
+            const isUpperNumber   = upperLimitFloat !== null && !Number.isNaN(upperLimitFloat);
 
             const series = options.series[oneMark.lineId];
 
@@ -710,7 +709,7 @@ class ChartOption {
                 // area
                 series.markArea = series.markArea || {
                     symbol: ['none', 'none'],
-                    data: []
+                    data: [],
                 };
                 series.markArea.data.push([
                     {
@@ -720,13 +719,12 @@ class ChartOption {
                             color:       oneMark.color || series.itemStyle.color,
                             borderWidth: 0,
                             opacity:     parseFloat(oneMark.fill) || 0,
-                        }
+                        },
                     },
                     {
-                        yAxis: upperLimitFloat
+                        yAxis: upperLimitFloat,
                     },
                 ]);
-
             }
             if (isLowerNumber || isUpperNumber) {
                 for (let i = 0; i < 2; i++) {
@@ -738,7 +736,7 @@ class ChartOption {
                     const limitFloat = i ? lowerLimitFloat : upperLimitFloat;
                     series.markLine = series.markLine || {
                         symbol: ['none', 'none'],
-                        data: []
+                        data: [],
                     };
 
                     series.markLine.data.push({
@@ -761,20 +759,20 @@ class ChartOption {
                                 color: oneMark.textColor || '#FFF',
                                 fontStyle: 'normal',
                                 fontSize: oneMark.textSize || undefined,
-                            }
+                            },
                         },
                     });
 
                     if (this.config.l[oneMark.lineId]) {
                         // if minimum not set
-                        let yMin = parseFloat(this.config.l[oneMark.lineId].min);
-                        if (isNaN(yMin) && this.chart.yAxis[oneMark.lineId]) {
+                        const yMin = parseFloat(this.config.l[oneMark.lineId].min);
+                        if (Number.isNaN(yMin) && this.chart.yAxis[oneMark.lineId]) {
                             if (this.chart.yAxis[oneMark.lineId].min > limitFloat && limitFloat < 0) {
                                 options.yAxis[0].min = limitFloat;
                             }
                         }
-                        let yMax = parseFloat(this.config.l[oneMark.lineId].min);
-                        if (isNaN(yMax) && this.chart.yAxis[oneMark.lineId]) {
+                        const yMax = parseFloat(this.config.l[oneMark.lineId].min);
+                        if (Number.isNaN(yMax) && this.chart.yAxis[oneMark.lineId]) {
                             if (this.chart.yAxis[oneMark.lineId].max < limitFloat) {
                                 options.yAxis[0].max = limitFloat;
                             }
@@ -787,7 +785,7 @@ class ChartOption {
         return options;
     }
 
-    yFormatter(val, line, withUnit, interpolated, ignoreWidth) {
+    yFormatter(val, line, withUnit, interpolated /* , ignoreWidth */) {
         if (typeof val === 'object') {
             val = val.value;
             withUnit = false;
@@ -806,34 +804,29 @@ class ChartOption {
             val = parseFloat(val);
             if (this.config.useComma) {
                 return val.toFixed(afterComma).replace('.', ',') + (withUnit ? this.config.l[line].unit : '');
-            } else {
-                return val.toFixed(afterComma) + (withUnit ? this.config.l[line].unit : '');
             }
-        } else {
-            if (interpolated) {
-                val = Math.round(val * 10000) / 10000;
-            }
-
-            if (this.config.useComma) {
-                val = parseFloat(val) || 0;
-                return val.toString().replace('.', ',') + (withUnit ? this.config.l[line].unit : '');
-            } else {
-                return val.toString() + (withUnit ? this.config.l[line].unit : '');
-            }
+            return val.toFixed(afterComma) + (withUnit ? this.config.l[line].unit : '');
         }
+        if (interpolated) {
+            val = Math.round(val * 10000) / 10000;
+        }
+
+        if (this.config.useComma) {
+            val = parseFloat(val) || 0;
+            return val.toString().replace('.', ',') + (withUnit ? this.config.l[line].unit : '');
+        }
+        return val.toString() + (withUnit ? this.config.l[line].unit : '');
     }
 
     isXLabelHasBreak() {
         if (this.config.timeFormat) {
             return this.config.timeFormat.replace('<br/>', '\n').includes('\n');
-        } else
-        if (this.chart.withSeconds) {
+        } if (this.chart.withSeconds) {
             return true;
-        } else if (this.chart.withTime) {
-            return true;
-        } else {
+        } if (this.chart.withTime) {
             return true;
         }
+        return true;
     }
 
     xFormatter(value, _index, isTop) {
@@ -858,44 +851,45 @@ class ChartOption {
 
         if (this.config.timeFormat) {
             return this.moment(date).format(this.config.timeFormat).replace('<br/>', '\n');
-        } else {
-            let dateTxt = '';
-            const dateInMonth = date.getDate();
-            if (this.chart.withSeconds || this.chart.withTime) {
-                let showDate = false;
-                if (_index < 2 || this.lastFormattedTime === null || value < this.lastFormattedTime) {
-                    showDate = true;
-                } else
-                if (!showDate && new Date(this.lastFormattedTime).getDate() !== dateInMonth) {
-                    showDate = true;
-                }
-                if (showDate) {
-                    if (isTop) {
-                        dateTxt = `{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}\n`;
-                    } else {
-                        dateTxt = `{b|..}\n{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}`;
-                    }
-                }
-
-                this.lastFormattedTime = value;
-
+        }
+        let dateTxt = '';
+        const dateInMonth = date.getDate();
+        if (this.chart.withSeconds || this.chart.withTime) {
+            let showDate = false;
+            if (_index < 2 || this.lastFormattedTime === null || value < this.lastFormattedTime) {
+                showDate = true;
+            } else
+            if (!showDate && new Date(this.lastFormattedTime).getDate() !== dateInMonth) {
+                showDate = true;
+            }
+            if (showDate) {
                 if (isTop) {
-                    if (this.chart.withSeconds) {
-                        return `${dateTxt + padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}${dateTxt ? '{b|..}' : ''}`;
-                    } else if (this.chart.withTime) {
-                        return `${dateTxt + padding2(date.getHours())}:${padding2(date.getMinutes())}${dateTxt ? '{b|..}' : ''}`;
-                    }
+                    dateTxt = `{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}\n`;
                 } else {
-                    if (this.chart.withSeconds) {
-                        return `${padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}${dateTxt}`;
-                    } else if (this.chart.withTime) {
-                        return `${padding2(date.getHours())}:${padding2(date.getMinutes())}${dateTxt}`;
-                    }
+                    dateTxt = `{b|..}\n{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}`;
                 }
-            } else {
-                return `${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}\n${date.getFullYear()}`;
+            }
+
+            this.lastFormattedTime = value;
+
+            if (isTop) {
+                if (this.chart.withSeconds) {
+                    return `${dateTxt + padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}${dateTxt ? '{b|..}' : ''}`;
+                }
+                if (this.chart.withTime) {
+                    return `${dateTxt + padding2(date.getHours())}:${padding2(date.getMinutes())}${dateTxt ? '{b|..}' : ''}`;
+                }
+            }
+
+            if (this.chart.withSeconds) {
+                return `${padding2(date.getHours())}:${padding2(date.getMinutes())}:${padding2(date.getSeconds())}${dateTxt}`;
+            }
+            if (this.chart.withTime) {
+                return `${padding2(date.getHours())}:${padding2(date.getMinutes())}${dateTxt}`;
             }
         }
+
+        return `${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}\n${date.getFullYear()}`;
     }
 
     // result.val === null => start and end are null
@@ -911,10 +905,10 @@ class ChartOption {
                 // Calculate
                 const dp = { val: data[k].value[1] };
                 if (data[k].exact === false) {
-                    dp.exact = false
+                    dp.exact = false;
                 }
                 return dp;
-            } else if (data[k].value[0] < ts && ts < data[k + 1].value[0]) {
+            } if (data[k].value[0] < ts && ts < data[k + 1].value[0]) {
                 const y1 = data[k].value[1];
                 const y2 = data[k + 1].value[1];
                 if (y2 === null || y2 === undefined || y1 === null || y1 === undefined) {
@@ -953,7 +947,7 @@ class ChartOption {
                 }
                 let val;
                 if (lineConfig.afterComma !== undefined) {
-                    const ex = Math.pow(10, lineConfig.afterComma);
+                    const ex = 10 ** lineConfig.afterComma;
                     val = Math.round(p.value * ex) / ex;
                 } else {
                     val = p.value;
@@ -962,9 +956,9 @@ class ChartOption {
 
                 return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${p.color}">` +
                     `<div style="display: flex;margin-right: 4px">${lineConfig.name}:</div>` +
-                    `<div style="display: flex; flex-grow: 1"></div>` +
+                    '<div style="display: flex; flex-grow: 1"></div>' +
                     `<div style="display: flex;"><b>${val}</b>${lineConfig.unit || ''}</div>` +
-                    `</div>`;
+                    '</div>';
             }
             let interpolated;
             if (p) {
@@ -985,13 +979,13 @@ class ChartOption {
 
             return `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color}">` +
                 `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
-                `<div style="display: flex; flex-grow: 1"></div>` +
+                '<div style="display: flex; flex-grow: 1"></div>' +
                 `<div style="display: flex;">${interpolated.exact ? '' : 'i '}<b>${val}</b>${interpolated.val !== null ? lineConfig.unit : ''}</div>` +
-                `</div>`;
+                '</div>';
         });
 
         if (anyBar) {
-            let format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm';
+            const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm';
             const _date = new Date(parseInt(ts.substring(1), 10));
             return `<b>${this.moment(_date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
         }
@@ -1002,49 +996,48 @@ class ChartOption {
     getLegend(actualValues) {
         if (!this.config.legend || this.config.legend === 'none') {
             return undefined;
-        } else {
-            const legend = {
-                data:   this.config.l.map(oneLine => oneLine.name),
-                show:   true,
-                left:   this.config.legend === 'nw' || this.config.legend === 'sw' ?  this.chart.padLeft   + 1 : undefined,
-                right:  this.config.legend === 'ne' || this.config.legend === 'se' ?  this.chart.padRight  + 1 : undefined,
-                top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  this.chart.padTop    + 2 : undefined,
-                bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  this.chart.padBottom + 2 : undefined,
-                backgroundColor: this.config.legBg || undefined,
-                height: this.config.legendHeight || undefined,
-                formatter: (name, arg) => {
-                    if (this.config.legActual && actualValues) {
-                        for (let i = 0; i < this.config.l.length; i++) {
-                            if (this.config.l[i].name === name) {
-                                return `${name} [${this.yFormatter(actualValues[i], i, true, true, true)}]`;
-                            }
+        }
+        const legend = {
+            data:   this.config.l.map(oneLine => oneLine.name),
+            show:   true,
+            left:   this.config.legend === 'nw' || this.config.legend === 'sw' ?  this.chart.padLeft   + 1 : undefined,
+            right:  this.config.legend === 'ne' || this.config.legend === 'se' ?  this.chart.padRight  + 1 : undefined,
+            top:    this.config.legend === 'nw' || this.config.legend === 'ne' ?  this.chart.padTop    + 2 : undefined,
+            bottom: this.config.legend === 'sw' || this.config.legend === 'se' ?  this.chart.padBottom + 2 : undefined,
+            backgroundColor: this.config.legBg || undefined,
+            height: this.config.legendHeight || undefined,
+            formatter: (name /* , arg */) => {
+                if (this.config.legActual && actualValues) {
+                    for (let i = 0; i < this.config.l.length; i++) {
+                        if (this.config.l[i].name === name) {
+                            return `${name} [${this.yFormatter(actualValues[i], i, true, true, true)}]`;
                         }
                     }
-                    return name;
-                },
-                textStyle: {
-                    color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF'),
-                    fontSize:this.config.legFontSize,
-                },
-                orient: this.config.legendDirection || 'horizontal',
-                selected: {}
-            };
+                }
+                return name;
+            },
+            textStyle: {
+                color: this.config.legColor || (this.themeType === 'light' ? '#000' : '#FFF'),
+                fontSize:this.config.legFontSize,
+            },
+            orient: this.config.legendDirection || 'horizontal',
+            selected: {},
+        };
 
-            // if (legend.height) {
-            //     legend.height = legend.height + 'px';
-            // }
+        // if (legend.height) {
+        //     legend.height = legend.height + 'px';
+        // }
 
-            this.config.l.forEach(oneLine => legend.selected[oneLine.name] = oneLine.hide !== true);
+        this.config.l.forEach(oneLine => legend.selected[oneLine.name] = oneLine.hide !== true);
 
-            return legend;
-        }
+        return legend;
     }
 
     getTitle() {
         if (!this.config || !this.config.title) {
             return undefined;
         }
-        let titlePos = {};
+        const titlePos = {};
         (this.config.titlePos || 'top:35;left:65').split(';').forEach(a => {
             const parts = a.split(':');
             titlePos[parts[0].trim()] = parseInt(parts[1].trim(), 10);
@@ -1054,7 +1047,7 @@ class ChartOption {
             text: this.config.title,
             textStyle: {
                 fontSize: this.config.titleSize ? parseInt(this.config.titleSize, 10) : 20,
-                color:    this.config.titleColor || (this.themeType === 'light' ? '#000' : '#FFF')
+                color:    this.config.titleColor || (this.themeType === 'light' ? '#000' : '#FFF'),
             },
             textVerticalAlign: titlePos.bottom      ? 'bottom' : 'top',
             textAlign:         titlePos.left === 50 ? 'center' : (titlePos.right === -5 ? 'right' : 'left'),
@@ -1119,12 +1112,12 @@ class ChartOption {
                 formatter: params => this.renderTooltip(params),
                 hoverAnimation: true,
                 axisPointer: {
-                    animation: true
-                }
+                    animation: true,
+                },
             } : undefined,
             xAxis,
             yAxis,
-            /*toolbox: false && (this.config.export === true || this.config.export === 'true') ? {
+            /* toolbox: false && (this.config.export === true || this.config.export === 'true') ? {
                 left: 'right',
                 feature: {
                     saveAsImage: {
@@ -1132,8 +1125,8 @@ class ChartOption {
                         show: true,
                     }
                 }
-            } : undefined,*/
-            /*dataZoom: [
+            } : undefined, */
+            /* dataZoom: [
                 {
                     show: true,
                     realtime: true,
@@ -1154,9 +1147,9 @@ class ChartOption {
                     type: 'inside',
                     realtime: true,
                 },
-            ],*/
+            ], */
             series,
-            useCanvas
+            useCanvas,
         };
 
         this.getMarkings(option);
@@ -1174,29 +1167,27 @@ class ChartOption {
                     const cY = this.config.l[ser.yAxisIndex] ? this.config.l[ser.yAxisIndex].commonYAxis : undefined;
                     if (cY !== undefined) {
                         _yAxis = option.yAxis[cY];
-                    } else {
-                        if (this.config.l[i].chartType === 'bar') {
-                            _yAxis = { min: ser.data[0], max: ser.data[0] };
-                            for (let s = 1; s < ser.data.length; s++) {
-                                if (ser.data[s] === null) {
-                                    continue;
-                                }
-                                if (ser.data[s] < _yAxis.min || _yAxis.min === null) {
-                                    _yAxis.min = ser.data[s];
-                                }
-                                if (ser.data[s] > _yAxis.max || _yAxis.max === null) {
-                                    _yAxis.max = ser.data[s];
-                                }
+                    } else if (this.config.l[i].chartType === 'bar') {
+                        _yAxis = { min: ser.data[0], max: ser.data[0] };
+                        for (let s = 1; s < ser.data.length; s++) {
+                            if (ser.data[s] === null) {
+                                continue;
                             }
-                        } else {
-                            console.log(`Cannot find Y axis for line ${i}`);
-                            return;
+                            if (ser.data[s] < _yAxis.min || _yAxis.min === null) {
+                                _yAxis.min = ser.data[s];
+                            }
+                            if (ser.data[s] > _yAxis.max || _yAxis.max === null) {
+                                _yAxis.max = ser.data[s];
+                            }
                         }
+                    } else {
+                        console.log(`Cannot find Y axis for line ${i}`);
+                        return;
                     }
                 }
 
-                let minTick = this.yFormatter(_yAxis.min, i, true);
-                let maxTick = this.yFormatter(!_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max, i, true);
+                const minTick = this.yFormatter(_yAxis.min, i, true);
+                const maxTick = this.yFormatter(!_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max, i, true);
 
                 if (xAxis[0].position === 'top') {
                     padTop = this.isXLabelHasBreak() ? 40 : 24;
@@ -1209,8 +1200,8 @@ class ChartOption {
                 if (position === 'off' || (_yAxis.axisLabel && _yAxis.axisLabel.color === 'rgba(0,0,0,0)')) {
                     return;
                 }
-                let wMin = this.calcTextWidth(minTick, this.config.y_labels_size) + 4;
-                let wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
+                const wMin = this.calcTextWidth(minTick, this.config.y_labels_size) + 4;
+                const wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
                 if (position !== 'right' && position !== 'rightColor') {
                     if (wMin > padLeft) {
                         padLeft = wMin;

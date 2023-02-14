@@ -5,9 +5,7 @@ import { withStyles } from '@mui/styles';
 import LinearProgress from '@mui/material/LinearProgress';
 import Fab from '@mui/material/Fab';
 
-import { FaRedoAlt as IconReset }  from 'react-icons/fa'
-import { FaDownload as IconExport }  from 'react-icons/fa'
-import { FaCopy as IconCopy }  from 'react-icons/fa'
+import { FaRedoAlt as IconReset, FaDownload as IconExport, FaCopy as IconCopy }  from 'react-icons/fa';
 
 import moment from 'moment';
 import 'moment/locale/en-gb';
@@ -21,12 +19,11 @@ import 'moment/locale/ru';
 import 'moment/locale/zh-cn';
 import 'moment/locale/de';
 
-import { I18n, Utils } from '@iobroker/adapter-react-v5';
+import { I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
 import ReactEchartsCore from 'echarts-for-react/lib/core';
-import { withWidth } from '@iobroker/adapter-react-v5';
 
 import * as echarts from 'echarts/core';
-import { LineChart, ScatterChart} from 'echarts/charts';
+import { LineChart, ScatterChart } from 'echarts/charts';
 import {
     GridComponent,
     ToolboxComponent,
@@ -84,7 +81,7 @@ echarts.use([
     CanvasRenderer,
 ]);
 
-const styles = theme => ({
+const styles = () => ({
     chart: {
         maxHeight: '100%',
         maxWidth: '100%',
@@ -101,8 +98,8 @@ const styles = theme => ({
         height: 20,
         zIndex: 2,
         opacity: 0.7,
-        cursor: 'pointer'
-        //background: '#00000000',
+        cursor: 'pointer',
+        // background: '#00000000',
     },
     copyButton: {
         position: 'absolute',
@@ -112,16 +109,16 @@ const styles = theme => ({
         height: 20,
         zIndex: 2,
         opacity: 0.7,
-        cursor: 'pointer'
-        //background: '#00000000',
+        cursor: 'pointer',
+        // background: '#00000000',
     },
     resetButton: {
         position: 'absolute',
         top: 10,
         right: 25,
         zIndex: 2,
-        opacity: 0.7
-        //background: '#00000000',
+        opacity: 0.7,
+        // background: '#00000000',
     },
     resetButtonIcon: {
         paddingTop: 6,
@@ -142,17 +139,17 @@ if (!String.prototype.padStart) {
     // Copyright (c) 2019 Behnam Mohammadi MIT https://github.com/behnammodi/polyfill/blob/master/string.polyfill.js#L273
     // eslint-disable-next-line
     String.prototype.padStart = function padStart(targetLength, padString) {
-        targetLength = targetLength >> 0; // floor if number or convert non-number to 0;
+        // eslint-disable-next-line no-bitwise
+        targetLength >>= 0; // floor if number or convert non-number to 0;
         padString = String(typeof padString !== 'undefined' ? padString : ' ');
         if (this.length > targetLength) {
             return String(this);
-        } else {
-            targetLength = targetLength - this.length;
-            if (targetLength > padString.length) {
-                padString += padString.repeat(targetLength / padString.length); // append to original to ensure we are longer than needed
-            }
-            return padString.slice(0, targetLength) + String(this);
         }
+        targetLength -= this.length;
+        if (targetLength > padString.length) {
+            padString += padString.repeat(targetLength / padString.length); // append to original to ensure we are longer than needed
+        }
+        return padString.slice(0, targetLength) + String(this);
     };
 }
 
@@ -163,12 +160,6 @@ class ChartView extends React.Component {
         this.state = {
             chartHeight: null,
             chartWidth: null,
-            paddings: {
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-            }
         };
 
         this.echartsReact = React.createRef();
@@ -188,7 +179,7 @@ class ChartView extends React.Component {
     }
 
     componentDidMount() {
-        window.addEventListener('resize', this.onResize)
+        window.addEventListener('resize', this.onResize);
     }
 
     componentWillUnmount() {
@@ -223,8 +214,6 @@ class ChartView extends React.Component {
         if (props.data !== this.state.data) {
             this.updatePropertiesTimeout && clearTimeout(this.updatePropertiesTimeout);
             this.updatePropertiesTimeout = setTimeout(this.updateProperties, 100, props);
-        } else {
-            return null;
         }
     }
 
@@ -237,7 +226,7 @@ class ChartView extends React.Component {
         });
     };
 
-    /*onChange = (id, state) => {
+    /* onChange = (id, state) => {
         if (id === this.props.obj._id &&
             state &&
             this.rangeValues &&
@@ -251,9 +240,9 @@ class ChartView extends React.Component {
                 this.updateChart();
             }
         }
-    };*/
+    }; */
 
-    /*updateChart(start, end, withReadData, cb) {
+    /* updateChart(start, end, withReadData, cb) {
         if (start) {
             this.start = start;
         }
@@ -298,7 +287,7 @@ class ChartView extends React.Component {
                 cb && cb();
             }
         }, 400);
-    }*/
+    } */
 
     setNewRange(updateChart) {
         const chart = this.chartOption.getHelperChartData();
@@ -346,7 +335,7 @@ class ChartView extends React.Component {
     onMouseMove = e => {
         if (this.mouseDown) {
             if (this.divResetButton.current && this.divResetButton.current.style.display !== 'block') {
-                 this.divResetButton.current.style.display = 'block';
+                this.divResetButton.current.style.display = 'block';
             }
 
             const chart = this.chartOption.getHelperChartData();
@@ -361,7 +350,7 @@ class ChartView extends React.Component {
                 let diff;
                 chart._yAxis.forEach(axis => {
                     diff = axis.max - axis.min;
-                    shift = moved * diff / height;
+                    shift = (moved * diff) / height;
                     axis.min -= shift;
                     axis.max -= shift;
                 });
@@ -374,7 +363,7 @@ class ChartView extends React.Component {
                 const diff = chart.xMax - chart.xMin;
                 const width = this.state.chartWidth - chart.padRight - chart.padLeft;
 
-                const shift = Math.round(moved * diff / width);
+                const shift = Math.round((moved * diff) / width);
                 chart.xMin += shift;
                 chart.xMax += shift;
                 this.setNewRange();
@@ -428,7 +417,7 @@ class ChartView extends React.Component {
             chart.yAxis.forEach(axis => {
                 let diff = axis.max - axis.min;
                 const oldDiff = diff;
-                diff = diff * amount;
+                diff *= amount;
                 const move = oldDiff - diff;
 
                 axis.max += move * (1 - pos);
@@ -444,7 +433,7 @@ class ChartView extends React.Component {
 
             const oldDiff = diff;
             const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
-            diff = diff * amount;
+            diff *= amount;
             const move = oldDiff - diff;
             chart.xMax += move * (1 - pos);
             chart.xMin -= move * pos;
@@ -497,7 +486,7 @@ class ChartView extends React.Component {
             }
 
             if (touches.length > 1) {
-                console.log('touch move: ' + touches.length)
+                console.log(`touch move: ${touches.length}`);
                 // zoom
                 const fingerWidth = Math.round(Math.abs(touches[0].pageX - touches[1].pageX));
                 if (chart.lastWidth !== null && fingerWidth !== chart.lastWidth) {
@@ -512,10 +501,10 @@ class ChartView extends React.Component {
                     const pos = positionX / chartWidth;
 
                     const oldDiff = diff;
-                    diff = diff * amount;
+                    diff *= amount;
                     const move = oldDiff - diff;
 
-                    console.log(`Move: ${Math.round(move / 1000)} => ${Math.round(move * pos / 1000)} -- ${Math.round(move * (1 - pos) / 1000)}`);
+                    console.log(`Move: ${Math.round(move / 1000)} => ${Math.round((move * pos) / 1000)} -- ${Math.round((move * (1 - pos)) / 1000)}`);
 
                     chart.xMax += move * (1 - pos);
                     chart.xMin -= move * pos;
@@ -532,7 +521,7 @@ class ChartView extends React.Component {
                 const diff  = chart.xMax - chart.xMin;
                 const chartWidth = this.state.chartWidth - chart.padRight - chart.padLeft;
 
-                const shift = Math.round(moved * diff / chartWidth);
+                const shift = Math.round((moved * diff) / chartWidth);
                 chart.xMin += shift;
                 chart.xMax += shift;
 
@@ -613,21 +602,19 @@ class ChartView extends React.Component {
                 style={{ height: `${this.state.chartHeight}px`, width: '100%' }}
                 opts={this.option && this.option.useCanvas ? undefined : { renderer: 'svg' }}
                 onEvents={{
-                    /*datazoom: e => {
+                    /* datazoom: e => {
                         const {startValue, endValue} = e.batch[0];
                         this.updateChart(startValue, endValue, true);
-                    },*/
+                    }, */
                     legendselectchanged: e => {
                         this.selected = JSON.parse(JSON.stringify(e.selected));
                     },
-                    rendered: e => {
-                        !this.props.compact && this.props.config.zoom && !hasAnyBars && this.installEventHandlers();
-                    }
+                    rendered: () =>
+                        !this.props.compact && this.props.config.zoom && !hasAnyBars && this.installEventHandlers(),
                 }}
             />;
-        } else {
-            return <LinearProgress />;
         }
+        return <LinearProgress />;
     }
 
     componentDidUpdate() {
@@ -637,7 +624,7 @@ class ChartView extends React.Component {
             const chartHeight = this.divRef.current.offsetHeight - (borderWidth + borderPadding) * 2;
             if (this.state.chartHeight !== chartHeight) {
                 const chartWidth  = this.divRef.current.offsetWidth - (borderWidth + borderPadding) * 2;
-                setTimeout(() => this.setState({chartHeight, chartWidth}), 10);
+                setTimeout(() => this.setState({ chartHeight, chartWidth }), 10);
             }
         }
     }
@@ -722,20 +709,21 @@ class ChartView extends React.Component {
                     }
                 }}
             />;
-        } else {
-            return null;
         }
+        return null;
     }
 
     renderDevCopyButton() {
         if (window.location.port === '3000') {
             return <IconCopy
-                color={'default'}
+                color="default"
                 className={this.props.classes.copyButton}
                 title="Copy option to clipboard"
                 onClick={() => Utils.copyToClipboard(JSON.stringify(this.option, null, 2))}
             />;
         }
+
+        return null;
     }
 
     render() {
@@ -747,8 +735,8 @@ class ChartView extends React.Component {
         const borderPadding = parseFloat(this.props.config.border_padding) || 0;
 
         return <div
-            ref={ this.divRef }
-            className={ this.props.classes.chart }
+            ref={this.divRef}
+            className={this.props.classes.chart}
             style={{
                 borderWidth,
                 width:          borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : undefined,
@@ -757,7 +745,8 @@ class ChartView extends React.Component {
                 borderColor:    this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
                 borderStyle:    this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',
                 padding:        borderPadding || 0,
-            }}>
+            }}
+        >
             { this.renderExportButton() }
             { this.renderResetButton() }
             { this.renderDevCopyButton() }
@@ -767,13 +756,10 @@ class ChartView extends React.Component {
 }
 
 ChartView.propTypes = {
-    t: PropTypes.func,
-    lang: PropTypes.string,
     config: PropTypes.object,
     themeType: PropTypes.string,
     data: PropTypes.array,
     actualValues: PropTypes.array,
-    noAnimation: PropTypes.bool,
     onRangeChange: PropTypes.func,
     compact: PropTypes.bool,
     categories: PropTypes.array, // for bar and pie charts

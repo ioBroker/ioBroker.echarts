@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles, withTheme } from '@mui/styles';
 
@@ -14,15 +14,16 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 
 // icons
-import { MdAdd as IconAdd } from 'react-icons/md';
-import { MdCreateNewFolder as IconFolderAdd } from 'react-icons/md';
+import {
+    MdAdd as IconAdd,
+    MdCreateNewFolder as IconFolderAdd,
+    MdFullscreen as IconNewWindow,
+    MdSwapVert as IconReorder,
+} from 'react-icons/md';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Close';
-import { MdFullscreen as IconNewWindow } from 'react-icons/md';
-import { MdSwapVert as IconReorder } from 'react-icons/md';
 
-import I18n from '@iobroker/adapter-react-v5/i18n';
-import { withWidth } from '@iobroker/adapter-react-v5';
+import { I18n, withWidth } from '@iobroker/adapter-react-v5';
 
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from './Components/ChartsTree';
@@ -46,8 +47,8 @@ const styles = theme => ({
         marginTop: '8px !important',
     },
     heightMinusToolbar: {
-        height: 'calc(100% - ' + (TOOLBAR_HEIGHT * 2) + 'px)',
-        overflow: 'auto'
+        height: `calc(100% - ${TOOLBAR_HEIGHT * 2}px)`,
+        overflow: 'auto',
     },
 });
 
@@ -87,12 +88,16 @@ class MenuList extends Component {
             {!this.state.reorder ? <IconButton
                 onClick={() => this.props.onCreatePreset(false)}
                 title={I18n.t('Create new preset')}
-            ><IconAdd /></IconButton> : null}
+            >
+                <IconAdd />
+            </IconButton> : null}
 
             {!this.state.reorder ? <IconButton
                 onClick={() => this.setState({ addPresetFolderDialog: true })}
                 title={I18n.t('Create new folder')}
-            ><IconFolderAdd /></IconButton> : null}
+            >
+                <IconFolderAdd />
+            </IconButton> : null}
 
             {!this.state.reorder ? <span className={this.props.classes.right}>
                 <IconButton onClick={() => this.setState({ showSearch: !this.state.showSearch, search: '' })}>
@@ -109,13 +114,13 @@ class MenuList extends Component {
                     InputProps={{
                         endAdornment: this.state.search ?
                             <IconButton
-                                onClick={() => this.setState({ search: '' })}>
+                                onClick={() => this.setState({ search: '' })}
+                            >
                                 <ClearIcon />
                             </IconButton>
                             : undefined,
                     }}
-                /> : null
-            }
+                /> : null}
             <div style={{ flexGrow: 1 }} />
 
             {(!this.state.showSearch && this.state.showReorder) || this.state.reorder ? <IconButton
@@ -127,18 +132,21 @@ class MenuList extends Component {
                     e.stopPropagation();
                     this.setState({ reorder: !this.state.reorder });
                 }}
-            ><IconReorder /></IconButton> : null}
+            >
+                <IconReorder />
+            </IconButton> : null}
 
             {!this.state.showSearch && this.isIFrame ? <IconButton
-                onClick={ () => window.open(window.location.href, 'own-echarts') }
-                title={ I18n.t('Open in own window') }
-                ><IconNewWindow /></IconButton> : null
-            }
+                onClick={() => window.open(window.location.href, 'own-echarts')}
+                title={I18n.t('Open in own window')}
+            >
+                <IconNewWindow />
+            </IconButton> : null}
         </Toolbar>;
     }
 
     renderFooter() {
-        return <Toolbar key="toolbarBottom" variant="dense" className={ this.props.classes.secondaryColors }>
+        return <Toolbar key="toolbarBottom" variant="dense" className={this.props.classes.secondaryColors}>
             <FormGroup row>
                 {!this.props.selectedPresetChanged ? <FormControlLabel
                     classes={{ root: this.props.secondaryColors }}
@@ -146,18 +154,19 @@ class MenuList extends Component {
                         checked={this.state.multiple}
                         classes={{ root: this.props.secondaryColors }}
                         onChange={e => {
-                        window.localStorage.setItem('App.echarts.multiple', e.target.checked ? 'true' : 'false');
-                        if (e.target.checked) {
-                            const selectedId = this.props.selectedId;
-                            if (selectedId && typeof selectedId === 'object') {
-                                this.setState({ multiple: true}, () => this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]));
+                            window.localStorage.setItem('App.echarts.multiple', e.target.checked ? 'true' : 'false');
+                            if (e.target.checked) {
+                                const selectedId = this.props.selectedId;
+                                if (selectedId && typeof selectedId === 'object') {
+                                    this.setState({ multiple: true }, () => this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]));
+                                } else {
+                                    this.setState({ multiple: true }, () => this.props.onChangeList([]));
+                                }
                             } else {
-                                this.setState({ multiple: true }, () => this.props.onChangeList([]));
+                                this.setState({ multiple: false }, () => this.props.onChangeList(null));
                             }
-                        } else {
-                            this.setState({ multiple: false }, () => this.props.onChangeList(null));
-                        }
-                    }} />}
+                        }}
+                    />}
                     label={I18n.t('Multiple')}
                 /> : null}
                 <FormControl variant="standard">
@@ -185,7 +194,7 @@ class MenuList extends Component {
     render() {
         return <div className={this.props.classes.mainListDiv} key="mainMenuDiv">
             {this.renderListToolbar()}
-            <div className={ this.props.classes.heightMinusToolbar }>
+            <div className={this.props.classes.heightMinusToolbar}>
                 <PresetsTree
                     socket={this.props.socket}
                     scrollToSelect={this.props.scrollToSelect}
@@ -235,7 +244,6 @@ class MenuList extends Component {
 }
 
 MenuList.propTypes = {
-    onChange: PropTypes.func,
     socket: PropTypes.object,
     instances: PropTypes.array,
     adapterName: PropTypes.string.isRequired,
@@ -250,7 +258,7 @@ MenuList.propTypes = {
     scrollToSelect: PropTypes.bool,
     selectedId: PropTypes.oneOfType([
         PropTypes.object,
-        PropTypes.string
+        PropTypes.string,
     ]),
     selectedPresetChanged: PropTypes.bool,
 };
