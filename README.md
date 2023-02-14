@@ -99,6 +99,7 @@ You can debug view charts locally with:
 ### **WORK IN PROGRESS**
 * (bluefox) Corrected some issues from GitHub
 * (bluefox) Implemented negative offset of X-Axis
+* (bluefox) Show device names for charts
 
 ### 1.4.0 (2023-02-13)
 * (bluefox) Added possibility to load the history data from JSON state.

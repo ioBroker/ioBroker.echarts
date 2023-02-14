@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Switch from '@mui/material/Switch';
@@ -84,6 +85,29 @@ const styles = theme => ({
         textOverflow: 'ellipsis',
         width: 'calc(100% - 26px)',
         display: 'inline-block',
+    },
+    itemName0: {
+
+    },
+    itemName1: {
+        fontSize: 14,
+        opacity: 0.6,
+    },
+    itemName2: {
+        fontSize: 12,
+        opacity: 0.6,
+    },
+    itemName3: {
+        fontSize: 10,
+        opacity: 0.6,
+    },
+    itemName4: {
+        fontSize: 8,
+        opacity: 0.6,
+    },
+    itemName5: {
+        fontSize: 6,
+        opacity: 0.6,
     },
     groupName: {
         verticalAlign: 'top',
@@ -183,11 +207,11 @@ class ChartsTree extends Component {
             .catch(e => this.onError(e, 'Cannot read enums'));
     }
 
-    getAdapterIcon(groupId, id) {
+    async getAdapterIcon(id) {
         const p = id.split('.');
 
         if (p.length < 2 || (p[0] === '0_userdata')) {
-            return Promise.resolve();
+            return null;
         }
         let instanceId;
         if (p[0] === 'system') {
@@ -200,14 +224,15 @@ class ChartsTree extends Component {
 
         this.adapterPromises[instanceId] = this.adapterPromises[instanceId] || this.props.socket.getObject(instanceId);
 
-        return this.adapterPromises[instanceId]
-            .then(obj => {
-                if (obj && obj.common && obj.common.icon) {
-                    return Promise.resolve({ groupId, id, img: Utils.getObjectIcon(obj) });
-                }
-                return Promise.resolve();
-            })
-            .catch(e => this.onError(e, `Cannot read object ${instanceId}`));
+        try {
+            const obj = await this.adapterPromises[instanceId];
+            if (obj && obj.common && obj.common.icon) {
+                return Utils.getObjectIcon(obj);
+            }
+        } catch (e) {
+            this.onError(e, `Cannot read object ${instanceId}`);
+        }
+        return null;
     }
 
     onError(e, comment) {
@@ -215,65 +240,67 @@ class ChartsTree extends Component {
         this.props.onShowError(e);
     }
 
-    getChartIcon(groupId, obj) {
+    async getChartIconAndName(groupId, obj) {
+        let icon;
+        const name = [];
         if (!obj) {
-            return Promise.resolve();
-        } if (obj.common && obj.common.icon) {
-            return Promise.resolve({ groupId, id: obj._id, img: Utils.getObjectIcon(obj) });
+            return null;
+        }
+        const language = I18n.getLanguage();
+        const id = obj._id;
+
+        if (obj.common) {
+            if (obj.common.icon) {
+                icon = Utils.getObjectIcon(obj);
+            }
+            name.push(Utils.getObjectNameFromObj(obj, null, { language }));
         }
         // try to read parent
-        const id = obj._id;
         const channelID = Utils.getParentId(obj._id);
-        if (channelID && channelID.split('.').length > 2) {
-            return this.props.socket.getObject(channelID)
-                .then(_obj => {
-                    if (_obj && (_obj.type === 'channel' || _obj.type === 'device') && _obj.common && _obj.common.icon) {
-                        return Promise.resolve({ groupId, id, img: Utils.getObjectIcon(_obj) });
+        if (channelID?.split('.').length > 2) {
+            try {
+                const channelObj = await this.props.socket.getObject(channelID);
+                if (channelObj && (channelObj.type === 'channel' || channelObj.type === 'device') && channelObj.common) {
+                    if (!icon && channelObj.common.icon) {
+                        icon = Utils.getObjectIcon(channelObj);
                     }
+                    name.push(Utils.getObjectNameFromObj(channelObj, null, { language }));
                     const deviceID = Utils.getParentId(channelID);
-                    if (deviceID && deviceID.split('.').length > 2) {
-                        return this.props.socket.getObject(deviceID)
-                            .then(__obj => {
-                                if (__obj && (__obj.type === 'channel' || __obj.type === 'device') && __obj.common && __obj.common.icon) {
-                                    return Promise.resolve({
-                                        groupId,
-                                        id,
-                                        img: Utils.getObjectIcon(__obj),
-                                    });
+                    if (deviceID?.split('.').length > 2) {
+                        const deviceObj = await this.props.socket.getObject(deviceID);
+                        if (deviceObj && (deviceObj.type === 'channel' || deviceObj.type === 'device') && deviceObj.common) {
+                            if (!icon && deviceObj.common.icon) {
+                                icon = Utils.getObjectIcon(deviceObj);
+                            }
+                            name.push(Utils.getObjectNameFromObj(deviceObj, null, { language }));
+
+                            const adapterID = Utils.getParentId(deviceID);
+                            if (adapterID?.split('.').length > 2) {
+                                const adapterObj = await this.props.socket.getObject(adapterID);
+                                if (adapterObj && (adapterObj.type === 'channel' || adapterObj.type === 'device') && adapterObj.common) {
+                                    if (!icon && adapterObj.common.icon) {
+                                        icon = Utils.getObjectIcon(adapterObj);
+                                    }
+                                    name.push(Utils.getObjectNameFromObj(adapterObj, null, { language }));
                                 }
-                                const adapterID = Utils.getParentId(deviceID);
-                                if (adapterID && adapterID.split('.').length > 2) {
-                                    return this.props.socket.getObject(adapterID)
-                                        .then(___obj => {
-                                            if (___obj && (___obj.type === 'channel' || ___obj.type === 'device') && ___obj.common && ___obj.common.icon) {
-                                                return Promise.resolve({
-                                                    groupId,
-                                                    id,
-                                                    img: Utils.getObjectIcon(___obj),
-                                                });
-                                            }
-                                            // get Adapter Icon
-                                            if (___obj && (___obj.type === 'channel' || ___obj.type === 'device') && ___obj.common && ___obj.common.icon) {
-                                                return Promise.resolve({
-                                                    groupId,
-                                                    id,
-                                                    img: Utils.getObjectIcon(___obj),
-                                                });
-                                            }
-                                            return this.getAdapterIcon(groupId, id);
-                                        })
-                                        .catch(e => this.onError(e, `Cannot read object ${adapterID}`));
-                                }
-                                return this.getAdapterIcon(groupId, id);
-                            })
-                            .catch(e => this.onError(e, `Cannot read object ${deviceID}`));
+                            }
+                        }
                     }
-                    return this.getAdapterIcon(groupId, id);
-                })
-                .catch(e => this.onError(e, `Cannot read object ${channelID}`));
+                }
+            } catch (e) {
+                console.error(`Cannot read object: ${e}`);
+            }
         }
 
-        return this.getAdapterIcon(groupId, id);
+        // name.reverse();
+
+        icon = icon || (await this.getAdapterIcon(id));
+        return {
+            groupId,
+            id,
+            img: icon,
+            name: name.filter(a => a),
+        };
     }
 
     async getAllCharts(newState) {
@@ -318,7 +345,7 @@ class ChartsTree extends Component {
                     _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
                     _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
                     _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
-                    iconPromises.push(this.getChartIcon(id, obj));
+                    iconPromises.push(this.getChartIconAndName(id, obj));
                 }
             });
 
@@ -394,14 +421,20 @@ class ChartsTree extends Component {
                     const instances = JSON.parse(JSON.stringify(this.state.instances));
                     let changed = false;
                     result.forEach(res => {
-                        if (res && res.groupId) {
+                        if (res?.groupId) {
                             const inst = instances.find(ins => ins._id === `system.adapter.${res.groupId}`);
                             if (inst) {
-                                inst.icons[res.id] = res.img;
+                                if (res.img) {
+                                    inst.icons[res.id] = res.img;
+                                }
+                                if (res.name) {
+                                    inst.names[res.id] = res.name;
+                                }
                                 changed = true;
                             }
                         }
                     });
+
                     changed && this.setState({ instances });
                 });
         }, 100);
@@ -501,11 +534,10 @@ class ChartsTree extends Component {
             this.props.selectedId.id === id &&
             this.props.selectedId.instance === instance;
 
-        return <ListItem
+        return <ListItemButton
             key={`${instance}_${id}`}
             ref={selected ? this.refSelected : null}
             classes={{ gutters: this.props.classes.noGutters }}
-            button
             style={{ paddingLeft: LEVEL_PADDING * level }}
             selected={selected}
             onClick={dragging ? undefined : () => this.props.onSelectedChanged({ id, instance })}
@@ -522,17 +554,21 @@ class ChartsTree extends Component {
                     secondary: this.props.classes.listItemSubTitle,
                 }}
                 primary={
-                    <div className={this.props.classes.itemNameDiv}>
+                    <span className={this.props.classes.itemNameDiv}>
                         {Utils.getIcon({ icon: group.icons[id], prefix: '../../' }, {
                             width: 20,
                             height: 20,
                             borderRadius: 2,
                             marginRight: 4,
                         })}
-                        <div className={this.props.classes.itemName}>{group.names[id]}</div>
-                    </div>
+                        {Array.isArray(group.names[id]) ?
+                            <span className={this.props.classes.itemName} title={group.names[id].join(' / ')}>
+                                {group.names[id].map((name, i) => <span className={this.props.classes[`itemName${i}`]}>{(i ? ' / ' : '') + name}</span>)}
+                            </span> :
+                            <span className={this.props.classes.itemName} title={group.names[id]}>{group.names[id]}</span>}
+                    </span>
                 }
-                secondary={<div className={this.props.classes.itemSecondaryName}>{id.replace('system.adapter.', '')}</div>}
+                secondary={<span className={this.props.classes.itemSecondaryName} title={id}>{id.replace('system.adapter.', '')}</span>}
             />
             {!dragging && this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
                 <Switch
@@ -572,7 +608,7 @@ class ChartsTree extends Component {
                 />
                 {' '}
             </ListItemSecondaryAction> : null}
-        </ListItem>;
+        </ListItemButton>;
     }
 
     renderListItems(group, ids, enumId, renderContext) {
