@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "news": {
+      "1.4.1": {
+        "en": "Corrected some issues from GitHub\nImplemented negative offset of X-Axis\nShow device names for charts",
+        "de": "Einige Probleme von GitHub behoben\nErgänzter negativer Offset von X-Axis\nGerätenamen für Diagramme anzeigen",
+        "ru": "Исправлены некоторые вопросы от GitHub\nРеализована отрицательная компенсация X-Axis\nПоказать названия устройств для графиков",
+        "pt": "Corrigido alguns problemas de GitHub\nImplantação negativa de X-Axis\nMostrar nomes de dispositivos para gráficos",
+        "nl": "Vertaling:\nX-Axis\nToon apparaatnamen voor kaarten",
+        "fr": "Correction de quelques problèmes de GitHub\nDécalage négatif appliqué de X-Axis\nAfficher les noms de périphériques pour les graphiques",
+        "it": "Corretto alcuni problemi da GitHub\nOffset negativo implementato di X-Axis\nMostra i nomi dei dispositivi per i grafici",
+        "es": "Corregido algunos problemas de GitHub\nOffset negativo aplicado del eje X\nMostrar nombres de dispositivos para gráficos",
+        "pl": "Wykłaniać niektóre problemy z GitHub\nImplementacja negatywna w stosunku do X-Axis\nNazwy urządzenie do map",
+        "uk": "Виправлено деякі питання від GitHub\nРеалізовано негативний зсув X-Axis\nПоказати назви пристроїв для діаграм",
+        "zh-cn": "GitHubub的一些问题\nA. 执行十-Axis的负面影响\n图像装置名称"
+      },
       "1.4.0": {
         "en": "Added possibility to load the history data from JSON state.",
         "de": "Zusätzliche Möglichkeit, die Geschichtsdaten aus dem JSON-Zustand zu laden.",
@@ -80,18 +93,6 @@
         "pl": "Wszystkie przyciski mniejsze",
         "uk": "Зробіть всі кнопки меншими",
         "zh-cn": "减少所有但各工作地点"
-      },
-      "1.1.1": {
-        "en": "Added preparations for vis2.0",
-        "de": "Präparate für Vis2.0 hinzugefügt",
-        "ru": "Добавлены препараты для vis2.0",
-        "pt": "Preparações adicionadas para vis2.0",
-        "nl": "Vervoegde voorbereidingen voor vis2.0",
-        "fr": "Préparations supplémentaires pour vis2.0",
-        "it": "Aggiunto preparazioni per vis2.0",
-        "es": "Preparativos adicionales para vis2.0",
-        "pl": "Zalecenia dla wizji 2.0",
-        "zh-cn": "增加2.0筹备工作"
       }
     },
     "title": "E-Charts",
