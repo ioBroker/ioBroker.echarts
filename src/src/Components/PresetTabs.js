@@ -783,7 +783,6 @@ class PresetTabs extends React.Component {
                             '': 'horizontal',
                             vertical: 'vertical'
                         }} />
-                        {this.renderColorField(this.props.presetData, this.updateField, 'Legend background', 'legBg')}
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legFontSize" label="Font size" min={6} type="number" />
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legendHeight" label="Height" min={6} type="number" />
                     </> : null}
