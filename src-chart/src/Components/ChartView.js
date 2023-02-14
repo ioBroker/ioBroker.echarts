@@ -214,7 +214,7 @@ class ChartView extends React.Component {
             try {
                 chartInstance.setOption(this.option, changed);
             } catch (e) {
-                console.error('Cannot apply options: ' + JSON.stringify(this.option));
+                console.error(`Cannot apply options: ${JSON.stringify(this.option)}`);
             }
         }
     };
@@ -311,7 +311,7 @@ class ChartView extends React.Component {
         if (updateChart) {
             this.updateDataTimer && clearTimeout(this.updateDataTimer);
             this.updateDataTimer = null;
-            this.props.onRangeChange && this.props.onRangeChange({start: chart.xMin, end: chart.xMax});
+            this.props.onRangeChange && this.props.onRangeChange({ start: chart.xMin, end: chart.xMax });
         } else {
             console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
             this.option.xAxis[0].min = chart.xMin;
@@ -323,10 +323,10 @@ class ChartView extends React.Component {
                     xAxis: {
                         min: chart.xMin,
                         max: chart.xMax,
-                    }
+                    },
                 });
             } catch (e) {
-                console.error('Cannot apply options 1: ' + JSON.stringify(this.option));
+                console.error(`Cannot apply options 1: ${JSON.stringify(this.option)}`);
             }
         }
     }
@@ -339,7 +339,7 @@ class ChartView extends React.Component {
             this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function' &&
                 this.echartsReact.getEchartsInstance().setOption({ yAxis });
         } catch (e) {
-            console.error('Cannot apply options: ' + JSON.stringify(this.option));
+            console.error(`Cannot apply options 2: ${JSON.stringify(this.option)}`);
         }
     }
 
@@ -597,7 +597,7 @@ class ChartView extends React.Component {
                 window.document.title = this.props.config.presetId;
             }
 
-            console.log(JSON.stringify(this.option, null, 2));
+            // console.log(JSON.stringify(this.option, null, 2));
 
             this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
 

@@ -82,14 +82,12 @@ let IOSelect = function (props) {
                             value={key}
                             style={{ color: props.colors ? props.colors[key] || undefined : undefined }}
                         >
-                        {
-                            props.icons && props.icons[key] ? <span className={props.classes.selectIcon}>{props.icons[key]}</span> : null
-                        }
-                        {
-                            props.noTranslate ? props.options[key] : (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined? I18n.t(props.options[key]) : '')
-                        }
-                        </MenuItem>)
-                     : null
+                            {props.icons && props.icons[key] ? <span className={props.classes.selectIcon}>{props.icons[key]}</span> : null}
+                            {props.noTranslate ?
+                                props.options[key] :
+                                (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined ?
+                                    I18n.t(props.options[key].startsWith('-') ? `-${props.options[key].substring(1)}` : props.options[key]) : '')}
+                        </MenuItem>) : null
             }
             </Select>
         </FormControl>

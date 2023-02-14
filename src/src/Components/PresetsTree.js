@@ -864,17 +864,19 @@ class MenuList extends Component {
                         value={this.state.renamePresetDialogTitle}
                         onKeyDown={e => {
                             if (e.keyCode === 13 && this.state.renamePresetDialogTitle && this.isNameUnique(presetId, this.state.renamePresetDialogTitle)) {
+                                e.stopPropagation();
                                 this.setState({ renameDialog: null }, () =>
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle));
                             }
                         }}
                         onChange={ e => this.setState({ renamePresetDialogTitle: e.target.value })}
-                        onKeyPress={e => {
-                            if (this.isNameUnique(presetId, this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle && e.which === 13) {
+                        /*onKeyPress={e => {
+                            if (e.which === 13 && this.isNameUnique(presetId, this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle) {
+                                e.stopPropagation();
                                 this.setState({ renameDialog: null }, () =>
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle));
                             }
-                        }}
+                        }}*/
                     />
                 </FormControl>
             </DialogContent>

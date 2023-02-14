@@ -268,7 +268,7 @@ class ChartModel {
         this.socket.getSystemConfig()
             .catch(e => {
                 e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                console.error('Cannot read systemConfig: ' + e);
+                console.error(`Cannot read systemConfig: ${e}`);
                 return null;
             })
             .then(systemConfig => {
@@ -377,7 +377,7 @@ class ChartModel {
                 })
                 .catch(e => {
                     e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                    console.error(`Cannot read ${this.preset}: ${e}`);
+                    console.error(`Cannot read "${this.preset}": ${e}`);
                 });
 
         } else {
@@ -543,7 +543,7 @@ class ChartModel {
                     _now = this.addTime(this.now, this.config.l[0].offset);
                     const minusMonth = new Date(_now);
                     minusMonth.setMonth(minusMonth.getMonth() - monthRange);
-                    this.config.range = Math.floor((_now - minusMonth.getTime()) / 60000) + '';
+                    this.config.range = Math.floor((_now - minusMonth.getTime()) / 60000).toString();
                     break;
                 }
             }
@@ -1047,7 +1047,7 @@ class ChartModel {
                         return this.socket.getState(id)
                             .then(state => this.actualValues[index] = state && (state.val || state.val === 0) ? state.val : null)
                             .catch(e => {
-                                console.warn(`Cannot read last value of ${id}: ${e}`);
+                                console.warn(`Cannot read last value of "${id}": ${e}`);
                                 this.actualValues[index] = null;
                             })
                             .then(() => {
@@ -1071,7 +1071,7 @@ class ChartModel {
             this.objectPromises[id] = this.socket.getObject(id)
                 .catch(e => {
                     e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                    console.error(`Cannot read ${id}: ${e}`);
+                    console.error(`Cannot read "${id}": ${e}`);
                     return null;
                 });
 
@@ -1120,6 +1120,11 @@ class ChartModel {
         } else {
             if (this.config.l[j] !== '' && this.config.l[j] !== undefined) {
                 this.seriesData.push([]);
+            }
+
+            if (!this.config.l[j].id) {
+                setTimeout(() => this._readData(cb, j + 1), 10);
+                return;
             }
 
             this._readOneLine(j, () =>
@@ -1316,11 +1321,11 @@ class ChartModel {
         time = new Date(time);
 
         if (typeof offset === 'string') {
-            if (offset[1] === 'm') {
+            if (offset[1] === 'm' || offset[2] === 'm') {
                 offset = parseInt(offset, 10);
                 time.setMonth(plusOrMinus ? time.getMonth() + offset : time.getMonth() - offset);
                 time = time.getTime();
-            } else if (offset[1] === 'y') {
+            } else if (offset[1] === 'y' || offset[2] === 'y') {
                 offset = parseInt(offset, 10);
                 time.setFullYear(plusOrMinus ? time.getFullYear() + offset : time.getFullYear() - offset);
                 time = time.getTime();
@@ -1332,7 +1337,6 @@ class ChartModel {
                     } else {
                         time -= (parseInt(offset, 10) || 0) * 60000;
                     }
-
                 } else {
                     if (plusOrMinus) {
                         time += (parseInt(offset, 10) || 0) * 1000;

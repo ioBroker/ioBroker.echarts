@@ -107,6 +107,15 @@ class App extends Component {
             this.isIFrame = true;
         }
 
+        // some people uses invalid URL to access charts
+        if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/chart/')) {
+            this.adminCorrectTimeout = setTimeout(() => {
+                this.adminCorrectTimeout = null;
+                // Address is wrong. Navigate to /echarts/index.html
+                window.location = window.location.href.replace('/adapter/echarts/chart/', '/echarts/');
+            }, 2000);
+        }
+
         this.socket = new Connection({
             name: window.adapterName,
             onProgress: progress => {
@@ -130,6 +139,8 @@ class App extends Component {
                 }
             },
             onReady: (objects, scripts) => {
+                this.adminCorrectTimeout && clearTimeout(this.adminCorrectTimeout);
+                this.adminCorrectTimeout = null;
                 I18n.setLanguage(this.socket.systemLang);
 
                 this.socket.getSystemConfig()
@@ -220,7 +231,7 @@ class App extends Component {
                     this.chartData.setConfig(config);
                 }
             } catch (e) {
-                return console.log('Cannot parse ' + message.data);
+                return console.log(`Cannot parse ${message.data}`);
             }
         }
     };
