@@ -4,5 +4,6 @@
   "root": "dossier racine",
   "Change size": "Changer la taille",
   "Refresh snapshots": "Actualiser les instantanés",
-  "back": "dos"
+  "back": "dos",
+  "URL copied to clipboard": "URL copiée dans le presse-papiers"
 }

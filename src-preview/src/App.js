@@ -13,6 +13,7 @@ import {
     IconButton,
     Stack,
     Slider,
+    Snackbar,
 } from '@mui/material';
 
 import {
@@ -27,6 +28,7 @@ import {
     ContentCopy,
     Refresh,
     ArrowCircleLeft,
+    Close as IconClose,
 } from '@mui/icons-material';
 
 import {
@@ -135,10 +137,11 @@ class App extends Component {
             themeName:  App.getThemeName(themeInstance),
             location,
             presetFolders: null,
-            icons: {},
-            iconSize: parseInt(window.localStorage.getItem('echarts.iconSize'), 10) || 128,
+            icons:      {},
+            iconSize:   parseInt(window.localStorage.getItem('echarts.iconSize'), 10) || 128,
             showSlider: false,
             alive:      true,
+            toast:      '',
         };
 
         // init translations
@@ -225,6 +228,32 @@ class App extends Component {
         this.snapShotQueue = [];
         this.timeout = {};
     }
+
+    componentDidMount() {
+        window.addEventListener('message', this.onReceiveMessage, false);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('message', this.onReceiveMessage, false);
+        this.toastTimeout && clearTimeout(this.toastTimeout);
+        this.toastTimeout = null;
+    }
+
+    onReceiveMessage = message => {
+        if (message?.data === 'updateTheme') {
+            const newThemeName = Utils.getThemeName();
+            Utils.setThemeName(Utils.getThemeName());
+
+            const _theme = App.createTheme(newThemeName);
+
+            this.setState({
+                theme: _theme,
+                themeName: App.getThemeName(_theme),
+                themeType: App.getThemeType(_theme),
+            }, () =>
+                this.props.onThemeChange && this.props.onThemeChange(newThemeName));
+        }
+    };
 
     onHashChanged = () => {
         const queryHash = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
@@ -532,11 +561,17 @@ class App extends Component {
                         <div className={this.props.classes.presetError}>{this.state.icons[preset._id].substring(6)}</div> : null}
                     <IconButton
                         size="small"
-                        title={I18n.t('Copy URL to clipboard')}
+                        title={`${I18n.t('Copy URL to clipboard')}:${url}`}
                         className={this.props.classes.copyButton}
                         onClick={e => {
+                            this.toastTimeout && clearTimeout(this.toastTimeout);
                             e.stopPropagation();
                             Utils.copyToClipboard(url);
+                            this.setState({ toast: I18n.t('URL copied to clipboard') });
+                            this.toastTimeout = setTimeout(() => {
+                                this.toastTimeout = null;
+                                this.setState({ toast: '' });
+                            }, 4000);
                         }}
                     >
                         <ContentCopy />
@@ -597,6 +632,40 @@ class App extends Component {
             </Stack>;
         }
         return null;
+    }
+
+    /**
+     * Renders the toast.
+     * @returns {JSX.Element | null} The JSX element.
+     */
+    renderToast() {
+        if (!this.state.toast) {
+            return null;
+        }
+
+        return <Snackbar
+            anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+            }}
+            open={!0}
+            autoHideDuration={6000}
+            onClose={() => this.setState({ toast: '' })}
+            ContentProps={{ 'aria-describedby': 'message-id' }}
+            message={<span id="message-id">{this.state.toast}</span>}
+            action={[
+                <IconButton
+                    key="close"
+                    aria-label="Close"
+                    color="inherit"
+                    className={this.props.classes.close}
+                    onClick={() => this.setState({ toast: '' })}
+                    size="large"
+                >
+                    <IconClose />
+                </IconButton>,
+            ]}
+        />;
     }
 
     render() {
@@ -671,6 +740,7 @@ class App extends Component {
                         {folder && this.renderFolder(folder)}
                     </div>
                     {this.renderError()}
+                    {this.renderToast()}
                 </ThemeProvider>
             </StyledEngineProvider>
         </StylesProvider>;

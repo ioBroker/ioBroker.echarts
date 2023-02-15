@@ -69,7 +69,7 @@ const THEMES = {
         '#73b9bc',
         '#7289ab',
         '#91ca8c',
-        '#f49f42'
+        '#f49f42',
     ],
     macarons: [
         '#2ec7c9',
@@ -277,6 +277,7 @@ const Gradient = function (colorStops) {
 
 Gradient.prototype = {
     constructor: Gradient,
+    // eslint-disable-next-line func-names, object-shorthand
     addColorStop: function (offset, color) {
         this.colorStops.push({ offset, color });
     },

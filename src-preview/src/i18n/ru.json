@@ -4,5 +4,6 @@
   "root": "Корневая папка",
   "Change size": "Изменить размер",
   "Refresh snapshots": "Обновить снимки",
-  "back": "назад"
+  "back": "назад",
+  "URL copied to clipboard": "URL скопирован в буфер обмена"
 }
