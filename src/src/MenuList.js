@@ -22,6 +22,7 @@ import {
 } from 'react-icons/md';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Close';
+import PreviewIcon from '@mui/icons-material/Preview';
 
 import { I18n, withWidth } from '@iobroker/adapter-react-v5';
 
@@ -187,6 +188,16 @@ class MenuList extends Component {
                         <MenuItem value="functions">{I18n.t('Functions')}</MenuItem>
                     </Select>
                 </FormControl>
+                <IconButton
+                    style={{ float: 'right' }}
+                    onClick={() => {
+                        const parts = window.location.pathname.split('/');
+                        parts.push('preview/index.html');
+                        window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
+                    }}
+                >
+                    <PreviewIcon />
+                </IconButton>
             </FormGroup>
         </Toolbar>;
     }

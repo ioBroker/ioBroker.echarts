@@ -126,13 +126,13 @@ function renderImage(options) {
 
         const chartData = new ChartModel(socketSimulator, options.preset, {serverSide: true});
         chartData.onError(err => adapter.log.error(err));
-        chartData.onUpdate(seriesData => {
+        chartData.onUpdate((seriesData, actualValues, categories) => {
             const systemConfig = chartData.getSystemConfig();
             moment.locale((systemConfig && systemConfig.common && systemConfig.common.language) || 'en');
             const theme = options.theme || options.themeType || 'light';
 
             const chartOption = new ChartOption(moment, theme, calcTextWidth);
-            const option = chartOption.getOption(seriesData, chartData.getConfig());
+            const option = chartOption.getOption(seriesData, chartData.getConfig(), null, categories);
             const {window} = new JSDOM();
 
             global.window    = window;

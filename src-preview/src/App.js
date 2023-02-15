@@ -1,0 +1,644 @@
+import React, { Component } from 'react';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import {
+    StylesProvider, createGenerateClassName, withStyles, withTheme,
+} from '@mui/styles';
+
+import {
+    CircularProgress,
+    Breadcrumbs,
+    Link,
+    Toolbar,
+    AppBar,
+    IconButton,
+    Stack,
+    Slider,
+} from '@mui/material';
+
+import {
+    FaFolder as IconFolderClosed,
+} from 'react-icons/fa';
+
+import {
+    ImageNotSupported,
+    KeyboardReturn,
+    Photo,
+    AddPhotoAlternate,
+    ContentCopy,
+    Refresh,
+    ArrowCircleLeft,
+} from '@mui/icons-material';
+
+import {
+    Loader,
+    I18n,
+    Utils,
+    withWidth,
+    Error as DialogError,
+    Theme as theme,
+    ToggleThemeMenu,
+} from '@iobroker/adapter-react-v5';
+import Connection, { PROGRESS } from '@iobroker/adapter-react-v5/Connection';
+
+import '@iobroker/adapter-react-v5/index.css';
+import logo from './assets/echarts.png';
+
+const generateClassName = createGenerateClassName({
+    productionPrefix: 'iob-app',
+});
+
+const styles = _theme => ({
+    root: {
+        width: '100%',
+        height: 'calc(100% - 48px)',
+        position: 'relative',
+        color: _theme.palette.mode === 'dark' ? '#fff' : '#000',
+        backgroundColor: _theme.palette.mode === 'dark' ? '#000' : '#fff',
+        overflowX: 'hidden',
+        overflowY: 'auto',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignContent: 'flex-start',
+    },
+    toolbarTitle: {},
+    button: {
+        width: 128,
+        borderRadius: 10,
+        border: '1px dashed #888',
+        padding: 10,
+        margin: 5,
+        textAlign: 'center',
+        cursor: 'pointer',
+        position: 'relative',
+    },
+    folderIcon: {
+        width: 'calc(100% - 28px)',
+        height: 'auto',
+        color: _theme.palette.primary.main,
+    },
+    active: {
+        color: _theme.palette.primary.main,
+    },
+    folderName: {
+        display: 'block',
+        fontSize: 16,
+        width: '100%',
+        textAlign: 'center',
+    },
+    presetIcon: {
+        width: 'calc(100% - 6px)',
+    },
+    presetName: {
+        display: 'block',
+        fontSize: 16,
+        width: '100%',
+        textAlign: 'center',
+    },
+    presetError: {
+        color: '#FF0000',
+        display: 'block',
+        fontSize: '0.8em',
+        fontStyle: 'italic',
+    },
+    break: {
+        flexBasis: '100%',
+        height: 0,
+    },
+    copyButton: {
+        position: 'absolute',
+        bottom: 3,
+        right: 3,
+    },
+});
+
+const iconsCache = {};
+
+class App extends Component {
+    constructor(props) {
+        super(props);
+
+        const themeInstance = App.createTheme();
+
+        const queryHash = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
+        const location = queryHash.split('/');
+        if (!location.length) {
+            location.push('');
+        }
+
+        this.state = {
+            connected:  false,
+            theme:      themeInstance,
+            themeType:  App.getThemeType(themeInstance),
+            location,
+            presetFolders: null,
+            icons: {},
+            iconSize: parseInt(window.localStorage.getItem('echarts.iconSize'), 10) || 128,
+            showSlider: false,
+        };
+
+        // init translations
+        const translations = {
+            en: require('@iobroker/adapter-react-v5/i18n/en'),
+            de: require('@iobroker/adapter-react-v5/i18n/de'),
+            ru: require('@iobroker/adapter-react-v5/i18n/ru'),
+            pt: require('@iobroker/adapter-react-v5/i18n/pt'),
+            nl: require('@iobroker/adapter-react-v5/i18n/nl'),
+            fr: require('@iobroker/adapter-react-v5/i18n/fr'),
+            it: require('@iobroker/adapter-react-v5/i18n/it'),
+            es: require('@iobroker/adapter-react-v5/i18n/es'),
+            pl: require('@iobroker/adapter-react-v5/i18n/pl'),
+            uk: require('@iobroker/adapter-react-v5/i18n/uk'),
+            'zh-cn': require('@iobroker/adapter-react-v5/i18n/zh-cn'),
+        };
+
+        const ownTranslations = {
+            en: require('./i18n/en'),
+            de: require('./i18n/de'),
+            ru: require('./i18n/ru'),
+            pt: require('./i18n/pt'),
+            nl: require('./i18n/nl'),
+            fr: require('./i18n/fr'),
+            it: require('./i18n/it'),
+            es: require('./i18n/es'),
+            pl: require('./i18n/pl'),
+            uk: require('./i18n/uk'),
+            'zh-cn': require('./i18n/zh-cn'),
+        };
+
+        // merge together
+        Object.keys(translations).forEach(lang => translations[lang] = Object.assign(translations[lang], ownTranslations[lang]));
+
+        I18n.setTranslations(translations);
+
+        if (window.socketUrl && window.socketUrl.startsWith(':')) {
+            window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
+        }
+
+        // some people uses invalid URL to access charts
+        if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/preview/')) {
+            this.adminCorrectTimeout = setTimeout(() => {
+                this.adminCorrectTimeout = null;
+                // Address is wrong. Navigate to /echarts/index.html
+                window.location = window.location.href.replace('/adapter/echarts/preview/', '/echarts/preview/');
+            }, 2000);
+        }
+
+        this.isWeb = Connection.isWeb();
+
+        this.socket = new Connection({
+            name: window.adapterName,
+            onProgress: progress => {
+                if (progress === PROGRESS.CONNECTING) {
+                    this.setState({ connected: false });
+                } else if (progress === PROGRESS.READY) {
+                    this.setState({ connected: true });
+                } else {
+                    this.setState({ connected: true });
+                }
+            },
+            onReady: () => {
+                this.adminCorrectTimeout && clearTimeout(this.adminCorrectTimeout);
+                this.adminCorrectTimeout = null;
+
+                I18n.setLanguage(this.socket.systemLang);
+
+                this.getAllPresets()
+                    .then(newState => this.setState(newState));
+            },
+            onError: err => {
+                console.error(err);
+                this.showError(err);
+            },
+        });
+
+        window.addEventListener('hashchange', this.onHashChanged);
+        this.snapShotQueue = [];
+        this.timeout = {};
+    }
+
+    onHashChanged = () => {
+        const queryHash = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
+        const location = queryHash.split('/');
+        if (!location.length) {
+            location.push('');
+        }
+        if (JSON.stringify(location) !== JSON.stringify(this.state.location)) {
+            // clear queue
+            this.snapShotQueue = [];
+            this.setState({ location });
+        }
+    };
+
+    /**
+     * Get a theme
+     * @param {string} name Theme name
+     * @returns {Theme}
+     */
+    static createTheme(name = '') {
+        return theme(Utils.getThemeName(name));
+    }
+
+    /**
+     * Get the theme type
+     * @param {Theme} theme_ Theme
+     * @returns {string} Theme type
+     */
+    static getThemeType(theme_) {
+        return theme_.palette.mode;
+    }
+
+    toggleTheme() {
+        const themeName = this.state.themeName;
+
+        // dark => blue => colored => light => dark
+        const newThemeName = themeName === 'dark' ? 'blue' :
+            (themeName === 'blue' ? 'colored' :
+                (themeName === 'colored' ? 'light' : 'dark'));
+
+        Utils.setThemeName(newThemeName);
+
+        const _theme = theme(newThemeName);
+
+        this.setState({
+            theme: _theme,
+            themeName: _theme.name,
+            themeType: _theme.palette.type,
+        }, () => this.props.onThemeChange(_theme.name));
+    }
+
+    showError(text) {
+        this.setState({ errorText: text });
+    }
+
+    renderError() {
+        if (!this.state.errorText) {
+            return null;
+        }
+        return <DialogError classes={{ }} text={this.state.errorText} onClose={() => this.setState({ errorText: '' })} />;
+    }
+
+    static buildPresetTree(presets, emptyFolders) {
+        // console.log(presets);
+        presets = Object.values(presets);
+
+        const presetFolders = {
+            subFolders: {}, presets: {}, id: '', prefix: '',
+        };
+
+        // create missing folders
+        presets.forEach(preset => {
+            const id = preset._id;
+            const parts = id.split('.');
+            parts.shift();
+            parts.shift();
+            let currentFolder = presetFolders;
+            let prefix = '';
+            for (let i = 0; i < parts.length - 1; i++) {
+                if (prefix) {
+                    prefix = `${prefix}.`;
+                }
+                prefix += parts[i];
+                if (!currentFolder.subFolders[parts[i]]) {
+                    currentFolder.subFolders[parts[i]] = {
+                        subFolders: {},
+                        presets: {},
+                        id: parts[i],
+                        prefix,
+                    };
+                }
+                currentFolder = currentFolder.subFolders[parts[i]];
+            }
+            currentFolder.presets[id] = preset;
+        });
+
+        if (emptyFolders && emptyFolders.length) {
+            emptyFolders.forEach(id => {
+                const parts = id.split('.');
+                let currentFolder = presetFolders;
+                let prefix = '';
+                for (let i = 0; i < parts.length; i++) {
+                    if (prefix) {
+                        prefix += '.';
+                    }
+                    prefix += parts[i];
+                    if (!currentFolder.subFolders[parts[i]]) {
+                        currentFolder.subFolders[parts[i]] = {
+                            subFolders: {},
+                            presets: {},
+                            id: parts[i],
+                            prefix,
+                        };
+                    }
+                    currentFolder = currentFolder.subFolders[parts[i]];
+                }
+            });
+        }
+
+        return presetFolders;
+    }
+
+    getEmptyFolders(presetFolders, _path, _result) {
+        _result = _result || [];
+        _path   = _path   || [];
+        presetFolders = presetFolders || this.state.presetFolders || {};
+
+        if (presetFolders.id/* && !Object.keys(presetFolders.subFolders).length && !Object.keys(presetFolders.presets).length */) {
+            const __path = [..._path];
+            __path.push(presetFolders.id);
+            _result.push(__path.join('.'));
+        }
+
+        if (presetFolders.subFolders) {
+            Object.keys(presetFolders.subFolders).forEach(name =>
+                this.getEmptyFolders(presetFolders.subFolders[name], _path, _result));
+        }
+
+        return _result;
+    }
+
+    async getAllPresets(newState) {
+        newState = newState || {};
+        const presets = {};
+
+        const res = await this.socket.getObjectViewSystem('chart', 'echarts.', 'echarts.\u9999');
+        res && Object.values(res).forEach(preset => preset._id && !preset._id.toString().endsWith('.') && (presets[preset._id] = preset));
+        newState.presets = presets;
+
+        // fill missing info
+        Object.keys(newState.presets).forEach(id => {
+            const presetObj = newState.presets[id];
+            presetObj.common = presetObj.common || {};
+            presetObj.native = presetObj.native || {};
+        });
+
+        // store all empty folders
+        const emptyFolders = this.getEmptyFolders();
+        newState.presetFolders = App.buildPresetTree(presets, emptyFolders);
+        return newState;
+    }
+
+    getSnapshot(id) {
+        if (iconsCache[id]) {
+            const icons = JSON.parse(JSON.stringify(this.state.icons));
+            icons[id] = iconsCache[id];
+            setTimeout(() => this.setState({ icons }), 50);
+            return;
+        }
+
+        this.snapShotQueue.push(id);
+        if (this.snapShotQueue.length === 1) {
+            this.getSnapshotNext();
+        }
+    }
+
+    getSnapshotNext() {
+        if (!this.snapShotQueue.length) {
+            return;
+        }
+        const id = this.snapShotQueue[0];
+        this.timeout[id] = setTimeout(() => {
+            const icons = JSON.parse(JSON.stringify(this.state.icons));
+            icons[id] = 'error:timeout';
+            iconsCache[id] = icons[id];
+            if (this.snapShotQueue[0] === id) {
+                this.snapShotQueue.shift();
+            }
+            this.setState({ icons });
+            this.getSnapshotNext();
+        }, 5000);
+
+        this.socket.getRawSocket().emit('sendTo', 'echarts.0', 'send', { preset: id }, data => {
+            this.timeout[id] && clearTimeout(this.timeout[id]);
+            this.timeout[id] = null;
+
+            const icons = JSON.parse(JSON.stringify(this.state.icons));
+            if (data.error) {
+                icons[id] = `error:${data.error}`;
+            } else {
+                icons[id] = data.data;
+            }
+            iconsCache[id] = icons[id];
+            if (this.snapShotQueue[0] === id) {
+                this.snapShotQueue.shift();
+            }
+            this.setState({ icons });
+            this.getSnapshotNext();
+        });
+    }
+
+    renderFolder(parent) {
+        const reactItems = [];
+        if (this.state.location.length > 1) {
+            reactItems.push(<div
+                className={this.props.classes.button}
+                key="__back__"
+                onClick={() => {
+                    const location = [...this.state.location];
+                    location.pop();
+                    window.location.hash = `#${location.join('/')}`;
+                }}
+            >
+                <KeyboardReturn className={this.props.classes.folderIcon} />
+                <div className={this.props.classes.folderName}>{I18n.t('back')}</div>
+            </div>);
+        }
+
+        if (parent.subFolders && Object.keys(parent.subFolders).length) {
+            Object.keys(parent.subFolders).forEach(name => {
+                if (name === '_consumption_') {
+                    return;
+                }
+                reactItems.push(<div
+                    className={this.props.classes.button}
+                    // style={{ width: this.state.iconSize }}
+                    key={name}
+                    onClick={() => {
+                        const location = [...this.state.location];
+                        location.push(name);
+                        window.location.hash = `#${location.join('/')}`;
+                    }}
+                >
+                    <IconFolderClosed className={this.props.classes.folderIcon} />
+                    <div className={this.props.classes.folderName}>{name}</div>
+                </div>);
+            });
+        }
+        if (parent.presets && Object.keys(parent.presets).length) {
+            const parts = window.location.pathname.split('/');
+            parts.pop();
+            parts.pop();
+            if (this.isWeb) {
+                // goto from /echarts/preview/index.html to /echarts/index.html
+                parts.push('index.html');
+            } else {
+                // goto from /adapter/echarts/preview/index.html to /adapter/echarts/charts/index.html
+                parts.push('charts/index.html');
+            }
+
+            reactItems.push(<div key="br" className={this.props.classes.break} />);
+            Object.keys(parent.presets).forEach(name => {
+                const preset = parent.presets[name];
+                if (!this.state.icons[preset._id]) {
+                    this.getSnapshot(preset._id);
+                }
+
+                const url = `${window.location.protocol}//${window.location.host}${parts.join('/')}?preset=${preset._id}`;
+
+                reactItems.push(<div
+                    key={name}
+                    style={{ width: this.state.iconSize }}
+                    className={this.props.classes.button}
+                    onClick={() => window.location = url}
+                >
+                    {this.state.icons[preset._id] ?
+                        (this.state.icons[preset._id].startsWith('error:') ?
+                            <ImageNotSupported className={this.props.classes.presetIcon} /> :
+                            <img className={this.props.classes.presetIcon} src={this.state.icons[preset._id]} alt={preset._id} />)
+                        : <CircularProgress className={this.props.classes.presetIcon} />}
+
+                    <div className={this.props.classes.presetName}>
+                        {preset.common.name}
+                    </div>
+                    {this.state.icons[preset._id] && this.state.icons[preset._id].startsWith('error:') ?
+                        <div className={this.props.classes.presetError}>{this.state.icons[preset._id].substring(6)}</div> : null}
+                    <IconButton
+                        size="small"
+                        title={I18n.t('Copy URL to clipboard')}
+                        className={this.props.classes.copyButton}
+                        onClick={e => {
+                            e.stopPropagation();
+                            Utils.copyToClipboard(url);
+                        }}
+                    >
+                        <ContentCopy />
+                    </IconButton>
+                </div>);
+            });
+        }
+
+        return reactItems;
+    }
+
+    getFolder(location, parent, _index) {
+        _index = _index || 0;
+        parent = parent || this.state.presetFolders;
+        if (!parent) {
+            return this.state.presetFolders;
+        }
+
+        if (parent.id !== location[_index]) {
+            return this.state.presetFolders;
+        }
+
+        if (location.length - 1 === _index) {
+            if (parent.id === location[_index]) {
+                return parent;
+            }
+            return this.state.presetFolders;
+        }
+
+        if (parent.subFolders[location[_index + 1]]) {
+            return this.getFolder(location, parent.subFolders[location[_index + 1]], _index + 1);
+        }
+
+        return this.state.presetFolders;
+    }
+
+    renderSlider() {
+        if (this.state.showSlider) {
+            return <Stack spacing={2} direction="row" style={{ width: 200 }} alignItems="center">
+                <span>{this.state.iconSize}</span>
+                <Photo style={{ width: 14, height: 14, marginLeft: 4 }} />
+                <Slider
+                    min={64}
+                    max={512}
+                    value={this.state.iconSize}
+                    onChange={(e, iconSize) => {
+                        window.localStorage.setItem('echarts.iconSize', iconSize.toString());
+                        this.setState({ iconSize });
+                    }}
+                />
+                <Photo style={{ width: 24, height: 24 }} />
+            </Stack>;
+        }
+        return null;
+    }
+
+    render() {
+        if (!this.state.connected) {
+            return <StylesProvider generateClassName={generateClassName}>
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={this.state.theme}>
+                        <Loader theme={this.state.themeType} />
+                    </ThemeProvider>
+                </StyledEngineProvider>
+            </StylesProvider>;
+        }
+
+        const folder = this.getFolder(this.state.location);
+        const location = [];
+
+        return <StylesProvider generateClassName={generateClassName}>
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.state.theme}>
+                    <AppBar position="static" className={this.props.classes.appBar}>
+                        <Toolbar variant="dense">
+                            {this.isWeb ? null :
+                                <IconButton
+                                    title={I18n.t('Back to editor')}
+                                    onClick={() => {
+                                        const parts = window.location.pathname.split('/');
+                                        parts.pop();
+                                        parts.push('tab.html');
+                                        window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
+                                    }}
+                                >
+                                    <ArrowCircleLeft />
+                                </IconButton>}
+                            <img src={logo} alt="echarts" style={{ width: 32, marginRight: 8 }} />
+                            <Breadcrumbs aria-label="breadcrumb">
+                                {this.state.location.map((name, i) => {
+                                    location.push(name);
+                                    return <Link key={i} underline={this.state.location.length - 1 === i ? 'none' : 'hover'} color="inherit" href={`#${location.join('/')}`}>
+                                        {name || I18n.t('root')}
+                                    </Link>;
+                                })}
+                            </Breadcrumbs>
+                            <div style={{ flexGrow: 1 }} />
+                            {this.renderSlider()}
+                            <IconButton onClick={() => this.setState({ showSlider: !this.state.showSlider })} title={I18n.t('Change size')}>
+                                {this.state.showSlider ?
+                                    <ImageNotSupported className={this.state.showSlider ? this.props.classes.active : ''} />
+                                    :
+                                    <AddPhotoAlternate />}
+                            </IconButton>
+                            <IconButton
+                                onClick={() => {
+                                    Object.keys(iconsCache).forEach(key => {
+                                        delete iconsCache[key];
+                                    });
+                                    this.setState({ icons: {} });
+                                }}
+                                title={I18n.t('Refresh snapshots')}
+                            >
+                                <Refresh />
+                            </IconButton>
+                            <ToggleThemeMenu
+                                toggleTheme={() => this.toggleTheme()}
+                                themeName={this.state.themeName}
+                                t={w => w}
+                            />
+                            <h4 className={this.props.classes.toolbarTitle}>Echarts viewer</h4>
+                        </Toolbar>
+                    </AppBar>
+                    <div className={this.props.classes.root}>
+                        {folder && this.renderFolder(folder)}
+                    </div>
+                    {this.renderError()}
+                </ThemeProvider>
+            </StyledEngineProvider>
+        </StylesProvider>;
+    }
+}
+
+export default withWidth()(withStyles(styles)(withTheme(App)));

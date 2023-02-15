@@ -195,6 +195,8 @@ module.exports = function init(gulp) {
                 'src-chart/build/**/*',
                 '!src-chart/build/index.html',
                 '!src-chart/build/static/js/main.*.chunk.js',
+                '!src/build/static/media/*.svg',
+                '!src/build/static/media/*.txt',
                 '!src-chart/build/i18n/**/*',
                 '!src-chart/build/i18n',
             ])
@@ -217,19 +219,19 @@ module.exports = function init(gulp) {
     gulp.task('[chart]5-copy-dep', gulp.series('[chart]3-build-dep', '[chart]5-copy'));
 
     gulp.task('[chart]6-patch', () => new Promise(resolve => {
-        if (fs.existsSync(__dirname + '/admin/chart/index.html')) {
-            let code = fs.readFileSync(__dirname + '/admin/chart/index.html').toString('utf8');
+        if (fs.existsSync(`${__dirname}/admin/chart/index.html`)) {
+            let code = fs.readFileSync(`${__dirname}/admin/chart/index.html`).toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
-            fs.writeFileSync(__dirname + '/admin/chart/index.html', code);
+            fs.writeFileSync(`${__dirname}/admin/chart/index.html`, code);
         }
-        if (fs.existsSync(__dirname + '/src-chart/build/index.html')) {
-            let code = fs.readFileSync(__dirname + '/src-chart/build/index.html').toString('utf8');
+        if (fs.existsSync(`${__dirname}/src-chart/build/index.html`)) {
+            let code = fs.readFileSync(`${__dirname}/src-chart/build/index.html`).toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
-            fs.writeFileSync(__dirname + '/src-chart/build/index.html', code);
+            fs.writeFileSync(`${__dirname}/src-chart/build/index.html`, code);
         }
         resolve();
     }));
@@ -262,7 +264,7 @@ module.exports = function init(gulp) {
                 checkChart(resolve, reject, Date.now()));
         } else {
             console.log('Check www/index.html');
-            if (fs.existsSync(__dirname + '/www/index.html')) {
+            if (fs.existsSync(`${__dirname}/www/index.html`)) {
                 console.log('Exists www/index.html');
                 setTimeout(() => resolve(), 500);
             } else {
@@ -310,7 +312,7 @@ module.exports = function init(gulp) {
             });
         }
     }*/
-    function copyFolderRecursiveSync(src, dest) {
+    function copyFolderRecursiveSync(src, dest, exclude) {
         const stats = fs.existsSync(src) && fs.statSync(src);
         if (stats && stats.isDirectory()) {
             !fs.existsSync(dest) && fs.mkdirSync(dest);
@@ -319,7 +321,7 @@ module.exports = function init(gulp) {
                     path.join(src, childItemName),
                     path.join(dest, childItemName));
             });
-        } else {
+        } else if (!exclude || !exclude.find(ext => src.endsWith(ext))) {
             fs.copyFileSync(src, dest);
         }
     }
@@ -329,7 +331,7 @@ module.exports = function init(gulp) {
 
         return checkChart()
             .then(() =>
-                copyFolderRecursiveSync(`${__dirname}/admin/chart/`, `${__dirname}/www`))
+                copyFolderRecursiveSync(`${__dirname}/admin/chart/`, `${__dirname}/www`, ['.svg', '.txt']))
             .then(() =>
                 new Promise(resolve => {
                     if (fs.existsSync(`${__dirname}/www/index.html`)) {

@@ -69,7 +69,7 @@ const THEMES = {
         '#73b9bc',
         '#7289ab',
         '#91ca8c',
-        '#f49f42',
+        '#f49f42'
     ],
     macarons: [
         '#2ec7c9',
@@ -217,16 +217,14 @@ function padding2(num) {
     if (num.length < 2) {
         return `0${num}`;
     }
+
     return num;
 }
 
 function rgba2hex(color) {
     const rgb = color.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
     return rgb ?
-        `#${
-            padding2(parseInt(rgb[1], 10).toString(16))
-        }${padding2(parseInt(rgb[2], 10).toString(16))
-        }${padding2(parseInt(rgb[3], 10).toString(16))}` : color;
+        `#${padding2(parseInt(rgb[1], 10).toString(16))}${padding2(parseInt(rgb[2], 10).toString(16))}${padding2(parseInt(rgb[3], 10).toString(16))}` : color;
 }
 
 function brighterColor(color, amt) {
@@ -272,17 +270,19 @@ function brighterColor(color, amt) {
 }
 
 // ----- copied from
-const Gradient = colorStops => {
+// eslint-disable-next-line func-names
+const Gradient = function (colorStops) {
     this.colorStops = colorStops || [];
 };
 
 Gradient.prototype = {
     constructor: Gradient,
-    addColorStop(offset, color) {
+    addColorStop: function (offset, color) {
         this.colorStops.push({ offset, color });
     },
 };
-const LinearGradient = (x, y, x2, y2, colorStops, globalCoord) => {
+// eslint-disable-next-line func-names
+const LinearGradient = function (x, y, x2, y2, colorStops, globalCoord) {
     // Should do nothing more in this constructor. Because gradient can be
     // declared by `color: {type: 'linear', colorStops: ...}`, where
     // this constructor will not be called.
@@ -516,6 +516,10 @@ class ChartOption {
 
     getXAxis(categories) {
         if (this.config.l.find(l => l.chartType === 'bar')) {
+            if (!categories) {
+                debugger
+            }
+
             return  [
                 {
                     type: 'category',
@@ -821,9 +825,11 @@ class ChartOption {
     isXLabelHasBreak() {
         if (this.config.timeFormat) {
             return this.config.timeFormat.replace('<br/>', '\n').includes('\n');
-        } if (this.chart.withSeconds) {
+        }
+        if (this.chart.withSeconds) {
             return true;
-        } if (this.chart.withTime) {
+        }
+        if (this.chart.withTime) {
             return true;
         }
         return true;
@@ -908,7 +914,8 @@ class ChartOption {
                     dp.exact = false;
                 }
                 return dp;
-            } if (data[k].value[0] < ts && ts < data[k + 1].value[0]) {
+            }
+            if (data[k].value[0] < ts && ts < data[k + 1].value[0]) {
                 const y1 = data[k].value[1];
                 const y2 = data[k + 1].value[1];
                 if (y2 === null || y2 === undefined || y1 === null || y1 === undefined) {

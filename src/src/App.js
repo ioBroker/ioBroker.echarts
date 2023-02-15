@@ -700,79 +700,77 @@ class App extends GenericApp {
         return <StylesProvider generateClassName={generateClassName}>
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={this.state.theme}>
-                    <>
-                        <div className={classes.root} key="divSide">
-                            <DragDropContext onDragEnd={this.onDragEnd}>
-                                <SplitterLayout
-                                    key="sidemenuwidth"
-                                    vertical={false}
-                                    primaryMinSize={300}
-                                    primaryIndex={1}
-                                    secondaryMinSize={300}
-                                    secondaryInitialSize={this.menuSize}
-                                    customClassName={Utils.clsx(classes.splitterDivs, !this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
-                                    onDragStart={() => this.setState({ resizing: true })}
-                                    onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
-                                    onDragEnd={() => {
-                                        this.setState({ resizing: false });
-                                        window.localStorage && window.localStorage.setItem('App.echarts.menuSize', this.menuSize.toString());
-                                    }}
-                                >
-                                    <MenuList
-                                        key="menuList"
-                                        scrollToSelect={this.state.scrollToSelect}
-                                        socket={this.socket}
-                                        theme={this.state.theme}
-                                        adapterName={this.adapterName}
-                                        instances={this.state.instances}
-                                        systemConfig={this.state.systemConfig}
-                                        onShowToast={toast => this.showToast(toast)}
-                                        selectedPresetChanged={this.state.selectedPresetChanged}
-                                        chartsList={this.state.chartsList}
-                                        selectedId={this.state.selectedId}
-                                        onCopyPreset={this.onCopyPreset}
-                                        onCreatePreset={this.onCreatePreset}
-                                        onChangeList={(chartsList, cb) => {
-                                            // if some deselected
-                                            let selectedId = this.state.selectedId;
-                                            if (chartsList && this.state.chartsList && chartsList.length && chartsList.length < this.state.chartsList.length) {
-                                                const removedLine = this.state.chartsList.find(item => !chartsList.find(it => it.id === item.id && it.instance === item.instance));
-                                                const index = this.state.chartsList.indexOf(removedLine);
-                                                if (this.state.chartsList[index + 1]) {
-                                                    selectedId = this.state.chartsList[index + 1];
-                                                } else if (this.state.chartsList[index - 1]) {
-                                                    selectedId = this.state.chartsList[index - 1];
-                                                } else {
-                                                    selectedId = chartsList[0];
-                                                }
-                                            }
-                                            this.setState({ chartsList }, () => this.loadChartOrPreset(selectedId, cb));
-                                        }}
-                                        onSelectedChanged={(selectedId, cb) => {
-                                            if (cb && this.state.selectedPresetChanged) {
-                                                this.confirmCB = confirmed => {
-                                                    if (confirmed) {
-                                                        this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
-                                                    } else {
-                                                        cb(false); // cancel
-                                                    }
-                                                    this.confirmCB = null;
-                                                };
-
-                                                this.setState({ discardChangesConfirmDialog: selectedId && typeof selectedId === 'object' ? 'chart' : (selectedId ? 'preset' : 'folder') });
+                    <div className={classes.root} key="divSide">
+                        <DragDropContext onDragEnd={this.onDragEnd}>
+                            <SplitterLayout
+                                key="sidemenuwidth"
+                                vertical={false}
+                                primaryMinSize={300}
+                                primaryIndex={1}
+                                secondaryMinSize={300}
+                                secondaryInitialSize={this.menuSize}
+                                customClassName={Utils.clsx(classes.splitterDivs, !this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
+                                onDragStart={() => this.setState({ resizing: true })}
+                                onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
+                                onDragEnd={() => {
+                                    this.setState({ resizing: false });
+                                    window.localStorage && window.localStorage.setItem('App.echarts.menuSize', this.menuSize.toString());
+                                }}
+                            >
+                                <MenuList
+                                    key="menuList"
+                                    scrollToSelect={this.state.scrollToSelect}
+                                    socket={this.socket}
+                                    theme={this.state.theme}
+                                    adapterName={this.adapterName}
+                                    instances={this.state.instances}
+                                    systemConfig={this.state.systemConfig}
+                                    onShowToast={toast => this.showToast(toast)}
+                                    selectedPresetChanged={this.state.selectedPresetChanged}
+                                    chartsList={this.state.chartsList}
+                                    selectedId={this.state.selectedId}
+                                    onCopyPreset={this.onCopyPreset}
+                                    onCreatePreset={this.onCreatePreset}
+                                    onChangeList={(chartsList, cb) => {
+                                        // if some deselected
+                                        let selectedId = this.state.selectedId;
+                                        if (chartsList && this.state.chartsList && chartsList.length && chartsList.length < this.state.chartsList.length) {
+                                            const removedLine = this.state.chartsList.find(item => !chartsList.find(it => it.id === item.id && it.instance === item.instance));
+                                            const index = this.state.chartsList.indexOf(removedLine);
+                                            if (this.state.chartsList[index + 1]) {
+                                                selectedId = this.state.chartsList[index + 1];
+                                            } else if (this.state.chartsList[index - 1]) {
+                                                selectedId = this.state.chartsList[index - 1];
                                             } else {
-                                                this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
+                                                selectedId = chartsList[0];
                                             }
-                                        }}
-                                    />
-                                    {this.renderMain()}
-                                </SplitterLayout>
-                            </DragDropContext>
-                        </div>
-                        { this.discardChangesConfirmDialog() }
-                        { this.renderError() }
-                        { this.renderToast() }
-                    </>
+                                        }
+                                        this.setState({ chartsList }, () => this.loadChartOrPreset(selectedId, cb));
+                                    }}
+                                    onSelectedChanged={(selectedId, cb) => {
+                                        if (cb && this.state.selectedPresetChanged) {
+                                            this.confirmCB = confirmed => {
+                                                if (confirmed) {
+                                                    this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
+                                                } else {
+                                                    cb(false); // cancel
+                                                }
+                                                this.confirmCB = null;
+                                            };
+
+                                            this.setState({ discardChangesConfirmDialog: selectedId && typeof selectedId === 'object' ? 'chart' : (selectedId ? 'preset' : 'folder') });
+                                        } else {
+                                            this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
+                                        }
+                                    }}
+                                />
+                                {this.renderMain()}
+                            </SplitterLayout>
+                        </DragDropContext>
+                    </div>
+                    {this.discardChangesConfirmDialog()}
+                    {this.renderError()}
+                    {this.renderToast()}
                 </ThemeProvider>
             </StyledEngineProvider>
         </StylesProvider>;

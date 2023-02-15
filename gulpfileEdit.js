@@ -33,7 +33,6 @@ function deleteFoldersRecursive(path, exceptions) {
 }
 
 module.exports = function init(gulp) {
-
     gulp.task('[edit]i18n=>flat', done => {
         const files = fs.readdirSync(dir).filter(name => name.match(/\.json$/));
         const index = {};
@@ -192,6 +191,8 @@ module.exports = function init(gulp) {
                 'src/build/**/*',
                 '!src/build/index.html',
                 '!src/build/static/js/main.*.chunk.js',
+                '!src/build/static/media/*.svg',
+                '!src/build/static/media/*.txt',
                 '!src/build/i18n/**/*',
                 '!src/build/i18n',
                 'admin-config/*'
@@ -221,7 +222,7 @@ module.exports = function init(gulp) {
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
-            fs.writeFileSync(__dirname + '/admin/tab.html', code);
+            fs.writeFileSync(`${__dirname}/admin/tab.html`, code);
         }
         if (fs.existsSync(`${__dirname}/src/build/index.html`)) {
             let code = fs.readFileSync(`${__dirname}/src/build/index.html`).toString('utf8');

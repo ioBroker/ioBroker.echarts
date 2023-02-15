@@ -18,3 +18,4 @@ admin/i18n/*/flat.txt
 /src-chart/old
 /_helpers
 /image.png
+/src-preview/package-lock.json
