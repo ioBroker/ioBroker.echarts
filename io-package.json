@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "news": {
+      "1.4.2": {
+        "en": "Implemented charts preview",
+        "de": "Implementierte Charts Vorschau",
+        "ru": "Внедренный просмотр графиков",
+        "pt": "Visualização de gráficos implementadas",
+        "nl": "Vertaling:",
+        "fr": "Aperçu des graphiques mis en œuvre",
+        "it": "Anteprima grafici implementati",
+        "es": "Gráficos implementados vista previa",
+        "pl": "Implementacja map preview",
+        "uk": "Реалізовані графіки попереднього перегляду",
+        "zh-cn": "执行图"
+      },
       "1.4.1": {
         "en": "Corrected some issues from GitHub\nImplemented negative offset of X-Axis\nShow device names for charts",
         "de": "Einige Probleme von GitHub behoben\nErgänzter negativer Offset von X-Axis\nGerätenamen für Diagramme anzeigen",
@@ -80,19 +93,6 @@
         "pl": "Refactory i aktualizacje pakietów",
         "uk": "Відновлення та оновлення пакетів",
         "zh-cn": "修改和更新的一揽子计划"
-      },
-      "1.1.3": {
-        "en": "Make all buttons smaller",
-        "de": "Alle Tasten kleiner machen",
-        "ru": "Сделать все кнопки меньше",
-        "pt": "Faça todos os botões menores",
-        "nl": "Maak alle knoppen kleiner",
-        "fr": "Faites tous les boutons plus petits",
-        "it": "Fai tutti i pulsanti più piccoli",
-        "es": "Hacer todos los botones más pequeños",
-        "pl": "Wszystkie przyciski mniejsze",
-        "uk": "Зробіть всі кнопки меншими",
-        "zh-cn": "减少所有但各工作地点"
       }
     },
     "title": "E-Charts",
