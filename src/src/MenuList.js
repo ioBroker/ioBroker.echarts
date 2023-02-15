@@ -188,17 +188,20 @@ class MenuList extends Component {
                         <MenuItem value="functions">{I18n.t('Functions')}</MenuItem>
                     </Select>
                 </FormControl>
-                <IconButton
-                    style={{ float: 'right' }}
-                    onClick={() => {
-                        const parts = window.location.pathname.split('/');
-                        parts.push('preview/index.html');
-                        window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
-                    }}
-                >
-                    <PreviewIcon />
-                </IconButton>
             </FormGroup>
+            <div style={{ flex: 1 }} />
+            <IconButton
+                size="small"
+                title={I18n.t('Charts preview')}
+                onClick={() => {
+                    const parts = window.location.pathname.split('/');
+                    parts.pop();
+                    parts.push('preview/index.html');
+                    window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
+                }}
+            >
+                <PreviewIcon />
+            </IconButton>
         </Toolbar>;
     }
 

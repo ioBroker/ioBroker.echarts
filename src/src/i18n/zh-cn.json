@@ -495,5 +495,11 @@
   "i30days": "30天",
   "Select for": "选择用于",
   "Close": "关闭",
-  "Auto padding": "自动缩进"
+  "Auto padding": "自动缩进",
+  "Charts preview": "图表预览",
+  "Bar": "Bar",
+  "edit": "编辑",
+  "Processing": "加工",
+  "non-processed": "未加工",
+  "difference": "不同之处"
 }

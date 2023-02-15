@@ -495,5 +495,11 @@
   "i30days": "30 Tage",
   "Select for": "Wählen Sie für",
   "Close": "Schließen",
-  "Auto padding": "Auto-Abstand"
+  "Auto padding": "Auto-Abstand",
+  "Charts preview": "Diagrammvorschau",
+  "Bar": "Bar",
+  "edit": "bearbeiten",
+  "Processing": "wird bearbeitet",
+  "non-processed": "unbearbeitet",
+  "difference": "Unterschied"
 }

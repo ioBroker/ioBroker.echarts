@@ -495,5 +495,11 @@
   "i30days": "30 дней",
   "Select for": "Выберите для",
   "Close": "Закрыть",
-  "Auto padding": "Авто-отступы"
+  "Auto padding": "Авто-отступы",
+  "Charts preview": "Предварительный просмотр диаграмм",
+  "Bar": "Bar",
+  "edit": "редактировать",
+  "Processing": "Обработка",
+  "non-processed": "необработанный",
+  "difference": "разница"
 }

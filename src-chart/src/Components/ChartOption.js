@@ -516,10 +516,6 @@ class ChartOption {
 
     getXAxis(categories) {
         if (this.config.l.find(l => l.chartType === 'bar')) {
-            if (!categories) {
-                debugger
-            }
-
             return  [
                 {
                     type: 'category',

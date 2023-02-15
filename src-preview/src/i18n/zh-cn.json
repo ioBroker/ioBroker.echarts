@@ -1,3 +1,8 @@
 {
-
+  "Copy URL to clipboard": "将 URL 复制到剪贴板",
+  "Back to editor": "返回编辑器",
+  "root": "根文件夹",
+  "Change size": "改变尺寸",
+  "Refresh snapshots": "刷新快照",
+  "back": "后退"
 }

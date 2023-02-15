@@ -495,5 +495,11 @@
   "i30days": "30 dagen",
   "Select for": "Selecteer voor",
   "Close": "Dichtbij",
-  "Auto padding": "Automatisch inspringen"
+  "Auto padding": "Automatisch inspringen",
+  "Charts preview": "Grafiekvoorbeeld",
+  "Bar": "Bar",
+  "edit": "bewerking",
+  "Processing": "Verwerken",
+  "non-processed": "niet-verwerkt",
+  "difference": "verschil"
 }

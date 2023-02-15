@@ -60,6 +60,9 @@ const styles = _theme => ({
         flexWrap: 'wrap',
         alignContent: 'flex-start',
     },
+    slider: {
+        color: '#FFF !important',
+    },
     toolbarTitle: {},
     button: {
         width: 128,
@@ -129,11 +132,13 @@ class App extends Component {
             connected:  false,
             theme:      themeInstance,
             themeType:  App.getThemeType(themeInstance),
+            themeName:  App.getThemeName(themeInstance),
             location,
             presetFolders: null,
             icons: {},
             iconSize: parseInt(window.localStorage.getItem('echarts.iconSize'), 10) || 128,
             showSlider: false,
+            alive:      true,
         };
 
         // init translations
@@ -202,7 +207,12 @@ class App extends Component {
 
                 I18n.setLanguage(this.socket.systemLang);
 
-                this.getAllPresets()
+                this.socket.getState('system.adapter.echarts.0.alive')
+                    .catch(() => null) // ignore error
+                    .then(state => {
+                        this.setState({ alive: state && state.val });
+                        return this.getAllPresets();
+                    })
                     .then(newState => this.setState(newState));
             },
             onError: err => {
@@ -236,6 +246,15 @@ class App extends Component {
      */
     static createTheme(name = '') {
         return theme(Utils.getThemeName(name));
+    }
+
+    /**
+     * Get the theme name
+     * @param {Theme} theme Theme
+     * @returns {string} Theme name
+     */
+    static getThemeName(theme_) {
+        return theme_.name;
     }
 
     /**
@@ -385,6 +404,13 @@ class App extends Component {
             return;
         }
 
+        if (!this.state.alive) {
+            const icons = JSON.parse(JSON.stringify(this.state.icons));
+            icons[id] = 'error:not alive';
+            setTimeout(() => this.setState({ icons }), 50);
+            return;
+        }
+
         this.snapShotQueue.push(id);
         if (this.snapShotQueue.length === 1) {
             this.getSnapshotNext();
@@ -463,6 +489,7 @@ class App extends Component {
                 </div>);
             });
         }
+
         if (parent.presets && Object.keys(parent.presets).length) {
             const parts = window.location.pathname.split('/');
             parts.pop();
@@ -471,9 +498,11 @@ class App extends Component {
                 // goto from /echarts/preview/index.html to /echarts/index.html
                 parts.push('index.html');
             } else {
-                // goto from /adapter/echarts/preview/index.html to /adapter/echarts/charts/index.html
-                parts.push('charts/index.html');
+                // goto from /adapter/echarts/preview/index.html to /adapter/echarts/chart/index.html
+                parts.push('chart/index.html');
             }
+
+            const mainUrl = `${window.location.protocol}//${window.location.host}${parts.join('/')}?preset=`;
 
             reactItems.push(<div key="br" className={this.props.classes.break} />);
             Object.keys(parent.presets).forEach(name => {
@@ -482,7 +511,7 @@ class App extends Component {
                     this.getSnapshot(preset._id);
                 }
 
-                const url = `${window.location.protocol}//${window.location.host}${parts.join('/')}?preset=${preset._id}`;
+                const url = mainUrl + preset._id;
 
                 reactItems.push(<div
                     key={name}
@@ -546,12 +575,18 @@ class App extends Component {
 
     renderSlider() {
         if (this.state.showSlider) {
-            return <Stack spacing={2} direction="row" style={{ width: 200 }} alignItems="center">
+            return <Stack
+                spacing={2}
+                direction="row"
+                style={{ width: 200 }}
+                alignItems="center"
+            >
                 <span>{this.state.iconSize}</span>
                 <Photo style={{ width: 14, height: 14, marginLeft: 4 }} />
                 <Slider
                     min={64}
                     max={512}
+                    className={this.props.classes.slider}
                     value={this.state.iconSize}
                     onChange={(e, iconSize) => {
                         window.localStorage.setItem('echarts.iconSize', iconSize.toString());
@@ -589,6 +624,7 @@ class App extends Component {
                                     onClick={() => {
                                         const parts = window.location.pathname.split('/');
                                         parts.pop();
+                                        parts.pop();
                                         parts.push('tab.html');
                                         window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
                                     }}
@@ -623,11 +659,11 @@ class App extends Component {
                             >
                                 <Refresh />
                             </IconButton>
-                            <ToggleThemeMenu
+                            {this.isWeb ? <ToggleThemeMenu
                                 toggleTheme={() => this.toggleTheme()}
                                 themeName={this.state.themeName}
-                                t={w => w}
-                            />
+                                t={I18n.t}
+                            /> : null}
                             <h4 className={this.props.classes.toolbarTitle}>Echarts viewer</h4>
                         </Toolbar>
                     </AppBar>

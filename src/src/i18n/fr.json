@@ -495,5 +495,11 @@
   "i30days": "30 jours",
   "Select for": "Sélectionnez pour",
   "Close": "Fermer",
-  "Auto padding": "Retrait automatique"
+  "Auto padding": "Retrait automatique",
+  "Charts preview": "Aperçu des graphiques",
+  "Bar": "Bar",
+  "edit": "modifier",
+  "Processing": "Traitement",
+  "non-processed": "non transformé",
+  "difference": "différence"
 }

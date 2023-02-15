@@ -495,5 +495,11 @@
   "i30days": "30 днів",
   "Select for": "Виберіть для",
   "Close": "Закрити",
-  "Auto padding": "Авто-відступи"
+  "Auto padding": "Авто-відступи",
+  "Charts preview": "Попередній перегляд діаграм",
+  "Bar": "Bar",
+  "edit": "редагувати",
+  "Processing": "Обробка",
+  "non-processed": "необроблені",
+  "difference": "різниця"
 }

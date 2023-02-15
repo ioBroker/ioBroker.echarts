@@ -495,5 +495,11 @@
   "i30days": "30 giorni",
   "Select for": "Seleziona per",
   "Close": "Vicino",
-  "Auto padding": "Rientro automatico"
+  "Auto padding": "Rientro automatico",
+  "Charts preview": "Anteprima dei grafici",
+  "Bar": "Bar",
+  "edit": "modificare",
+  "Processing": "in lavorazione",
+  "non-processed": "non elaborato",
+  "difference": "differenza"
 }

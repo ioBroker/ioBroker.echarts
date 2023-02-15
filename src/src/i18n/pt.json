@@ -495,5 +495,11 @@
   "i30days": "30 dias",
   "Select for": "Selecione para",
   "Close": "Fechar",
-  "Auto padding": "Recuo automático"
+  "Auto padding": "Recuo automático",
+  "Charts preview": "Visualização de gráficos",
+  "Bar": "Bar",
+  "edit": "editar",
+  "Processing": "Em processamento",
+  "non-processed": "não processado",
+  "difference": "diferença"
 }

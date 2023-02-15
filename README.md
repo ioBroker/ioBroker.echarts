@@ -96,6 +96,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Implemented charts preview
+
 ### 1.4.1 (2023-02-14)
 * (bluefox) Corrected some issues from GitHub
 * (bluefox) Implemented negative offset of X-Axis

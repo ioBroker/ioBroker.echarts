@@ -495,5 +495,11 @@
   "i30days": "30 days",
   "Select for": "Select for",
   "Close": "Close",
-  "Auto padding": "Auto-padding"
+  "Auto padding": "Auto-padding",
+  "Charts preview": "Charts preview",
+  "Bar": "Bar",
+  "edit": "edit",
+  "Processing": "Processing",
+  "non-processed": "non-processed",
+  "difference": "difference"
 }
