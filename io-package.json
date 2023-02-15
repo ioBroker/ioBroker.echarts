@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.2",
+    "version": "1.4.3",
     "news": {
+      "1.4.3": {
+        "en": "Implemented charts preview",
+        "de": "Implementierte Charts Vorschau",
+        "ru": "Внедренный просмотр графиков",
+        "pt": "Visualização de gráficos implementadas",
+        "nl": "Vertaling:",
+        "fr": "Aperçu des graphiques mis en œuvre",
+        "it": "Anteprima grafici implementati",
+        "es": "Gráficos implementados vista previa",
+        "pl": "Implementacja map preview",
+        "uk": "Реалізовані графіки попереднього перегляду",
+        "zh-cn": "执行图"
+      },
       "1.4.1": {
         "en": "Corrected some issues from GitHub\nImplemented negative offset of X-Axis\nShow device names for charts",
         "de": "Einige Probleme von GitHub behoben\nErgänzter negativer Offset von X-Axis\nGerätenamen für Diagramme anzeigen",
