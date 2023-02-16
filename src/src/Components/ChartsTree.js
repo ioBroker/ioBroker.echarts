@@ -563,7 +563,7 @@ class ChartsTree extends Component {
                         })}
                         {Array.isArray(group.names[id]) ?
                             <span className={this.props.classes.itemName} title={group.names[id].join(' / ')}>
-                                {group.names[id].map((name, i) => <span className={this.props.classes[`itemName${i}`]}>{(i ? ' / ' : '') + name}</span>)}
+                                {group.names[id].map((name, i) => <span key={i} className={this.props.classes[`itemName${i}`]}>{(i ? ' / ' : '') + name}</span>)}
                             </span> :
                             <span className={this.props.classes.itemName} title={group.names[id]}>{group.names[id]}</span>}
                     </span>

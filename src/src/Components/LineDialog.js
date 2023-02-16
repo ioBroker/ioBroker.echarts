@@ -63,7 +63,7 @@ class LineDialog extends React.Component {
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="default" onClick={this.props.onClose} startIcon={<IconClose />}>{I18n.t('Close')}</Button>
+                <Button variant="contained" color="primary" onClick={this.props.onClose} startIcon={<IconClose />}>{I18n.t('Close')}</Button>
             </DialogActions>
         </Dialog>;
     }

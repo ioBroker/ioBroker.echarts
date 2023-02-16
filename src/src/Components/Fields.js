@@ -87,7 +87,7 @@ const IOSelectClass = props => {
                                 {props.noTranslate ?
                                     props.options[key] :
                                     (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined ?
-                                        I18n.t(props.options[key].startsWith('-') ? `-${props.options[key].substring(1)}` : props.options[key]) : '')}
+                                        (props.options[key].startsWith('-') ? `-${I18n.t(props.options[key].substring(1))}` : I18n.t(props.options[key])) : '')}
                             </MenuItem>) : null
                 }
             </Select>

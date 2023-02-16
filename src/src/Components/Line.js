@@ -399,14 +399,14 @@ class Line extends React.Component {
             >
                 <IconDelete />
             </IconButton>
-            <IconButton
+            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IconButton
                 className={this.props.classes.editButton}
                 aria-label="Edit"
                 title={I18n.t('Edit')}
                 onClick={() => this.setState({ dialogOpen: true })}
             >
                 <IconEdit />
-            </IconButton>
+            </IconButton> : null}
         </div>;
     }
 
@@ -543,14 +543,14 @@ class Line extends React.Component {
                 >
                     <IconDelete />
                 </IconButton>
-                <IconButton
+                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IconButton
                     className={this.props.classes.editButtonFull}
                     aria-label="Edit"
                     title={I18n.t('Edit')}
                     onClick={() => this.setState({ dialogOpen: true })}
                 >
                     <IconEdit />
-                </IconButton>
+                </IconButton> : null}
                 <IconButton
                     className={this.props.classes.copyButtonFull}
                     aria-label="Copy"
