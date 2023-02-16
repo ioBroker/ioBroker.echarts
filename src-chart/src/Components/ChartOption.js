@@ -787,7 +787,7 @@ class ChartOption {
     }
 
     yFormatter(val, line, withUnit, interpolated /* , ignoreWidth */) {
-        if (typeof val === 'object') {
+        if (val && typeof val === 'object') {
             val = val.value;
             withUnit = false;
         }
