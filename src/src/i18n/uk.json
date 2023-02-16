@@ -501,5 +501,7 @@
   "edit": "редагувати",
   "Processing": "Обробка",
   "non-processed": "необроблені",
-  "difference": "різниця"
+  "difference": "різниця",
+  "Text by true": "Текст від правда",
+  "Text by false": "Текст від false"
 }

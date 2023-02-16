@@ -501,5 +501,7 @@
   "edit": "bewerking",
   "Processing": "Verwerken",
   "non-processed": "niet-verwerkt",
-  "difference": "verschil"
+  "difference": "verschil",
+  "Text by true": "Tekst door waar",
+  "Text by false": "Tekst door vals"
 }

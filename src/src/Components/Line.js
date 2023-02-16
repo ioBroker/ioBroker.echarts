@@ -202,7 +202,18 @@ class Line extends React.Component {
             width: this.props.width,
             dialogOpen: false,
             showConvertHelp: false,
+            isBoolean: false,
         };
+
+        if (this.props.line.id) {
+            this.props.socket.getObject(this.props.line.id)
+                .then(obj => {
+                    if (obj?.common?.type === 'boolean') {
+                        this.setState({ isBoolean: true });
+                    }
+                })
+                .catch(() => { /* ignore */ });
+        }
     }
 
     updateField = (name, value) => {
@@ -226,6 +237,9 @@ class Line extends React.Component {
                         if (obj && obj.common && (obj.common.type === 'boolean' || obj.common.type === 'number')) {
                             line.chartType = 'auto';
                             line.aggregate = '';
+                        }
+                        if ((obj?.common?.type === 'boolean') !== this.state.isBoolean) {
+                            setTimeout(() => this.setState({ isBoolean: obj?.common?.type === 'boolean' }), 50);
                         }
                     })
                     .catch(e => {
@@ -629,7 +643,9 @@ class Line extends React.Component {
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name" />
-                <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" />
+                {!this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" /> : null}
+                {this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="falseText" label="Text by false" /> : null}
+                {this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="trueText" label="Text by true" /> : null}
             </div>
             {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
                 <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>

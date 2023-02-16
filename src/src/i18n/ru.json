@@ -501,5 +501,7 @@
   "edit": "редактировать",
   "Processing": "Обработка",
   "non-processed": "необработанный",
-  "difference": "разница"
+  "difference": "разница",
+  "Text by true": "Текст для true",
+  "Text by false": "Текст для false"
 }

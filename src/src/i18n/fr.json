@@ -501,5 +501,7 @@
   "edit": "modifier",
   "Processing": "Traitement",
   "non-processed": "non transformé",
-  "difference": "différence"
+  "difference": "différence",
+  "Text by true": "Texte par vrai",
+  "Text by false": "Texte par faux"
 }

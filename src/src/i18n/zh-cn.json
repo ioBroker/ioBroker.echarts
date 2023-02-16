@@ -501,5 +501,7 @@
   "edit": "编辑",
   "Processing": "加工",
   "non-processed": "未加工",
-  "difference": "不同之处"
+  "difference": "不同之处",
+  "Text by true": "文字真实",
+  "Text by false": "假文字"
 }
