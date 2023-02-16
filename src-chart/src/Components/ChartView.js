@@ -692,7 +692,8 @@ class ChartView extends React.Component {
                             option.series &&
                             option.series[0] &&
                             option.series[0].data &&
-                            option.series[0].data.length) {
+                            option.series[0].data.length
+                        ) {
                             const date = new Date(option.xAxis[0].max || option.series[0].data[option.series[0].data.length - 1].value[0]);
                             try {
                                 downloadLink.download =

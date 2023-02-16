@@ -66,6 +66,8 @@ sendTo('echarts.0', {
 
     fileOnDisk: '',                 // Path on disk to save the file. 
     fileName: '',                   // Path in ioBroker DB to save the files on 'echarts.0'. E.g. if your set "chart.svg", so you can access your picture via http(s)://ip:8082/echarts.0/chart.png
+
+    cache:    600,                  // Cache time for this preset in seconds, default: 0 - no cache
 }, result => {
     if (result.error) {
         console.error(result.error);
@@ -96,6 +98,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Allowed to copy only the web URLs in the preview
+
 ### 1.4.3 (2023-02-15)
 * (bluefox) Implemented charts preview
 

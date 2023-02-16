@@ -14,6 +14,8 @@ import {
     Stack,
     Slider,
     Snackbar,
+    Menu,
+    MenuItem,
 } from '@mui/material';
 
 import {
@@ -142,6 +144,9 @@ class App extends Component {
             showSlider: false,
             alive:      true,
             toast:      '',
+            webInstances: [],
+            webMenu:    null,
+            forceRefresh: false,
         };
 
         // init translations
@@ -214,6 +219,10 @@ class App extends Component {
                     .catch(() => null) // ignore error
                     .then(state => {
                         this.setState({ alive: state && state.val });
+                        return this.getWebInstances();
+                    })
+                    .then(webInstances => {
+                        this.setState({ webInstances });
                         return this.getAllPresets();
                     })
                     .then(newState => this.setState(newState));
@@ -227,6 +236,20 @@ class App extends Component {
         window.addEventListener('hashchange', this.onHashChanged);
         this.snapShotQueue = [];
         this.timeout = {};
+    }
+
+    async getWebInstances() {
+        const instances = await this.socket.getObjectViewSystem('instance', 'system.adapter.web.', 'system.adapter.web.\u9999');
+        return Object.keys(instances).map(id => {
+            const obj = instances[id];
+            return {
+                port: obj.native.port,
+                bind: obj.native.bind,
+                id: obj._id.replace('system.adapter.', ''),
+                enabled: obj.common.enabled,
+                protocol: obj.native.secure ? 'https://' : 'http://',
+            };
+        });
     }
 
     componentDidMount() {
@@ -279,7 +302,7 @@ class App extends Component {
 
     /**
      * Get the theme name
-     * @param {Theme} theme Theme
+     * @param {Theme} theme_ Theme
      * @returns {string} Theme name
      */
     static getThemeName(theme_) {
@@ -448,6 +471,9 @@ class App extends Component {
 
     getSnapshotNext() {
         if (!this.snapShotQueue.length) {
+            if (this.state.forceRefresh) {
+                setTimeout(() => this.setState({ forceRefresh: false }), 50);
+            }
             return;
         }
         const id = this.snapShotQueue[0];
@@ -462,7 +488,11 @@ class App extends Component {
             this.getSnapshotNext();
         }, 5000);
 
-        this.socket.getRawSocket().emit('sendTo', 'echarts.0', 'send', { preset: id }, data => {
+        this.socket.getRawSocket().emit('sendTo', 'echarts.0', 'send', {
+            preset: id,
+            cache: 600 /* 5 minutes */,
+            forceRefresh: this.state.forceRefresh,
+        }, data => {
             this.timeout[id] && clearTimeout(this.timeout[id]);
             this.timeout[id] = null;
 
@@ -531,7 +561,17 @@ class App extends Component {
                 parts.push('chart/index.html');
             }
 
-            const mainUrl = `${window.location.protocol}//${window.location.host}${parts.join('/')}?preset=`;
+            let instances;
+            if (this.state.webInstances.find(i => i.enabled)) {
+                instances = this.state.webInstances.filter(i => i.enabled);
+            } else {
+                instances = this.state.webInstances;
+            }
+
+            const webUrls = instances.map(inst => ({
+                url: `${inst.protocol}${inst.bind === '0.0.0.0' ? window.location.hostname : inst.bind}:${inst.port}/echarts/index.html?preset=`,
+                port: inst.port,
+            }));
 
             reactItems.push(<div key="br" className={this.props.classes.break} />);
             Object.keys(parent.presets).forEach(name => {
@@ -540,13 +580,24 @@ class App extends Component {
                     this.getSnapshot(preset._id);
                 }
 
-                const url = mainUrl + preset._id;
-
                 reactItems.push(<div
                     key={name}
                     style={{ width: this.state.iconSize }}
                     className={this.props.classes.button}
-                    onClick={() => window.location = url}
+                    onClick={e => {
+                        if (webUrls.length > 1) {
+                            this.setState({
+                                webMenu: {
+                                    id: preset._id,
+                                    webUrls,
+                                    copy: false,
+                                    anchorEl: e.currentTarget,
+                                },
+                            });
+                        } else {
+                            window.open(webUrls[0].url + preset._id, preset._id);
+                        }
+                    }}
                 >
                     {this.state.icons[preset._id] ?
                         (this.state.icons[preset._id].startsWith('error:') ?
@@ -561,17 +612,22 @@ class App extends Component {
                         <div className={this.props.classes.presetError}>{this.state.icons[preset._id].substring(6)}</div> : null}
                     <IconButton
                         size="small"
-                        title={`${I18n.t('Copy URL to clipboard')}:${url}`}
+                        title={I18n.t('Copy URL to clipboard')}
                         className={this.props.classes.copyButton}
                         onClick={e => {
-                            this.toastTimeout && clearTimeout(this.toastTimeout);
                             e.stopPropagation();
-                            Utils.copyToClipboard(url);
-                            this.setState({ toast: I18n.t('URL copied to clipboard') });
-                            this.toastTimeout = setTimeout(() => {
-                                this.toastTimeout = null;
-                                this.setState({ toast: '' });
-                            }, 4000);
+                            if (webUrls.length > 1) {
+                                this.setState({
+                                    webMenu: {
+                                        id: preset._id,
+                                        webUrls,
+                                        copy: true,
+                                        anchorEl: e.currentTarget,
+                                    },
+                                });
+                            } else {
+                                this.onCopyUrl(webUrls[0].url + preset._id);
+                            }
                         }}
                     >
                         <ContentCopy />
@@ -581,6 +637,16 @@ class App extends Component {
         }
 
         return reactItems;
+    }
+
+    onCopyUrl(url) {
+        this.toastTimeout && clearTimeout(this.toastTimeout);
+        Utils.copyToClipboard(url);
+        this.setState({ toast: `${I18n.t('URL copied to clipboard')}: ${url}` });
+        this.toastTimeout = setTimeout(() => {
+            this.toastTimeout = null;
+            this.setState({ toast: '' });
+        }, 4000);
     }
 
     getFolder(location, parent, _index) {
@@ -668,6 +734,30 @@ class App extends Component {
         />;
     }
 
+    renderWebMenu() {
+        if (!this.state.webMenu) {
+            return null;
+        }
+        return <Menu
+            anchorEl={this.state.webMenu.anchorEl}
+            open={!0}
+            onClose={() => this.setState({ webMenu: null })}
+        >
+            {this.state.webMenu.webUrls.map(inst => <MenuItem onClick={() => {
+                if (this.state.webMenu.copy) {
+                    this.onCopyUrl(inst.url + this.state.webMenu.id);
+                } else {
+                    window.open(inst.url + this.state.webMenu.id, this.state.webMenu.id);
+                }
+                this.setState({ webMenu: null });
+            }}
+            >
+                :
+                {inst.port}
+            </MenuItem>)}
+        </Menu>;
+    }
+
     render() {
         if (!this.state.connected) {
             return <StylesProvider generateClassName={generateClassName}>
@@ -722,7 +812,7 @@ class App extends Component {
                                     Object.keys(iconsCache).forEach(key => {
                                         delete iconsCache[key];
                                     });
-                                    this.setState({ icons: {} });
+                                    this.setState({ icons: {}, forceRefresh: true });
                                 }}
                                 title={I18n.t('Refresh snapshots')}
                             >
@@ -741,6 +831,7 @@ class App extends Component {
                     </div>
                     {this.renderError()}
                     {this.renderToast()}
+                    {this.renderWebMenu()}
                 </ThemeProvider>
             </StyledEngineProvider>
         </StylesProvider>;

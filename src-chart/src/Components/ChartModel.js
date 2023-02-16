@@ -921,7 +921,7 @@ class ChartModel {
                 values[i].val = 1;
             } else if (values[i].val === 'false' || values[i].val === false) {
                 values[i].val = 0;
-            }
+            } else
             if (typeof values[i].val === 'string') {
                 values[i].val = parseFloat(values[i].val);
             }

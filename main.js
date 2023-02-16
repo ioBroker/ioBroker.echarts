@@ -2,7 +2,7 @@
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020-2022 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2023 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *
@@ -32,6 +32,7 @@ let echarts;
 let Canvas;
 let JSDOM;
 let adapter;
+let cachedSnapshots = {};
 
 function prepareReactFiles() {
     // there is a problem that node.js does not support "export default", so remove it manually from these files and create new
@@ -229,9 +230,37 @@ function processMessage(adapter, obj) {
         adapter.log.error('Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "png/svg"}');
         obj.callback && adapter.sendTo(obj.from, 'send', {error: 'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "svg/png"}'}, obj.callback);
     } else {
-        renderImage(obj.message)
-            .then(data => obj.callback && adapter.sendTo(obj.from, 'send', {data}, obj.callback))
-            .catch(error => obj.callback && adapter.sendTo(obj.from, 'send', {error}, obj.callback));
+        // delete cached snapshots
+        Object.keys(cachedSnapshots).forEach(preset => {
+            if (cachedSnapshots[preset].ts < Date.now()) {
+                delete cachedSnapshots[preset];
+            }
+        });
+
+        if (obj.message.cache && !obj.message.forceRefresh && cachedSnapshots[obj.message.preset] && cachedSnapshots[obj.message.preset].ts >= Date.now()) {
+            cachedSnapshots[obj.message.preset] = cachedSnapshots[obj.message.preset] || {};
+            obj.callback && adapter.sendTo(obj.from, 'send', {data: cachedSnapshots[obj.message.preset].data, error: cachedSnapshots[obj.message.preset].error}, obj.callback);
+        } else {
+            renderImage(obj.message)
+                .then(data => {
+                    if (obj.message.cache) {
+                        cachedSnapshots[obj.message.preset] = cachedSnapshots[obj.message.preset] || {};
+                        cachedSnapshots[obj.message.preset].ts = Date.now() + obj.message.cache * 1000;
+                        cachedSnapshots[obj.message.preset].data = data;
+                        cachedSnapshots[obj.message.preset].error = null;
+                    }
+                    obj.callback && adapter.sendTo(obj.from, 'send', {data}, obj.callback);
+                })
+                .catch(error => {
+                    if (obj.message.cache) {
+                        cachedSnapshots[obj.message.preset] = cachedSnapshots[obj.message.preset] || {};
+                        cachedSnapshots[obj.message.preset].ts = Date.now() + obj.message.cache * 1000;
+                        cachedSnapshots[obj.message.preset].data = null;
+                        cachedSnapshots[obj.message.preset].error = error;
+                    }
+                    obj.callback && adapter.sendTo(obj.from, 'send', {error}, obj.callback);
+                });
+        }
     }
 }
 
