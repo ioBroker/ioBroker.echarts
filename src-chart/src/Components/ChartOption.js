@@ -793,7 +793,13 @@ class ChartOption {
         }
 
         if (this.config.l[line].type === 'boolean') {
-            return val ? 'TRUE' : 'FALSE';
+            if (val === 0 || val === '0' || val === 'false' || val === 'FALSE' || val === false) {
+                return 'FALSE';
+            }
+            if (val === 1 || val === '1' || val === 'true' || val === 'TRUE' || val === true) {
+                return 'TRUE';
+            }
+            return ''; // do not show 1.1 or 0.8 for boolean
         }
 
         if (val === null || val === undefined) {

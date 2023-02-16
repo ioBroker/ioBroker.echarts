@@ -98,8 +98,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 1.4.4 (2023-02-16)
+### **WORK IN PROGRESS**
 * (bluefox) Allowed to copy only the web URLs in the preview
+* (bluefox) Corrected boolean charts
 
 ### 1.4.3 (2023-02-15)
 * (bluefox) Implemented charts preview

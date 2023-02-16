@@ -3,19 +3,6 @@
     "name": "echarts",
     "version": "1.4.4",
     "news": {
-      "1.4.4": {
-        "en": "Allowed to copy only the web URLs in the preview",
-        "de": "Erlaubt, nur die Web-URLs in der Vorschau zu kopieren",
-        "ru": "Разрешено копировать только веб-адреса в предварительном просмотре",
-        "pt": "Permite copiar apenas as URLs da web na visualização",
-        "nl": "Vertaling:",
-        "fr": "Permis de copier seulement les URL web dans la prévisualisation",
-        "it": "Consentito di copiare solo gli URL web in anteprima",
-        "es": "Permitido copiar sólo las URL web en la vista previa",
-        "pl": "Wszystko, aby kopiować jedynie webowe URL w preview",
-        "uk": "Зроблено копіювати лише URL-адреси веб-сторінок у попередньому перегляді",
-        "zh-cn": "只允许在预约中复制欧元的网址。"
-      },
       "1.4.3": {
         "en": "Implemented charts preview",
         "de": "Implementierte Charts Vorschau",
