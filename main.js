@@ -281,8 +281,9 @@ function main(adapter) {
     // fix _design/chart
     adapter.getForeignObject('_design/chart', (err, obj) => {
         const _obj = require('./io-package.json').objects.find(ob => ob._id === '_design/chart');
-        if (obj && _obj && JSON.stringify(obj.views) !== JSON.stringify(_obj.views)) {
-            obj.views = _obj.views;
+        if (!obj || (_obj && JSON.stringify(obj.views) !== JSON.stringify(_obj.views))) {
+            obj = obj || {language: 'javascript'};
+            obj.views = _obj && _obj.views ? _obj.views : {chart: {map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }`}};
             adapter.setForeignObject('_design/chart', obj);
         }
     });
@@ -290,7 +291,9 @@ function main(adapter) {
     // fix _design/system
     adapter.getForeignObject('_design/system', (err, obj) => {
         if (obj && obj.views && !obj.views.chart) {
-            obj.views.chart = {map: 'function(doc) { if (doc.type === \'chart\') emit(doc._id, doc); }'}
+            obj.views.chart = {
+                map: 'function(doc) { if (doc.type === \'chart\') emit(doc._id, doc); }',
+            };
             adapter.setForeignObject('_design/system', obj);
         }
     });
