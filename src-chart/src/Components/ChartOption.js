@@ -793,7 +793,7 @@ class ChartOption {
         }
 
         if (this.config.l[line].type === 'boolean') {
-            if (val === 0 || val === '0' || val === 'false' || val === false || val === null || val === undefined) {
+            if (val === 0 || val === '0' || val === 'false' || val === false) {
                 return this.config.l[line].falseText || 'FALSE';
             }
             if (val === 1 || val === '1' || val === 'true' || val === true) {

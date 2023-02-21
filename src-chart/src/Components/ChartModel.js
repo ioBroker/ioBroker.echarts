@@ -1041,7 +1041,7 @@ class ChartModel {
                     if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
                         // read current value
                         return this.socket.getState(id)
-                            .then(state => this.actualValues[index] = state && (state.val || state.val === 0) ? state.val : null)
+                            .then(state => this.actualValues[index] = state && (state.val || state.val === 0 || state.val === false) ? state.val : null)
                             .catch(e => {
                                 console.warn(`Cannot read last value of "${id}": ${e}`);
                                 this.actualValues[index] = null;
@@ -1299,7 +1299,9 @@ class ChartModel {
                     }
 
                     return;
-                } if (this.actualValues && this.actualValues[m] !== state.val) {
+                }
+
+                if (this.actualValues && this.actualValues[m] !== state.val) {
                     this.actualValues[m] = state.val;
                     changed = true;
                 }
