@@ -236,7 +236,7 @@ class LineComponent extends React.Component {
                         newState = { isBoolean: true };
                     }
                     // we expect states only for enums, like: {0: 'OFF', 1: 'ON', '-1': 'whatever'}
-                    if (obj?.common?.states && !Array.isArray(obj.common.states)) {
+                    if (obj?.common?.states && !Array.isArray(obj.common.states) && !obj.common.unit) {
                         newState = newState || {};
                         newState.withStates = obj.common.states;
                         newState.originalStates = JSON.stringify(obj.common.states);
@@ -280,7 +280,7 @@ class LineComponent extends React.Component {
 
                         const newState = { isBoolean: obj?.common?.type === 'boolean' };
                         // we expect states only for enums, like: {0: 'OFF', 1: 'ON', '-1': 'whatever'}
-                        if (obj?.common?.states && !Array.isArray(obj.common.states)) {
+                        if (obj?.common?.states && !Array.isArray(obj.common.states) && !obj.common.unit) {
                             newState.withStates = obj.common.states;
                             newState.originalStates = JSON.stringify(obj.common.states);
                             // merge with existing states

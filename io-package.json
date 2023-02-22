@@ -3,19 +3,6 @@
     "name": "echarts",
     "version": "1.4.8",
     "news": {
-      "1.4.8": {
-        "en": "Allowed the disabling of texts for enums and the adding/deletion of own text values",
-        "de": "Erlaubt die Deaktivierung von Texten für Enums und das Hinzufügen/Ausgeben eigener Textwerte",
-        "ru": "Разрешено отключение текстов для перечислений и добавление/отмена собственных текстовых значений",
-        "pt": "Permitido a desativação de textos para enums e a adição / eliminação de valores de texto próprios",
-        "nl": "Vertaling:",
-        "fr": "Permet de désactiver les textes pour les émoluments et d ' ajouter ou de supprimer des valeurs de texte propres",
-        "it": "Consentito la disabilitazione dei testi per gli enum e l'aggiunta/eliminazione dei propri valori di testo",
-        "es": "Permitió la desactivación de textos para enums y la adición o eliminación de valores propios de texto",
-        "pl": "Wszystko dawało rozmieszczenie tekstów dla enum i dodanie/delecji własnych wartości tekstowych",
-        "uk": "Дозволено відключення текстів для обманів та додавання/вилучення власних текстових значень",
-        "zh-cn": "允许修改案文,说明和增加/推销自己的案文价值"
-      },
       "1.4.7": {
         "en": "Implemented custom texts for enums",
         "de": "Ergänzte benutzerdefinierte Texte für enums",

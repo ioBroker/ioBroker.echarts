@@ -1092,7 +1092,8 @@ class ChartModel {
                     // remember enum states
                     if (obj.common.states &&
                         !Array.isArray(obj.common.states) &&
-                        this.config.l[index].states !== false
+                        this.config.l[index].states !== false &&
+                        !obj.common.unit
                     ) {
                         if (this.config.l[index].states) {
                             this.config.l[index].states = Object.assign(obj.common.states, this.config.l[index].states);
