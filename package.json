@@ -1,6 +1,6 @@
 {
   "name": "iobroker.echarts",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Build useful charts in ioBroker",
   "author": {
     "name": "bluefox",

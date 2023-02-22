@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.6",
+    "version": "1.4.7",
     "news": {
+      "1.4.7": {
+        "en": "Implemented custom texts for enums",
+        "de": "Ergänzte benutzerdefinierte Texte für enums",
+        "ru": "Внедренные пользовательские тексты для enums",
+        "pt": "Textos personalizados implementados para enums",
+        "nl": "Geïmplementeerde gebruiks-sms'jes voor vermommingen",
+        "fr": "Textes personnalisés mis en œuvre pour les enums",
+        "it": "Testi personalizzati per enum",
+        "es": "Textos personalizados implementados para enums",
+        "pl": "Implementacja standardowych tekstów dla enum",
+        "uk": "Реалізовано користувацькі тексти для обманів",
+        "zh-cn": "实施定制案文以图表"
+      },
       "1.4.6": {
         "en": "Implemented custom texts for true and false values",
         "de": "Ergänzte benutzerdefinierte Texte für echte und falsche Werte",
@@ -80,19 +93,6 @@
         "pl": "dodał formułę dla wartości konwersji",
         "uk": "додано формулу перетворення значень",
         "zh-cn": "a. 价值观转换的附加公式"
-      },
-      "1.3.3": {
-        "en": "Implemented bar chart",
-        "de": "Ergänztes Balkendiagramm",
-        "ru": "Реализована барная карта",
-        "pt": "Gráfico de barras implementado",
-        "nl": "Vertaling:",
-        "fr": "Tableau barres mis en œuvre",
-        "it": "Grafico a barre implementato",
-        "es": "Gráfico de barras aplicado",
-        "pl": "Implementacja barowa",
-        "uk": "Реалізовано діаграму бару",
-        "zh-cn": "执行巴图图"
       }
     },
     "title": "E-Charts",

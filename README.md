@@ -98,7 +98,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.4.7 (2023-02-22)
 * (bluefox) Implemented custom texts for enums
 
 ### 1.4.6 (2023-02-16)
