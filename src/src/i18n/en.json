@@ -503,5 +503,8 @@
   "non-processed": "non-processed",
   "difference": "difference",
   "Text by true": "Text by true",
-  "Text by false": "Text by false"
+  "Text by false": "Text by false",
+  "Edit state names": "Edit state names",
+  "Apply": "Apply",
+  "Source": "Source"
 }

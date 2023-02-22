@@ -503,5 +503,8 @@
   "non-processed": "необроблені",
   "difference": "різниця",
   "Text by true": "Текст від правда",
-  "Text by false": "Текст від false"
+  "Text by false": "Текст від false",
+  "Edit state names": "Редагувати назви штатів",
+  "Apply": "Застосувати",
+  "Source": "Джерело"
 }

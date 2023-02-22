@@ -13,7 +13,12 @@ import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
 
 import {
-    MdDelete as IconDelete, MdEdit as IconEdit, MdContentCopy as IconCopy, MdMenu as IconDrag, MdContentPaste as IconPaste, MdClose as IconClose,
+    MdDelete as IconDelete,
+    MdEdit as IconEdit,
+    MdContentCopy as IconCopy,
+    MdMenu as IconDrag, MdContentPaste as IconPaste,
+    MdClose as IconClose,
+    MdCheck as IconCheck,
 } from 'react-icons/md';
 
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
@@ -193,9 +198,24 @@ const styles = theme => ({
     chapterOther: {
         backgroundColor: 'rgba(255,146,0,0.1)',
     },
+    state: {
+        textAlign: 'center',
+        marginRight: 8,
+    },
+    stateValue: {
+        fontSize: 10,
+    },
+    stateText: {
+        fontSize: 12,
+        fontStyle: 'italic',
+        display: 'block',
+    },
+    stateValueEdit: {
+        marginBottom: 10,
+    },
 });
 
-class Line extends React.Component {
+class LineComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -203,13 +223,30 @@ class Line extends React.Component {
             dialogOpen: false,
             showConvertHelp: false,
             isBoolean: false,
+            withStates: null,
         };
 
         if (this.props.line.id) {
             this.props.socket.getObject(this.props.line.id)
                 .then(obj => {
+                    let newState = null;
                     if (obj?.common?.type === 'boolean') {
-                        this.setState({ isBoolean: true });
+                        newState = { isBoolean: true };
+                    }
+                    // we expect states only for enums, like: {0: 'OFF', 1: 'ON', '-1': 'whatever'}
+                    if (obj?.common?.states && !Array.isArray(obj.common.states)) {
+                        newState = newState || {};
+                        newState.withStates = obj.common.states;
+                        newState.originalStates = JSON.stringify(obj.common.states);
+                        if (this.props.line.states) {
+                            Object.assign(newState.withStates, this.props.line.states);
+                        } else if (this.props.line.states === false) {
+                            newState.withStates = false;
+                        }
+                    }
+
+                    if (newState) {
+                        this.setState(newState);
                     }
                 })
                 .catch(() => { /* ignore */ });
@@ -238,8 +275,28 @@ class Line extends React.Component {
                             line.chartType = 'auto';
                             line.aggregate = '';
                         }
-                        if ((obj?.common?.type === 'boolean') !== this.state.isBoolean) {
-                            setTimeout(() => this.setState({ isBoolean: obj?.common?.type === 'boolean' }), 50);
+
+                        const newState = { isBoolean: obj?.common?.type === 'boolean' };
+                        // we expect states only for enums, like: {0: 'OFF', 1: 'ON', '-1': 'whatever'}
+                        if (obj?.common?.states && !Array.isArray(obj.common.states)) {
+                            newState.withStates = obj.common.states;
+                            newState.originalStates = JSON.stringify(obj.common.states);
+                            // merge with existing states
+                            if (line.states) {
+                                Object.assign(newState.withStates, line.states);
+                            } else if (line.states === false) {
+                                newState.withStates = false;
+                            }
+                        } else {
+                            newState.withStates = null;
+                            delete line.states;
+                        }
+
+                        if (newState.isBoolean !== this.state.isBoolean ||
+                            JSON.stringify(this.state.withStates) !== JSON.stringify(newState.withStates) ||
+                            this.state.originalStates !== newState.originalStates
+                        ) {
+                            setTimeout(_newState => this.setState(_newState), 50, newState);
                         }
                     })
                     .catch(e => {
@@ -341,7 +398,7 @@ class Line extends React.Component {
                 formData={this.props.line}
                 updateValue={this.updateField}
                 name="instance"
-                label="Instance"
+                label="Source"
                 noTranslate
                 options={(() => {
                     const result = { '': I18n.t('standard') };
@@ -497,6 +554,72 @@ class Line extends React.Component {
         </Dialog>;
     }
 
+    renderStates() {
+        if (!this.state.withStates) {
+            return null;
+        }
+        return <div className={this.props.classes.states}>
+            {Object.keys(this.state.withStates)
+                .map(val =>
+                    <div key={val} className={this.props.classes.state}>
+                        <span className={this.props.classes.stateValue}>{val}</span>
+                        ↓
+                        <span className={this.props.classes.stateText}>{this.state.withStates[val]}</span>
+                    </div>)}
+            <Button
+                variant="outlined"
+                onClick={() => this.setState({ showStatesEdit: true })}
+                startIcon={<IconEdit />}
+                title={I18n.t('Edit state names')}
+            >
+                ...
+            </Button>
+
+            {this.state.showStatesEdit ? <Dialog
+                open={!0}
+                onClose={() => this.setState({ showStatesEdit: false })}
+            >
+                <DialogTitle>{I18n.t('Edit state names')}</DialogTitle>
+                <DialogContent>
+                    {Object.keys(this.state.withStates)
+                        .map(val =>
+                            <div key={val} className={this.props.classes.state}>
+                                <TextField
+                                    className={this.props.classes.stateValueEdit}
+                                    variant="standard"
+                                    label={val.toString()}
+                                    value={this.state.withStates[val]}
+                                    onChange={e => this.setState({ withStates: { ...this.state.withStates, [val]: e.target.value } })}
+                                />
+                            </div>)}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        autoFocus
+                        onClick={() => {
+                            const withStates = JSON.parse(JSON.stringify(this.state.withStates));
+                            const originalStates = JSON.parse(this.state.originalStates);
+                            Object.keys(withStates).forEach(val => {
+                                if (withStates[val] === originalStates[val]) {
+                                    delete withStates[val];
+                                }
+                            });
+
+                            this.updateField('states', this.state.withStates);
+                            this.setState({ showStatesEdit: null });
+                        }}
+                        startIcon={<IconCheck />}
+                    >
+                        {I18n.t('Apply')}
+                    </Button>
+                    <Button variant="contained" color="grey" onClick={() => this.setState({ showStatesEdit: false })} startIcon={<IconClose />}>{I18n.t('Close')}</Button>
+                </DialogActions>
+            </Dialog> : null}
+        </div>;
+    }
+
     renderOpenedLine() {
         const xAxisOptions = {
             '': I18n.t('own axis'),
@@ -579,7 +702,7 @@ class Line extends React.Component {
                     formData={this.props.line}
                     updateValue={this.updateField}
                     name="instance"
-                    label="Instance"
+                    label="Source"
                     noTranslate
                     options={(() => {
                         const result = {};
@@ -643,9 +766,10 @@ class Line extends React.Component {
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name" />
-                {!this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" /> : null}
+                {!this.state.isBoolean && ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" /> : null}
                 {this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="falseText" label="Text by false" /> : null}
                 {this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="trueText" label="Text by true" /> : null}
+                {this.renderStates()}
             </div>
             {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
                 <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
@@ -818,7 +942,7 @@ class Line extends React.Component {
     }
 }
 
-Line.propTypes = {
+LineComponent.propTypes = {
     line: PropTypes.object,
     maxLines: PropTypes.number,
     socket: PropTypes.object,
@@ -838,4 +962,6 @@ Line.propTypes = {
     onPaste: PropTypes.func,
 };
 
-export default withStyles(styles)(Line);
+const Line = withStyles(styles)(LineComponent);
+export default Line;
+export { Line };

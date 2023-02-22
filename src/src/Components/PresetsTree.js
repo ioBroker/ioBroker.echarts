@@ -828,7 +828,7 @@ class MenuList extends Component {
     }
 
     onDragFinish(source, target) {
-        // new Id
+        // new ID
         let newId = `${target}.${source.split('.').pop()}`;
         if (newId !== source) {
             // Check if source yet exists

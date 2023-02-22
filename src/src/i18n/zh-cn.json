@@ -503,5 +503,8 @@
   "non-processed": "未加工",
   "difference": "不同之处",
   "Text by true": "文字真实",
-  "Text by false": "假文字"
+  "Text by false": "假文字",
+  "Edit state names": "编辑州名称",
+  "Apply": "申请",
+  "Source": "来源"
 }

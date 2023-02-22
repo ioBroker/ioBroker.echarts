@@ -503,5 +503,8 @@
   "non-processed": "non elaborato",
   "difference": "differenza",
   "Text by true": "Testo per vero",
-  "Text by false": "Testo per falso"
+  "Text by false": "Testo per falso",
+  "Edit state names": "Modifica i nomi degli stati",
+  "Apply": "Fare domanda a",
+  "Source": "Fonte"
 }

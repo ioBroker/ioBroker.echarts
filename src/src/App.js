@@ -422,7 +422,7 @@ class App extends GenericApp {
                             if (first.unit) {
                                 for (let k = iFirst + 1; k < lines.length; k++) {
                                     if (lines[k].unit === first.unit) {
-                                        lines[k].commonYAxis = iFirst;
+                                        lines[k].commonYAxis = iFirst.toString();
                                     }
                                 }
                             }
@@ -432,7 +432,7 @@ class App extends GenericApp {
                                     // combine all following lines to one axis
                                     for (let j = k + 1; j < lines.length; j++) {
                                         if (lines[k].unit === lines[j].unit && lines[j].commonYAxis === undefined) {
-                                            lines[k].commonYAxis = j;
+                                            lines[k].commonYAxis = j.toString();
                                         }
                                     }
                                 }
@@ -654,6 +654,18 @@ class App extends GenericApp {
                     if (!destination) {
                         presetData.lines.push(newLine);
                     } else {
+                        // correct commonYAxis
+                        for (let i = 0; i < presetData.lines.length; i++) {
+                            if (!presetData.lines[i].commonYAxis && presetData.lines[i].commonYAxis !== 0) {
+                                continue;
+                            }
+                            if (presetData.lines[i].commonYAxis >= destination.index.toString()) {
+                                presetData.lines[i].commonYAxis = (parseInt(presetData.lines[i].commonYAxis, 10) + 1).toString();
+                            }
+                        }
+
+                        // todo inform PresetTabs about change of order of linesOpened
+
                         presetData.lines.splice(destination.index, 0, newLine);
                     }
                     if (presetData.lines.length > 1) {
@@ -661,7 +673,7 @@ class App extends GenericApp {
                         if (newLine.unit) {
                             for (let i = 0; i < presetData.lines.length; i++) {
                                 if (newLine !== presetData.lines[i] && presetData.lines[i].unit === newLine.unit) {
-                                    newLine.commonYAxis = i;
+                                    newLine.commonYAxis = i.toString();
                                     break;
                                 }
                             }
@@ -673,6 +685,21 @@ class App extends GenericApp {
                 .catch(e => this.onError(e, 'Cannot read object'));
         } else if (destination && source.droppableId === destination.droppableId) {
             const presetData = JSON.parse(JSON.stringify(this.state.presetData));
+
+            // correct commonYAxis
+            for (let i = 0; i < presetData.lines.length; i++) {
+                if (!presetData.lines[i].commonYAxis && presetData.lines[i].commonYAxis !== 0) {
+                    continue;
+                }
+                if (presetData.lines[i].commonYAxis === source.index.toString()) {
+                    presetData.lines[i].commonYAxis = destination.index.toString();
+                } else if (presetData.lines[i].commonYAxis === destination.index.toString()) {
+                    presetData.lines[i].commonYAxis = source.index.toString();
+                }
+            }
+
+            // todo inform PresetTabs about change of order of linesOpened
+
             const [removed] = presetData.lines.splice(source.index, 1);
             presetData.lines.splice(destination.index, 0, removed);
             this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });

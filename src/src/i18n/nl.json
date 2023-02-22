@@ -503,5 +503,8 @@
   "non-processed": "niet-verwerkt",
   "difference": "verschil",
   "Text by true": "Tekst door waar",
-  "Text by false": "Tekst door vals"
+  "Text by false": "Tekst door vals",
+  "Edit state names": "Staatsnamen bewerken",
+  "Apply": "Toepassen",
+  "Source": "Bron"
 }

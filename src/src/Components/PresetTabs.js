@@ -38,7 +38,8 @@ import {
 import {
     IOTextField, IOCheckbox, IOSelect, IODateTimeField,
 } from './Fields';
-import Line from './Line';
+
+import { Line } from './Line';
 import Mark from './Mark';
 import DefaultPreset from './DefaultPreset';
 
@@ -135,6 +136,12 @@ const styles = theme => ({
         marginTop: 20,
         marginBottom: 10,
         marginLeft: theme.spacing(2),
+    },
+    selected: {
+        color: theme.palette.mode === 'dark' ? undefined : '#FFF !important',
+    },
+    indicator: {
+        backgroundColor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : '#FFF',
     },
 });
 
@@ -315,6 +322,19 @@ class PresetTabs extends React.Component {
 
     deleteLine = index => {
         const presetData = JSON.parse(JSON.stringify(this.props.presetData));
+
+        // Check if the yaxis of this line is used somewhere else and correct commonYAxis
+        for (let i = 0; i < presetData.lines.length; i++) {
+            if (!presetData.lines[i].commonYAxis && presetData.lines[i].commonYAxis !== 0) {
+                continue;
+            }
+            if (presetData.lines[i].commonYAxis.toString() > index.toString()) {
+                presetData.lines[i].commonYAxis = (parseInt(presetData.lines[i].commonYAxis, 10) - 1).toString();
+            } else if (presetData.lines[i].commonYAxis.toString() === index.toString()) {
+                presetData.lines[i].commonYAxis = '';
+            }
+        }
+
         presetData.lines.splice(index, 1);
         const linesOpened = [...this.state.linesOpened];
         linesOpened.splice(index, 1);
@@ -1108,13 +1128,14 @@ class PresetTabs extends React.Component {
                     }}
                     variant="scrollable"
                     scrollButtons
+                    classes={{ indicator: this.props.classes.indicator }}
                 >
-                    <Tab label={I18n.t('Data')} value="0" />
-                    <Tab label={I18n.t('Markings')} value="1" />
-                    <Tab label={I18n.t('Time')} value="2" />
-                    <Tab label={I18n.t('Options')} value="3" />
-                    <Tab label={I18n.t('Title')} value="4" />
-                    <Tab label={I18n.t('Appearance')} value="5" />
+                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Data')} value="0" />
+                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Markings')} value="1" />
+                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Time')} value="2" />
+                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Options')} value="3" />
+                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Title')} value="4" />
+                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Appearance')} value="5" />
                 </TabList>
             </AppBar>
             <div className={this.props.classes.tabsBody}>

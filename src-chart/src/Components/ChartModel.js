@@ -1075,13 +1075,39 @@ class ChartModel {
     _readOneLine(index, cb) {
         return this._readObject(this.config.l[index].id)
             .then(obj => {
-                if (obj && obj.common) {
+                if (obj?.common) {
                     this.config.l[index].name = this.config.l[index].name || obj.common.name;
                     this.config.l[index].unit = this.config.l[index].unit || (obj.common.unit ? obj.common.unit.replace('�', '°') : '');
                     this.config.l[index].type = obj.common.type;
                     if (this.config.l[index].chartType === 'auto') {
                         this.config.l[index].chartType = obj.common.type === 'boolean' ? 'steps' : 'line';
                         this.config.l[index].aggregate = obj.common.type === 'boolean' ? 'onchange' : 'minmax';
+                    }
+
+                    // ignore unit if true/false text set
+                    if (this.config.l[index].unit && (this.config.l[index].falseText || this.config.l[index].trueText)) {
+                        delete this.config.l[index].unit;
+                    }
+
+                    // remember enum states
+                    if (obj.common.states &&
+                        !Array.isArray(obj.common.states) &&
+                        this.config.l[index].states !== false
+                    ) {
+                        if (this.config.l[index].states) {
+                            this.config.l[index].states = Object.assign(obj.common.states, this.config.l[index].states);
+                        } else {
+                            this.config.l[index].states = obj.common.states;
+                        }
+                        // ignore unit for enums text set
+                        if (this.config.l[index].unit && this.config.l[index].states) {
+                            delete this.config.l[index].unit;
+                        }
+                    }
+
+                    // set YAxis to 'off' if commonYAxis is set
+                    if (this.config.l[index].commonYAxis || this.config.l[index].commonYAxis === 0) {
+                        this.config.l[index].yaxe = 'off';
                     }
                 }
 

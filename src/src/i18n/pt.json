@@ -503,5 +503,8 @@
   "non-processed": "não processado",
   "difference": "diferença",
   "Text by true": "Texto por verdadeiro",
-  "Text by false": "Texto por falso"
+  "Text by false": "Texto por falso",
+  "Edit state names": "Editar nomes de estado",
+  "Apply": "Aplicar",
+  "Source": "Fonte"
 }

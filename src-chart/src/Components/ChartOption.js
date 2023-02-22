@@ -786,10 +786,28 @@ class ChartOption {
         return options;
     }
 
-    yFormatter(val, line, withUnit, interpolated /* , ignoreWidth */) {
+    yFormatter(val, line, withUnit, interpolated, forAxis) {
         if (val && typeof val === 'object') {
             val = val.value;
             withUnit = false;
+        }
+
+        if (this.config.l[line].states) {
+            const state = this.config.l[line].states[val];
+            if (state !== null && state !== undefined) {
+                return state.toString();
+            }
+            if (forAxis) {
+                // find the nearest state
+                const values = Object.keys(this.config.l[line].states).sort();
+                for (let i = 0; i < values.length; i++) {
+                    if (val < values[i]) {
+                        return this.config.l[line].states[values[i]].toString();
+                    }
+                }
+                return this.config.l[line].states[values[values.length - 1]].toString();
+            }
+            return ''; // do not show 1.1 or 0.8 for enum
         }
 
         if (this.config.l[line].type === 'boolean') {
@@ -798,6 +816,10 @@ class ChartOption {
             }
             if (val === 1 || val === '1' || val === 'true' || val === true) {
                 return this.config.l[line].trueText || 'TRUE';
+            }
+            if (forAxis) {
+                // find the nearest state
+                return val >= 0.5 ? (this.config.l[line].trueText || 'TRUE') : (this.config.l[line].falseText || 'FALSE');
             }
             return ''; // do not show 1.1 or 0.8 for boolean
         }
@@ -1196,8 +1218,8 @@ class ChartOption {
                     }
                 }
 
-                const minTick = this.yFormatter(_yAxis.min, i, true);
-                const maxTick = this.yFormatter(!_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max, i, true);
+                const minTick = this.yFormatter(_yAxis.min, i, true, false, true);
+                const maxTick = this.yFormatter(!_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max, i, true, false, true);
 
                 if (xAxis[0].position === 'top') {
                     padTop = this.isXLabelHasBreak() ? 40 : 24;
