@@ -506,5 +506,11 @@
   "Text by false": "Tekst door vals",
   "Edit state names": "Staatsnamen bewerken",
   "Apply": "Toepassen",
-  "Source": "Bron"
+  "Source": "Bron",
+  "Text values not used": "Tekstwaarden worden niet gebruikt",
+  "Use state names": "Gebruik staatsnamen",
+  "Add new value": "Nieuwe waarde toevoegen",
+  "State value": "Staat waarde",
+  "State value text": "Staat waarde tekst",
+  "Add": "Toevoegen"
 }

@@ -18,7 +18,6 @@ import {
     MdContentCopy as IconCopy,
     MdMenu as IconDrag, MdContentPaste as IconPaste,
     MdClose as IconClose,
-    MdCheck as IconCheck,
 } from 'react-icons/md';
 
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
@@ -33,6 +32,7 @@ import {
 } from './Fields';
 
 import LineDialog from './LineDialog';
+import EditStatesDialog from './EditStatesDialog';
 
 const WIDTHS = {
     instance: 100,
@@ -198,6 +198,10 @@ const styles = theme => ({
     chapterOther: {
         backgroundColor: 'rgba(255,146,0,0.1)',
     },
+    states: {
+        verticalAlign: 'top',
+        marginTop: 12,
+    },
     state: {
         textAlign: 'center',
         marginRight: 8,
@@ -209,9 +213,7 @@ const styles = theme => ({
         fontSize: 12,
         fontStyle: 'italic',
         display: 'block',
-    },
-    stateValueEdit: {
-        marginBottom: 10,
+        whiteSpace: 'nowrap',
     },
 });
 
@@ -555,17 +557,22 @@ class LineComponent extends React.Component {
     }
 
     renderStates() {
-        if (!this.state.withStates) {
+        if (this.state.withStates === null) {
             return null;
         }
         return <div className={this.props.classes.states}>
-            {Object.keys(this.state.withStates)
-                .map(val =>
-                    <div key={val} className={this.props.classes.state}>
-                        <span className={this.props.classes.stateValue}>{val}</span>
-                        ↓
-                        <span className={this.props.classes.stateText}>{this.state.withStates[val]}</span>
-                    </div>)}
+            {this.state.withStates ?
+                Object.keys(this.state.withStates)
+                    .map(val =>
+                        <div key={val} className={this.props.classes.state}>
+                            <span className={this.props.classes.stateValue}>{val}</span>
+                            ↓
+                            <span className={this.props.classes.stateText}>{this.state.withStates[val]}</span>
+                        </div>)
+                :
+                <div className={this.props.classes.state}>
+                    <span className={this.props.classes.stateText}>{I18n.t('Text values not used')}</span>
+                </div>}
             <Button
                 variant="outlined"
                 onClick={() => this.setState({ showStatesEdit: true })}
@@ -575,48 +582,29 @@ class LineComponent extends React.Component {
                 ...
             </Button>
 
-            {this.state.showStatesEdit ? <Dialog
-                open={!0}
-                onClose={() => this.setState({ showStatesEdit: false })}
-            >
-                <DialogTitle>{I18n.t('Edit state names')}</DialogTitle>
-                <DialogContent>
-                    {Object.keys(this.state.withStates)
-                        .map(val =>
-                            <div key={val} className={this.props.classes.state}>
-                                <TextField
-                                    className={this.props.classes.stateValueEdit}
-                                    variant="standard"
-                                    label={val.toString()}
-                                    value={this.state.withStates[val]}
-                                    onChange={e => this.setState({ withStates: { ...this.state.withStates, [val]: e.target.value } })}
-                                />
-                            </div>)}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        autoFocus
-                        onClick={() => {
-                            const withStates = JSON.parse(JSON.stringify(this.state.withStates));
+            {this.state.showStatesEdit ? <EditStatesDialog
+                withStates={this.state.withStates}
+                originalStates={this.state.originalStates}
+                onClose={withStates => {
+                    if (withStates !== undefined) {
+                        this.setState({ showStatesEdit: false, withStates: JSON.parse(JSON.stringify(withStates)) });
+                        if (withStates) {
+                            const states = JSON.parse(JSON.stringify(withStates));
                             const originalStates = JSON.parse(this.state.originalStates);
-                            Object.keys(withStates).forEach(val => {
-                                if (withStates[val] === originalStates[val]) {
-                                    delete withStates[val];
+                            Object.keys(states).forEach(val => {
+                                if (states[val] === originalStates[val]) {
+                                    delete states[val];
                                 }
                             });
-
-                            this.updateField('states', this.state.withStates);
-                            this.setState({ showStatesEdit: null });
-                        }}
-                        startIcon={<IconCheck />}
-                    >
-                        {I18n.t('Apply')}
-                    </Button>
-                    <Button variant="contained" color="grey" onClick={() => this.setState({ showStatesEdit: false })} startIcon={<IconClose />}>{I18n.t('Close')}</Button>
-                </DialogActions>
-            </Dialog> : null}
+                            this.updateField('states', states);
+                        } else {
+                            this.updateField('states', false);
+                        }
+                    } else {
+                        this.setState({ showStatesEdit: false });
+                    }
+                }}
+            /> : null}
         </div>;
     }
 

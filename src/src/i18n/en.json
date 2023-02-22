@@ -506,5 +506,11 @@
   "Text by false": "Text by false",
   "Edit state names": "Edit state names",
   "Apply": "Apply",
-  "Source": "Source"
+  "Source": "Source",
+  "Text values not used": "Text values not used",
+  "Use state names": "Use state names",
+  "Add new value": "Add new value",
+  "State value": "State value",
+  "State value text": "State value text",
+  "Add": "Add"
 }

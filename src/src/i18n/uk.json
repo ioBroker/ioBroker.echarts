@@ -506,5 +506,11 @@
   "Text by false": "Текст від false",
   "Edit state names": "Редагувати назви штатів",
   "Apply": "Застосувати",
-  "Source": "Джерело"
+  "Source": "Джерело",
+  "Text values not used": "Текстові значення не використовуються",
+  "Use state names": "Використовуйте назви держав",
+  "Add new value": "Додати нове значення",
+  "State value": "Державне значення",
+  "State value text": "Вкажіть текст значення",
+  "Add": "додати"
 }

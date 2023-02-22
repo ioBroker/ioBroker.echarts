@@ -506,5 +506,11 @@
   "Text by false": "假文字",
   "Edit state names": "编辑州名称",
   "Apply": "申请",
-  "Source": "来源"
+  "Source": "来源",
+  "Text values not used": "未使用文本值",
+  "Use state names": "使用州名",
+  "Add new value": "增加新价值",
+  "State value": "状态值",
+  "State value text": "状态值文本",
+  "Add": "添加"
 }

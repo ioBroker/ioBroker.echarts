@@ -506,5 +506,11 @@
   "Text by false": "Текст для false",
   "Edit state names": "Изменить названия штатов",
   "Apply": "Применить",
-  "Source": "Источник"
+  "Source": "Источник",
+  "Text values not used": "Текстовые значения не используются",
+  "Use state names": "Используйте имена значений",
+  "Add new value": "Добавить новое значение",
+  "State value": "Числовое значение",
+  "State value text": "Текст значения",
+  "Add": "Добавить"
 }

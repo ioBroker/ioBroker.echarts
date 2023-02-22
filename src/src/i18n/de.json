@@ -506,5 +506,11 @@
   "Text by false": "Text bei falsch",
   "Edit state names": "Zustandsnamen bearbeiten",
   "Apply": "Anwenden",
-  "Source": "Quelle"
+  "Source": "Quelle",
+  "Text values not used": "Textwerte nicht verwendet",
+  "Use state names": "Zustandsnamen verwenden ",
+  "Add new value": "Fügen Sie neuen Wert hinzu",
+  "State value": "Wert angeben",
+  "State value text": "Werttext angeben",
+  "Add": "Hinzufügen"
 }
