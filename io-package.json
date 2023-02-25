@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.10",
+    "version": "1.4.11",
     "news": {
+      "1.4.11": {
+        "en": "Booleans were improved",
+        "de": "Boolen wurden verbessert",
+        "ru": "Боуланы были улучшены",
+        "pt": "Os booleanos foram melhorados",
+        "nl": "Booleans werden verbeterd",
+        "fr": "Les booléens ont été améliorés",
+        "it": "I bovini sono migliorati",
+        "es": "Los booleanos mejoraron",
+        "pl": "Boole zostały poprawione",
+        "uk": "Удосконалено",
+        "zh-cn": "玻璃改良"
+      },
       "1.4.9": {
         "en": "Allowed the disabling of texts for enums and the adding/deletion of own text values",
         "de": "Erlaubt die Deaktivierung von Texten für Enums und das Hinzufügen/Ausgeben eigener Textwerte",
