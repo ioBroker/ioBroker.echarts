@@ -45,13 +45,13 @@ class EditStatesDialog extends React.Component {
         };
 
         if (this.props.isBoolean) {
-            if (this.state.withStates['true']) {
-                this.state.withStates['1'] = this.state.withStates['true'];
-                delete this.state.withStates['true'];
+            if (this.state.withStates.true) {
+                this.state.withStates['1'] = this.state.withStates.true;
+                delete this.state.withStates.true;
             }
-            if (this.state.withStates['false']) {
-                this.state.withStates['0'] = this.state.withStates['false'];
-                delete this.state.withStates['false'];
+            if (this.state.withStates.false) {
+                this.state.withStates['0'] = this.state.withStates.false;
+                delete this.state.withStates.false;
             }
 
             this.state.withStates['1'] = this.state.withStates['1'] || 'true';
