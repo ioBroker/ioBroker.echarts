@@ -43,6 +43,20 @@ class EditStatesDialog extends React.Component {
             newValue: '',
             newTextValue: '',
         };
+
+        if (this.props.isBoolean) {
+            if (this.state.withStates['true']) {
+                this.state.withStates['1'] = this.state.withStates['true'];
+                delete this.state.withStates['true'];
+            }
+            if (this.state.withStates['false']) {
+                this.state.withStates['0'] = this.state.withStates['false'];
+                delete this.state.withStates['false'];
+            }
+
+            this.state.withStates['1'] = this.state.withStates['1'] || 'true';
+            this.state.withStates['0'] = this.state.withStates['1'] || 'false';
+        }
     }
 
     renderAddStateDialog() {
@@ -125,7 +139,7 @@ class EditStatesDialog extends React.Component {
                     />
                     {this.state.withStates !== false ? <>
                         <br />
-                        <IconButton
+                        {!this.props.isBoolean ? <IconButton
                             onClick={() => {
                                 const keys = Object.keys(this.state.withStates).sort();
                                 let newValue = '';
@@ -139,7 +153,7 @@ class EditStatesDialog extends React.Component {
                             title={I18n.t('Add new value')}
                         >
                             <IconAdd />
-                        </IconButton>
+                        </IconButton> : null}
                         <br />
                         {Object.keys(this.state.withStates)
                             .map(val =>
@@ -147,7 +161,7 @@ class EditStatesDialog extends React.Component {
                                     <TextField
                                         className={this.props.classes.stateValueEdit}
                                         variant="standard"
-                                        label={val.toString()}
+                                        label={this.props.isBoolean ? (val === '1' ? I18n.t('TRUE') : (val === '0' ? I18n.t('FALSE') : val)) : val.toString()}
                                         value={this.state.withStates[val]}
                                         onChange={e => this.setState({ withStates: { ...this.state.withStates, [val]: e.target.value } })}
                                         InputProps={{
@@ -162,7 +176,7 @@ class EditStatesDialog extends React.Component {
                                                 : undefined,
                                         }}
                                     />
-                                    {this.originalStates[val] === undefined ? <IconButton
+                                    {!this.props.isBoolean && this.originalStates[val] === undefined ? <IconButton
                                         onClick={() => {
                                             const withStates = { ...this.state.withStates };
                                             delete withStates[val];
@@ -197,6 +211,7 @@ EditStatesDialog.propTypes = {
     onClose: PropTypes.func,
     withStates: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
     originalStates: PropTypes.string,
+    isBoolean: PropTypes.string,
 };
 
 export default withStyles(styles)(EditStatesDialog);

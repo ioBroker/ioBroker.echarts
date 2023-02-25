@@ -585,6 +585,7 @@ class LineComponent extends React.Component {
             {this.state.showStatesEdit ? <EditStatesDialog
                 withStates={this.state.withStates}
                 originalStates={this.state.originalStates}
+                isBoolean={this.state.isBoolean}
                 onClose={withStates => {
                     if (withStates !== undefined) {
                         this.setState({ showStatesEdit: false, withStates: JSON.parse(JSON.stringify(withStates)) });
@@ -755,8 +756,8 @@ class LineComponent extends React.Component {
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name" />
                 {!this.state.isBoolean && ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" /> : null}
-                {this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="falseText" label="Text by false" /> : null}
-                {this.state.isBoolean ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="trueText" label="Text by true" /> : null}
+                {this.state.isBoolean && this.state.withStates === null ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="falseText" label="Text by false" /> : null}
+                {this.state.isBoolean && this.state.withStates === null ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="trueText" label="Text by true" /> : null}
                 {this.renderStates()}
             </div>
             {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>

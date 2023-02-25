@@ -1100,6 +1100,16 @@ class ChartModel {
                         } else {
                             this.config.l[index].states = obj.common.states;
                         }
+
+                        // if states has true, false as text => convert it to 1, 0
+                        if (Object.keys(this.config.l[index].states).find(key => key === 'true' || key === 'false')) {
+                            const states = {};
+                            Object.keys(this.config.l[index].states).forEach(key => {
+                                states[key === 'true' ? 1 : (key === 'false' ? 0 : key)] = this.config.l[index].states[key];
+                            });
+                            this.config.l[index].states = states;
+                        }
+
                         // ignore unit for enums text set
                         if (this.config.l[index].unit && this.config.l[index].states) {
                             delete this.config.l[index].unit;

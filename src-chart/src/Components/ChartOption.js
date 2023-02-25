@@ -793,6 +793,13 @@ class ChartOption {
         }
 
         if (this.config.l[line].states) {
+            if (val === true) {
+                val = 1;
+            } else
+            if (val === false) {
+                val = 0;
+            }
+
             const state = this.config.l[line].states[val];
             if (state !== null && state !== undefined) {
                 return state.toString();
@@ -1233,7 +1240,20 @@ class ChartOption {
                     return;
                 }
                 const wMin = this.calcTextWidth(minTick, this.config.y_labels_size) + 4;
-                const wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
+                let wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
+
+                // if we have descriptions for every number, so find the longest one and use it as max width
+                if (ser.states) {
+                    // get the longest state
+                    let wState = '';
+                    Object.keys(ser.states).forEach(state => {
+                        if (ser.states[state].length > wState.length) {
+                            wState = ser.states[state];
+                        }
+                    });
+                    wMax = this.calcTextWidth(wState, this.config.y_labels_size) + 4;
+                }
+
                 if (position !== 'right' && position !== 'rightColor') {
                     if (wMin > padLeft) {
                         padLeft = wMin;
