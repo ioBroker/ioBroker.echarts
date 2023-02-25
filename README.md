@@ -98,7 +98,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.4.10 (2023-02-25)
 * (bluefox) Booleans were improved
 
 ### 1.4.9 (2023-02-22)

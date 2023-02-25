@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.9",
+    "version": "1.4.10",
     "news": {
+      "1.4.10": {
+        "en": "Booleans were improved",
+        "de": "Boolen wurden verbessert",
+        "ru": "Боуланы были улучшены",
+        "pt": "Os booleanos foram melhorados",
+        "nl": "Booleans werden verbeterd",
+        "fr": "Les booléens ont été améliorés",
+        "it": "I bovini sono migliorati",
+        "es": "Los booleanos mejoraron",
+        "pl": "Boole zostały poprawione",
+        "uk": "Удосконалено",
+        "zh-cn": "玻璃改良"
+      },
       "1.4.9": {
         "en": "Allowed the disabling of texts for enums and the adding/deletion of own text values",
         "de": "Erlaubt die Deaktivierung von Texten für Enums und das Hinzufügen/Ausgeben eigener Textwerte",
@@ -80,19 +93,6 @@
         "pl": "Wykłaniać niektóre problemy z GitHub\nImplementacja negatywna w stosunku do X-Axis\nNazwy urządzenie do map",
         "uk": "Виправлено деякі питання від GitHub\nРеалізовано негативний зсув X-Axis\nПоказати назви пристроїв для діаграм",
         "zh-cn": "GitHubub的一些问题\nA. 执行十-Axis的负面影响\n图像装置名称"
-      },
-      "1.4.0": {
-        "en": "Added possibility to load the history data from JSON state.",
-        "de": "Zusätzliche Möglichkeit, die Geschichtsdaten aus dem JSON-Zustand zu laden.",
-        "ru": "Добавлена возможность загрузки данных об истории из государства JSON.",
-        "pt": "Adicionado possibilidade de carregar os dados do histórico do estado de JSON.",
-        "nl": "Toegevoegd de mogelijkheid om de geschiedenisgegevens van JSON staat te laden.",
-        "fr": "Ajout de la possibilité de charger les données d'histoire de l'état JSON.",
-        "it": "Aggiunta possibilità di caricare i dati di storia da JSON stato.",
-        "es": "Se agregó la posibilidad de cargar los datos de historia del estado JSON.",
-        "pl": "Dokładna możliwość załadowania danych z JSON.",
-        "uk": "Додана можливість завантаження даних історії з стану JSON.",
-        "zh-cn": "增加可能将自联索行动州的历史数据载荷。."
       }
     },
     "title": "E-Charts",
