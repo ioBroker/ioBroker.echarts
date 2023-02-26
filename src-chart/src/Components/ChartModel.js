@@ -1445,7 +1445,15 @@ class ChartModel {
             this.seriesData = [];
             this.barCategories = null;
 
-            this._readData(() =>
+            this._readData(() => {
+                // use units from common axis
+                for (let i = 0; i < this.config.l.length; i++) {
+                    if (this.config.l[i].commonYAxis || this.config.l[i].commonYAxis === 0) {
+                        this.config.l[i].units = this.config.l[this.config.l[i].commonYAxis].units;
+                    }
+                }
+
+
                 this.readTicks(() =>
                     this.readMarkings(() => {
                         /* if (!this.subscribed) {
@@ -1456,7 +1464,8 @@ class ChartModel {
                         this.reading = false;
                         this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
                         // }
-                    })));
+                    }));
+            });
         } else {
             this.onErrorFunc && this.onErrorFunc('No config provided');
             this.onReadingFunc && this.onReadingFunc(false);
