@@ -493,6 +493,7 @@ class PresetTabs extends React.Component {
                                 width={this.props.width}
                                 deleteLine={() => this.setState({ copiedObject: null })}
                                 key="copiedLine"
+                                socket={this.props.socket}
                                 opened={false}
                                 onPaste={() => this.addLine(this.state.copiedObject.data)}
                             /> : null}

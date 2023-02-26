@@ -9,9 +9,6 @@
 const fs   = require('fs');
 const path = require('path');
 const cp   = require('child_process');
-const {exec} = require("child_process");
-
-const dir = `${__dirname}/src-preview/src/i18n/`;
 
 function deleteFoldersRecursive(path, exceptions) {
     if (fs.existsSync(path)) {
@@ -43,8 +40,7 @@ function npmInstall() {
 
         // System call used for update of js-controller itself,
         // because during installation npm packet will be deleted too, but some files must be loaded even during the install process.
-        const exec = require('child_process').exec;
-        const child = exec(cmd, {cwd});
+        const child = cp.exec(cmd, {cwd});
 
         child.stderr.pipe(process.stderr);
         child.stdout.pipe(process.stdout);

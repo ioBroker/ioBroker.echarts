@@ -53,8 +53,8 @@ module.exports = function init(gulp) {
         const keys = Object.keys(index);
         keys.sort();
 
-        if (!fs.existsSync(dir + '/flat/')) {
-            fs.mkdirSync(dir + '/flat/');
+        if (!fs.existsSync(`${dir}/flat/`)) {
+            fs.mkdirSync(`${dir}/flat/`);
         }
 
         langs.forEach(lang => {
@@ -62,9 +62,9 @@ module.exports = function init(gulp) {
             keys.forEach(key => {
                 words.push(index[key][lang]);
             });
-            fs.writeFileSync(dir + '/flat/' + lang + '.txt', words.join('\n'));
+            fs.writeFileSync(`${dir}/flat/${lang}.txt`, words.join('\n'));
         });
-        fs.writeFileSync(dir + '/flat/index.txt', keys.join('\n'));
+        fs.writeFileSync(`${dir}/flat/index.txt`, keys.join('\n'));
         done();
     });
 
@@ -117,8 +117,7 @@ module.exports = function init(gulp) {
 
             // System call used for update of js-controller itself,
             // because during installation npm packet will be deleted too, but some files must be loaded even during the install process.
-            const exec = require('child_process').exec;
-            const child = exec(cmd, {cwd});
+            const child = cp.exec(cmd, {cwd});
 
             child.stderr.pipe(process.stderr);
             child.stdout.pipe(process.stdout);
@@ -153,8 +152,8 @@ module.exports = function init(gulp) {
                 cwd:   `${__dirname}/src-chart/`
             };
 
-            const version = JSON.parse(fs.readFileSync(__dirname + '/package.json').toString('utf8')).version;
-            const data = JSON.parse(fs.readFileSync(__dirname + '/src-chart/package.json').toString('utf8'));
+            const version = JSON.parse(fs.readFileSync(`${__dirname}/package.json`).toString('utf8')).version;
+            const data = JSON.parse(fs.readFileSync(`${__dirname}/src-chart/package.json`).toString('utf8'));
             data.version = version;
             fs.writeFileSync(`${__dirname}/src-chart/package.json`, JSON.stringify(data, null, 2));
 
@@ -195,8 +194,8 @@ module.exports = function init(gulp) {
                 'src-chart/build/**/*',
                 '!src-chart/build/index.html',
                 '!src-chart/build/static/js/main.*.chunk.js',
-                '!src/build/static/media/*.svg',
-                '!src/build/static/media/*.txt',
+                '!src-chart/build/static/media/*.svg',
+                '!src-chart/build/static/media/*.txt',
                 '!src-chart/build/i18n/**/*',
                 '!src-chart/build/i18n',
             ])
@@ -244,7 +243,7 @@ module.exports = function init(gulp) {
                 checkChart(resolve, reject, Date.now()));
         } else {
             console.log('Check src-chart/build/service-worker.js');
-            if (fs.existsSync(__dirname + '/src-chart/build/index.html')) {
+            if (fs.existsSync(`${__dirname}/src-chart/build/index.html`)) {
                 console.log('Exists src-chart/build/index.html');
                 setTimeout(() => resolve(), 500);
             } else {

@@ -78,6 +78,9 @@ const styles = theme => ({
         paddingBottom: theme.spacing(2),
         borderBottom: `1px dotted ${theme.palette.grey[400]}`,
     },
+    lineClosed: {
+        display: 'flex',
+    },
     title: {
         width: 'inherit',
         position: 'absolute',
