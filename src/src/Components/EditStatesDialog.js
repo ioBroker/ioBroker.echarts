@@ -33,18 +33,18 @@ class EditStatesDialog extends React.Component {
     constructor(props) {
         super(props);
 
-        this.originalStates = JSON.parse(this.props.originalStates);
-        this.statesBeforeEdit = JSON.stringify(this.props.withStates);
+        this.originalStates = JSON.parse(props.originalStates);
+        this.statesBeforeEdit = JSON.stringify(props.withStates);
 
         this.state = {
-            withStates: JSON.parse(JSON.stringify(this.props.withStates)),
-            disabledStates: this.props.withStates ? JSON.stringify(this.props.withStates) : this.props.originalStates,
+            withStates: JSON.parse(JSON.stringify(props.withStates)),
+            disabledStates: this.props.withStates ? JSON.stringify(props.withStates) : props.originalStates,
             showAddStateDialog: false,
             newValue: '',
             newTextValue: '',
         };
 
-        if (this.props.isBoolean) {
+        if (props.isBoolean) {
             if (this.state.withStates.true) {
                 this.state.withStates['1'] = this.state.withStates.true;
                 delete this.state.withStates.true;
@@ -55,7 +55,7 @@ class EditStatesDialog extends React.Component {
             }
 
             this.state.withStates['1'] = this.state.withStates['1'] || 'true';
-            this.state.withStates['0'] = this.state.withStates['1'] || 'false';
+            this.state.withStates['0'] = this.state.withStates['0'] || 'false';
         }
     }
 
