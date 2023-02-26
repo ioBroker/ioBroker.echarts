@@ -307,7 +307,7 @@ class App extends Component {
                             noAnimation={this.state.noLoader}
                             data={this.state.seriesData}
                             actualValues={this.state.actualValues}
-                            categories={this.state.categories} // used for bar charts and pie charts
+                            categories={this.state.categories || []} // used for bar charts and pie charts
                             config={config}
                             compact={this.state.compact}
                             lang={I18n.getLanguage()}

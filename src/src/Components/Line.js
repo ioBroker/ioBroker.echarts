@@ -721,14 +721,15 @@ class LineComponent extends React.Component {
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
                 {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
-                {this.props.line.instance !== 'json' ? <IOSelect
+                <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
                     name="chartType"
                     label="Chart type"
                     options={chartTypes}
-                /> : null}
-                {this.props.line.chartType !== 'auto' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={aggregateTypes} /> : null }
+                />
+                {this.props.line.instance !== 'json' && this.props.line.chartType !== 'auto' ?
+                    <IOSelect formData={this.props.line} updateValue={this.updateField} name="aggregate" label="Type" options={aggregateTypes} /> : null}
                 {this.props.line.chartType === 'bar' ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}

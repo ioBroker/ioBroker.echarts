@@ -525,6 +525,104 @@ class ChartModel {
         this.analyseAndLoadConfig(config);
     }
 
+    increaseRegionForBar(start, end, option) {
+        this.config.aggregateBar = parseInt(this.config.aggregateBar, 10) || 0;
+        // calculate count of intervals
+        if (!this.config.aggregateBar) {
+            if (end - start <= 3600000 * 12) { // less than 12 hours => 15 minutes
+                this.config.aggregateBar = 15;
+            } else if (end - start >= 3600000 * 24 * 60) { // more than 60 days => 1 month
+                this.config.aggregateBar = 43200;
+            } else if (end - start > 3600000 * 24 * 3) { // more than 3 days => 1 day
+                this.config.aggregateBar = 1440;
+            } else { // if (end - start > 3600000 * 12) { // more than 12 hours => 60 minutes
+                this.config.aggregateBar = 60;
+            }
+        }
+
+        option = option || {};
+
+        if (this.config.aggregateBar === 15) {
+            // align start and stop to 15 minutes
+            start = new Date(start);
+            start.setMinutes(Math.floor(start.getMinutes() / 15) * 15);
+            if (this.config.postProcessing === 'diff') {
+                start.setMinutes(start.getMinutes() - 15);
+            }
+            start.setSeconds(0);
+            start.setMilliseconds(0);
+            start = start.getTime();
+
+            end = new Date(end);
+            end.setMinutes(Math.ceil(end.getMinutes() / 15) * 15);
+            end.setSeconds(0);
+            end.setMilliseconds(0);
+            end = end.getTime();
+            option.count = Math.round((end - start) / 900000);
+        } else if (this.config.aggregateBar === 60) {
+            // align start and stop to 1 hour
+            start = new Date(start);
+            start.setMinutes(0);
+            start.setSeconds(0);
+            start.setMilliseconds(0);
+            start = start.getTime();
+            if (this.config.postProcessing === 'diff') {
+                start.setMinutes(start.getMinutes() - 60);
+            }
+
+            end = new Date(end);
+            end.setMinutes(60);
+            end.setSeconds(0);
+            end.setMilliseconds(0);
+            end = end.getTime();
+            option.count = Math.round((end - start) / 3600000);
+        } else if (this.config.aggregateBar === 1440) {
+            // align start and stop to 1 day
+            start = new Date(start);
+            start.setHours(0);
+            start.setMinutes(0);
+            start.setSeconds(0);
+            start.setMilliseconds(0);
+            start = start.getTime();
+            if (this.config.postProcessing === 'diff') {
+                start.setDate(start.getDate() - 1);
+            }
+
+            end = new Date(end);
+            end.setDate(end.getDate() + 1);
+            end.setHours(0);
+            end.setMinutes(0);
+            end.setSeconds(0);
+            end.setMilliseconds(0);
+            end = end.getTime();
+            option.count = Math.round((end - start) / 86400000);
+        } else if (this.config.aggregateBar === 43200) {
+            // align start and stop to 1 month
+            start = new Date(start);
+            start.setDate(1);
+            start.setHours(0);
+            start.setMinutes(0);
+            start.setSeconds(0);
+            start.setMilliseconds(0);
+            start = start.getTime();
+            if (this.config.postProcessing === 'diff') {
+                start.setDate(start.getDate() - 30);
+            }
+
+            end = new Date(end);
+            end.setDate(1);
+            end.setHours(0);
+            end.setMinutes(0);
+            end.setMonth(end.getMonth() + 1);
+            end.setSeconds(0);
+            end.setMilliseconds(0);
+            end = end.getTime();
+            option.count = Math.round((end - start) / (86400000 * 30)); // todo it must be variable as every month has different count of days
+        }
+
+        option.start = start;
+        option.end   = end;
+    }
     getStartStop(index, step) {
         let option = {};
         let end;
@@ -680,108 +778,7 @@ class ChartModel {
             };
 
             if (this.config.l[index].chartType === 'bar') {
-                this.config.aggregateBar = parseInt(this.config.aggregateBar, 10) || 0;
-                // calculate count of intervals
-                if (!this.config.aggregateBar) {
-                    if (end - start <= 3600000 * 12) { // less than 12 hours => 15 minutes
-                        this.config.aggregateBar = 15;
-                    } else if (end - start >= 3600000 * 24 * 60) { // more than 60 days => 1 month
-                        this.config.aggregateBar = 43200;
-                    } else if (end - start > 3600000 * 24 * 3) { // more than 3 days => 1 day
-                        this.config.aggregateBar = 1440;
-                    } else { // if (end - start > 3600000 * 12) { // more than 12 hours => 60 minutes
-                        this.config.aggregateBar = 60;
-                    }
-                }
-
-                if (this.config.aggregateBar === 15) {
-                    // align start and stop to 15 minutes
-                    start = new Date(start);
-                    start.setMinutes(Math.floor(start.getMinutes() / 15) * 15);
-                    if (this.config.postProcessing === 'diff') {
-                        start.setMinutes(start.getMinutes() - 15);
-                    }
-                    start.setSeconds(0);
-                    start.setMilliseconds(0);
-                    start = start.getTime();
-
-                    end = new Date(end);
-                    if (end.getMinutes() % 15) {
-                        end.setMinutes(Math.ceil(end.getMinutes() / 15) * 15);
-                    }
-                    end.setSeconds(0);
-                    end.setMilliseconds(0);
-                    end = end.getTime();
-                    option.count = Math.round((end - start) / 900000);
-                } else if (this.config.aggregateBar === 60) {
-                    // align start and stop to 1 hour
-                    start = new Date(start);
-                    start.setMinutes(0);
-                    start.setSeconds(0);
-                    start.setMilliseconds(0);
-                    start = start.getTime();
-                    if (this.config.postProcessing === 'diff') {
-                        start.setMinutes(start.getMinutes() - 60);
-                    }
-
-                    end = new Date(end);
-                    if (end.getMinutes()) {
-                        end.setMinutes(60);
-                    }
-                    end.setSeconds(0);
-                    end.setMilliseconds(0);
-                    end = end.getTime();
-                    option.count = Math.round((end - start) / 3600000);
-                } else if (this.config.aggregateBar === 1440) {
-                    // align start and stop to 1 day
-                    start = new Date(start);
-                    start.setHours(0);
-                    start.setMinutes(0);
-                    start.setSeconds(0);
-                    start.setMilliseconds(0);
-                    start = start.getTime();
-                    if (this.config.postProcessing === 'diff') {
-                        start.setDate(start.getDate() - 1);
-                    }
-
-                    end = new Date(end);
-                    if (end.getHours() || end.getMinutes()) {
-                        end.setHours(0);
-                        end.setMinutes(0);
-                        end.setDate(end.getDate() + 1);
-                    }
-                    end.setSeconds(0);
-                    end.setMilliseconds(0);
-                    end = end.getTime();
-                    option.count = Math.round((end - start) / 86400000);
-                } else if (this.config.aggregateBar === 43200) {
-                    // align start and stop to 1 month
-                    start = new Date(start);
-                    start.setDate(1);
-                    start.setHours(0);
-                    start.setMinutes(0);
-                    start.setSeconds(0);
-                    start.setMilliseconds(0);
-                    start = start.getTime();
-                    if (this.config.postProcessing === 'diff') {
-                        start.setDate(start.getDate() - 30);
-                    }
-
-                    end = new Date(end);
-                    if (end.getHours() || end.getMinutes() || end.getDate() > 1) {
-                        end.setDate(1);
-                        end.setHours(0);
-                        end.setMinutes(0);
-                        end.setMonth(end.getMonth() + 1);
-                    }
-                    end.setSeconds(0);
-                    end.setMilliseconds(0);
-                    end = end.getTime();
-                    option.count = Math.round((end - start) / (86400000 * 30)); // todo it must be variable as every month has different count of days
-                }
-
-                option.start = start;
-                option.end   = end;
+                this.increaseRegionForBar(start, end, option);
             } else
             if (this.config.aggregateType === 'step') {
                 option.step = this.config.aggregateSpan * 1000;
@@ -877,6 +874,10 @@ class ChartModel {
                 start: values[0].ts,
                 end: values[values.length - 1].ts,
             };
+
+            if (this.config.l[index].chartType === 'bar') {
+                this.increaseRegionForBar(option.start, option.end, option);
+            }
         }
 
         option.yOffset = this.config.l[index].yOffset;
@@ -891,9 +892,8 @@ class ChartModel {
                 barCategories = [];
                 this.barCategories = barCategories;
                 const start = new Date(option.start);
-                while (start.getTime() < option.end) {
+                while (start.getTime() <= option.end) {
                     barCategories.push(start.getTime());
-
                     start.setMinutes(start.getMinutes() + this.config.aggregateBar);
                 }
             }
@@ -995,6 +995,12 @@ class ChartModel {
                         if (values.history) {
                             values = values.history;
                         }
+                        if (!Array.isArray(values)) {
+                            values = [];
+                            console.warn('JSON is not an array');
+                        }
+                        values.sort((a, b) => (a.ts - b.ts ? -1 : (a.ts < b.ts ? 1 : 0)));
+
                         this.processRawData(id, index, values);
                     } catch (e) {
                         console.error(`[ChartModel] Cannot parse values in JSON: ${e}`);
@@ -1329,8 +1335,18 @@ class ChartModel {
                         if (data.history) {
                             data = data.history;
                         }
+
+                        if (!Array.isArray(data)) {
+                            data = [];
+                            console.warn('JSON is not an array');
+                        }
+                        data.sort((a, b) => (a.ts - b.ts ? -1 : (a.ts < b.ts ? 1 : 0)));
                         this.processRawData(id, m, data);
-                        this.onUpdateFunc(this.seriesData);
+                        // take last value as actual value
+                        if (this.actualValues) {
+                            this.actualValues[m] = data[data.length - 1].val;
+                        }
+                        this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
                     } catch (e) {
                         console.error(`Cannot parse JSON: ${e}`);
                     }
@@ -1435,7 +1451,7 @@ class ChartModel {
                         /* if (!this.subscribed) {
                             this.subscribed = true;
                             this.subscribeAll(this.subscribes, () =>
-                                this.onUpdateFunc(this.seriesData));
+                                this.onUpdateFunc(this.seriesData, null, this.barCategories));
                         } else { */
                         this.reading = false;
                         this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
