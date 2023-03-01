@@ -9,7 +9,7 @@
     "@mui/styles": "^5.11.9",
     "@mui/lab": "^5.0.0-alpha.120",
     "@sentry/browser": "^7.38.0",
-    "@sentry/integrations": "^7.38.0",
+    "@sentry/integrations": "^7.39.0",
     "babel-eslint": "^10.1.0",
     "moment": "^2.29.4",
     "eslint": "^8.34.0",
