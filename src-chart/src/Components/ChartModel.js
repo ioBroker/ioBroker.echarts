@@ -234,10 +234,7 @@ class ChartModel {
         this.seriesData       = [];
         this.actualValues     = []; // only if config.legActual === true
         this.ticks            = null;
-        this.liveInterval     = null;
         this.reading          = false;
-
-        this.navOptions       = {};
 
         this.subscribes       = [];
         // this.subscribed       = false;
@@ -623,8 +620,9 @@ class ChartModel {
         option.start = start;
         option.end   = end;
     }
+
     getStartStop(index, step) {
-        let option = {};
+        let option;
         let end;
         let start;
         let _now;
@@ -1452,7 +1450,6 @@ class ChartModel {
                         this.config.l[i].units = this.config.l[this.config.l[i].commonYAxis].units;
                     }
                 }
-
 
                 this.readTicks(() =>
                     this.readMarkings(() => {
