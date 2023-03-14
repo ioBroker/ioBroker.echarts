@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.12",
+    "version": "1.4.13",
     "news": {
+      "1.4.13": {
+        "en": "Corrected some issues from GitHub",
+        "de": "Einige Probleme von GitHub behoben",
+        "ru": "Исправлены некоторые вопросы от GitHub",
+        "pt": "Corrigido alguns problemas de GitHub",
+        "nl": "Vertaling:",
+        "fr": "Correction de quelques problèmes de GitHub",
+        "it": "Corretto alcuni problemi da GitHub",
+        "es": "Corregido algunos problemas de GitHub",
+        "pl": "Wykłaniać niektóre problemy z GitHub",
+        "uk": "Виправлено деякі питання від GitHub",
+        "zh-cn": "GitHubub的一些问题"
+      },
       "1.4.12": {
         "en": "Corrected some issues from GitHub",
         "de": "Einige Probleme von GitHub behoben",
@@ -80,19 +93,6 @@
         "pl": "Wszystko, aby kopiować jedynie webowe URL w preview\nPoprawiona lista booleana",
         "uk": "Зроблено копіювати лише URL-адреси веб-сторінок у попередньому перегляді\nВиправлені болеані діаграми",
         "zh-cn": "只允许在预约中复制欧元的网址。\n改编假图"
-      },
-      "1.4.3": {
-        "en": "Implemented charts preview",
-        "de": "Implementierte Charts Vorschau",
-        "ru": "Внедренный просмотр графиков",
-        "pt": "Visualização de gráficos implementadas",
-        "nl": "Vertaling:",
-        "fr": "Aperçu des graphiques mis en œuvre",
-        "it": "Anteprima grafici implementati",
-        "es": "Gráficos implementados vista previa",
-        "pl": "Implementacja map preview",
-        "uk": "Реалізовані графіки попереднього перегляду",
-        "zh-cn": "执行图"
       }
     },
     "title": "E-Charts",
