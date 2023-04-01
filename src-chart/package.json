@@ -22,7 +22,7 @@
     "react-i18next": "^12.2.0",
     "react-icons": "^4.8.0",
     "react-scripts": "^5.0.1",
-    "echarts": "^5.4.1",
+    "echarts": "^5.4.2",
     "crypto-js": "^4.1.1",
     "echarts-for-react": "^3.0.2",
     "moment": "^2.29.4"
