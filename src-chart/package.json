@@ -7,7 +7,7 @@
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
     "@mui/styles": "^5.11.13",
-    "@sentry/browser": "^7.43.0",
+    "@sentry/browser": "^7.46.0",
     "@sentry/integrations": "^7.46.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^8.37.0",
