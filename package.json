@@ -17,7 +17,7 @@
     "url": "https://github.com/ioBroker/ioBroker.echarts"
   },
   "optionalDependencies": {
-    "canvas": "^2.11.0",
+    "canvas": "^2.11.2",
     "echarts": "^5.4.2",
     "jsdom": "^21.1.1"
   },
@@ -57,7 +57,8 @@
     "release": "release-script",
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",
-    "release-major": "release-script major --yes"
+    "release-major": "release-script major --yes",
+    "update-packages": "ncu --upgrade && cd src && ncu --upgrade && cd .. && cd src-chart && ncu --upgrade && cd .. && cd src-preview && ncu --upgrade && cd .."
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.echarts/issues"
