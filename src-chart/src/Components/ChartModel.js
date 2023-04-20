@@ -993,6 +993,52 @@ class ChartModel {
                         if (values.history) {
                             values = values.history;
                         }
+
+                        // convert alternative names to {ts, val}. Possible names for ts: t, time. Possible names for val: y, value
+                        if (values[0]) {
+                            const keys = Object.keys(values[0]);
+                            if (!keys.includes('val') || !keys.includes('ts')) {
+                                // If format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
+                                if (keys.includes('y') && keys.includes('t')) {
+                                    values = values.map(v => ({ ts: v.t, val: v.y }));
+                                } else {
+                                    if (keys.includes('y')) {
+                                        values.forEach(v => v.val = v.y);
+                                    } else if (keys.includes('value')) {
+                                        values.forEach(v => v.val = v.value);
+                                    } else if (keys.includes('data')) {
+                                        values.forEach(v => v.val = v.data);
+                                    } else if (keys.includes('v')) {
+                                        values.forEach(v => v.val = v.v);
+                                    }
+
+                                    if (keys.includes('t')) {
+                                        values.forEach(v => v.ts = v.t);
+                                    } else
+                                    if (keys.includes('time')) {
+                                        values.forEach(v => v.ts = v.time);
+                                    } else
+                                    if (keys.includes('date')) {
+                                        values.forEach(v => v.ts = v.date);
+                                    }
+                                }
+
+                                // convert ts to number
+                                if (values[0].ts) {
+                                    // eslint-disable-next-line no-restricted-properties
+                                    if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
+                                        values = values.forEach(v => v.ts = parseInt(v.ts, 10));
+                                    } else if (typeof values[0].ts === 'string' && new Date(values[0].ts).toString() !== 'Invalid Date') {
+                                        values = values.forEach(v => v.ts = new Date(v.ts).getTime());
+                                    }
+                                    // no else
+                                    if (typeof values[0].ts === 'number' && values[0].ts < 946681200000) { // new Date(2000,0,1).getTime() === 946681200000
+                                        values = values.forEach(v => v.ts *= 1000);
+                                    }
+                                }
+                            }
+                        }
+
                         if (!Array.isArray(values)) {
                             values = [];
                             console.warn('JSON is not an array');
