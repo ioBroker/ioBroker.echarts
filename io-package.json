@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.13",
+    "version": "1.4.14",
     "news": {
+      "1.4.14": {
+        "en": "Added support of alternative names for JSON sources",
+        "de": "Unterstützung alternativer Namen für JSON-Quellen",
+        "ru": "Добавлена поддержка альтернативных имен для источников JSON",
+        "pt": "Adicionado suporte de nomes alternativos para fontes JSON",
+        "nl": "Vermeld ondersteuning van alternatieve namen voor JSON bronnen",
+        "fr": "Ajout du support des noms alternatifs pour les sources JSON",
+        "it": "Aggiunto il supporto di nomi alternativi per le fonti JSON",
+        "es": "Añadido el apoyo de nombres alternativos para fuentes JSON",
+        "pl": "Wspierać alternatywne nazwy JSON",
+        "uk": "Додано підтримку альтернативних імен для джерел JSON",
+        "zh-cn": "增加联索行动来源的替代名称"
+      },
       "1.4.13": {
         "en": "Corrected some issues from GitHub",
         "de": "Einige Probleme von GitHub behoben",
@@ -80,19 +93,6 @@
         "pl": "Poprawione teksty do prawdziwych i fałszywych wartości",
         "uk": "Реалізовані спеціальні тексти для справжніх і помилкових значень",
         "zh-cn": "执行真实和虚假价值的习俗案文"
-      },
-      "1.4.5": {
-        "en": "Allowed to copy only the web URLs in the preview\nCorrected boolean charts",
-        "de": "Erlaubt, nur die Web-URLs in der Vorschau zu kopieren\nKorrigierte boolesche Diagramme",
-        "ru": "Разрешено копировать только веб-адреса в предварительном просмотре\nИсправлены boolean графики",
-        "pt": "Permite copiar apenas as URLs da web na visualização\nGráficos booleanos corrigidos",
-        "nl": "Vertaling:\nVertaling:",
-        "fr": "Permis de copier seulement les URL web dans la prévisualisation\nGraphiques booléens corrigés",
-        "it": "Consentito di copiare solo gli URL web in anteprima\nCarte booleane corrette",
-        "es": "Permitido copiar sólo las URL web en la vista previa\nGráficos booleanos corregidos",
-        "pl": "Wszystko, aby kopiować jedynie webowe URL w preview\nPoprawiona lista booleana",
-        "uk": "Зроблено копіювати лише URL-адреси веб-сторінок у попередньому перегляді\nВиправлені болеані діаграми",
-        "zh-cn": "只允许在预约中复制欧元的网址。\n改编假图"
       }
     },
     "title": "E-Charts",

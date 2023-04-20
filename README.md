@@ -100,7 +100,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.4.14 (2023-04-20)
 * (bluefox) Added support of alternative names for JSON sources
 
 ### 1.4.13 (2023-03-14)
