@@ -962,7 +962,7 @@ class ChartModel {
                 const last = _series[_series.length - 1];
                 if (last.value[0] < option.end) {
                     if (this.config.l[index].validTime) {
-                        // If last value is not older than X seconds, assume it is still the same
+                        // If the last value is not older than X seconds, assume it is still the same
                         if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
                             _series.push({ value: [option.end, last.value[1]], exact: false });
                         } else {
