@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.14",
+    "version": "1.4.15",
     "news": {
+      "1.4.15": {
+        "en": "Allowed using the timestamp in seconds in JSON sources",
+        "de": "Erlaubt, den Zeitstempel in Sekunden in JSON-Quellen zu verwenden",
+        "ru": "Разрешено использование метеор в секундах в источниках JSON",
+        "pt": "Permitido usando o timestamp em segundos em fontes JSON",
+        "nl": "Genoemd met gebruik van de tijdtamp in seconden in JSON bronnen",
+        "fr": "Permet d'utiliser le timetamp en quelques secondes dans les sources JSON",
+        "it": "Permesso di usare il timestamp in pochi secondi in sorgenti JSON",
+        "es": "Permitido utilizar el timetamp en segundos en fuentes JSON",
+        "pl": "Wszystkie zostały wykorzystane w źródłach JSON w czasie drugiego w źródłach JSON",
+        "uk": "Дозволено використання мітки часу за секундами у джерелах JSON",
+        "zh-cn": "允许使用联索行动来源第二期充时间"
+      },
       "1.4.14": {
         "en": "Added support of alternative names for JSON sources",
         "de": "Unterstützung alternativer Namen für JSON-Quellen",
@@ -80,19 +93,6 @@
         "pl": "Implementacja standardowych tekstów dla enum",
         "uk": "Реалізовано користувацькі тексти для обманів",
         "zh-cn": "实施定制案文以图表"
-      },
-      "1.4.6": {
-        "en": "Implemented custom texts for true and false values",
-        "de": "Ergänzte benutzerdefinierte Texte für echte und falsche Werte",
-        "ru": "Реализованные пользовательские тексты для истинных и ложных ценностей",
-        "pt": "Textos personalizados implementados para valores verdadeiros e falsos",
-        "nl": "Geïmplementeerde gewoontes voor ware en valse waarden",
-        "fr": "Textes personnalisés mis en œuvre pour des valeurs vraies et fausses",
-        "it": "Testi personalizzati implementati per valori veri e falsi",
-        "es": "Textos personalizados implementados para valores verdaderos y falsos",
-        "pl": "Poprawione teksty do prawdziwych i fałszywych wartości",
-        "uk": "Реалізовані спеціальні тексти для справжніх і помилкових значень",
-        "zh-cn": "执行真实和虚假价值的习俗案文"
       }
     },
     "title": "E-Charts",

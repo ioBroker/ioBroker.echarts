@@ -99,8 +99,8 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
-* (bluefox) Allowed using the timestamp in seconds in JSON sources  
+### 1.4.15 (2023-05-10)
+* (bluefox) Allowed using the timestamp in seconds in JSON sources
 
 ### 1.4.14 (2023-04-20)
 * (bluefox) Added support for the alternative names for JSON sources
