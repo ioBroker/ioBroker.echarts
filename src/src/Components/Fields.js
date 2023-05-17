@@ -29,6 +29,7 @@ const styles = theme => ({
     },
     checkBoxLabel: {
         fontSize: '0.8rem',
+        whiteSpace: 'break-spaces',
     },
     objectContainer: { display: 'flex' },
     objectField: { flex: 1 },

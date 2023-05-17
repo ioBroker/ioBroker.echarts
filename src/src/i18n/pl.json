@@ -352,7 +352,6 @@
   "Hover details": "Najedź na szczegóły",
   "Use comma": "Użyj przecinka",
   "Enable zoom and pan": "Włącz powiększanie i przesuwanie",
-  "Show export button": "Pokaż przycisk eksportu",
   "Legend": "Legenda",
   "Legend background": "Tło legendy",
   "Title color": "Kolor tytułu",
@@ -431,7 +430,6 @@
   "Enable logging for new state": "Włącz rejestrowanie dla nowego stanu",
   "Rename preset": "Zmień nazwę ustawienia wstępnego",
   "Auto save": "Automatyczne zapisywanie",
-  "Export button color": "Kolor przycisku eksportu",
   "Open chart in own window": "Otwórz wykres we własnym oknie",
   "If the current value is not older than X seconds, assume it is still the same.": "Jeśli bieżąca wartość nie jest starsza niż X sekund, załóżmy, że nadal jest taka sama.",
   "Valid time (sec)": "Ważny czas (s)",
@@ -512,5 +510,9 @@
   "Add new value": "Dodaj nową wartość",
   "State value": "Wartość stanu",
   "State value text": "Podaj tekst wartości",
-  "Add": "Dodać"
+  "Add": "Dodać",
+  "Show save image button": "Pokaż przycisk zapisywania obrazu",
+  "Save image button color": "Zapisz kolor przycisku obrazu",
+  "Show export data button": "Pokaż przycisk eksportu danych",
+  "Export data color": "Kolor przycisku eksportu danych"
 }

@@ -4,5 +4,12 @@
   "Save as image": "Зберегти як зображення",
   "Save chart as png": "Зберегти діаграму як png",
   "Save chart as svg": "Зберегти діаграму як SVG",
-  "Unfortunately your browser does not support this feature": "На жаль, ваш браузер не підтримує цю функцію"
+  "Unfortunately your browser does not support this feature": "На жаль, ваш браузер не підтримує цю функцію",
+  "Export raw data as CSV": "Експорт необроблених даних як CSV",
+  "Select lines for export": "Виберіть рядки для експорту",
+  "Time format": "Формат часу",
+  "Browser format": "Формат часу браузера",
+  "Time stamp in milliseconds": "Мітка часу в мілісекундах",
+  "Export": "Експорт",
+  "Cancel": "Скасувати"
 }

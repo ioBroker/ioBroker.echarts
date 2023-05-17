@@ -99,6 +99,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Implemented raw data export
+
 ### 1.4.15 (2023-05-10)
 * (bluefox) Allowed using the timestamp in seconds in JSON sources
 

@@ -4,5 +4,12 @@
   "Save chart as svg": "Diagramm als SVG speichern",
   "Unfortunately your browser does not support this feature": "Leider unterstützt Ihr Browser diese Funktion nicht",
   "Save chart as png": "Diagramm als PNG speichern",
-  "No data found": "Keine Daten gefunden"
+  "No data found": "Keine Daten gefunden",
+  "Export raw data as CSV": "Rohdaten als CSV exportieren",
+  "Select lines for export": "Wählen Sie Zeilen für den Export aus",
+  "Time format": "Zeitformat",
+  "Browser format": "Browser-Zeitformat",
+  "Time stamp in milliseconds": "Zeitstempel in Millisekunden",
+  "Export": "Export",
+  "Cancel": "Abbrechen"
 }

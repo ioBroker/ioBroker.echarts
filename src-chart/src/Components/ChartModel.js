@@ -275,7 +275,7 @@ class ChartModel {
             });
     }
 
-    analyseAndLoadConfig(config) {
+    async analyseAndLoadConfig(config) {
         if (config) {
             if (typeof config === 'string') {
                 this.preset = config;
@@ -341,48 +341,47 @@ class ChartModel {
                 this.preset = `echarts.0.${this.preset}`;
             }
 
-            this.socket.getObject(this.preset)
-                .then(obj => {
-                    if (!obj || !obj.native || !obj.native.data || obj.type !== 'chart') {
-                        console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
-                        return;
-                    }
-                    this.config          = normalizeConfig(obj.native.data);
-                    this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
-                    this.config.lang     = this.systemConfig.language;
-                    this.config.live     = parseInt(this.config.live, 10) || 0;
-                    this.config.debug    = this.debug;
-                    this.config.presetId = this.preset;
+            try {
+                const obj = await this.socket.getObject(this.preset);
+                if (!obj || !obj.native || !obj.native.data || obj.type !== 'chart') {
+                    console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
+                    return;
+                }
+                this.config          = normalizeConfig(obj.native.data);
+                this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
+                this.config.lang     = this.systemConfig.language;
+                this.config.live     = parseInt(this.config.live, 10) || 0;
+                this.config.debug    = this.debug;
+                this.config.presetId = this.preset;
 
-                    if (this.hash && this.hash.range) {
-                        this.config.range = this.hash.range;
-                    }
-                    if (this.hash && this.hash.relativeEnd) {
-                        this.config.relativeEnd = this.hash.relativeEnd;
-                    }
+                if (this.hash && this.hash.range) {
+                    this.config.range = this.hash.range;
+                }
+                if (this.hash && this.hash.relativeEnd) {
+                    this.config.relativeEnd = this.hash.relativeEnd;
+                }
 
-                    this.readData();
+                await this.readData();
 
-                    // subscribe on preset changes
-                    if (!this.serverSide && this.presetSubscribed !== this.preset) {
-                        this.presetSubscribed && this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdateBound);
-                        this.presetSubscribed = this.preset;
-                        this.socket.subscribeObject(this.preset, this.onPresetUpdateBound);
-                    }
-                    if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
-                        this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
-                    }
-                })
-                .catch(e => {
-                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                    console.error(`Cannot read "${this.preset}": ${e}`);
-                });
+                // subscribe on preset changes
+                if (!this.serverSide && this.presetSubscribed !== this.preset) {
+                    this.presetSubscribed && (await this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdateBound));
+                    this.presetSubscribed = this.preset;
+                    await this.socket.subscribeObject(this.preset, this.onPresetUpdateBound);
+                }
+                if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+                    this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                }
+            } catch (e) {
+                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                console.error(`Cannot read "${this.preset}": ${e}`);
+            }
         } else {
             this.config.useComma = this.config.useComma === undefined ? this.systemConfig.isFloatComma === true || this.systemConfig.isFloatComma === 'true' : this.config.useComma === 'true' || this.config.useComma === true;
             this.config.lang     = this.systemConfig.language;
             this.config.live     = parseInt(this.config.live, 10) || 0;
             this.config.debug    = this.debug;
-            this.readData();
+            await this.readData();
             if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
@@ -984,80 +983,76 @@ class ChartModel {
         }
     }
 
-    readOneChart(id, instance, index, cb) {
+    async readOneChart(id, instance, index) {
         if (instance === 'json') {
-            this.socket.getState(id)
-                .then(state => {
-                    try {
-                        let values = JSON.parse(state.val);
-                        if (values.history) {
-                            values = values.history;
-                        }
+            const state = await this.socket.getState(id);
+            try {
+                let values = JSON.parse(state.val);
+                if (values.history) {
+                    values = values.history;
+                }
 
-                        // convert alternative names to {ts, val}. Possible names for ts: t, time. Possible names for val: y, value
-                        if (values[0]) {
-                            const keys = Object.keys(values[0]);
-                            if (!keys.includes('val') || !keys.includes('ts')) {
-                                // If format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
-                                if (keys.includes('y') && keys.includes('t')) {
-                                    values = values.map(v => ({ ts: v.t, val: v.y }));
-                                } else {
-                                    if (keys.includes('y')) {
-                                        values.forEach(v => v.val = v.y);
-                                    } else if (keys.includes('value')) {
-                                        values.forEach(v => v.val = v.value);
-                                    } else if (keys.includes('data')) {
-                                        values.forEach(v => v.val = v.data);
-                                    } else if (keys.includes('v')) {
-                                        values.forEach(v => v.val = v.v);
-                                    }
-
-                                    if (keys.includes('t')) {
-                                        values.forEach(v => v.ts = v.t);
-                                    } else
-                                    if (keys.includes('time')) {
-                                        values.forEach(v => v.ts = v.time);
-                                    } else
-                                    if (keys.includes('date')) {
-                                        values.forEach(v => v.ts = v.date);
-                                    }
-                                }
+                // convert alternative names to {ts, val}. Possible names for ts: t, time. Possible names for val: y, value
+                if (values[0]) {
+                    const keys = Object.keys(values[0]);
+                    if (!keys.includes('val') || !keys.includes('ts')) {
+                        // If format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
+                        if (keys.includes('y') && keys.includes('t')) {
+                            values = values.map(v => ({ ts: v.t, val: v.y }));
+                        } else {
+                            if (keys.includes('y')) {
+                                values.forEach(v => v.val = v.y);
+                            } else if (keys.includes('value')) {
+                                values.forEach(v => v.val = v.value);
+                            } else if (keys.includes('data')) {
+                                values.forEach(v => v.val = v.data);
+                            } else if (keys.includes('v')) {
+                                values.forEach(v => v.val = v.v);
                             }
 
-                            // convert ts to number
-                            if (values[0].ts) {
-                                // eslint-disable-next-line no-restricted-properties
-                                if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
-                                    values = values.forEach(v => v.ts = parseInt(v.ts, 10));
-                                } else if (typeof values[0].ts === 'string' && new Date(values[0].ts).toString() !== 'Invalid Date') {
-                                    values = values.forEach(v => v.ts = new Date(v.ts).getTime());
-                                }
-                                // no else
-                                if (typeof values[0].ts === 'number' && values[0].ts < 946681200000) { // new Date(2000,0,1).getTime() === 946681200000
-                                    values = values.forEach(v => v.ts *= 1000);
-                                }
+                            if (keys.includes('t')) {
+                                values.forEach(v => v.ts = v.t);
+                            } else
+                            if (keys.includes('time')) {
+                                values.forEach(v => v.ts = v.time);
+                            } else
+                            if (keys.includes('date')) {
+                                values.forEach(v => v.ts = v.date);
                             }
                         }
+                    }
 
-                        if (!Array.isArray(values)) {
-                            values = [];
-                            console.warn('JSON is not an array');
+                    // convert ts to number
+                    if (values[0].ts) {
+                        // eslint-disable-next-line no-restricted-properties
+                        if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
+                            values = values.forEach(v => v.ts = parseInt(v.ts, 10));
+                        } else if (typeof values[0].ts === 'string' && new Date(values[0].ts).toString() !== 'Invalid Date') {
+                            values = values.forEach(v => v.ts = new Date(v.ts).getTime());
                         }
-                        values.sort((a, b) => (a.ts - b.ts ? -1 : (a.ts < b.ts ? 1 : 0)));
+                        // no else
+                        if (typeof values[0].ts === 'number' && values[0].ts < 946681200000) { // new Date(2000,0,1).getTime() === 946681200000
+                            values = values.forEach(v => v.ts *= 1000);
+                        }
+                    }
+                }
 
-                        this.processRawData(id, index, values);
-                    } catch (e) {
-                        console.error(`[ChartModel] Cannot parse values in JSON: ${e}`);
-                    }
-                })
-                .then(() => {
-                    if (!this.serverSide && !this.subscribes.includes(id)) {
-                        this.subscribes.push(id);
-                        this.subscribed = true;
-                        this.socket.subscribeState(id, this.onStateChange);
-                    }
-                    cb(id, index);
-                });
+                if (!Array.isArray(values)) {
+                    values = [];
+                    console.warn('JSON is not an array');
+                }
+                values.sort((a, b) => (a.ts - b.ts ? -1 : (a.ts < b.ts ? 1 : 0)));
+
+                this.processRawData(id, index, values);
+            } catch (e) {
+                console.error(`[ChartModel] Cannot parse values in JSON: ${e}`);
+            }
+
+            if (!this.serverSide && !this.subscribes.includes(id)) {
+                this.subscribes.push(id);
+                this.subscribed = true;
+                this.socket.subscribeState(id, this.onStateChange);
+            }
         } else {
             const option = this.getStartStop(index);
             option.instance  = instance;
@@ -1066,48 +1061,141 @@ class ChartModel {
             // console.log(JSON.stringify(option));
             this.debug && console.log(`[ChartModel] ${new Date(option.start)} - ${new Date(option.end)}`);
 
-            this.socket.getHistoryEx(id, option)
-                .then(res => {
-                    if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
-                        return console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
-                    }
+            try {
+                const res = await this.socket.getHistoryEx(id, option);
+                if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
+                    console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+                    return;
+                }
 
-                    if (res && res.values) {
-                        // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
-                        this.processRawData(id, index, res.values, option);
+                if (res && res.values) {
+                    // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
+                    this.processRawData(id, index, res.values, option);
 
-                        // free memory
-                        res.values = null;
-                        res = null;
-                    }
+                    // free memory
+                    res.values = null;
+                }
+            } catch (err) {
+                err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
+                err && console.error(`[ChartModel] ${err}`);
+            }
 
-                    return Promise.resolve();
-                })
-                .catch(err => {
-                    err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
-                    err && console.error(`[ChartModel] ${err}`);
-                })
-                .then(() => {
-                    if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
-                        // read current value
-                        return this.socket.getState(id)
-                            .then(state => this.actualValues[index] = state && (state.val || state.val === 0 || state.val === false) ? state.val : null)
-                            .catch(e => {
-                                console.warn(`Cannot read last value of "${id}": ${e}`);
-                                this.actualValues[index] = null;
-                            })
-                            .then(() => {
-                                if (!this.serverSide && !this.subscribes.includes(id)) {
-                                    this.subscribes.push(id);
-                                    this.subscribed = true;
-                                    this.socket.subscribeState(id, this.onStateChange);
-                                }
-                            });
-                    }
-                    return Promise.resolve();
-                })
-                .then(() => cb(id, index));
+            if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
+                // read current value
+                try {
+                    const state = await this.socket.getState(id);
+                    this.actualValues[index] = state && (state.val || state.val === 0 || state.val === false) ? state.val : null;
+                } catch (e) {
+                    console.warn(`Cannot read last value of "${id}": ${e}`);
+                    this.actualValues[index] = null;
+                }
+
+                if (!this.serverSide && !this.subscribes.includes(id)) {
+                    this.subscribes.push(id);
+                    this.subscribed = true;
+                    this.socket.subscribeState(id, this.onStateChange);
+                }
+            }
         }
+    }
+
+    async readOneRawChart(id, instance, start, end) {
+        if (instance === 'json') {
+            const state = await this.socket.getState(id);
+            try {
+                let values = JSON.parse(state.val);
+                if (values.history) {
+                    values = values.history;
+                }
+
+                // convert alternative names to {ts, val}. Possible names for ts: t, time. Possible names for val: y, value
+                if (values[0]) {
+                    const keys = Object.keys(values[0]);
+                    if (!keys.includes('val') || !keys.includes('ts')) {
+                        // If format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
+                        if (keys.includes('y') && keys.includes('t')) {
+                            values = values.map(v => ({ ts: v.t, val: v.y }));
+                        } else {
+                            if (keys.includes('y')) {
+                                values.forEach(v => v.val = v.y);
+                            } else if (keys.includes('value')) {
+                                values.forEach(v => v.val = v.value);
+                            } else if (keys.includes('data')) {
+                                values.forEach(v => v.val = v.data);
+                            } else if (keys.includes('v')) {
+                                values.forEach(v => v.val = v.v);
+                            }
+
+                            if (keys.includes('t')) {
+                                values.forEach(v => v.ts = v.t);
+                            } else
+                            if (keys.includes('time')) {
+                                values.forEach(v => v.ts = v.time);
+                            } else
+                            if (keys.includes('date')) {
+                                values.forEach(v => v.ts = v.date);
+                            }
+                        }
+                    }
+
+                    // convert ts to number
+                    if (values[0].ts) {
+                        // eslint-disable-next-line no-restricted-properties
+                        if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
+                            values = values.forEach(v => v.ts = parseInt(v.ts, 10));
+                        } else if (typeof values[0].ts === 'string' && new Date(values[0].ts).toString() !== 'Invalid Date') {
+                            values = values.forEach(v => v.ts = new Date(v.ts).getTime());
+                        }
+                        // no else
+                        if (typeof values[0].ts === 'number' && values[0].ts < 946681200000) { // new Date(2000,0,1).getTime() === 946681200000
+                            values = values.forEach(v => v.ts *= 1000);
+                        }
+                    }
+                }
+
+                if (!Array.isArray(values)) {
+                    values = [];
+                    console.warn('JSON is not an array');
+                }
+                values.sort((a, b) => (a.ts - b.ts ? -1 : (a.ts < b.ts ? 1 : 0)));
+
+                return values;
+            } catch (e) {
+                console.error(`[ChartModel] Cannot parse values in JSON: ${e}`);
+            }
+        } else {
+            const option = {
+                start,
+                end,
+                ignoreNull: false,
+                aggregate:  'none',
+                count:      2000,
+                from:       false,
+                ack:        false,
+                q:          false,
+                addID:      false,
+            };
+
+            option.instance  = instance;
+            option.sessionId = this.sessionId;
+
+            this.debug && console.log(`[ChartModel] ${new Date(option.start)} - ${new Date(option.end)}`);
+
+            try {
+                const res = await this.socket.getHistoryEx(id, option);
+                if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
+                    console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+                    return null;
+                }
+
+                return res?.values;
+            } catch (err) {
+                err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
+                err && console.error(`[ChartModel] ${err}`);
+            }
+        }
+
+        return null;
     }
 
     _readObject(id) {
@@ -1119,103 +1207,91 @@ class ChartModel {
                     return null;
                 });
         }
+
         return this.objectPromises[id];
     }
 
-    _readOneLine(index, cb) {
-        return this._readObject(this.config.l[index].id)
-            .then(obj => {
-                if (obj?.common) {
-                    this.config.l[index].name = this.config.l[index].name || obj.common.name;
-                    this.config.l[index].unit = this.config.l[index].unit || (obj.common.unit ? obj.common.unit.replace('�', '°') : '');
-                    this.config.l[index].type = obj.common.type;
-                    if (this.config.l[index].chartType === 'auto') {
-                        this.config.l[index].chartType = obj.common.type === 'boolean' ? 'steps' : 'line';
-                        this.config.l[index].aggregate = obj.common.type === 'boolean' ? 'onchange' : 'minmax';
+    async _readOneLine(index) {
+        try {
+            const obj = await this._readObject(this.config.l[index].id);
+
+            if (obj?.common) {
+                this.config.l[index].name = this.config.l[index].name || obj.common.name;
+                this.config.l[index].unit = this.config.l[index].unit || (obj.common.unit ? obj.common.unit.replace('�', '°') : '');
+                this.config.l[index].type = obj.common.type;
+                if (this.config.l[index].chartType === 'auto') {
+                    this.config.l[index].chartType = obj.common.type === 'boolean' ? 'steps' : 'line';
+                    this.config.l[index].aggregate = obj.common.type === 'boolean' ? 'onchange' : 'minmax';
+                }
+
+                // ignore unit if true/false text set
+                if (this.config.l[index].unit && (this.config.l[index].falseText || this.config.l[index].trueText)) {
+                    delete this.config.l[index].unit;
+                }
+
+                // remember enum states
+                if (obj.common.states &&
+                    !Array.isArray(obj.common.states) &&
+                    this.config.l[index].states !== false &&
+                    !obj.common.unit
+                ) {
+                    if (this.config.l[index].states) {
+                        this.config.l[index].states = Object.assign(obj.common.states, this.config.l[index].states);
+                    } else {
+                        this.config.l[index].states = obj.common.states;
                     }
 
-                    // ignore unit if true/false text set
-                    if (this.config.l[index].unit && (this.config.l[index].falseText || this.config.l[index].trueText)) {
+                    // if the states have true, false as text => convert it to 1, 0
+                    if (Object.keys(this.config.l[index].states).find(key => key === 'true' || key === 'false')) {
+                        const states = {};
+                        Object.keys(this.config.l[index].states).forEach(key => {
+                            states[key === 'true' ? 1 : (key === 'false' ? 0 : key)] = this.config.l[index].states[key];
+                        });
+                        this.config.l[index].states = states;
+                    }
+
+                    // ignore unit for enums text set
+                    if (this.config.l[index].unit && this.config.l[index].states) {
                         delete this.config.l[index].unit;
                     }
-
-                    // remember enum states
-                    if (obj.common.states &&
-                        !Array.isArray(obj.common.states) &&
-                        this.config.l[index].states !== false &&
-                        !obj.common.unit
-                    ) {
-                        if (this.config.l[index].states) {
-                            this.config.l[index].states = Object.assign(obj.common.states, this.config.l[index].states);
-                        } else {
-                            this.config.l[index].states = obj.common.states;
-                        }
-
-                        // if states has true, false as text => convert it to 1, 0
-                        if (Object.keys(this.config.l[index].states).find(key => key === 'true' || key === 'false')) {
-                            const states = {};
-                            Object.keys(this.config.l[index].states).forEach(key => {
-                                states[key === 'true' ? 1 : (key === 'false' ? 0 : key)] = this.config.l[index].states[key];
-                            });
-                            this.config.l[index].states = states;
-                        }
-
-                        // ignore unit for enums text set
-                        if (this.config.l[index].unit && this.config.l[index].states) {
-                            delete this.config.l[index].unit;
-                        }
-                    }
-
-                    // set YAxis to 'off' if commonYAxis is set
-                    if (this.config.l[index].commonYAxis || this.config.l[index].commonYAxis === 0) {
-                        this.config.l[index].yaxe = 'off';
-                    }
                 }
 
-                return Promise.resolve();
-            })
-            .catch(e => {
-                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                console.error(`[ChartModel] Cannot read object ${this.config.l[index].id}: ${e}`);
-                return Promise.resolve();
-            })
-            .then(() => {
-                this.config.l[index].name = this.config.l[index].name || this.config.l[index].id;
-                this.config.l[index].unit = this.config.l[index].unit || '';
-                if (this.config.l[index].chartType === 'auto') {
-                    this.config.l[index].chartType = 'line';
-                    this.config.l[index].aggregate = 'minmax';
+                // set YAxis to 'off' if commonYAxis is set
+                if (this.config.l[index].commonYAxis || this.config.l[index].commonYAxis === 0) {
+                    this.config.l[index].yaxe = 'off';
                 }
-                if (typeof this.config.l[index].name === 'object') {
-                    this.config.l[index].name = this.config.l[index].name[this.systemConfig.language] || this.config.l[index].name.en;
-                }
-                this.readOneChart(this.config.l[index].id, this.config.l[index].instance || this.defaultHistory, index, cb);
-            });
+            }
+        } catch (e) {
+            e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+            console.error(`[ChartModel] Cannot read object ${this.config.l[index].id}: ${e}`);
+        }
+
+        this.config.l[index].name = this.config.l[index].name || this.config.l[index].id;
+        this.config.l[index].unit = this.config.l[index].unit || '';
+        if (this.config.l[index].chartType === 'auto') {
+            this.config.l[index].chartType = 'line';
+            this.config.l[index].aggregate = 'minmax';
+        }
+        if (typeof this.config.l[index].name === 'object') {
+            this.config.l[index].name = this.config.l[index].name[this.systemConfig.language] || this.config.l[index].name.en;
+        }
+
+        await this.readOneChart(this.config.l[index].id, this.config.l[index].instance || this.defaultHistory, index);
     }
 
-    _readData(cb, j) {
-        j = j || 0;
-        if (j >= this.config.l.length) {
-            cb();
-            return;
+    async _readData() {
+        for (let j = 0; j < this.config.l.length; j++) {
+            if (this.config.l[j] !== '' && this.config.l[j] !== undefined) {
+                this.seriesData.push([]);
+            }
+            if (this.config.l[j] && this.config.l[j].id) {
+                await this._readOneLine(j);
+            }
         }
-        if (this.config.l[j] !== '' && this.config.l[j] !== undefined) {
-            this.seriesData.push([]);
-        }
-
-        if (!this.config.l[j].id) {
-            setTimeout(() => this._readData(cb, j + 1), 10);
-            return;
-        }
-
-        this._readOneLine(j, () =>
-            setTimeout(() => this._readData(cb, j + 1), 10));
     }
 
-    readTicks(cb) {
-        if (!this.config.ticks) {
-            cb(null);
-        } else {
+    async readTicks() {
+        if (this.config.ticks) {
             const index = 0;
             const option = JSON.parse(JSON.stringify(this.getStartStop(index)));
             option.instance  = this.config.l[index].instance || this.defaultHistory;
@@ -1224,51 +1300,48 @@ class ChartModel {
 
             this.debug && console.log(`[ChartModel] Ticks: ${new Date(option.start)} - ${new Date(option.end)}`);
 
-            this.socket.getHistoryEx(this.config.ticks, option)
-                .then(res => {
-                    if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
-                        return console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+            try {
+                const res = await this.socket.getHistoryEx(this.config.ticks, option);
+                if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
+                    console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+                    return;
+                }
+
+                const _series = this.ticks || [];
+                if (res && res.values) {
+                    if (this.ticks && this.ticks.length) {
+                        this.ticks.splice(0, this.ticks.length);
                     }
 
-                    if (res && res.values) {
-                        const _series = this.ticks || [];
-                        if (this.ticks && this.ticks.length) {
-                            this.ticks.splice(0, this.ticks.length);
+                    const values = res.values;
+
+                    for (let i = 0; i < values.length; i++) {
+                        if (values[i].val !== null) {
+                            _series.push({ value: [values[i].ts, values[i].val] });
                         }
-
-                        const values = res.values;
-
-                        for (let i = 0; i < values.length; i++) {
-                            if (values[i].val !== null) {
-                                _series.push({ value: [values[i].ts, values[i].val] });
-                            }
-                        }
-
-                        // add start and end
-                        if (_series.length) {
-                            if (_series[0][0] > option.start) {
-                                _series.unshift({ value: [option.start, ''] });
-                            }
-                            if (_series[_series.length - 1][0] < option.end) {
-                                _series.push({ value: [option.end, ''] });
-                            }
-                        } else {
-                            _series.push({ value: [option.start, ''] });
-                            _series.push({ value: [option.end,   ''] });
-                        }
-                        // free memory
-                        res.values = null;
-                        res = null;
-
-                        this.ticks = _series;
                     }
-                    return Promise.resolve();
-                })
-                .catch(e => {
-                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                    console.error(`[ChartModel] ${e}`);
-                })
-                .then(() => cb && cb(this.ticks));
+
+                    // add start and end
+                    if (_series.length) {
+                        if (_series[0][0] > option.start) {
+                            _series.unshift({ value: [option.start, ''] });
+                        }
+                        if (_series[_series.length - 1][0] < option.end) {
+                            _series.push({ value: [option.end, ''] });
+                        }
+                    } else {
+                        _series.push({ value: [option.start, ''] });
+                        _series.push({ value: [option.end, ''] });
+                    }
+                    // free memory
+                    res.values = null;
+                }
+
+                this.ticks = _series;
+            } catch (e) {
+                e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                console.error(`[ChartModel] ${e}`);
+            }
         }
     }
 
@@ -1290,75 +1363,67 @@ class ChartModel {
     }
     */
 
-    readMarkings(cb, m) {
-        m = m || 0;
-        if (!this.config.marks || !this.config.marks.length || m >= this.config.marks.length) {
-            return cb();
+    async readMarkings() {
+        if (!this.config.marks) {
+            return;
         }
         // read markings
-        return new Promise(resolve => {
-            if ((this.config.marks[m].upperValueOrId || this.config.marks[m].upperValueOrId === 0) &&
-                    parseFloat(this.config.marks[m].upperValueOrId).toString() !== this.config.marks[m].upperValueOrId.toString().replace(/\.0*$/, '') &&
-                    this.config.marks[m].upperValueOrId.toString().includes('.')
+        for (let m = 0; m < this.config.marks.length; m++) {
+            const mark = this.config.marks[m];
+            // process upper ID
+            if ((mark.upperValueOrId || mark.upperValueOrId === 0) &&
+                parseFloat(mark.upperValueOrId).toString() !== mark.upperValueOrId.toString().replace(/\.0*$/, '') &&
+                mark.upperValueOrId.toString().includes('.')
             ) {
-                /* if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
-                        this.subscribes.push(this.config.marks[m].upperValueOrId);
+                /* if (!this.subscribes.includes(mark.upperValueOrId)) {
+                        this.subscribes.push(mark.upperValueOrId);
                     } */
-
-                this.socket.getState(this.config.marks[m].upperValueOrId)
-                    .then(state => {
-                        if (state && state.val !== undefined && state.val !== null) {
-                            this.config.marks[m].upperValue = parseFloat(state.val) || 0;
-                        } else {
-                            this.config.marks[m].upperValue = null;
-                        }
-                        resolve();
-                    })
-                    .catch(e => {
-                        e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                        console.error(`Cannot read marking ${this.config.marks[m].upperValueOrId}: ${e}`);
-                        resolve();
-                    });
-            } else {
-                resolve();
-            }
-        })
-            .then(() => new Promise(resolve => {
-                if ((this.config.marks[m].lowerValueOrId || this.config.marks[m].lowerValueOrId === 0) && parseFloat(this.config.marks[m].lowerValueOrId).toString() !== this.config.marks[m].lowerValueOrId.replace(/\.0*$/, '') && this.config.marks[m].lowerValueOrId.includes('.')) {
-                    /* if (!this.subscribes.includes(this.config.marks[m].upperValueOrId)) {
-                            this.subscribes.push(this.config.marks[m].upperValueOrId);
-                        } */
-
-                    this.socket.getState(this.config.marks[m].lowerValueOrId)
-                        .then(state => {
-                            if (state && state.val !== undefined && state.val !== null) {
-                                this.config.marks[m].lowerValue = parseFloat(state.val) || 0;
-                            } else {
-                                this.config.marks[m].lowerValue = null;
-                            }
-                            resolve();
-                        })
-                        .catch(e => {
-                            e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
-                            console.error(`Cannot read marking ${this.config.marks[m].lowerValueOrId}: ${e}`);
-                            resolve();
-                        });
-                } else {
-                    resolve();
+                try {
+                    const state = await this.socket.getState(mark.upperValueOrId);
+                    if (state && state.val !== undefined && state.val !== null) {
+                        mark.upperValue = parseFloat(state.val) || 0;
+                    } else {
+                        mark.upperValue = null;
+                    }
+                } catch (e) {
+                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                    console.error(`Cannot read marking ${mark.upperValueOrId}: ${e}`);
                 }
-            }))
-            .then(() =>
-                setTimeout(() => this.readMarkings(cb, m + 1), 0));
+            }
+
+            // process lower ID
+            if ((mark.lowerValueOrId || mark.lowerValueOrId === 0) &&
+                parseFloat(mark.lowerValueOrId).toString() !== mark.lowerValueOrId.replace(/\.0*$/, '') &&
+                mark.lowerValueOrId.includes('.')
+            ) {
+                /* if (!this.subscribes.includes(mark.upperValueOrId)) {
+                        this.subscribes.push(mark.upperValueOrId);
+                    } */
+                try {
+                    const state = await this.socket.getState(mark.lowerValueOrId);
+                    if (state && state.val !== undefined && state.val !== null) {
+                        mark.lowerValue = parseFloat(state.val) || 0;
+                    } else {
+                        mark.lowerValue = null;
+                    }
+                } catch (e) {
+                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                    console.error(`Cannot read marking ${mark.lowerValueOrId}: ${e}`);
+                }
+            }
+        }
     }
 
-    subscribeAll(subscribes, cb, s) {
-        s = s || 0;
-
-        if (this.serverSide || !subscribes || !subscribes.length || s >= subscribes.length) {
-            cb();
-        } else {
-            this.socket.subscribeState(subscribes[s], this.onStateChange);
-            setTimeout(() => this.subscribeAll(subscribes, cb, s + 1), 0);
+    async subscribeAll(subscribes) {
+        if (!this.serverSide && subscribes?.length) {
+            for (let s = 0; s < subscribes.length; s++) {
+                try {
+                    await this.socket.subscribeState(subscribes[s], this.onStateChange);
+                } catch (e) {
+                    e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
+                    console.error(`Cannot subscribe ${subscribes[s]}: ${e}`);
+                }
+            }
         }
     }
 
@@ -1451,7 +1516,30 @@ class ChartModel {
         return time;
     }
 
-    readData() {
+    async exportData(from, to, excludes) {
+        // read all raw data
+        const result = {};
+        for (let i = 0; i < this.config.l.length; i++) {
+            if (excludes?.includes(this.config.l[i].id) || !this.config.l[i] || !this.config.l[i].id) {
+                continue;
+            }
+            let data = await this.readOneRawChart(this.config.l[i].id, this.config.l[i].instance || this.defaultHistory, from, to);
+            let _from = data && data.length ? data[data.length - 1].ts + 1 : 0;
+            let values = data;
+            while (values && values.length === 2000) {
+                values = await this.readOneRawChart(this.config.l[i].id, this.config.l[i].instance || this.defaultHistory, _from, to);
+                _from = values && values.length ? values[values.length - 1].ts + 1 : 0;
+                data = data.concat(values);
+            }
+            if (values) {
+                result[this.config.l[i].id] = values;
+            }
+        }
+
+        return result;
+    }
+
+    async readData() {
         if (this.readOnZoomTimeout) {
             clearTimeout(this.readOnZoomTimeout);
             this.readOnZoomTimeout = null;
@@ -1489,26 +1577,22 @@ class ChartModel {
             this.seriesData = [];
             this.barCategories = null;
 
-            this._readData(() => {
-                // use units from common axis
-                for (let i = 0; i < this.config.l.length; i++) {
-                    if (this.config.l[i].commonYAxis || this.config.l[i].commonYAxis === 0) {
-                        this.config.l[i].units = this.config.l[this.config.l[i].commonYAxis].units;
-                    }
+            await this._readData();
+            // use units from common axis
+            for (let i = 0; i < this.config.l.length; i++) {
+                if (this.config.l[i].commonYAxis || this.config.l[i].commonYAxis === 0) {
+                    this.config.l[i].units = this.config.l[this.config.l[i].commonYAxis].units;
                 }
+            }
 
-                this.readTicks(() =>
-                    this.readMarkings(() => {
-                        /* if (!this.subscribed) {
-                            this.subscribed = true;
-                            this.subscribeAll(this.subscribes, () =>
-                                this.onUpdateFunc(this.seriesData, null, this.barCategories));
-                        } else { */
-                        this.reading = false;
-                        this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
-                        // }
-                    }));
-            });
+            await this.readTicks();
+            await this.readMarkings();
+            /* if (!this.subscribed) {
+                this.subscribed = true;
+                await this.subscribeAll(this.subscribes));
+            } */
+            this.reading = false;
+            this.onUpdateFunc(this.seriesData, this.actualValues, this.barCategories);
         } else {
             this.onErrorFunc && this.onErrorFunc('No config provided');
             this.onReadingFunc && this.onReadingFunc(false);

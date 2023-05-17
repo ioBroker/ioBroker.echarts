@@ -4,5 +4,12 @@
   "Save chart as svg": "Salvar gráfico como SVG",
   "Unfortunately your browser does not support this feature": "Infelizmente, seu navegador não oferece suporte a esse recurso",
   "Save chart as png": "Salvar gráfico como png",
-  "No data found": "Nenhum dado encontrado"
+  "No data found": "Nenhum dado encontrado",
+  "Export raw data as CSV": "Exportar dados brutos como CSV",
+  "Select lines for export": "Selecione as linhas para exportação",
+  "Time format": "Formato de hora",
+  "Browser format": "Formato de hora do navegador",
+  "Time stamp in milliseconds": "Carimbo de hora em milissegundos",
+  "Export": "Exportar",
+  "Cancel": "Cancelar"
 }

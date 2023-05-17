@@ -859,8 +859,10 @@ class PresetTabs extends React.Component {
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Use comma" name="useComma" />
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Enable zoom and pan" name="zoom" />
                 {/* <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label={'Hide edit button'} name="noedit" /> */}
-                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Show export button" name="export" />
-                {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Export button color', 'exportColor') : null}
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Show save image button" name="export" />
+                {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Save image button color', 'exportColor') : null}
+                <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Show export data button" name="exportData" />
+                {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Export data color', 'exportDataColor') : null}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Auto padding" name="autoGridPadding" />
             </div>
             <div className={this.props.classes.group}>

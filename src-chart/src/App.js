@@ -313,6 +313,7 @@ class App extends Component {
                             lang={I18n.getLanguage()}
                             themeType={this.state.themeType}
                             onRangeChange={options => this.chartData.setNewRange(options)}
+                            exportData={(from, to, excludes) => this.chartData.exportData(from, to, excludes)}
                         />
                         {this.renderError()}
                     </div>

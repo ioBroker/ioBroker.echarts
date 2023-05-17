@@ -352,7 +352,6 @@
   "Hover details": "Hover-Details",
   "Use comma": "Komma benutzen",
   "Enable zoom and pan": "Zoom erlauben",
-  "Show export button": "Export-Knopf anzeigen",
   "Legend": "Legende",
   "Legend background": "Legendenhintergrund",
   "Title color": "Titelfarbe",
@@ -431,7 +430,6 @@
   "Enable logging for new state": "Protokollierung für einen neuen Zustand aktivieren",
   "Rename preset": "Preset umbenennen",
   "Auto save": "Automatisch speichern",
-  "Export button color": "Export-Knopf-Farbe",
   "Open chart in own window": "Das Diagramm in einem eigenen Fenster öffnen",
   "If the current value is not older than X seconds, assume it is still the same.": "Wenn der aktuelle Wert nicht älter als X Sekunden ist, annehmen, dass er immer noch derselbe ist.",
   "Valid time (sec)": "Gültige Zeit (Sek.)",
@@ -512,5 +510,9 @@
   "Add new value": "Fügen Sie neuen Wert hinzu",
   "State value": "Wert angeben",
   "State value text": "Werttext angeben",
-  "Add": "Hinzufügen"
+  "Add": "Hinzufügen",
+  "Show save image button": "Schaltfläche „Bild speichern“ anzeigen",
+  "Save image button color": "Farbe der Bildschaltfläche speichern",
+  "Show export data button": "Schaltfläche „Exportdaten anzeigen“.",
+  "Export data color": "Farbe der Schaltfläche „Daten exportieren“."
 }

@@ -4,5 +4,12 @@
   "Save chart as svg": "Bewaar grafiek als SVG",
   "Unfortunately your browser does not support this feature": "Helaas ondersteunt uw browser deze functie niet",
   "Save chart as png": "Bewaar grafiek als png",
-  "No data found": "Geen data gevonden"
+  "No data found": "Geen data gevonden",
+  "Export raw data as CSV": "Exporteer onbewerkte gegevens als CSV",
+  "Select lines for export": "Selecteer regels voor export",
+  "Time format": "Tijd formaat",
+  "Browser format": "Browser tijdformaat",
+  "Time stamp in milliseconds": "Tijdstempel in milliseconden",
+  "Export": "Exporteren",
+  "Cancel": "Annuleren"
 }

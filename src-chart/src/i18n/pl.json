@@ -4,5 +4,12 @@
   "Save chart as svg": "Zapisz wykres jako SVG",
   "Unfortunately your browser does not support this feature": "Niestety Twoja przeglądarka nie obsługuje tej funkcji",
   "Save chart as png": "Zapisz wykres jako png",
-  "No data found": "Nie znaleziono danych"
+  "No data found": "Nie znaleziono danych",
+  "Export raw data as CSV": "Eksportuj surowe dane jako CSV",
+  "Select lines for export": "Wybierz linie do eksportu",
+  "Time format": "Format czasu",
+  "Browser format": "Format czasu przeglądarki",
+  "Time stamp in milliseconds": "Znacznik czasu w milisekundach",
+  "Export": "Eksport",
+  "Cancel": "Anulować"
 }

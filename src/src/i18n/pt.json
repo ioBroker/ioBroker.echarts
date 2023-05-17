@@ -352,7 +352,6 @@
   "Hover details": "Detalhes de navegação",
   "Use comma": "Use vírgula",
   "Enable zoom and pan": "Ativar zoom e panorâmica",
-  "Show export button": "Mostrar botão de exportação",
   "Legend": "lenda",
   "Legend background": "Fundo da legenda",
   "Title color": "Cor do título",
@@ -431,7 +430,6 @@
   "Enable logging for new state": "Ativar registro para novo estado",
   "Rename preset": "Renomear predefinição",
   "Auto save": "Salvamento automático",
-  "Export button color": "Cor do botão de exportação",
   "Open chart in own window": "Abra o gráfico na própria janela",
   "If the current value is not older than X seconds, assume it is still the same.": "Se o valor atual não for mais antigo do que X segundos, assuma que ainda é o mesmo.",
   "Valid time (sec)": "Tempo válido (s)",
@@ -512,5 +510,9 @@
   "Add new value": "Adicionar novo valor",
   "State value": "valor do estado",
   "State value text": "Texto do valor do estado",
-  "Add": "Adicionar"
+  "Add": "Adicionar",
+  "Show save image button": "Mostrar botão de salvar imagem",
+  "Save image button color": "Salvar cor do botão de imagem",
+  "Show export data button": "Mostrar botão de exportação de dados",
+  "Export data color": "Cor do botão de exportação de dados"
 }

@@ -352,7 +352,6 @@
   "Hover details": "悬停详细信息",
   "Use comma": "使用逗号",
   "Enable zoom and pan": "启用缩放和平移",
-  "Show export button": "显示导出按钮",
   "Legend": "传说",
   "Legend background": "图例背景",
   "Title color": "标题颜色",
@@ -431,7 +430,6 @@
   "Enable logging for new state": "启用新状态的日志记录",
   "Rename preset": "重命名预设",
   "Auto save": "自动保存",
-  "Export button color": "导出按钮颜色",
   "Open chart in own window": "在自己的窗口中打开图表",
   "If the current value is not older than X seconds, assume it is still the same.": "如果当前值不超过X秒，则假定它仍然相同。",
   "Valid time (sec)": "有效时间（秒）",
@@ -512,5 +510,9 @@
   "Add new value": "增加新价值",
   "State value": "状态值",
   "State value text": "状态值文本",
-  "Add": "添加"
+  "Add": "添加",
+  "Show save image button": "显示保存图像按钮",
+  "Save image button color": "保存图像按钮颜色",
+  "Show export data button": "显示导出数据按钮",
+  "Export data color": "导出数据按钮颜色"
 }

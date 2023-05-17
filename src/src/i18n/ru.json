@@ -352,7 +352,6 @@
   "Hover details": "Детали при наведении",
   "Use comma": "Используйте запятую",
   "Enable zoom and pan": "Разрешить зум",
-  "Show export button": "Показать кнопку экспорта",
   "Legend": "Легенда",
   "Legend background": "Фон легенды",
   "Title color": "Цвет заголовка",
@@ -431,7 +430,6 @@
   "Enable logging for new state": "Включить ведение журнала для нового состояния",
   "Rename preset": "Переименовать пресет",
   "Auto save": "Автосохранение",
-  "Export button color": "Цвет кнопки экспорта",
   "Open chart in own window": "Открыть график в собственном окне",
   "If the current value is not older than X seconds, assume it is still the same.": "Если текущее значение не старше X секунд, предположим, что оно осталось прежним.",
   "Valid time (sec)": "Действительное время (сек)",
@@ -512,5 +510,9 @@
   "Add new value": "Добавить новое значение",
   "State value": "Числовое значение",
   "State value text": "Текст значения",
-  "Add": "Добавить"
+  "Add": "Добавить",
+  "Show save image button": "Показать кнопку сохранения изображения",
+  "Save image button color": "Сохранить цвет кнопки изображения",
+  "Show export data button": "Показать кнопку экспорта данных",
+  "Export data color": "Цвет кнопки экспорта данных"
 }

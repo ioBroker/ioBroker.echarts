@@ -352,7 +352,6 @@
   "Hover details": "Hover details",
   "Use comma": "Use comma",
   "Enable zoom and pan": "Enable zoom and pan",
-  "Show export button": "Show export button",
   "Legend": "Legend",
   "Legend background": "Legend background",
   "Title color": "Title color",
@@ -431,7 +430,6 @@
   "Enable logging for new state": "Enable logging for new state",
   "Rename preset": "Rename preset",
   "Auto save": "Auto save",
-  "Export button color": "Export button color",
   "Open chart in own window": "Open chart in own window",
   "If the current value is not older than X seconds, assume it is still the same.": "If the current value is not older than X seconds, assume it is still the same.",
   "Valid time (sec)": "Valid time (sec)",
@@ -512,5 +510,9 @@
   "Add new value": "Add new value",
   "State value": "State value",
   "State value text": "State value text",
-  "Add": "Add"
+  "Add": "Add",
+  "Show save image button": "Show save image button",
+  "Save image button color": "Save image button color",
+  "Show export data button": "Show export data button",
+  "Export data color": "Export data button color"
 }

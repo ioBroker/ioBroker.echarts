@@ -4,5 +4,12 @@
   "Save chart as svg": "Save chart as SVG",
   "Unfortunately your browser does not support this feature": "Unfortunately your browser does not support this feature",
   "Save chart as png": "Save chart as png",
-  "No data found": "No data found"
+  "No data found": "No data found",
+  "Export raw data as CSV": "Export raw data as CSV",
+  "Select lines for export": "Select lines for export",
+  "Time format": "Time format",
+  "Browser format": "Browser time format",
+  "Time stamp in milliseconds": "Time stamp in milliseconds",
+  "Export": "Export",
+  "Cancel": "Cancel"
 }

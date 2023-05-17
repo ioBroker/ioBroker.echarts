@@ -2,10 +2,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
-import LinearProgress from '@mui/material/LinearProgress';
+import {
+    LinearProgress,
+    MenuItem,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    Checkbox,
+    FormControl,
+    InputLabel,
+    Select,
+} from '@mui/material';
 import Fab from '@mui/material/Fab';
 
-import { FaRedoAlt as IconReset, FaDownload as IconExport, FaCopy as IconCopy }  from 'react-icons/fa';
+import {
+    FaRedoAlt as IconReset,
+    FaDownload as IconSaveImage,
+    FaFileExport as IconExportData,
+    FaCopy as IconCopy,
+    FaCheck as IconCheck,
+}  from 'react-icons/fa';
 
 import moment from 'moment';
 import 'moment/locale/en-gb';
@@ -90,7 +108,7 @@ const styles = () => ({
         overflow: 'hidden',
         position: 'relative',
     },
-    exportButton: {
+    saveImageButton: {
         position: 'absolute',
         top: 40,
         right: 5,
@@ -101,9 +119,20 @@ const styles = () => ({
         cursor: 'pointer',
         // background: '#00000000',
     },
-    copyButton: {
+    exportDataButton: {
         position: 'absolute',
         top: 70,
+        right: 5,
+        width: 20,
+        height: 20,
+        zIndex: 2,
+        opacity: 0.7,
+        cursor: 'pointer',
+        // background: '#00000000',
+    },
+    copyButton: {
+        position: 'absolute',
+        top: 100,
         right: 5,
         width: 20,
         height: 20,
@@ -160,6 +189,8 @@ class ChartView extends React.Component {
         this.state = {
             chartHeight: null,
             chartWidth: null,
+            excluded: [],
+            timeFormat: window.localStorage.getItem('Chart.timeFormat') || 'locale',
         };
 
         this.echartsReact = React.createRef();
@@ -193,7 +224,7 @@ class ChartView extends React.Component {
             const lastIds = (props.config && props.config.l && props.config.l.map(item => item.id)) || [];
             lastIds.sort();
             const changed = JSON.stringify(lastIds) !== JSON.stringify(this.lastIds);
-            // If list of IDs changed => clear all settings
+            // If the list of IDs changed => clear all settings
             if (changed)  {
                 this.lastIds = lastIds;
                 chartInstance.clear();
@@ -648,11 +679,11 @@ class ChartView extends React.Component {
         </Fab>;
     }
 
-    renderExportButton() {
+    renderSaveImageButton() {
         if (this.props.config.export) {
-            return <IconExport
+            return <IconSaveImage
                 color={this.props.config.exportColor || 'default'}
-                className={this.props.classes.exportButton}
+                className={this.props.classes.saveImageButton}
                 title={this.option && this.option.useCanvas ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')}
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
@@ -714,6 +745,165 @@ class ChartView extends React.Component {
         return null;
     }
 
+    exportData() {
+        const chart = this.chartOption.getHelperChartData();
+        this.setState({ exporting: true }, () =>
+            this.props.exportData(chart.xMin, chart.xMax, this.state.excluded)
+                .then(data => {
+                    const downloadLink = document.createElement('a');
+                    document.body.appendChild(downloadLink);
+
+                    const header = ['time'];
+                    const table = [];
+                    Object.keys(data).forEach((id, i) => {
+                        header.push(id);
+                        data[id].forEach(value => {
+                            const line = [value.ts];
+                            line[i + 1] = value.val;
+                            table.push(line);
+                        });
+                    });
+                    table.sort((a, b) => a[0] - b[0]);
+
+                    // try to combine same time
+                    for (let i = 0; i < table.length - 1; i++) {
+                        if (table[i][0] === table[i + 1][0]) {
+                            for (let j = 1; j < table[i].length; j++) {
+                                if (table[i + 1][j] !== undefined) {
+                                    table[i][j] = table[i + 1][j];
+                                }
+                            }
+                            table.splice(i + 1, 1);
+                            i--;
+                        }
+                    }
+                    const lines = [];
+                    const timeFormat = this.state.timeFormat;
+                    table.forEach(line => {
+                        if (timeFormat === 'iso') {
+                            const time = new Date(line[0]);
+                            line[0] = time.toISOString();
+                        } else if (timeFormat === 'locale') {
+                            const time = new Date(line[0]);
+                            line[0] = `${time.toLocaleDateString()} ${time.toLocaleTimeString()}.${time.getMilliseconds().toString().padStart(3, '0')}`;
+                        }
+                        lines.push(line.join(';'));
+                    });
+
+                    downloadLink.href = `data:text/plain;charset=utf-8,${header.join(';')}\n${lines.join('\n')}`;
+                    downloadLink.target = '_self';
+                    let name;
+                    if (this.props.config.l.length === 1) {
+                        name = this.props.config.l[0].name;
+                    } else {
+                        name = 'chart';
+                    }
+                    const date = new Date(chart.xMin);
+                    try {
+                        downloadLink.download =
+                            `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
+                            `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.csv`;
+                        downloadLink.click();
+                    } catch (e) {
+                        console.error(`Cannot access download: ${e}`);
+                        window.alert(I18n.t('Unfortunately your browser does not support this feature'));
+                    }
+                    this.setState({ exporting: false });
+                }));
+    }
+
+    renderExportDataButton() {
+        if (this.props.config.exportData) {
+            return <IconExportData
+                style={this.state.exporting ? { opacity: 0.5 } : {}}
+                color={this.props.config.exportDataColor || 'default'}
+                className={this.props.classes.exportDataButton}
+                title={I18n.t('Export raw data as CSV')}
+                onClick={() => {
+                    if (this.state.exporting) {
+                        return;
+                    }
+                    if (this.props.config.l.length === 1) {
+                        this.exportData();
+                    } else {
+                        this.setState({ showExportDataDialog: true });
+                    }
+                }}
+            />;
+        }
+        return null;
+    }
+
+    renderExportDataDialog() {
+        if (this.state.showExportDataDialog) {
+            return <Dialog
+                open={!0}
+                onClose={() => this.setState({ showExportDataDialog: false })}
+            >
+                <DialogTitle>{I18n.t('Select lines for export')}</DialogTitle>
+                <DialogContent>
+                    <FormControl fullWidth variant="standard">
+                        <InputLabel>{I18n.t('Time format')}</InputLabel>
+                        <Select
+                            value={this.state.timeFormat}
+                            onChange={e => {
+                                window.localStorage.setItem('Chart.timeFormat', e.target.value);
+                                this.setState({ timeFormat: e.target.value });
+                            }}
+                        >
+                            <MenuItem value="iso">ISO</MenuItem>
+                            <MenuItem value="locale">{I18n.t('Browser format')}</MenuItem>
+                            <MenuItem value="ts">{I18n.t('Time stamp in milliseconds')}</MenuItem>
+                        </Select>
+                    </FormControl>
+                    {this.props.config.l.map((line, i) => <MenuItem
+                        key={i}
+                        onClick={() => {
+                            const excluded = [...this.state.excluded];
+                            const pos = excluded.indexOf(line.id);
+                            if (pos === -1) {
+                                excluded.push(line.id);
+                            } else {
+                                excluded.splice(pos, 1);
+                            }
+                            this.setState({ excluded });
+                        }}
+                    >
+                        <Checkbox checked={!this.state.excluded.includes(line?.id)} />
+                        <div>
+                            <div>{line?.name || line?.id}</div>
+                            <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: 'smaller' }}>{line?.name ? line?.id : null}</div>
+                        </div>
+                    </MenuItem>)}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={this.state.excluded.length === this.props.config.l.length}
+                        startIcon={<IconCheck />}
+                        onClick={() => {
+                            this.setState({ showExportDataDialog: false });
+                            this.exportData();
+                        }}
+                    >
+                        {I18n.t('Export')}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="grey"
+                        onClick={() => this.setState({ showExportDataDialog: false })}
+                        startIcon={<span style={{ fontSize: 14 }}>X</span>}
+                    >
+                        {I18n.t('Cancel')}
+                    </Button>
+                </DialogActions>
+            </Dialog>;
+        }
+
+        return null;
+    }
+
     renderDevCopyButton() {
         if (window.location.port === '3000') {
             return <IconCopy
@@ -748,7 +938,9 @@ class ChartView extends React.Component {
                 padding:        borderPadding || 0,
             }}
         >
-            { this.renderExportButton() }
+            { this.renderSaveImageButton() }
+            { this.renderExportDataDialog() }
+            { this.renderExportDataButton() }
             { this.renderResetButton() }
             { this.renderDevCopyButton() }
             { this.state.chartHeight !== null ? this.renderChart() : null }
@@ -764,6 +956,7 @@ ChartView.propTypes = {
     onRangeChange: PropTypes.func,
     compact: PropTypes.bool,
     categories: PropTypes.array, // for bar and pie charts
+    exportData: PropTypes.func,
 };
 
 export default withWidth()(withStyles(styles)(ChartView));

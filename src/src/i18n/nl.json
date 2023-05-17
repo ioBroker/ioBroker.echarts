@@ -352,7 +352,6 @@
   "Hover details": "Beweeg de details",
   "Use comma": "Gebruik een komma",
   "Enable zoom and pan": "Schakel zoomen en pannen in",
-  "Show export button": "Toon exportknop",
   "Legend": "Legende",
   "Legend background": "Legenda achtergrond",
   "Title color": "Titel kleur",
@@ -431,7 +430,6 @@
   "Enable logging for new state": "Schakel logboekregistratie in voor nieuwe staat",
   "Rename preset": "Hernoem preset",
   "Auto save": "Automatisch opslaan",
-  "Export button color": "Kleur van knop exporteren",
   "Open chart in own window": "Open kaart in eigen venster",
   "If the current value is not older than X seconds, assume it is still the same.": "Als de huidige waarde niet ouder is dan X seconden, neem dan aan dat deze nog steeds hetzelfde is.",
   "Valid time (sec)": "Geldige tijd (sec)",
@@ -512,5 +510,9 @@
   "Add new value": "Nieuwe waarde toevoegen",
   "State value": "Staat waarde",
   "State value text": "Staat waarde tekst",
-  "Add": "Toevoegen"
+  "Add": "Toevoegen",
+  "Show save image button": "Toon knop afbeelding opslaan",
+  "Save image button color": "Bewaar de kleur van de afbeeldingsknop",
+  "Show export data button": "Knop Exportgegevens weergeven",
+  "Export data color": "Knopkleur gegevens exporteren"
 }

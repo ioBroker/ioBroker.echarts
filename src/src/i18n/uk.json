@@ -169,7 +169,6 @@
   "Expand": "Розгорнути",
   "Expand all lines": "Розгорнути всі рядки",
   "Expand all markings": "Розгорнути всі позначки",
-  "Export button color": "Колір кнопки експорту",
   "Fill": "Заповнити",
   "Fill color:": "Колір заливки:",
   "Fill range:": "Діапазон заповнення:",
@@ -286,7 +285,6 @@
   "Select": "Виберіть",
   "Select ID": "Виберіть ID",
   "Shadow Size": "Розмір тіні",
-  "Show export button": "Показати кнопку експорту",
   "Show labels:": "Показати мітки:",
   "Show legend": "Показати легенду",
   "Show legend:": "Показати легенду:",
@@ -512,5 +510,9 @@
   "Add new value": "Додати нове значення",
   "State value": "Державне значення",
   "State value text": "Вкажіть текст значення",
-  "Add": "додати"
+  "Add": "додати",
+  "Show save image button": "Показати кнопку збереження зображення",
+  "Save image button color": "Зберегти колір кнопки зображення",
+  "Show export data button": "Показати кнопку експорту даних",
+  "Export data color": "Колір кнопки експорту даних"
 }

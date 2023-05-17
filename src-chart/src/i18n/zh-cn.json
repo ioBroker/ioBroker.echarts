@@ -4,5 +4,12 @@
   "Save chart as svg": "将图表另存为SVG",
   "Unfortunately your browser does not support this feature": "不幸的是，您的浏览器不支持此功能",
   "Save chart as png": "将图表另存为png",
-  "No data found": "没有找到数据"
+  "No data found": "没有找到数据",
+  "Export raw data as CSV": "将原始数据导出为 CSV",
+  "Select lines for export": "选择要导出的行",
+  "Time format": "时间格式",
+  "Browser format": "浏览器时间格式",
+  "Time stamp in milliseconds": "以毫秒为单位的时间戳",
+  "Export": "出口",
+  "Cancel": "取消"
 }
