@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.4.15",
+    "version": "1.5.0",
     "news": {
+      "1.5.0": {
+        "en": "Implemented raw data export",
+        "de": "Export von Rohdaten",
+        "ru": "Внедренный экспорт сырья",
+        "pt": "Exportação de dados brutos implementadas",
+        "nl": "Vertaling:",
+        "fr": "Exportation de données brutes appliquées",
+        "it": "Esportazione di dati grezzi",
+        "es": "Exportación de datos brutos aplicada",
+        "pl": "Poprawa eksportu surowych danych",
+        "uk": "Реалізовано експорт сировини",
+        "zh-cn": "执行原材料出口"
+      },
       "1.4.15": {
         "en": "Allowed using the timestamp in seconds in JSON sources",
         "de": "Erlaubt, den Zeitstempel in Sekunden in JSON-Quellen zu verwenden",
@@ -80,19 +93,6 @@
         "pl": "Wszystko dawało rozmieszczenie tekstów dla enum i dodanie/delecji własnych wartości tekstowych",
         "uk": "Дозволено відключення текстів для обманів та додавання/вилучення власних текстових значень",
         "zh-cn": "允许修改案文,说明和增加/推销自己的案文价值"
-      },
-      "1.4.7": {
-        "en": "Implemented custom texts for enums",
-        "de": "Ergänzte benutzerdefinierte Texte für enums",
-        "ru": "Внедренные пользовательские тексты для enums",
-        "pt": "Textos personalizados implementados para enums",
-        "nl": "Geïmplementeerde gebruiks-sms'jes voor vermommingen",
-        "fr": "Textes personnalisés mis en œuvre pour les enums",
-        "it": "Testi personalizzati per enum",
-        "es": "Textos personalizados implementados para enums",
-        "pl": "Implementacja standardowych tekstów dla enum",
-        "uk": "Реалізовано користувацькі тексти для обманів",
-        "zh-cn": "实施定制案文以图表"
       }
     },
     "title": "E-Charts",

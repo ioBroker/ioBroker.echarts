@@ -99,7 +99,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.5.0 (2023-05-17)
 * (bluefox) Implemented raw data export
 
 ### 1.4.15 (2023-05-10)
