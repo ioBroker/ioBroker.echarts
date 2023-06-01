@@ -8,7 +8,7 @@
     "@material-ui/icons": "^4.11.3",
     "@mui/styles": "^5.13.2",
     "@sentry/browser": "^7.52.1",
-    "@sentry/integrations": "^7.52.1",
+    "@sentry/integrations": "^7.53.1",
     "babel-eslint": "^10.1.0",
     "eslint": "^8.41.0",
     "eslint-config-airbnb": "^19.0.4",
