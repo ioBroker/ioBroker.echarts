@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "news": {
+      "1.5.1": {
+        "en": "Error handling in JSON data was improved",
+        "de": "Fehlerbehandlung in JSON-Daten wurde verbessert",
+        "ru": "Улучшена обработка ошибок в данных JSON",
+        "pt": "O tratamento de erros nos dados JSON foi melhorado",
+        "nl": "Error omgaan in JSON data werd verbeterd",
+        "fr": "Gestion des erreurs dans les données JSON a été améliorée",
+        "it": "La gestione degli errori nei dati JSON è stata migliorata",
+        "es": "Se mejoró el manejo de errores en los datos JSON",
+        "pl": "Obserwacja danych JSON została poprawiona",
+        "uk": "Удосконалено процес обробки помилок в даних JSON",
+        "zh-cn": "改进了联合办数据的处理。"
+      },
       "1.5.0": {
         "en": "Implemented raw data export",
         "de": "Export von Rohdaten",
@@ -80,19 +93,6 @@
         "pl": "Boole zostały poprawione",
         "uk": "Удосконалено",
         "zh-cn": "玻璃改良"
-      },
-      "1.4.9": {
-        "en": "Allowed the disabling of texts for enums and the adding/deletion of own text values",
-        "de": "Erlaubt die Deaktivierung von Texten für Enums und das Hinzufügen/Ausgeben eigener Textwerte",
-        "ru": "Разрешено отключение текстов для перечислений и добавление/отмена собственных текстовых значений",
-        "pt": "Permitido a desativação de textos para enums e a adição / eliminação de valores de texto próprios",
-        "nl": "Vertaling:",
-        "fr": "Permet de désactiver les textes pour les émoluments et d ' ajouter ou de supprimer des valeurs de texte propres",
-        "it": "Consentito la disabilitazione dei testi per gli enum e l'aggiunta/eliminazione dei propri valori di testo",
-        "es": "Permitió la desactivación de textos para enums y la adición o eliminación de valores propios de texto",
-        "pl": "Wszystko dawało rozmieszczenie tekstów dla enum i dodanie/delecji własnych wartości tekstowych",
-        "uk": "Дозволено відключення текстів для обманів та додавання/вилучення власних текстових значень",
-        "zh-cn": "允许修改案文,说明和增加/推销自己的案文价值"
       }
     },
     "title": "E-Charts",
