@@ -991,6 +991,10 @@ class ChartModel {
                 if (values.history) {
                     values = values.history;
                 }
+                if (!Array.isArray(values)) {
+                    values = [];
+                    console.warn('JSON is not an array');
+                }
 
                 values = values.filter(v => v);
 
@@ -1039,10 +1043,6 @@ class ChartModel {
                     }
                 }
 
-                if (!Array.isArray(values)) {
-                    values = [];
-                    console.warn('JSON is not an array');
-                }
                 values.sort((a, b) => (a.ts - b.ts ? -1 : (a.ts < b.ts ? 1 : 0)));
 
                 this.processRawData(id, index, values);
