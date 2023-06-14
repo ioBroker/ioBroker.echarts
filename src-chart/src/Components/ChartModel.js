@@ -1028,13 +1028,13 @@ class ChartModel {
                     if (values[0].ts) {
                         // eslint-disable-next-line no-restricted-properties
                         if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
-                            values = values.forEach(v => v.ts = parseInt(v.ts, 10));
+                            values.forEach(v => v.ts = parseInt(v.ts, 10));
                         } else if (typeof values[0].ts === 'string' && new Date(values[0].ts).toString() !== 'Invalid Date') {
-                            values = values.forEach(v => v.ts = new Date(v.ts).getTime());
+                            values.forEach(v => v.ts = new Date(v.ts).getTime());
                         }
                         // no else
                         if (typeof values[0].ts === 'number' && values[0].ts < 946681200000) { // new Date(2000,0,1).getTime() === 946681200000
-                            values = values.forEach(v => v.ts *= 1000);
+                            values.forEach(v => v.ts *= 1000);
                         }
                     }
                 }
