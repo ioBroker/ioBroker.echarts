@@ -99,6 +99,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Error handling in JSON data was improved
+
 ### 1.5.0 (2023-05-17)
 * (bluefox) Implemented raw data export
 

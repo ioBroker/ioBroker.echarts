@@ -992,6 +992,8 @@ class ChartModel {
                     values = values.history;
                 }
 
+                values = values.filter(v => v);
+
                 // convert alternative names to {ts, val}. Possible names for ts: t, time. Possible names for val: y, value
                 if (values[0]) {
                     const keys = Object.keys(values[0]);
