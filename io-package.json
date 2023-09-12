@@ -3,19 +3,6 @@
     "name": "echarts",
     "version": "1.5.2",
     "news": {
-      "1.5.2": {
-        "en": "Added an option to reset zoom and tilt after X seconds of idle",
-        "de": "Hinzugefügt eine Option, um Zoom und Kippen nach X Sekunden Leere zurücksetzen",
-        "ru": "Добавлена возможность сброса зоома и наклона после X секунды загадки",
-        "pt": "Adicionado uma opção para redefinir zoom e inclinação após X segundos de idle",
-        "nl": "Voeg een optie toe om zoom te resetten en te tintelen na X seconden van lege",
-        "fr": "Ajout d'une option pour réinitialiser le zoom et l'inclinaison après X secondes de ralenti",
-        "it": "Aggiunta un'opzione per ripristinare lo zoom e l'inclinazione dopo X secondi di idle",
-        "es": "Se agregó una opción para restablecer el zoom y la inclinación después de X segundos de ocio",
-        "pl": "Dodał możliwość resetowania się zbliżenia i nachylenia po X sekundach bezczynnych",
-        "uk": "Додано опцію для скидання золи та нахилу після X секунд свічки",
-        "zh-cn": "在十年代之后添加了重新种植和灌木的选择。"
-      },
       "1.5.1": {
         "en": "Error handling in JSON data was improved",
         "de": "Fehlerbehandlung in JSON-Daten wurde verbessert",
