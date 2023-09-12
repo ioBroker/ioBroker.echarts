@@ -1202,7 +1202,7 @@ class ChartOption {
             series.forEach((ser, i) => {
                 let _yAxis = option.yAxis[ser.yAxisIndex];
                 if (!_yAxis) {
-                    // seems this axis is defined something else
+                    // it seems this axis is defined something else
                     const cY = this.config.l[ser.yAxisIndex] ? this.config.l[ser.yAxisIndex].commonYAxis : undefined;
                     if (cY !== undefined) {
                         _yAxis = option.yAxis[cY];

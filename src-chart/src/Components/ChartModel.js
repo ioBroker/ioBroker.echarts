@@ -950,26 +950,31 @@ class ChartModel {
 
         // add start and end
         if (this.config.l[index].chartType !== 'bar') {
+            let end = option.end;
+            // End cannot be in the future
+            if (end > this.now) {
+                end = this.now;
+            }
             if (_series.length) {
                 if (_series[0].value[0] > option.start) {
                     _series.unshift({ value: [option.start, null], exact: false });
                 }
                 const last = _series[_series.length - 1];
-                if (last.value[0] < option.end) {
+                if (last.value[0] < end) {
                     if (this.config.l[index].validTime) {
                         // If the last value is not older than X seconds, assume it is still the same
-                        if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
-                            _series.push({ value: [option.end, last.value[1]], exact: false });
+                        if (end - this.config.l[index].validTime * 1000 <= last.value[0]) {
+                            _series.push({ value: [end, last.value[1]], exact: false });
                         } else {
-                            _series.push({ value: [option.end, null], exact: false });
+                            _series.push({ value: [end, null], exact: false });
                         }
                     } else {
-                        _series.push({ value: [option.end, null], exact: false });
+                        _series.push({ value: [end, null], exact: false });
                     }
                 }
             } else {
                 _series.push({ value: [option.start, null], exact: false });
-                _series.push({ value: [option.end,   null], exact: false });
+                _series.push({ value: [end,   null], exact: false });
             }
 
             // TODO: May be not required?
@@ -998,7 +1003,7 @@ class ChartModel {
                 if (values[0]) {
                     const keys = Object.keys(values[0]);
                     if (!keys.includes('val') || !keys.includes('ts')) {
-                        // If format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
+                        // If a format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
                         if (keys.includes('y') && keys.includes('t')) {
                             values = values.map(v => ({ ts: v.t, val: v.y }));
                         } else {
