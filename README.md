@@ -94,11 +94,16 @@ You can debug view charts locally with:
 - widget for material
 - show enum icons on folders or near it
 
+- New option: reset zoom and tilt after X seconds of idle
+
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added an option to reset zoom and tilt after X seconds of idle
+
 ### 1.5.1 (2023-06-14)
 * (bluefox) Error handling in JSON data was improved
 

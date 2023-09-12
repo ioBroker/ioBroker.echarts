@@ -333,6 +333,7 @@ class ChartOption {
         this.lastFormattedTime = null;
     }
 
+    /*
     setThemeName(themeType) {
         this.themeType = themeType || 'light';
     }
@@ -340,6 +341,7 @@ class ChartOption {
     setConfig(config) {
         this.config = config;
     }
+    */
 
     getHelperChartData() {
         return this.chart;
@@ -795,8 +797,7 @@ class ChartOption {
         if (this.config.l[line].states) {
             if (val === true) {
                 val = 1;
-            } else
-            if (val === false) {
+            } else if (val === false) {
                 val = 0;
             }
 
@@ -896,8 +897,7 @@ class ChartOption {
             let showDate = false;
             if (_index < 2 || this.lastFormattedTime === null || value < this.lastFormattedTime) {
                 showDate = true;
-            } else
-            if (!showDate && new Date(this.lastFormattedTime).getDate() !== dateInMonth) {
+            } else if (!showDate && new Date(this.lastFormattedTime).getDate() !== dateInMonth) {
                 showDate = true;
             }
             if (showDate) {
@@ -1230,8 +1230,7 @@ class ChartOption {
 
                 if (xAxis[0].position === 'top') {
                     padTop = this.isXLabelHasBreak() ? 40 : 24;
-                } else
-                if (xAxis[0].position !== 'off' || xAxis[0].position === 'bottom') {
+                } else if (xAxis[0].position !== 'off' || xAxis[0].position === 'bottom') {
                     padBottom = this.isXLabelHasBreak() ? 40 : 24;
                 }
 

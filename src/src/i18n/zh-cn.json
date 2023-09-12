@@ -514,5 +514,8 @@
   "Show save image button": "显示保存图像按钮",
   "Save image button color": "保存图像按钮颜色",
   "Show export data button": "显示导出数据按钮",
-  "Export data color": "导出数据按钮颜色"
+  "Export data color": "导出数据按钮颜色",
+  "Reset zoom after idle": "闲置后重置变焦",
+  "90 seconds": "90秒",
+  "Aggregate": "总计的"
 }

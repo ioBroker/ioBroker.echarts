@@ -648,8 +648,7 @@ class ChartModel {
             if (this.zoomData) {
                 start = this.zoomData.start;
                 end   = this.zoomData.end;
-            } else
-            if (this.config.timeType === 'static') {
+            } else if (this.config.timeType === 'static') {
                 let startTime;
                 let endTime;
                 if (this.config.start_time !== undefined) {
@@ -776,8 +775,7 @@ class ChartModel {
 
             if (this.config.l[index].chartType === 'bar') {
                 this.increaseRegionForBar(start, end, option);
-            } else
-            if (this.config.aggregateType === 'step') {
+            } else if (this.config.aggregateType === 'step') {
                 option.step = this.config.aggregateSpan * 1000;
             } else if (this.config.aggregateType === 'count') {
                 option.count = this.config.aggregateSpan || 300;
@@ -819,9 +817,8 @@ class ChartModel {
             const interval = series[i];
             if (!interval.length) {
                 series[i] = null;
-            } else
-            // sum all values
-            if (interval.length === 1) {
+            } else if (interval.length === 1) {
+                // sum all values
                 series[i] = interval[0];
             } else if (aggregate === 'average') {
                 const sum = interval.reduce((a, b) => a + b, 0);
@@ -918,8 +915,7 @@ class ChartModel {
                 values[i].val = 1;
             } else if (values[i].val === 'false' || values[i].val === false) {
                 values[i].val = 0;
-            } else
-            if (typeof values[i].val === 'string') {
+            } else if (typeof values[i].val === 'string') {
                 values[i].val = parseFloat(values[i].val);
             }
 
@@ -1018,11 +1014,9 @@ class ChartModel {
 
                             if (keys.includes('t')) {
                                 values.forEach(v => v.ts = v.t);
-                            } else
-                            if (keys.includes('time')) {
+                            } else if (keys.includes('time')) {
                                 values.forEach(v => v.ts = v.time);
-                            } else
-                            if (keys.includes('date')) {
+                            } else if (keys.includes('date')) {
                                 values.forEach(v => v.ts = v.date);
                             }
                         }
@@ -1130,11 +1124,9 @@ class ChartModel {
 
                             if (keys.includes('t')) {
                                 values.forEach(v => v.ts = v.t);
-                            } else
-                            if (keys.includes('time')) {
+                            } else if (keys.includes('time')) {
                                 values.forEach(v => v.ts = v.time);
-                            } else
-                            if (keys.includes('date')) {
+                            } else if (keys.includes('date')) {
                                 values.forEach(v => v.ts = v.date);
                             }
                         }

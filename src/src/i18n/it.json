@@ -514,5 +514,8 @@
   "Show save image button": "Mostra pulsante salva immagine",
   "Save image button color": "Salva il colore del pulsante dell'immagine",
   "Show export data button": "Pulsante Mostra dati di esportazione",
-  "Export data color": "Esporta colore pulsante dati"
+  "Export data color": "Esporta colore pulsante dati",
+  "Reset zoom after idle": "Reimposta lo zoom dopo il periodo di inattività",
+  "90 seconds": "90 secondi",
+  "Aggregate": "Aggregato"
 }

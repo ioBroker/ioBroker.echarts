@@ -864,6 +864,26 @@ class PresetTabs extends React.Component {
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Show export data button" name="exportData" />
                 {this.props.presetData.export ? this.renderColorField(this.props.presetData, this.updateField, 'Export data color', 'exportDataColor') : null}
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Auto padding" name="autoGridPadding" />
+                {this.props.presetData.zoom ? <IOSelect
+                    formData={this.props.presetData}
+                    updateValue={this.updateField}
+                    label="Reset zoom after idle"
+                    name="resetZoom"
+                    options={{
+                        '': 'none',
+                        10: '10 seconds',
+                        15: '15 seconds',
+                        30: '30 seconds',
+                        60: '1 minute',
+                        90: '90 seconds',
+                        120: '2 minutes',
+                        180: '3 minutes',
+                        300: '5 minutes',
+                        600: '10 minutes',
+                        1200: '20 minutes',
+                        1800: '30 minutes',
+                    }}
+                /> : null}
             </div>
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Copy link to clipboard')}</p>

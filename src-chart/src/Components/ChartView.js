@@ -214,6 +214,15 @@ class ChartView extends React.Component {
     }
 
     componentWillUnmount() {
+        this.resetZoomAndTiltTimer && clearTimeout(this.resetZoomAndTiltTimer);
+        this.resetZoomAndTiltTimer = null;
+
+        this.timerResize && clearTimeout(this.timerResize);
+        this.timerResize = null;
+
+        this.updatePropertiesTimeout && clearTimeout(this.updatePropertiesTimeout);
+        this.updatePropertiesTimeout = null;
+
         window.removeEventListener('resize', this.onResize);
     }
 
@@ -332,6 +341,17 @@ class ChartView extends React.Component {
             this.updateDataTimer && clearTimeout(this.updateDataTimer);
             this.updateDataTimer = null;
             this.props.onRangeChange && this.props.onRangeChange({ start: chart.xMin, end: chart.xMax });
+
+            if (this.props.config.resetZoom) {
+                this.resetZoomAndTiltTimer && clearTimeout(this.resetZoomAndTiltTimer);
+                this.resetZoomAndTiltTimer = setTimeout(() => {
+                    this.resetZoomAndTiltTimer = null;
+                    if (this.divResetButton.current) {
+                        this.divResetButton.current.style.display = 'none';
+                    }
+                    this.props.onRangeChange && this.props.onRangeChange();
+                }, 1000 * this.props.config.resetZoom);
+            }
         } else {
             console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
             this.option.xAxis[0].min = chart.xMin;
@@ -938,12 +958,12 @@ class ChartView extends React.Component {
                 padding:        borderPadding || 0,
             }}
         >
-            { this.renderSaveImageButton() }
-            { this.renderExportDataDialog() }
-            { this.renderExportDataButton() }
-            { this.renderResetButton() }
-            { this.renderDevCopyButton() }
-            { this.state.chartHeight !== null ? this.renderChart() : null }
+            {this.renderSaveImageButton()}
+            {this.renderExportDataDialog()}
+            {this.renderExportDataButton()}
+            {this.renderResetButton()}
+            {this.renderDevCopyButton()}
+            {this.state.chartHeight !== null ? this.renderChart() : null}
         </div>;
     }
 }

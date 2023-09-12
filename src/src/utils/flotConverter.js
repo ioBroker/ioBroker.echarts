@@ -60,10 +60,9 @@ function deParam(params, coerce) {
                         ? cur[key] || (keys[i + 1] && Number.isNaN(keys[i + 1]) ? {} : [])
                         : val;
                 }
-            } else
-            // Simple key, even simpler rules, since only scalars and shallow
-            // arrays are allowed.
-            if (Object.prototype.toString.call(obj[key]) === '[object Array]') {
+            } else if (Object.prototype.toString.call(obj[key]) === '[object Array]') {
+                // Simple key, even simpler rules, since only scalars and shallow
+                // arrays are allowed.
                 // val is already an array, so push on the next value.
                 obj[key].push(val);
             } else if ({}.hasOwnProperty.call(obj, key)) {
