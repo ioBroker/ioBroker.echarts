@@ -98,7 +98,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.5.3 (2023-09-12)
 * (bluefox) Added an option to reset zoom and tilt after X seconds of idle
 
 ### 1.5.1 (2023-06-14)
