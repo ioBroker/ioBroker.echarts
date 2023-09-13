@@ -315,8 +315,7 @@ class LineComponent extends React.Component {
                     });
                 return;
             }
-        } else
-        if (name === 'fill' && value < 0.01 && !parseFloat(line.thickness)) {
+        } else if (name === 'fill' && value < 0.01 && !parseFloat(line.thickness)) {
             line.thickness = 1;
         } else if (name === 'aggregate' && value === 'percentile' && (line.percentile === undefined || line.percentile < 0 || line.percentile > 100)) {
             line.percentile = 50;

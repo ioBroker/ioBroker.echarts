@@ -514,5 +514,8 @@
   "Show save image button": "Показати кнопку збереження зображення",
   "Save image button color": "Зберегти колір кнопки зображення",
   "Show export data button": "Показати кнопку експорту даних",
-  "Export data color": "Колір кнопки експорту даних"
+  "Export data color": "Колір кнопки експорту даних",
+  "Reset zoom after idle": "Скинути масштаб після простою",
+  "90 seconds": "90 секунд",
+  "Aggregate": "Агрегатний"
 }

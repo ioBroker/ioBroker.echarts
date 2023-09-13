@@ -11,5 +11,10 @@
   "Browser format": "Format czasu przeglądarki",
   "Time stamp in milliseconds": "Znacznik czasu w milisekundach",
   "Export": "Eksport",
-  "Cancel": "Anulować"
+  "Cancel": "Anulować",
+  "Select lines": "Wybierz linie",
+  "Select lines to show": "Wybierz linie do pokazania",
+  "Select all": "Zaznacz wszystko",
+  "Close": "Zamknąć",
+  "Unselect all": "Odznacz wszystko"
 }

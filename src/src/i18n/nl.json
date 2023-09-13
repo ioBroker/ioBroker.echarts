@@ -514,5 +514,8 @@
   "Show save image button": "Toon knop afbeelding opslaan",
   "Save image button color": "Bewaar de kleur van de afbeeldingsknop",
   "Show export data button": "Knop Exportgegevens weergeven",
-  "Export data color": "Knopkleur gegevens exporteren"
+  "Export data color": "Knopkleur gegevens exporteren",
+  "Reset zoom after idle": "Zoom opnieuw instellen na inactiviteit",
+  "90 seconds": "90 seconden",
+  "Aggregate": "Totaal"
 }

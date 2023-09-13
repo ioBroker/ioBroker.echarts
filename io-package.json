@@ -1,8 +1,34 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.5.1",
+    "version": "1.5.4",
     "news": {
+      "1.5.4": {
+        "en": "Added an option to the export dialog: select / unselect all\nAdded the availability to show legend as dialog",
+        "de": "Hinzufügen einer Option zum Export-Dialog: Wählen Sie / deaktivieren Sie alle\nHinzufügen der Verfügbarkeit Legende als Dialog",
+        "ru": "Добавлена опция к диалогу экспорта: выбрать / не выбрать все\nДобавлена возможность показать легенду как диалог",
+        "pt": "Adicionado uma opção para a exportação diálogo: selecione / desmarque tudo\nAdicionado a disponibilidade para mostrar lenda como diálogo",
+        "nl": "Ik heb een optie toegevoegd aan de export dialog:\nVoegde toe dat de legende als dialog",
+        "fr": "Ajout d'une option au dialogue d'exportation : sélectionnez / désélectionnez tout\nAjout de la disponibilité pour montrer la légende comme dialogue",
+        "it": "Aggiunto un'opzione per l'esportazione dialogo: selezionare / deselezionare tutto\nAggiunto la disponibilità a mostrare leggenda come dialogo",
+        "es": "Se agregó una opción al diálogo de exportación: seleccione / unija todos\nAñadido la disponibilidad para mostrar leyenda como diálogo",
+        "pl": "Wprowadzono opcję do dialogu eksportowego: wybór / unekstraklasyfikowany\nDodano dostępność do pokazania legendy jako dialogu",
+        "uk": "Додано варіант до діалогового вікна експорту: вибрати / скасувати всі\nДодано доступність показати легенду як діалог",
+        "zh-cn": "增加出口口号的选择:选择/取消一切选择\n增加是否能以图象图解。"
+      },
+      "1.5.3": {
+        "en": "Added an option to reset zoom and tilt after X seconds of idle",
+        "de": "Hinzugefügt eine Option, um Zoom und Kippen nach X Sekunden Leere zurücksetzen",
+        "ru": "Добавлена возможность сброса зоома и наклона после X секунды загадки",
+        "pt": "Adicionado uma opção para redefinir zoom e inclinação após X segundos de idle",
+        "nl": "Voeg een optie toe om zoom te resetten en te tintelen na X seconden van lege",
+        "fr": "Ajout d'une option pour réinitialiser le zoom et l'inclinaison après X secondes de ralenti",
+        "it": "Aggiunta un'opzione per ripristinare lo zoom e l'inclinazione dopo X secondi di idle",
+        "es": "Se agregó una opción para restablecer el zoom y la inclinación después de X segundos de ocio",
+        "pl": "Dodał możliwość resetowania się zbliżenia i nachylenia po X sekundach bezczynnych",
+        "uk": "Додано опцію для скидання золи та нахилу після X секунд свічки",
+        "zh-cn": "在十年代之后添加了重新种植和灌木的选择。"
+      },
       "1.5.1": {
         "en": "Error handling in JSON data was improved",
         "de": "Fehlerbehandlung in JSON-Daten wurde verbessert",
@@ -67,32 +93,6 @@
         "pl": "Wykłaniać niektóre problemy z GitHub",
         "uk": "Виправлено деякі питання від GitHub",
         "zh-cn": "GitHubub的一些问题"
-      },
-      "1.4.12": {
-        "en": "Corrected some issues from GitHub",
-        "de": "Einige Probleme von GitHub behoben",
-        "ru": "Исправлены некоторые вопросы от GitHub",
-        "pt": "Corrigido alguns problemas de GitHub",
-        "nl": "Vertaling:",
-        "fr": "Correction de quelques problèmes de GitHub",
-        "it": "Corretto alcuni problemi da GitHub",
-        "es": "Corregido algunos problemas de GitHub",
-        "pl": "Wykłaniać niektóre problemy z GitHub",
-        "uk": "Виправлено деякі питання від GitHub",
-        "zh-cn": "GitHubub的一些问题"
-      },
-      "1.4.11": {
-        "en": "Booleans were improved",
-        "de": "Boolen wurden verbessert",
-        "ru": "Боуланы были улучшены",
-        "pt": "Os booleanos foram melhorados",
-        "nl": "Booleans werden verbeterd",
-        "fr": "Les booléens ont été améliorés",
-        "it": "I bovini sono migliorati",
-        "es": "Los booleanos mejoraron",
-        "pl": "Boole zostały poprawione",
-        "uk": "Удосконалено",
-        "zh-cn": "玻璃改良"
       }
     },
     "title": "E-Charts",
