@@ -11,5 +11,10 @@
   "Browser format": "Formato de hora do navegador",
   "Time stamp in milliseconds": "Carimbo de hora em milissegundos",
   "Export": "Exportar",
-  "Cancel": "Cancelar"
+  "Cancel": "Cancelar",
+  "Select lines": "Selecione linhas",
+  "Select lines to show": "Selecione linhas para mostrar",
+  "Select all": "Selecionar tudo",
+  "Close": "Fechar",
+  "Unselect all": "Desmarque todos"
 }

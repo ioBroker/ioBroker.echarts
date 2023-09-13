@@ -11,5 +11,10 @@
   "Browser format": "Formato dell'ora del browser",
   "Time stamp in milliseconds": "Timestamp in millisecondi",
   "Export": "Esportare",
-  "Cancel": "Annulla"
+  "Cancel": "Annulla",
+  "Select lines": "Seleziona linee",
+  "Select lines to show": "Seleziona le righe da mostrare",
+  "Select all": "Seleziona tutto",
+  "Close": "Vicino",
+  "Unselect all": "Deseleziona tutto"
 }

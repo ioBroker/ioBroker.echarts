@@ -11,5 +11,10 @@
   "Browser format": "Browser tijdformaat",
   "Time stamp in milliseconds": "Tijdstempel in milliseconden",
   "Export": "Exporteren",
-  "Cancel": "Annuleren"
+  "Cancel": "Annuleren",
+  "Select lines": "Selecteer lijnen",
+  "Select lines to show": "Selecteer lijnen om weer te geven",
+  "Select all": "Selecteer alles",
+  "Close": "Dichtbij",
+  "Unselect all": "Deselecteer alles"
 }

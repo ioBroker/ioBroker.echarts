@@ -98,6 +98,10 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added an option to the export dialog: select / unselect all
+* (bluefox) Added the availability to show legend as dialog
+
 ### 1.5.3 (2023-09-12)
 * (bluefox) Added an option to reset zoom and tilt after X seconds of idle
 

@@ -1033,7 +1033,7 @@ class ChartOption {
     }
 
     getLegend(actualValues) {
-        if (!this.config.legend || this.config.legend === 'none') {
+        if (!this.config.legend || this.config.legend === 'none' || this.config.legend === 'dialog') {
             return undefined;
         }
         const legend = {

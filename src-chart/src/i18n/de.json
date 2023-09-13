@@ -11,5 +11,10 @@
   "Browser format": "Browser-Zeitformat",
   "Time stamp in milliseconds": "Zeitstempel in Millisekunden",
   "Export": "Export",
-  "Cancel": "Abbrechen"
+  "Cancel": "Abbrechen",
+  "Select lines": "Wählen Sie Zeilen aus",
+  "Select lines to show": "Wählen Sie die anzuzeigenden Linien aus",
+  "Select all": "Wählen Sie Alle",
+  "Close": "Schließen",
+  "Unselect all": "Alles wiederufen"
 }
