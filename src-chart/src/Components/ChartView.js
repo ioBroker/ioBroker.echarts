@@ -14,14 +14,16 @@ import {
     FormControl,
     InputLabel,
     Select,
+    Fab,
+    FormControlLabel,
 } from '@mui/material';
-import Fab from '@mui/material/Fab';
 
 import {
     FaRedoAlt as IconReset,
     FaDownload as IconSaveImage,
     FaFileExport as IconExportData,
     FaCopy as IconCopy,
+    FaBars as IconMenu,
     FaCheck as IconCheck,
 }  from 'react-icons/fa';
 
@@ -36,6 +38,7 @@ import 'moment/locale/nl';
 import 'moment/locale/ru';
 import 'moment/locale/zh-cn';
 import 'moment/locale/de';
+import 'moment/locale/uk';
 
 import { I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -148,6 +151,13 @@ const styles = () => ({
         zIndex: 2,
         opacity: 0.7,
         // background: '#00000000',
+    },
+    legendButton: {
+        position: 'absolute',
+        top: 10,
+        left: 30,
+        zIndex: 2,
+        opacity: 0.7,
     },
     resetButtonIcon: {
         paddingTop: 6,
@@ -619,8 +629,17 @@ class ChartView extends React.Component {
     }
 
     applySelected() {
-        // merge selected
-        if (this.selected && this.option.legend) {
+        if (this.props.config.legend === 'dialog') {
+            // remove unselected series
+            this.option.legend = {
+                data:   this.props.config.l.map(oneLine => oneLine.name),
+                show:   false,
+                selected: {},
+            };
+            this.props.config.l.forEach(oneLine =>
+                this.option.legend.selected[oneLine.name] = !this.state.excluded.includes(oneLine.id));
+        } else if (this.selected && this.option.legend) {
+            // merge selected
             Object.keys(this.selected)
                 .forEach(name => this.option.legend.selected[name] = this.selected[name]);
         }
@@ -854,6 +873,76 @@ class ChartView extends React.Component {
         return null;
     }
 
+    renderLegendDialog() {
+        if (this.props.config.legend !== 'dialog') {
+            return null;
+        }
+        return <>
+            <Fab
+                size="small"
+                color="default"
+                style={{ left: this.option?.grid?.left || 0 }}
+                className={this.props.classes.legendButton}
+                title={I18n.t('Select lines')}
+                onClick={() => this.setState({ showLegendDialog: true })}
+            >
+                <IconMenu className={this.props.classes.resetButtonIcon} />
+            </Fab>
+            {this.state.showLegendDialog ?
+                <Dialog
+                    open={!0}
+                    onClose={() => this.setState({ showLegendDialog: false })}
+                >
+                    <DialogTitle>{I18n.t('Select lines to show')}</DialogTitle>
+                    <DialogContent>
+                        <FormControlLabel
+                            control={<Checkbox
+                                checked={!this.state.excluded.length}
+                                indeterminate={this.state.excluded.length && this.state.excluded.length !== this.props.config.l.length}
+                                onChange={() => {
+                                    if (!this.state.excluded.length) {
+                                        this.setState({ excluded: this.props.config.l.map(line => line.id) });
+                                    } else {
+                                        this.setState({ excluded: [] });
+                                    }
+                                }}
+                            />}
+                            label={this.state.excluded.length !== this.props.config.l.length ? I18n.t('Select all') : I18n.t('Unselect all')}
+                        />
+                        {this.props.config.l.map((line, i) => <MenuItem
+                            key={i}
+                            onClick={() => {
+                                const excluded = [...this.state.excluded];
+                                const pos = excluded.indexOf(line.id);
+                                if (pos === -1) {
+                                    excluded.push(line.id);
+                                } else {
+                                    excluded.splice(pos, 1);
+                                }
+                                this.setState({ excluded });
+                            }}
+                        >
+                            <Checkbox checked={!this.state.excluded.includes(line?.id)} />
+                            <div>
+                                <div>{line?.name || line?.id}</div>
+                                <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: 'smaller' }}>{line?.name ? line?.id : null}</div>
+                            </div>
+                        </MenuItem>)}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            variant="contained"
+                            color="grey"
+                            onClick={() => this.setState({ showLegendDialog: false })}
+                            startIcon={<span style={{ fontSize: 14 }}>X</span>}
+                        >
+                            {I18n.t('Close')}
+                        </Button>
+                    </DialogActions>
+                </Dialog> : null}
+        </>;
+    }
+
     renderExportDataDialog() {
         if (this.state.showExportDataDialog) {
             return <Dialog
@@ -876,6 +965,20 @@ class ChartView extends React.Component {
                             <MenuItem value="ts">{I18n.t('Time stamp in milliseconds')}</MenuItem>
                         </Select>
                     </FormControl>
+                    <FormControlLabel
+                        control={<Checkbox
+                            checked={!this.state.excluded.length}
+                            indeterminate={this.state.excluded.length && this.state.excluded.length !== this.props.config.l.length}
+                            onChange={() => {
+                                if (!this.state.excluded.length) {
+                                    this.setState({ excluded: this.props.config.l.map(line => line.id) });
+                                } else {
+                                    this.setState({ excluded: [] });
+                                }
+                            }}
+                        />}
+                        label={this.state.excluded.length !== this.props.config.l.length ? I18n.t('Select all') : I18n.t('Unselect all')}
+                    />
                     {this.props.config.l.map((line, i) => <MenuItem
                         key={i}
                         onClick={() => {
@@ -950,12 +1053,12 @@ class ChartView extends React.Component {
             className={this.props.classes.chart}
             style={{
                 borderWidth,
-                width:          borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : undefined,
-                height:         borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : undefined,
-                background:     this.props.config.noBackground ? undefined : (this.props.config.window_bg || undefined),
-                borderColor:    this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
-                borderStyle:    this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',
-                padding:        borderPadding || 0,
+                width:       borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : undefined,
+                height:      borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : undefined,
+                background:  this.props.config.noBackground ? undefined : (this.props.config.window_bg || undefined),
+                borderColor: this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
+                borderStyle: this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',
+                padding:     borderPadding || 0,
             }}
         >
             {this.renderSaveImageButton()}
@@ -964,6 +1067,7 @@ class ChartView extends React.Component {
             {this.renderResetButton()}
             {this.renderDevCopyButton()}
             {this.state.chartHeight !== null ? this.renderChart() : null}
+            {this.option ? this.renderLegendDialog() : null}
         </div>;
     }
 }

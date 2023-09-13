@@ -11,5 +11,10 @@
   "Browser format": "Формат часу браузера",
   "Time stamp in milliseconds": "Мітка часу в мілісекундах",
   "Export": "Експорт",
-  "Cancel": "Скасувати"
+  "Cancel": "Скасувати",
+  "Select lines": "Виберіть лінії",
+  "Select lines to show": "Виберіть рядки для показу",
+  "Select all": "Вибрати все",
+  "Close": "Закрити",
+  "Unselect all": "Скасувати вибір усіх"
 }

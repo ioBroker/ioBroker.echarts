@@ -828,6 +828,7 @@ class PresetTabs extends React.Component {
                         ne: 'Top, right',
                         sw: 'Bottom, left',
                         se: 'Bottom, right',
+                        dialog: 'Dialog',
                     }}
                 />
                 {this.props.presetData.legend ?
