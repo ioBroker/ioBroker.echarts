@@ -514,5 +514,8 @@
   "Show save image button": "Mostrar botão de salvar imagem",
   "Save image button color": "Salvar cor do botão de imagem",
   "Show export data button": "Mostrar botão de exportação de dados",
-  "Export data color": "Cor do botão de exportação de dados"
+  "Export data color": "Cor do botão de exportação de dados",
+  "Reset zoom after idle": "Redefinir o zoom após inatividade",
+  "90 seconds": "90 segundos",
+  "Aggregate": "Agregar"
 }

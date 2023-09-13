@@ -514,5 +514,8 @@
   "Show save image button": "Schaltfläche „Bild speichern“ anzeigen",
   "Save image button color": "Farbe der Bildschaltfläche speichern",
   "Show export data button": "Schaltfläche „Exportdaten anzeigen“.",
-  "Export data color": "Farbe der Schaltfläche „Daten exportieren“."
+  "Export data color": "Farbe der Schaltfläche „Daten exportieren“.",
+  "Reset zoom after idle": "Zoom nach Leerlauf zurücksetzen",
+  "90 seconds": "90 Sekunden",
+  "Aggregate": "Aggregat"
 }

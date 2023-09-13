@@ -514,5 +514,8 @@
   "Show save image button": "Show save image button",
   "Save image button color": "Save image button color",
   "Show export data button": "Show export data button",
-  "Export data color": "Export data button color"
+  "Export data color": "Export data button color",
+  "Reset zoom after idle": "Reset zoom after idle",
+  "90 seconds": "90 seconds",
+  "Aggregate": "Aggregate"
 }

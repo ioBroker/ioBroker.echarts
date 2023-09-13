@@ -514,5 +514,8 @@
   "Show save image button": "Показать кнопку сохранения изображения",
   "Save image button color": "Сохранить цвет кнопки изображения",
   "Show export data button": "Показать кнопку экспорта данных",
-  "Export data color": "Цвет кнопки экспорта данных"
+  "Export data color": "Цвет кнопки экспорта данных",
+  "Reset zoom after idle": "Сбросить масштаб после простоя",
+  "90 seconds": "90 секунд",
+  "Aggregate": "Агрегатная функция"
 }

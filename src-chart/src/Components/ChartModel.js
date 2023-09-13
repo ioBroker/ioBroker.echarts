@@ -648,8 +648,7 @@ class ChartModel {
             if (this.zoomData) {
                 start = this.zoomData.start;
                 end   = this.zoomData.end;
-            } else
-            if (this.config.timeType === 'static') {
+            } else if (this.config.timeType === 'static') {
                 let startTime;
                 let endTime;
                 if (this.config.start_time !== undefined) {
@@ -776,8 +775,7 @@ class ChartModel {
 
             if (this.config.l[index].chartType === 'bar') {
                 this.increaseRegionForBar(start, end, option);
-            } else
-            if (this.config.aggregateType === 'step') {
+            } else if (this.config.aggregateType === 'step') {
                 option.step = this.config.aggregateSpan * 1000;
             } else if (this.config.aggregateType === 'count') {
                 option.count = this.config.aggregateSpan || 300;
@@ -819,9 +817,8 @@ class ChartModel {
             const interval = series[i];
             if (!interval.length) {
                 series[i] = null;
-            } else
-            // sum all values
-            if (interval.length === 1) {
+            } else if (interval.length === 1) {
+                // sum all values
                 series[i] = interval[0];
             } else if (aggregate === 'average') {
                 const sum = interval.reduce((a, b) => a + b, 0);
@@ -918,8 +915,7 @@ class ChartModel {
                 values[i].val = 1;
             } else if (values[i].val === 'false' || values[i].val === false) {
                 values[i].val = 0;
-            } else
-            if (typeof values[i].val === 'string') {
+            } else if (typeof values[i].val === 'string') {
                 values[i].val = parseFloat(values[i].val);
             }
 
@@ -954,26 +950,31 @@ class ChartModel {
 
         // add start and end
         if (this.config.l[index].chartType !== 'bar') {
+            let end = option.end;
+            // End cannot be in the future
+            if (end > this.now) {
+                end = this.now;
+            }
             if (_series.length) {
                 if (_series[0].value[0] > option.start) {
                     _series.unshift({ value: [option.start, null], exact: false });
                 }
                 const last = _series[_series.length - 1];
-                if (last.value[0] < option.end) {
+                if (last.value[0] < end) {
                     if (this.config.l[index].validTime) {
                         // If the last value is not older than X seconds, assume it is still the same
-                        if (option.end - this.config.l[index].validTime * 1000 <= last.value[0]) {
-                            _series.push({ value: [option.end, last.value[1]], exact: false });
+                        if (end - this.config.l[index].validTime * 1000 <= last.value[0]) {
+                            _series.push({ value: [end, last.value[1]], exact: false });
                         } else {
-                            _series.push({ value: [option.end, null], exact: false });
+                            _series.push({ value: [end, null], exact: false });
                         }
                     } else {
-                        _series.push({ value: [option.end, null], exact: false });
+                        _series.push({ value: [end, null], exact: false });
                     }
                 }
             } else {
                 _series.push({ value: [option.start, null], exact: false });
-                _series.push({ value: [option.end,   null], exact: false });
+                _series.push({ value: [end,   null], exact: false });
             }
 
             // TODO: May be not required?
@@ -991,12 +992,18 @@ class ChartModel {
                 if (values.history) {
                     values = values.history;
                 }
+                if (!Array.isArray(values)) {
+                    values = [];
+                    console.warn('JSON is not an array');
+                }
+
+                values = values.filter(v => v);
 
                 // convert alternative names to {ts, val}. Possible names for ts: t, time. Possible names for val: y, value
                 if (values[0]) {
                     const keys = Object.keys(values[0]);
                     if (!keys.includes('val') || !keys.includes('ts')) {
-                        // If format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
+                        // If a format is [{t: 123, y: 1}, {t: 124, y: 2}] (e.g. from pvsolar
                         if (keys.includes('y') && keys.includes('t')) {
                             values = values.map(v => ({ ts: v.t, val: v.y }));
                         } else {
@@ -1012,11 +1019,9 @@ class ChartModel {
 
                             if (keys.includes('t')) {
                                 values.forEach(v => v.ts = v.t);
-                            } else
-                            if (keys.includes('time')) {
+                            } else if (keys.includes('time')) {
                                 values.forEach(v => v.ts = v.time);
-                            } else
-                            if (keys.includes('date')) {
+                            } else if (keys.includes('date')) {
                                 values.forEach(v => v.ts = v.date);
                             }
                         }
@@ -1026,21 +1031,17 @@ class ChartModel {
                     if (values[0].ts) {
                         // eslint-disable-next-line no-restricted-properties
                         if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
-                            values = values.forEach(v => v.ts = parseInt(v.ts, 10));
+                            values.forEach(v => v.ts = parseInt(v.ts, 10));
                         } else if (typeof values[0].ts === 'string' && new Date(values[0].ts).toString() !== 'Invalid Date') {
-                            values = values.forEach(v => v.ts = new Date(v.ts).getTime());
+                            values.forEach(v => v.ts = new Date(v.ts).getTime());
                         }
                         // no else
                         if (typeof values[0].ts === 'number' && values[0].ts < 946681200000) { // new Date(2000,0,1).getTime() === 946681200000
-                            values = values.forEach(v => v.ts *= 1000);
+                            values.forEach(v => v.ts *= 1000);
                         }
                     }
                 }
 
-                if (!Array.isArray(values)) {
-                    values = [];
-                    console.warn('JSON is not an array');
-                }
                 values.sort((a, b) => (a.ts - b.ts ? -1 : (a.ts < b.ts ? 1 : 0)));
 
                 this.processRawData(id, index, values);
@@ -1128,11 +1129,9 @@ class ChartModel {
 
                             if (keys.includes('t')) {
                                 values.forEach(v => v.ts = v.t);
-                            } else
-                            if (keys.includes('time')) {
+                            } else if (keys.includes('time')) {
                                 values.forEach(v => v.ts = v.time);
-                            } else
-                            if (keys.includes('date')) {
+                            } else if (keys.includes('date')) {
                                 values.forEach(v => v.ts = v.date);
                             }
                         }
