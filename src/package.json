@@ -12,7 +12,7 @@
     "@sentry/integrations": "^7.68.0",
     "babel-eslint": "^10.1.0",
     "moment": "^2.29.4",
-    "eslint": "^8.50.0",
+    "eslint": "^8.52.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-eqeqeq-fix": "^1.0.3",
     "eslint-plugin-import": "^2.28.1",
