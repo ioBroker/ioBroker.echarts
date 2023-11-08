@@ -98,6 +98,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### 1.6.0 (2023-11-08)
+* (bluefox) Added vis-2 widget
+
 ### 1.5.4 (2023-09-13)
 * (bluefox) Added an option to the export dialog: select / unselect all
 * (bluefox) Added the availability to show legend as dialog

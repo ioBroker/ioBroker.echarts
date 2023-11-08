@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.5.4",
+    "version": "1.6.0",
     "news": {
+      "1.6.0": {
+        "en": "Added vis-2 widget",
+        "de": "Vis-2 Widget",
+        "ru": "Добавлен виджет vis-2",
+        "pt": "Adicionado vis-2 widget",
+        "nl": "Vertaling:",
+        "fr": "Ajout du widget vis-2",
+        "it": "Aggiunto vis-2 widget",
+        "es": "Añadido vis-2 widget",
+        "pl": "Widget 2",
+        "uk": "Додано vis-2 віджет",
+        "zh-cn": "添加到2部目标"
+      },
       "1.5.4": {
         "en": "Added an option to the export dialog: select / unselect all\nAdded the availability to show legend as dialog",
         "de": "Hinzufügen einer Option zum Export-Dialog: Wählen Sie / deaktivieren Sie alle\nHinzufügen der Verfügbarkeit Legende als Dialog",
@@ -80,19 +93,6 @@
         "pl": "Wspierać alternatywne nazwy JSON",
         "uk": "Додано підтримку альтернативних імен для джерел JSON",
         "zh-cn": "增加联索行动来源的替代名称"
-      },
-      "1.4.13": {
-        "en": "Corrected some issues from GitHub",
-        "de": "Einige Probleme von GitHub behoben",
-        "ru": "Исправлены некоторые вопросы от GitHub",
-        "pt": "Corrigido alguns problemas de GitHub",
-        "nl": "Vertaling:",
-        "fr": "Correction de quelques problèmes de GitHub",
-        "it": "Corretto alcuni problemi da GitHub",
-        "es": "Corregido algunos problemas de GitHub",
-        "pl": "Wykłaniać niektóre problemy z GitHub",
-        "uk": "Виправлено деякі питання від GitHub",
-        "zh-cn": "GitHubub的一些问题"
       }
     },
     "title": "E-Charts",
@@ -146,12 +146,23 @@
     "singleton": true,
     "type": "visualization",
     "mode": "daemon",
-    "compact": true
+    "compact": true,
+    "visWidgets": {
+      "echarts": {
+        "i18n": "component",
+        "name": "echarts",
+        "url": "echarts/customWidgets.js",
+        "components": [
+          "Echarts"
+        ]
+      }
+    }
   },
   "native": {},
   "objects": [
     {
       "_id": "_design/chart",
+      "type": "design",
       "language": "javascript",
       "views": {
         "chart": {
@@ -165,7 +176,7 @@
       "_id": "",
       "type": "meta",
       "common": {
-        "name": "user files and images for echart",
+        "name": "user files and images for echarts",
         "type": "meta.user"
       },
       "native": {}

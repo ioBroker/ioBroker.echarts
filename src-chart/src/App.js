@@ -5,14 +5,16 @@ import {
 } from '@mui/styles';
 import MD5 from 'crypto-js/md5';
 
-import LinearProgress from '@mui/material/LinearProgress';
+import { LinearProgress } from '@mui/material';
 
 import {
+    Connection,
+    PROGRESS,
+    ERRORS,
     Loader, I18n, Utils, withWidth,
+    Error as DialogError,
+    Theme,
 } from '@iobroker/adapter-react-v5';
-import Connection, { PROGRESS, ERRORS } from '@iobroker/adapter-react-v5/Connection';
-import DialogError from '@iobroker/adapter-react-v5/Dialogs/Error';
-import theme from '@iobroker/adapter-react-v5/Theme';
 
 import '@iobroker/adapter-react-v5/index.css';
 
@@ -235,7 +237,7 @@ class App extends Component {
      * @returns {Theme}
      */
     static createTheme(name = '') {
-        return theme(Utils.getThemeName(name));
+        return Theme(Utils.getThemeName(name));
     }
 
     /**
