@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "news": {
+      "1.6.1": {
+        "en": "Added vis-2 widget",
+        "de": "Vis-2 Widget",
+        "ru": "Добавлен виджет vis-2",
+        "pt": "Adicionado vis-2 widget",
+        "nl": "Vertaling:",
+        "fr": "Ajout du widget vis-2",
+        "it": "Aggiunto vis-2 widget",
+        "es": "Añadido vis-2 widget",
+        "pl": "Widget 2",
+        "uk": "Додано vis-2 віджет",
+        "zh-cn": "添加到2部目标"
+      },
       "1.5.4": {
         "en": "Added an option to the export dialog: select / unselect all\nAdded the availability to show legend as dialog",
         "de": "Hinzufügen einer Option zum Export-Dialog: Wählen Sie / deaktivieren Sie alle\nHinzufügen der Verfügbarkeit Legende als Dialog",
