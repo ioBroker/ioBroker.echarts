@@ -27,7 +27,7 @@
         "eslint-plugin-react-hooks": "^4.6.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-only-warn": "^1.1.0",
-        "sass": "^1.69.4"
+        "sass": "^1.69.5"
     },
     "scripts": {
         "start": "set PORT=4173 && craco start",

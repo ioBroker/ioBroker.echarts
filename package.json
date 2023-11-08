@@ -30,7 +30,7 @@
     "@alcalzone/release-script-plugin-license": "^3.5.9",
     "@iobroker/vis-2-widgets-react-dev": "^1.0.1",
     "@iobroker/testing": "^4.1.0",
-    "@types/gulp": "^4.0.16",
+    "@types/gulp": "^4.0.17",
     "axios": "^1.6.0",
     "chai": "^4.3.10",
     "eslint": "^8.53.0",
