@@ -146,12 +146,23 @@
     "singleton": true,
     "type": "visualization",
     "mode": "daemon",
-    "compact": true
+    "compact": true,
+    "visWidgets": {
+      "echarts": {
+        "i18n": "component",
+        "name": "echarts",
+        "url": "echarts/customWidgets.js",
+        "components": [
+          "Echarts"
+        ]
+      }
+    }
   },
   "native": {},
   "objects": [
     {
       "_id": "_design/chart",
+      "type": "design",
       "language": "javascript",
       "views": {
         "chart": {
@@ -165,7 +176,7 @@
       "_id": "",
       "type": "meta",
       "common": {
-        "name": "user files and images for echart",
+        "name": "user files and images for echarts",
         "type": "meta.user"
       },
       "native": {}

@@ -409,7 +409,7 @@ class App extends GenericApp {
                     (!this.state.chartsList || !this.state.chartsList.find(item => item.id === selectedId.id && item.instance === selectedId.instance)) &&
                         lines.push(DefaultPreset.getDefaultLine(this.state.systemConfig, selectedId.instance, this.objects[selectedId.id], I18n.getLanguage()));
 
-                    // combine same units together: e.g. if line1 and line2 are in percent => use same yAxis
+                    // combine same units together: e.g., if line1 and line2 are in percent => use same yAxis
                     if (lines.length > 1) {
                         // Find first non-empty
                         // ignore all booleans
@@ -429,7 +429,7 @@ class App extends GenericApp {
                             for (let k = iFirst + 1; k < lines.length; k++) {
                                 if (lines[k].unit && lines[k].unit !== first.unit) {
                                     lines[k].yaxe = 'right';
-                                    // combine all following lines to one axis
+                                    // combine all the following lines to one axis
                                     for (let j = k + 1; j < lines.length; j++) {
                                         if (lines[k].unit === lines[j].unit && lines[j].commonYAxis === undefined) {
                                             lines[k].commonYAxis = j.toString();
@@ -669,7 +669,7 @@ class App extends GenericApp {
                         presetData.lines.splice(destination.index, 0, newLine);
                     }
                     if (presetData.lines.length > 1) {
-                        // combine new unit with existing one
+                        // combine new unit with the existing one
                         if (newLine.unit) {
                             for (let i = 0; i < presetData.lines.length; i++) {
                                 if (newLine !== presetData.lines[i] && presetData.lines[i].unit === newLine.unit) {

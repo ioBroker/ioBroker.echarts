@@ -41,8 +41,8 @@ import 'moment/locale/de';
 import 'moment/locale/uk';
 
 import { I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
-import ReactEchartsCore from 'echarts-for-react/lib/core';
 
+import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { LineChart, ScatterChart } from 'echarts/charts';
 import {

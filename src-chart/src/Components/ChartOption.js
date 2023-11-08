@@ -667,7 +667,7 @@ class ChartOption {
                     (oneLine.yaxe === 'right' || oneLine.yaxe === 'rightColor' ?
                         'right' :
                         (!i ? 'left' : 'right')
-                    ), // by default only first line is on the left
+                    ), // by default, only the first line is on the left
                 splitLine: !i ? { // grid has only first line
                     show: !this.config.grid_hideY,
                     lineStyle: {
