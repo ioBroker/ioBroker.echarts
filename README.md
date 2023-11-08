@@ -98,7 +98,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.6.0 (2023-11-08)
 * (bluefox) Added vis-2 widget
 
 ### 1.5.4 (2023-09-13)
