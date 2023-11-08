@@ -122,7 +122,7 @@ class Echarts extends Generic {
             id: 'tplEchartsChart',
 
             visSet: 'echarts',
-            visSetLabel: 'echarts_set_label', // Label of widget set
+            visSetLabel: 'set_label', // Label of widget set
             visSetColor: '#aa314d', // color of a widget set
 
             visWidgetLabel: 'E-Charts',  // Label of widget

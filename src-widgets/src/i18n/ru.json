@@ -54,5 +54,5 @@
   "noChartBackground": "Нет фона диаграммы",
   "chart_not_selected": "Диаграмма не определена",
   "E-Charts": "E-Charts",
-  "echarts_set_label": "E-Charts"
+  "set_label": "E-Charts"
 }

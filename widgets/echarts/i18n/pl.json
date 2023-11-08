@@ -54,5 +54,5 @@
   "noChartBackground": "Brak tła wykresu",
   "chart_not_selected": "Wykres nie został zdefiniowany",
   "E-Charts": "E-Charts",
-  "echarts_set_label": "E-Charts"
+  "set_label": "E-Charts"
 }
