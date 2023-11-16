@@ -517,5 +517,8 @@
   "Export data color": "Kolor przycisku eksportu danych",
   "Reset zoom after idle": "Zresetuj powiększenie po bezczynności",
   "90 seconds": "90 sekund",
-  "Aggregate": "Agregat"
+  "Aggregate": "Agregat",
+  "This time offset will be added to the X label by displaying data on the chart": "To przesunięcie czasowe zostanie dodane do etykiety X poprzez wyświetlenie danych na wykresie",
+  "X-Label-Offset": "Przesunięcie etykiety X",
+  "This time offset will be added to the request by reading data from DB": "To przesunięcie czasowe zostanie dodane do żądania poprzez odczyt danych z bazy danych"
 }

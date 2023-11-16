@@ -871,6 +871,10 @@ class ChartOption {
     xFormatter(value, _index, isTop) {
         if (typeof value === 'string' && value.startsWith('b')) {
             const _date = new Date(parseInt(value.substring(1), 10));
+            if (this.config.xLabelShift) {
+                _date.setMinutes(_date.getMinutes() + this.config.xLabelShift);
+            }
+
             if (this.config.aggregateBar === 60) {
                 return `.${_date.getDate()} ${_date.getHours().toString().padStart(2, '0')}:00`;
             }

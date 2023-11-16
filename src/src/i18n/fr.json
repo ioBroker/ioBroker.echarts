@@ -517,5 +517,8 @@
   "Export data color": "Couleur du bouton Exporter les données",
   "Reset zoom after idle": "Réinitialiser le zoom après inactivité",
   "90 seconds": "90 secondes",
-  "Aggregate": "Agrégat"
+  "Aggregate": "Agrégat",
+  "This time offset will be added to the X label by displaying data on the chart": "Ce décalage temporel sera ajouté à l'étiquette X en affichant les données sur le graphique",
+  "X-Label-Offset": "Décalage de l'étiquette X",
+  "This time offset will be added to the request by reading data from DB": "Ce décalage horaire sera ajouté à la requête en lisant les données de la base de données"
 }

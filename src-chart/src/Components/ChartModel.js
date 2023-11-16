@@ -169,6 +169,7 @@ function normalizeConfig(config) {
             config.l[j].offset    = parseFloat(config.l[j].offset)    || 0;
             config.l[j].validTime = parseFloat(config.l[j].validTime) || 0;
             config.l[j].chartType = config.l[j].chartType || config.chartType || 'auto';
+            config.l[j].xLabelShift = parseFloat(config.l[j].xLabelShift) || 0;
         }
     }
 

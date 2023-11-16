@@ -2,23 +2,27 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import Slider from '@mui/material/Slider';
-import Typography from '@mui/material/Typography';
+import {
+    FormControl,
+    Select,
+    TextField,
+    InputLabel,
+    FormControlLabel,
+    Checkbox,
+    MenuItem,
+    IconButton,
+    Slider,
+    Typography,
+    Tooltip,
+} from '@mui/material';
 
-import IconSelectID from '@mui/icons-material/Subject';
-import ClearIcon from '@mui/icons-material/Close';
-import HelpIcon from '@mui/icons-material/Help';
+import {
+    Subject as IconSelectID,
+    Close as ClearIcon,
+    Help as HelpIcon,
+} from '@mui/icons-material';
 
-import { I18n, Utils } from '@iobroker/adapter-react-v5';
-import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
+import { I18n, Utils, SelectID as DialogSelectID } from '@iobroker/adapter-react-v5';
 
 import ColorPicker from './ColorPicker';
 
@@ -59,40 +63,48 @@ const styles = theme => ({
     selectIcon: {
         paddingRight: 4,
     },
+    tooltip: {
+        pointerEvents: 'none',
+    },
 });
 
 const IOSelectClass = props => {
     const label = I18n.t(props.label);
     return <div className={Utils.clsx(props.classes.fieldContainer, props.className)}>
-        <FormControl style={{ minWidth: props.minWidth || 200, width: props.width }} variant="standard">
-            <InputLabel shrink>{label}</InputLabel>
-            <Select
-                variant="standard"
-                disabled={!!props.disabled}
-                label={label}
-                style={{ color: props.colors ? props.colors[props.formData[props.name]] || undefined : undefined }}
-                onChange={e => props.updateValue(props.name, e.target.value)}
-                value={props.formData[props.name] || ''}
-                renderValue={props.renderValue}
-                displayEmpty
-            >
-                {
-                    props.options ?
-                        Object.keys(props.options).map(key =>
-                            <MenuItem
-                                key={key}
-                                value={key}
-                                style={{ color: props.colors ? props.colors[key] || undefined : undefined }}
-                            >
-                                {props.icons && props.icons[key] ? <span className={props.classes.selectIcon}>{props.icons[key]}</span> : null}
-                                {props.noTranslate ?
-                                    props.options[key] :
-                                    (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined ?
-                                        (props.options[key].startsWith('-') ? `-${I18n.t(props.options[key].substring(1))}` : I18n.t(props.options[key])) : '')}
-                            </MenuItem>) : null
-                }
-            </Select>
-        </FormControl>
+        <Tooltip
+            title={props.tooltip ? I18n.t(props.tooltip) : null}
+            classes={{ popper: props.classes.tooltip }}
+        >
+            <FormControl style={{ minWidth: props.minWidth || 200, width: props.width }} variant="standard">
+                <InputLabel shrink>{label}</InputLabel>
+                <Select
+                    variant="standard"
+                    disabled={!!props.disabled}
+                    label={label}
+                    style={{ color: props.colors ? props.colors[props.formData[props.name]] || undefined : undefined }}
+                    onChange={e => props.updateValue(props.name, e.target.value)}
+                    value={props.formData[props.name] || ''}
+                    renderValue={props.renderValue}
+                    displayEmpty
+                >
+                    {
+                        props.options ?
+                            Object.keys(props.options).map(key =>
+                                <MenuItem
+                                    key={key}
+                                    value={key}
+                                    style={{ color: props.colors ? props.colors[key] || undefined : undefined }}
+                                >
+                                    {props.icons && props.icons[key] ? <span className={props.classes.selectIcon}>{props.icons[key]}</span> : null}
+                                    {props.noTranslate ?
+                                        props.options[key] :
+                                        (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined ?
+                                            (props.options[key].startsWith('-') ? `-${I18n.t(props.options[key].substring(1))}` : I18n.t(props.options[key])) : '')}
+                                </MenuItem>) : null
+                    }
+                </Select>
+            </FormControl>
+        </Tooltip>
     </div>;
 };
 IOSelectClass.propTypes = {

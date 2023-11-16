@@ -517,5 +517,8 @@
   "Export data color": "Knopkleur gegevens exporteren",
   "Reset zoom after idle": "Zoom opnieuw instellen na inactiviteit",
   "90 seconds": "90 seconden",
-  "Aggregate": "Totaal"
+  "Aggregate": "Totaal",
+  "This time offset will be added to the X label by displaying data on the chart": "Deze tijdsverschuiving wordt toegevoegd aan het X-label door gegevens op de kaart weer te geven",
+  "X-Label-Offset": "X-label-offset",
+  "This time offset will be added to the request by reading data from DB": "Deze tijdverschuiving wordt aan het verzoek toegevoegd door gegevens uit DB te lezen"
 }

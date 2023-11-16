@@ -790,12 +790,78 @@ class LineComponent extends React.Component {
                     bottomColor: 'bottom colored', */
                     }}
                 /> : null }
-                {!this.props.index ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number" /> : null }
+                {!this.props.index ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number" /> : null}
                 <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
+                    tooltip={I18n.t('This time offset will be added to the request by reading data from DB')}
                     name="offset"
                     label="X-Offset"
+                    options={{
+                        0: '0 seconds',
+                        10: '10 seconds',
+                        30: '30 seconds',
+                        60: '60 seconds',
+                        120: '2 minutes',
+                        180: '3 minutes',
+                        240: '4 minutes',
+                        300: '5 minutes',
+                        600: '10 minutes',
+                        900: '15 minutes',
+                        1800: '30 minutes',
+                        2700: '45 minutes',
+                        3600: '1 hour',
+                        7200: '2 hours',
+                        21600: '6 hours',
+                        43200: '12 hours',
+                        86400: '1 day',
+                        172800: '2 days',
+                        259200: '3 days',
+                        345600: '4 days',
+                        604800: '1 week',
+                        1209600: '2 weeks',
+                        '1m': '1 month',
+                        '2m': '2 months',
+                        '3m': '3 months',
+                        '6m': '6 months',
+                        '1y': '1 year',
+                        '2y': '2 years',
+                        '-10': '-10 seconds',
+                        '-30': '-30 seconds',
+                        '-60': '-60 seconds',
+                        '-120': '-2 minutes',
+                        '-180': '-3 minutes',
+                        '-240': '-4 minutes',
+                        '-300': '-5 minutes',
+                        '-600': '-10 minutes',
+                        '-900': '-15 minutes',
+                        '-1800': '-30 minutes',
+                        '-2700': '-45 minutes',
+                        '-3600': '-1 hour',
+                        '-7200': '-2 hours',
+                        '-21600': '-6 hours',
+                        '-43200': '-12 hours',
+                        '-86400': '-1 day',
+                        '-172800': '-2 days',
+                        '-259200': '-3 days',
+                        '-345600': '-4 days',
+                        '-604800': '-1 week',
+                        '-1209600': '-2 weeks',
+                        '-1m': '-1 month',
+                        '-2m': '-2 months',
+                        '-3m': '-3 months',
+                        '-6m': '-6 months',
+                        '-1y': '-1 year',
+                        '-2y': '-2 years',
+
+                    }}
+                />
+                <IOSelect
+                    formData={this.props.line}
+                    updateValue={this.updateField}
+                    tooltip={I18n.t('This time offset will be added to the X label by displaying data on the chart')}
+                    name="xLabelShift"
+                    label="X-Label-Offset"
                     options={{
                         0: '0 seconds',
                         10: '10 seconds',
