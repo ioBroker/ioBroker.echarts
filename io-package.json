@@ -156,7 +156,10 @@
           "Echarts"
         ]
       }
-    }
+    },
+    "restartAdapters": [
+      "vis-2"
+    ]
   },
   "native": {},
   "objects": [
