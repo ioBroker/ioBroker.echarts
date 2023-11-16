@@ -2,15 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@mui/styles';
 
-import IconButton from '@mui/material/IconButton';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import DialogActions from '@mui/material/DialogActions';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import Dialog from '@mui/material/Dialog';
-import Button from '@mui/material/Button';
+import {
+    IconButton,
+    Card,
+    CardContent,
+    DialogActions,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    Dialog,
+    Button,
+    TextField,
+} from '@mui/material';
 
 import {
     MdDelete as IconDelete,
@@ -19,14 +22,11 @@ import {
     MdMenu as IconDrag, MdContentPaste as IconPaste,
     MdClose as IconClose,
 } from 'react-icons/md';
-
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
+import { Close as ClearIcon } from '@mui/icons-material';
 
-import { I18n, Utils } from '@iobroker/adapter-react-v5';
-import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
+import { I18n, Utils, ColorPicker } from '@iobroker/adapter-react-v5';
 
-import TextField from '@mui/material/TextField';
-import ClearIcon from '@mui/icons-material/Close';
 import {
     IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider,
 } from './Fields';

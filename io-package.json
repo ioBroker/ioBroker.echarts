@@ -3,19 +3,6 @@
     "name": "echarts",
     "version": "1.7.0",
     "news": {
-      "1.7.0": {
-        "en": "Added X-Label offset",
-        "de": "X-Label Offset hinzugefügt",
-        "ru": "Добавлена компенсация X-Label",
-        "pt": "Adicionado X-Label offset",
-        "nl": "Vertaling:",
-        "fr": "Ajout de X-Label",
-        "it": "Aggiunto X-Label offset",
-        "es": "Offset X-Label",
-        "pl": "Added X-Label offset",
-        "uk": "Доданий X-Label зсув",
-        "zh-cn": "增加X-Label抵消"
-      },
       "1.6.1": {
         "en": "Added vis-2 widget",
         "de": "Vis-2 Widget",

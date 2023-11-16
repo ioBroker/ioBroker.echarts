@@ -3,14 +3,16 @@ import PropTypes from 'prop-types';
 import { withStyles, withTheme } from '@mui/styles';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Switch from '@mui/material/Switch';
+import {
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    ListItemSecondaryAction,
+    ListItemButton,
+    Switch,
+} from '@mui/material';
 
 // icons
 import {
@@ -26,8 +28,12 @@ import {
 
 import { AiOutlineAreaChart as IconChart } from 'react-icons/ai';
 
-import { I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
-import DialogSelectID from '@iobroker/adapter-react-v5/Dialogs/SelectID';
+import {
+    I18n,
+    Utils,
+    withWidth,
+    SelectID as DialogSelectID,
+} from '@iobroker/adapter-react-v5';
 
 function sortObj(a, b) {
     const aid = typeof a === 'object' ? a._id.replace('system.adapter.', '') : a.replace('system.adapter.', '');
@@ -486,6 +492,7 @@ class ChartsTree extends Component {
         }
         return <DialogSelectID
             key="selectDialog_add"
+            imagePrefix="../.."
             socket={this.props.socket}
             dialogName="Add"
             type="state"

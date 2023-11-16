@@ -98,8 +98,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 1.7.0 (2023-11-16)
+### **WORK IN PROGRESS**
 * (bluefox) Added X-Label offset
+* (bluefox) Corrected icons in the object selection dialog
 
 ### 1.6.1 (2023-11-08)
 * (bluefox) Added vis-2 widget

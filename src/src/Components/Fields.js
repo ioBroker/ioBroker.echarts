@@ -240,6 +240,7 @@ const IOObjectFieldClass = props => {
             </IconButton>
         </div>
         {state.showDialog ? <DialogSelectID
+            imagePrefix="../.."
             key={`selectDialog_${props.name}`}
             socket={props.socket}
             dialogName={props.name}
