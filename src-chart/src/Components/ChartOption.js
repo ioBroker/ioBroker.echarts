@@ -872,7 +872,13 @@ class ChartOption {
         if (typeof value === 'string' && value.startsWith('b')) {
             const _date = new Date(parseInt(value.substring(1), 10));
             if (this.config.xLabelShift) {
-                _date.setMinutes(_date.getMinutes() + this.config.xLabelShift);
+                if (this.config.xLabelShiftMonth) {
+                    _date.setMonth(_date.getMonth() + this.config.xLabelShift);
+                } else if (this.config.xLabelShiftYear) {
+                    _date.setFullYear(_date.getFullYear() + this.config.xLabelShift);
+                } else {
+                    _date.setSeconds(_date.getSeconds() + this.config.xLabelShift);
+                }
             }
 
             if (this.config.aggregateBar === 60) {
@@ -887,10 +893,20 @@ class ChartOption {
             if (this.config.aggregateBar === 43200) {
                 const middle = new Date(_date);
                 middle.setDate(middle.getDate() + 15);
-                return `${middle.getMonth()}.${middle.getFullYear()}`;
+                return `${middle.getMonth() + 1}.${middle.getFullYear()}`;
             }
         }
         const date = new Date(value);
+
+        if (this.config.xLabelShift) {
+            if (this.config.xLabelShiftMonth) {
+                date.setMonth(date.getMonth() + this.config.xLabelShift);
+            } else if (this.config.xLabelShiftYear) {
+                date.setFullYear(date.getFullYear() + this.config.xLabelShift);
+            } else {
+                date.setSeconds(date.getSeconds() + this.config.xLabelShift);
+            }
+        }
 
         if (this.config.timeFormat) {
             return this.moment(date).format(this.config.timeFormat).replace('<br/>', '\n');
@@ -977,6 +993,15 @@ class ChartOption {
         if (Array.isArray(params[0].value)) {
             ts = params[0].value[0];
             date = new Date(ts);
+            if (this.config.xLabelShift) {
+                if (this.config.xLabelShiftMonth) {
+                    date.setMonth(date.getMonth() + this.config.xLabelShift);
+                } else if (this.config.xLabelShiftYear) {
+                    date.setFullYear(date.getFullYear() + this.config.xLabelShift);
+                } else {
+                    date.setSeconds(date.getSeconds() + this.config.xLabelShift);
+                }
+            }
         }
         const hoverNoNulls = this.config.hoverNoNulls === true || this.config.hoverNoNulls === 'true';
         const anyBar = this.config.l.find(l => l.chartType === 'bar');

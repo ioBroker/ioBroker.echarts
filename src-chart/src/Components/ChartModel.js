@@ -169,7 +169,6 @@ function normalizeConfig(config) {
             config.l[j].offset    = parseFloat(config.l[j].offset)    || 0;
             config.l[j].validTime = parseFloat(config.l[j].validTime) || 0;
             config.l[j].chartType = config.l[j].chartType || config.chartType || 'auto';
-            config.l[j].xLabelShift = parseFloat(config.l[j].xLabelShift) || 0;
         }
     }
 
@@ -204,20 +203,31 @@ function normalizeConfig(config) {
     }
 
     // Set default values
-    config.width        = config.width                   || '100%';
-    config.height       = config.height                  || '100%';
-    config.timeFormat   = config.timeFormat              || '';
-    config.useComma     = config.useComma    === 'true'  || config.useComma    === true;
-    config.zoom         = config.zoom        === 'true'  || config.zoom        === true;
-    config.export       = config.export      === 'true'  || config.export      === true;
-    config.grid_hideX   = config.grid_hideX  === 'true'  || config.grid_hideX  === true;
-    config.grid_hideY   = config.grid_hideY  === 'true'  || config.grid_hideY  === true;
-    config.hoverDetail  = config.hoverDetail === 'true'  || config.hoverDetail === true;
-    config.noLoader     = config.noLoader    === 'true'  || config.noLoader    === true;
-    config.noedit       = config.noedit      === 'true'  || config.noedit      === true;
-    config.animation    = parseInt(config.animation)     || 0;
-    config.afterComma   = config.afterComma === undefined ? 2 : parseInt(config.afterComma, 10);
-    config.timeType     = config.timeType || 'relative';
+    config.width       = config.width                   || '100%';
+    config.height      = config.height                  || '100%';
+    config.timeFormat  = config.timeFormat              || '';
+    config.useComma    = config.useComma    === 'true'  || config.useComma    === true;
+    config.zoom        = config.zoom        === 'true'  || config.zoom        === true;
+    config.export      = config.export      === 'true'  || config.export      === true;
+    config.grid_hideX  = config.grid_hideX  === 'true'  || config.grid_hideX  === true;
+    config.grid_hideY  = config.grid_hideY  === 'true'  || config.grid_hideY  === true;
+    config.hoverDetail = config.hoverDetail === 'true'  || config.hoverDetail === true;
+    config.noLoader    = config.noLoader    === 'true'  || config.noLoader    === true;
+    config.noedit      = config.noedit      === 'true'  || config.noedit      === true;
+    config.animation   = parseInt(config.animation)     || 0;
+    config.afterComma  = config.afterComma === undefined ? 2 : parseInt(config.afterComma, 10);
+    config.timeType    = config.timeType || 'relative';
+    if (config.xLabelShift) {
+        if (config.xLabelShift.endsWith('m')) {
+            config.xLabelShift = parseInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1), 10) || 0;
+            config.xLabelShiftMonth = true;
+        } else if (config.xLabelShift.endsWith('y')) {
+            config.xLabelShift = parseInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1), 10) || 0;
+            config.xLabelShiftYear = true;
+        } else {
+            config.xLabelShift = parseInt(config.xLabelShift, 10) || 0;
+        }
+    }
 
     return config;
 }
