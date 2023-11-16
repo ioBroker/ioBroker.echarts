@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "news": {
+      "1.7.1": {
+        "en": "Added X-Label offset\nCorrected icons in the object selection dialog",
+        "de": "X-Label Offset hinzugefügt\nKorrigierte Icons im Objektauswahldialog",
+        "ru": "Добавлена компенсация X-Label\nИсправлены иконки в диалоге выбора объекта",
+        "pt": "Adicionado X-Label offset\nÍcones corrigidos na caixa de diálogo seleção de objetos",
+        "nl": "Vertaling:\nVertaling:",
+        "fr": "Ajout de X-Label\nLes icônes corrigées dans le dialogue de sélection d'objets",
+        "it": "Aggiunto X-Label offset\nLe icone corrette nella finestra di dialogo selezione oggetto",
+        "es": "Offset X-Label\nIconos corregidos en el diálogo de selección de objetos",
+        "pl": "Added X-Label offset\nKwalifikowane ikony w dialogach do wyboru obiektów",
+        "uk": "Доданий X-Label зсув\nВиправлені іконки в діалоговому вікні вибору об'єкта",
+        "zh-cn": "增加X-Label抵消\n目标选择口号中的对应线"
+      },
       "1.6.1": {
         "en": "Added vis-2 widget",
         "de": "Vis-2 Widget",
