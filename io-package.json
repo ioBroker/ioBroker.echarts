@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.6.1",
+    "version": "1.7.0",
     "news": {
+      "1.7.0": {
+        "en": "Added X-Label offset",
+        "de": "X-Label Offset hinzugefügt",
+        "ru": "Добавлена компенсация X-Label",
+        "pt": "Adicionado X-Label offset",
+        "nl": "Vertaling:",
+        "fr": "Ajout de X-Label",
+        "it": "Aggiunto X-Label offset",
+        "es": "Offset X-Label",
+        "pl": "Added X-Label offset",
+        "uk": "Доданий X-Label зсув",
+        "zh-cn": "增加X-Label抵消"
+      },
       "1.6.1": {
         "en": "Added vis-2 widget",
         "de": "Vis-2 Widget",
@@ -80,19 +93,6 @@
         "pl": "Wszystkie zostały wykorzystane w źródłach JSON w czasie drugiego w źródłach JSON",
         "uk": "Дозволено використання мітки часу за секундами у джерелах JSON",
         "zh-cn": "允许使用联索行动来源第二期充时间"
-      },
-      "1.4.14": {
-        "en": "Added support of alternative names for JSON sources",
-        "de": "Unterstützung alternativer Namen für JSON-Quellen",
-        "ru": "Добавлена поддержка альтернативных имен для источников JSON",
-        "pt": "Adicionado suporte de nomes alternativos para fontes JSON",
-        "nl": "Vermeld ondersteuning van alternatieve namen voor JSON bronnen",
-        "fr": "Ajout du support des noms alternatifs pour les sources JSON",
-        "it": "Aggiunto il supporto di nomi alternativi per le fonti JSON",
-        "es": "Añadido el apoyo de nombres alternativos para fuentes JSON",
-        "pl": "Wspierać alternatywne nazwy JSON",
-        "uk": "Додано підтримку альтернативних імен для джерел JSON",
-        "zh-cn": "增加联索行动来源的替代名称"
       }
     },
     "title": "E-Charts",
