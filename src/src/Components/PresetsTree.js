@@ -295,7 +295,7 @@ class MenuList extends Component {
         return _result;
     }
 
-    async getAllPresets(newState) {
+    async getAllPresets(newState, emptyFolders) {
         newState = newState || {};
         const presets = {};
 
@@ -312,7 +312,7 @@ class MenuList extends Component {
         });
 
         // store all empty folders
-        const emptyFolders = this.getEmptyFolders();
+        emptyFolders = emptyFolders || this.getEmptyFolders();
         newState.presetFolders = MenuList.buildPresetTree(presets, emptyFolders);
         setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
         return newState;
@@ -474,40 +474,49 @@ class MenuList extends Component {
         return result;
     }
 
-    renamePresetFolder(folder, newName) {
-        return new Promise(resolve => {
-            this.setState({ changingPreset: folder }, () =>
-                resolve());
-        })
-            .then(() => {
-                let newSelectedId;
-                const pos = this.state.presetsOpened.indexOf(folder.prefix);
-                // if selected folder opened, replace its ID in this.state.opened
-                if (pos !== -1) {
-                    const presetsOpened = [...this.state.presetsOpened];
-                    presetsOpened.splice(pos, 1);
-                    presetsOpened.push(newName);
-                    presetsOpened.sort();
-                    this.setState({ presetsOpened });
+    async renamePresetFolder(folder, newName) {
+        this.setState({ changingPreset: folder });
+        let newSelectedId;
+        const pos = this.state.presetsOpened.indexOf(folder.prefix);
+        // if selected folder opened, replace its ID in this.state.opened
+        if (pos !== -1) {
+            const presetsOpened = [...this.state.presetsOpened];
+            presetsOpened.splice(pos, 1);
+            presetsOpened.push(newName);
+            presetsOpened.sort();
+            this.setState({ presetsOpened });
+        }
+
+        let prefix = folder.prefix.split('.');
+        prefix[prefix.length - 1] = newName;
+        prefix = prefix.join('.');
+
+        if (Object.keys(folder.presets).find(id => id === this.props.selectedId)) {
+            newSelectedId = `${this.props.adapterName}.0.${prefix}.${this.props.selectedId.split('.').pop()}`;
+        }
+
+        const ids = Object.keys(folder.presets);
+        for (let i = 0; i < ids.length; i++) {
+            await this.addPresetToFolderPrefix(folder.presets[ids[i]], prefix, true);
+        }
+        const emptyFolders = this.getEmptyFolders();
+        const _pos = emptyFolders.indexOf(folder.prefix);
+        if (_pos !== -1) {
+            emptyFolders[_pos] = prefix;
+            // remove not unique entries
+            emptyFolders.sort();
+            for (let i = emptyFolders.length - 1; i > 0; i--) {
+                if (emptyFolders[i] === emptyFolders[i - 1]) {
+                    emptyFolders.splice(i, 1);
                 }
+            }
+        }
 
-                let prefix = folder.prefix.split('.');
-                prefix[prefix.length - 1] = newName;
-                prefix = prefix.join('.');
-
-                if (Object.keys(folder.presets).find(id => id === this.props.selectedId)) {
-                    newSelectedId = `${this.props.adapterName}.0.${prefix}.${this.props.selectedId.split('.').pop()}`;
-                }
-
-                const promises = Object.keys(folder.presets).map(presetId =>
-                    this.addPresetToFolderPrefix(folder.presets[presetId], prefix, true));
-
-                return Promise.all(promises)
-                    .then(() => this.getAllPresets())
-                    .then(newState =>
-                        this.setState(newState, () =>
-                            this.props.onSelectedChanged(newSelectedId)));
-            });
+        setTimeout(async () => {
+            const newState = await this.getAllPresets(null, emptyFolders);
+            this.setState(newState, () =>
+                this.props.onSelectedChanged(newSelectedId));
+        }, 100);
     }
 
     isNameUnique(presetId, name) {
@@ -660,8 +669,10 @@ class MenuList extends Component {
                         label={I18n.t('Title')}
                         value={this.state.addPresetFolderName}
                         onChange={e => this.setState({ addPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })}
-                        onKeyPress={e => {
+                        onKeyUp={e => {
                             if (this.state.addPresetFolderName && e.which === 13 && this.state.addPresetFolderName !== HIDDEN_FOLDER) {
+                                e.preventDefault();
+                                e.stopPropagation();
                                 this.addFolder(null, this.state.addPresetFolderName)
                                     .then(() => this.props.onClosePresetFolderDialog(() =>
                                         this.informAboutSubFolders()));
@@ -713,7 +724,7 @@ class MenuList extends Component {
             open={!!this.state.editPresetFolderDialog}
             onClose={() => this.setState({ editPresetFolderDialog: null })}
         >
-            <DialogTitle>{ I18n.t('Edit folder') }</DialogTitle>
+            <DialogTitle>{I18n.t('Edit folder')}</DialogTitle>
             <DialogContent>
                 <TextField
                     variant="standard"
@@ -721,8 +732,16 @@ class MenuList extends Component {
                     autoFocus
                     label={I18n.t('Title')}
                     value={this.state.editPresetFolderName}
-                    onKeyPress={e => {
-                        if (this.state.editPresetFolderName && e.which === 13 && this.state.editPresetFolderName !== HIDDEN_FOLDER) {
+                    onKeyUp={e => {
+                        if (this.state.editPresetFolderName &&
+                            e.which === 13 &&
+                            this.state.editPresetFolderName !== HIDDEN_FOLDER &&
+                            this.state.editFolderDialogTitleOrigin !== this.state.editPresetFolderName &&
+                            isUnique
+                        ) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
                             this.renamePresetFolder(this.state.editPresetFolderDialog, this.state.editPresetFolderName)
                                 .then(() => this.setState({ editPresetFolderDialog: null }));
                         }
@@ -733,7 +752,10 @@ class MenuList extends Component {
             <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
                 <Button
                     variant="contained"
-                    disabled={!this.state.editPresetFolderName || this.state.editFolderDialogTitleOrigin === this.state.editPresetFolderName || !isUnique || this.state.editPresetFolderName === HIDDEN_FOLDER}
+                    disabled={!this.state.editPresetFolderName ||
+                        this.state.editFolderDialogTitleOrigin === this.state.editPresetFolderName ||
+                        !isUnique ||
+                        this.state.editPresetFolderName === HIDDEN_FOLDER}
                     onClick={() => {
                         this.renamePresetFolder(this.state.editPresetFolderDialog, this.state.editPresetFolderName)
                             .then(() => this.setState({ editPresetFolderDialog: null }));
@@ -784,8 +806,18 @@ class MenuList extends Component {
                         className={this.props.classes.width100}
                         value={this.state.newPresetFolder || '__root__'}
                         onChange={e => this.setState({ newPresetFolder: e.target.value })}
-                        onKeyPress={e => e.which === 13 && this.setState({ movePresetDialog: null }, () =>
-                            this.addPresetToFolderPrefix(this.state.presets[presetId], this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder))}
+                        onKeyUp={e => {
+                            if (isIdUnique && e.which === 13) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                this.setState({ movePresetDialog: null }, () =>
+                                    this.addPresetToFolderPrefix(
+                                        this.state.presets[presetId],
+                                        this.state.newPresetFolder === '__root__' ? '' : this.state.newPresetFolder,
+                                    ));
+                            }
+                        }}
                     >
                         { getFolderList(this.state.presetFolders || {}).map(folder =>
                             <MenuItem
@@ -827,26 +859,30 @@ class MenuList extends Component {
         this.props.onShowError(e);
     }
 
-    onDragFinish(source, target) {
+    async onDragFinish(source, target) {
         // new ID
         let newId = `${target}.${source.split('.').pop()}`;
         if (newId !== source) {
-            // Check if source yet exists
+            // Check if a source yet exists
             if (this.state.presets[newId]) {
                 newId += `_${I18n.t('copy')}`;
             }
 
-            this.props.socket.getObject(source)
-                .then(obj => {
-                    if (obj) {
-                        this.props.socket.setObject(newId, obj)
-                            .then(() => this.props.socket.delObject(source))
-                            .then(() => this.getAllPresets())
-                            .then(newState => this.setState(newState))
-                            .catch(e => this.onError(e, `Cannot delete object ${source}`));
+            try {
+                const obj = await this.props.socket.getObject(source);
+                if (obj) {
+                    try {
+                        await this.props.socket.setObject(newId, obj);
+                        await this.props.socket.delObject(source);
+                        const newState = await this.getAllPresets();
+                        this.setState(newState);
+                    } catch (e) {
+                        this.onError(e, `Cannot delete object ${newId}`);
                     }
-                })
-                .catch(e => this.onError(e, `Cannot read object ${source}`));
+                }
+            } catch (e) {
+                this.onError(e, `Cannot read object ${source}`);
+            }
         }
     }
 
@@ -873,21 +909,15 @@ class MenuList extends Component {
                         autoFocus
                         label={I18n.t('Name')}
                         value={this.state.renamePresetDialogTitle}
-                        onKeyDown={e => {
+                        onKeyUp={e => {
                             if (e.keyCode === 13 && this.state.renamePresetDialogTitle && this.isNameUnique(presetId, this.state.renamePresetDialogTitle)) {
                                 e.stopPropagation();
+                                e.preventDefault();
                                 this.setState({ renameDialog: null }, () =>
                                     this.renamePreset(presetId, this.state.renamePresetDialogTitle));
                             }
                         }}
                         onChange={e => this.setState({ renamePresetDialogTitle: e.target.value })}
-                        /* onKeyPress={e => {
-                            if (e.which === 13 && this.isNameUnique(presetId, this.state.renamePresetDialogTitle) && this.state.renamePresetDialogTitle) {
-                                e.stopPropagation();
-                                this.setState({ renameDialog: null }, () =>
-                                    this.renamePreset(presetId, this.state.renamePresetDialogTitle));
-                            }
-                        }} */
                     />
                 </FormControl>
             </DialogContent>
@@ -982,60 +1012,59 @@ class MenuList extends Component {
     }
 */
 
-    deletePreset(id, cb) {
-        return this.props.socket.delObject(id)
-            .then(() =>
-                this.getAllPresets()
-                    .then(newState =>
-                        this.setState(newState, () =>
-                            this.props.onSelectedChanged(null))))
-            .catch(e => this.onError(e, `Cannot delete object ${id}`))
-            .then(() => cb && cb());
+    async deletePreset(id, cb) {
+        try {
+            await this.props.socket.delObject(id);
+            const newState = await this.getAllPresets();
+            this.setState(newState, () =>
+                this.props.onSelectedChanged(null));
+        } catch (e) {
+            this.onError(e, `Cannot delete object ${id}`);
+        }
+        cb && cb();
     }
 
-    renamePreset(id, newTitle) {
-        let preset;
-        return this.props.socket.getObject(id)
-            .then(obj => {
-                preset = obj;
-                preset.common.name = newTitle;
-                let newId = id.split('.');
-                newId.splice(-1, 1);
-                newId.push(newTitle.replace(FORBIDDEN_CHARS, '_').trim());
-                newId = newId.join('.');
+    async renamePreset(id, newTitle) {
+        try {
+            const preset = await this.props.socket.getObject(id);
+            preset.common.name = newTitle;
+            let newId = id.split('.');
+            newId.splice(-1, 1);
+            newId.push(newTitle.replace(FORBIDDEN_CHARS, '_').trim());
+            newId = newId.join('.');
 
-                preset._id = newId;
-                return this.props.socket.setObject(preset._id, preset);
-            })
-            .then(() => this.props.socket.delObject(id))
-            .then(() => this.getAllPresets())
-            .then(newState => {
-                if (id === this.props.selectedId) {
-                    this.setState(newState, () =>
-                        this.props.onSelectedChanged(preset._id));
-                } else {
-                    this.setState(newState);
-                }
-            })
-            .catch(e => this.onError(e, `Cannot get object ${id}`));
+            preset._id = newId;
+            await this.props.socket.setObject(preset._id, preset);
+            await this.props.socket.delObject(id);
+            const newState = await this.getAllPresets();
+            if (id === this.props.selectedId) {
+                this.setState(newState, () =>
+                    this.props.onSelectedChanged(preset._id));
+            } else {
+                this.setState(newState);
+            }
+        } catch (e) {
+            this.onError(e, `Cannot get object ${id}`);
+        }
     }
 
-    addPresetToFolderPrefix = (preset, folderPrefix, noRefresh) => {
+    addPresetToFolderPrefix = async (preset, folderPrefix, noRefresh) => {
         const oldId = preset._id;
         const presetId = preset._id.split('.').pop();
         preset._id = `${this.props.adapterName}.0.${folderPrefix}${folderPrefix ? '.' : ''}${presetId}`;
 
-        return this.props.socket.setObject(preset._id, preset)
-            .then(() => {
-                console.log(`Deleted ${oldId}`);
-                return this.props.socket.delObject(oldId);
-            })
-            .then(() => {
-                console.log(`Set new ID: ${preset._id}`);
-                return !noRefresh && this.refreshData(presetId);
-            })
-            .catch(e =>
-                this.onError(e, `Cannot delete object ${oldId}`));
+        try {
+            await this.props.socket.setObject(preset._id, preset);
+            console.log(`Deleted ${oldId}`);
+            await this.props.socket.delObject(oldId);
+            console.log(`Set new ID: ${preset._id}`);
+            if (!noRefresh) {
+                const newState = await this.getAllPresets();
+                this.setState(newState);
+            }
+        } catch (e) {
+            this.onError(e, `Cannot delete object ${oldId}`);
+        }
     };
 
     render() {
