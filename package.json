@@ -31,7 +31,7 @@
     "@iobroker/vis-2-widgets-react-dev": "^1.0.1",
     "@iobroker/testing": "^4.1.0",
     "@types/gulp": "^4.0.17",
-    "axios": "^1.6.0",
+    "axios": "^1.6.2",
     "chai": "^4.3.10",
     "eslint": "^8.53.0",
     "gulp": "^4.0.2",
