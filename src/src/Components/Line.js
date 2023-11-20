@@ -754,6 +754,7 @@ class LineComponent extends React.Component {
                 {this.props.line.chartType === 'scatterplot' || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number" /> : null }
                 {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')} /> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend" /> : null}
+                {this.props.line.chartType !== 'bar' ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="noFuture" label="No future" /> : null}
             </div>
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>

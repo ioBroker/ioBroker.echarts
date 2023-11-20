@@ -520,5 +520,6 @@
   "Aggregate": "Агрегатная функция",
   "This time offset will be added to the X label by displaying data on the chart": "Это временное смещение будет добавлено к метке X при отображении данных на диаграмме.",
   "X-Label-Offset": "Смещение X-метки",
-  "This time offset will be added to the request by reading data from DB": "Это смещение времени будет добавлено к запросу при чтении данных из БД."
+  "This time offset will be added to the request by reading data from DB": "Это смещение времени будет добавлено к запросу при чтении данных из БД.",
+  "No future": "Никаких ценностей в будущем"
 }

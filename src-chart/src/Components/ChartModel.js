@@ -943,6 +943,11 @@ class ChartModel {
                     }
                 }
             } else {
+                if (this.config.l[index].noFuture && values[i].ts > this.now) {
+                    // todo: interpolate value
+                    break;
+                }
+
                 let val;
                 if (convertFunc) {
                     val = values[i].val !== null ? convertFunc(values[i].val + option.yOffset) : null;

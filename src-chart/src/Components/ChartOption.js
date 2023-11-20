@@ -790,8 +790,10 @@ class ChartOption {
 
     yFormatter(val, line, withUnit, interpolated, forAxis) {
         if (val && typeof val === 'object') {
+            if (val.seriesType !== 'bar') {
+                withUnit = false;
+            }
             val = val.value;
-            withUnit = false;
         }
 
         if (this.config.l[line].states) {

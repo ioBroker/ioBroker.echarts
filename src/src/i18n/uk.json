@@ -520,5 +520,6 @@
   "Aggregate": "Агрегатний",
   "This time offset will be added to the X label by displaying data on the chart": "Цей часовий зсув буде додано до мітки X шляхом відображення даних на діаграмі",
   "X-Label-Offset": "X-Label Offset",
-  "This time offset will be added to the request by reading data from DB": "Цей часовий зсув буде додано до запиту шляхом читання даних з БД"
+  "This time offset will be added to the request by reading data from DB": "Цей часовий зсув буде додано до запиту шляхом читання даних з БД",
+  "No future": "Жодних цінностей у майбутньому"
 }

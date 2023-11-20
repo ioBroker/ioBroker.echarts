@@ -98,6 +98,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added option to hide the value in the future
+
 ### 1.7.1 (2023-11-16)
 * (bluefox) Added X-Label offset
 * (bluefox) Corrected icons in the object selection dialog

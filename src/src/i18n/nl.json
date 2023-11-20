@@ -520,5 +520,6 @@
   "Aggregate": "Totaal",
   "This time offset will be added to the X label by displaying data on the chart": "Deze tijdsverschuiving wordt toegevoegd aan het X-label door gegevens op de kaart weer te geven",
   "X-Label-Offset": "X-label-offset",
-  "This time offset will be added to the request by reading data from DB": "Deze tijdverschuiving wordt aan het verzoek toegevoegd door gegevens uit DB te lezen"
+  "This time offset will be added to the request by reading data from DB": "Deze tijdverschuiving wordt aan het verzoek toegevoegd door gegevens uit DB te lezen",
+  "No future": "Geen waarden in de toekomst"
 }
