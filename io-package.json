@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "news": {
+      "1.7.2": {
+        "en": "Added option to hide the value in the future",
+        "de": "Option hinzugefügt, um den Wert in der Zukunft zu verbergen",
+        "ru": "Добавлена возможность скрыть значение в будущем",
+        "pt": "Opção adicionada para esconder o valor no futuro",
+        "nl": "Optie om de waarde in de toekomst te verbergen",
+        "fr": "Option supplémentaire pour cacher la valeur dans le futur",
+        "it": "Aggiunta opzione per nascondere il valore in futuro",
+        "es": "Opción agregada para ocultar el valor en el futuro",
+        "pl": "Wstępna możliwość ukrywania wartości w przyszłości",
+        "uk": "Додана можливість приховати значення в майбутньому",
+        "zh-cn": "增加今后隐藏价值的选择"
+      },
       "1.7.1": {
         "en": "Added X-Label offset\nCorrected icons in the object selection dialog",
         "de": "X-Label Offset hinzugefügt\nKorrigierte Icons im Objektauswahldialog",
@@ -80,19 +93,6 @@
         "pl": "Poprawa eksportu surowych danych",
         "uk": "Реалізовано експорт сировини",
         "zh-cn": "执行原材料出口"
-      },
-      "1.4.15": {
-        "en": "Allowed using the timestamp in seconds in JSON sources",
-        "de": "Erlaubt, den Zeitstempel in Sekunden in JSON-Quellen zu verwenden",
-        "ru": "Разрешено использование метеор в секундах в источниках JSON",
-        "pt": "Permitido usando o timestamp em segundos em fontes JSON",
-        "nl": "Genoemd met gebruik van de tijdtamp in seconden in JSON bronnen",
-        "fr": "Permet d'utiliser le timetamp en quelques secondes dans les sources JSON",
-        "it": "Permesso di usare il timestamp in pochi secondi in sorgenti JSON",
-        "es": "Permitido utilizar el timetamp en segundos en fuentes JSON",
-        "pl": "Wszystkie zostały wykorzystane w źródłach JSON w czasie drugiego w źródłach JSON",
-        "uk": "Дозволено використання мітки часу за секундами у джерелах JSON",
-        "zh-cn": "允许使用联索行动来源第二期充时间"
       }
     },
     "title": "E-Charts",

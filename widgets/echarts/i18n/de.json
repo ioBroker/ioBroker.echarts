@@ -55,6 +55,5 @@
   "chart_not_selected": "Diagramm nicht definiert",
   "E-Charts": "E-Charts",
   "set_label": "E-Charts",
-  "echart_oid": "ECharts-Preset",
-  "No future": "Keine Zukunftwerte"
+  "echart_oid": "ECharts-Preset"
 }

@@ -55,6 +55,5 @@
   "chart_not_selected": "Chart not defined",
   "E-Charts": "E-Charts",
   "set_label": "E-Charts",
-  "echart_oid": "ECharts Preset",
-  "No future": "No values in future"
+  "echart_oid": "ECharts Preset"
 }
