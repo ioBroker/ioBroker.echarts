@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@iobroker/adapter-react-v5": "^4.7.3",
-    "@mui/icons-material": "^5.14.18",
+    "@mui/icons-material": "^5.14.19",
     "@mui/material": "5.14.14",
     "@mui/styles": "5.14.14",
     "@mui/lab": "^5.0.0-alpha.153",
