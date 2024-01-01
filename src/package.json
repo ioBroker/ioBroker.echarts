@@ -6,7 +6,7 @@
     "@iobroker/adapter-react-v5": "^4.7.6",
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "5.14.19",
-    "@mui/styles": "5.14.19",
+    "@mui/styles": "5.15.2",
     "@mui/lab": "^5.0.0-alpha.153",
     "@sentry/browser": "^7.81.0",
     "@sentry/integrations": "^7.81.0",
