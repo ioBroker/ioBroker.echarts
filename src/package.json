@@ -7,7 +7,7 @@
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "5.14.19",
     "@mui/styles": "5.14.19",
-    "@mui/lab": "^5.0.0-alpha.153",
+    "@mui/lab": "^5.0.0-alpha.158",
     "@sentry/browser": "^7.81.0",
     "@sentry/integrations": "^7.81.0",
     "babel-eslint": "^10.1.0",
