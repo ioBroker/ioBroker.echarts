@@ -146,6 +146,7 @@ const CHART_TYPES = {
     auto: 'Auto (Line or Steps)',
     line: 'Line',
     bar: 'Bar',
+    polar: 'Polar',
     scatterplot: 'Scatter plot',
     steps: 'Steps',
     stepsStart: 'Steps on start',

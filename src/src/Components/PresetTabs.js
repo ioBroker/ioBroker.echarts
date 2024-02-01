@@ -247,8 +247,19 @@ class PresetTabs extends React.Component {
                     line.aggregate = 'max';
                 }
             });
+        } else if (lines[index].chartType === 'polar') {
+            // apply bar to all lines
+            lines.forEach(line => {
+                line.chartType = 'polar';
+                if (line.aggregate === 'minmax') {
+                    line.aggregate = 'max';
+                }
+            });
         } else if (lines.find(line => line.chartType === 'bar')) {
             // remove bar from all lines
+            lines.forEach(line => line.chartType = lines[index].chartType);
+        } else if (lines.find(line => line.chartType === 'polar')) {
+            // remove polar from all lines
             lines.forEach(line => line.chartType = lines[index].chartType);
         }
 
@@ -312,6 +323,13 @@ class PresetTabs extends React.Component {
         if (presetData.lines.find(line => line.chartType === 'bar')) {
             const line = presetData.lines[presetData.lines.length - 1];
             line.chartType = 'bar';
+            if (line.aggregate === 'minmax') {
+                line.aggregate = 'max';
+            }
+        } else if (presetData.lines.find(line => line.chartType === 'polar')) {
+            // if any bar already exists, apply bar to new line
+            const line = presetData.lines[presetData.lines.length - 1];
+            line.chartType = 'polar';
             if (line.aggregate === 'minmax') {
                 line.aggregate = 'max';
             }
@@ -553,8 +571,8 @@ class PresetTabs extends React.Component {
     }
 
     renderTabTime() {
-        const hasNotBar = this.props.presetData.lines.find(line => line.chartType !== 'bar');
-        const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
+        const hasNotBarOrPolar = this.props.presetData.lines.find(line => line.chartType !== 'bar' && line.chartType !== 'polar');
+        const hasBarOrPolar = this.props.presetData.lines.find(line => line.chartType === 'bar' || line.chartType === 'polar');
         const anyNotOnChange = this.props.presetData.lines.find(line => line.aggregate !== 'onchange');
 
         const anyNotJson = this.props.presetData.lines.find(line => line.instance !== 'json');
@@ -701,7 +719,7 @@ class PresetTabs extends React.Component {
                 <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
                 <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
             </div> */}
-            {anyNotJson && anyNotOnChange && hasNotBar ?
+            {anyNotJson && anyNotOnChange && hasNotBarOrPolar ?
                 <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Aggregate for lines')}</p>
                     <IOSelect
@@ -721,7 +739,7 @@ class PresetTabs extends React.Component {
                         label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                     />
                 </div> : null }
-            {hasBar ?
+            {hasBarOrPolar ?
                 <div className={this.props.classes.group}>
                     <p className={this.props.classes.title}>{I18n.t('Aggregate for bars')}</p>
                     <IOSelect

@@ -74,6 +74,7 @@
   "line": "Line",
   "area": "Area",
   "bar": "Bar",
+  "polar": "Polar chart",
   "lineplot": "Line plot",
   "scatterplot": "Scatter plot",
   "steps": "Steps",

@@ -365,7 +365,7 @@ class LineComponent extends React.Component {
             idWidth = `calc(100% - ${WIDTHS.buttons + WIDTHS.instance + padding * 2}px)`;
         }
 
-        const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
+        const hasBarOrPolar = this.props.presetData.lines.find(line => line.chartType === 'bar' || line.chartType === 'polar');
         const aggregateTypes = {
             minmax: 'minmax',
             average: 'average',
@@ -377,7 +377,7 @@ class LineComponent extends React.Component {
             integral: 'integral',
         };
 
-        if (hasBar) {
+        if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
         }
 
@@ -439,6 +439,7 @@ class LineComponent extends React.Component {
                     auto: 'Auto',
                     line: 'Line',
                     bar: 'Bar',
+                    polar: 'Polar',
                     scatterplot: 'Scatter plot',
                     steps: 'Steps',
                     stepsStart: 'Steps on start',
@@ -474,7 +475,7 @@ class LineComponent extends React.Component {
             >
                 <IconDelete />
             </IconButton>
-            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IconButton
+            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IconButton
                 className={this.props.classes.editButton}
                 aria-label="Edit"
                 title={I18n.t('Edit')}
@@ -622,12 +623,13 @@ class LineComponent extends React.Component {
                 }
             }
         }
-        const hasBar = this.props.presetData.lines.find(line => line.chartType === 'bar');
+        const hasBarOrPolar = this.props.presetData.lines.find(line => line.chartType === 'bar' || line.chartType === 'polar');
 
         const chartTypes = {
             auto: 'Auto (Line or Steps)',
             line: 'Line',
             bar: 'Bar',
+            polar: 'Polar',
             scatterplot: 'Scatter plot',
             steps: 'Steps',
             stepsStart: 'Steps on start',
@@ -645,7 +647,7 @@ class LineComponent extends React.Component {
             integral: 'integral',
         };
 
-        if (hasBar) {
+        if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
         }
 
@@ -671,7 +673,7 @@ class LineComponent extends React.Component {
                 >
                     <IconDelete />
                 </IconButton>
-                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IconButton
+                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IconButton
                     className={this.props.classes.editButtonFull}
                     aria-label="Edit"
                     title={I18n.t('Edit')}
@@ -752,9 +754,9 @@ class LineComponent extends React.Component {
                     }}
                 /> : null }
                 {this.props.line.chartType === 'scatterplot' || this.props.line.points ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number" /> : null }
-                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')} /> : null }
+                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')} /> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend" /> : null}
-                {this.props.line.chartType !== 'bar' ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="noFuture" label="No future" /> : null}
+                {this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="noFuture" label="No future" /> : null}
             </div>
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
                 <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
@@ -764,7 +766,7 @@ class LineComponent extends React.Component {
                 {this.state.isBoolean && this.state.withStates === null ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="trueText" label="Text by true" /> : null}
                 {this.renderStates()}
             </div>
-            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
+            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
                 <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
                 <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points" />
@@ -895,7 +897,7 @@ class LineComponent extends React.Component {
                 />
                 {/* <IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0} /> */}
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0} />
-                {this.props.line.chartType !== 'bar' ? <IOSelect
+                {this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
                     name="lineStyle"
