@@ -521,5 +521,12 @@
   "This time offset will be added to the X label by displaying data on the chart": "Dieser Zeitversatz wird der X-Beschriftung hinzugefügt, indem Daten im Diagramm angezeigt werden",
   "X-Label-Offset": "X-Label-Offset",
   "This time offset will be added to the request by reading data from DB": "Dieser Zeitversatz wird der Anfrage durch das Lesen von Daten aus der Datenbank hinzugefügt",
-  "No future": "Keine Werte in der Zukunft"
+  "No future": "Keine Werte in der Zukunft",
+  "Background of radar chart": "Hintergrund der Radarkarte",
+  "polar": "Polardiagramm",
+  "Polar": "Polardiagramm (Radar)",
+  "current": "Aktueller Wert",
+  "Dialog": "Dialog",
+  "Polygonal": "Polygonal",
+  "Circle": "Kreis"
 }

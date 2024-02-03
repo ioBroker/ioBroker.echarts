@@ -379,6 +379,9 @@ class LineComponent extends React.Component {
 
         if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
+            if (this.props.presetData.lines.find(line => line.chartType === 'polar')) {
+                aggregateTypes.current = 'current';
+            }
         }
 
         return <div className={this.props.classes.lineClosed}>
@@ -475,7 +478,7 @@ class LineComponent extends React.Component {
             >
                 <IconDelete />
             </IconButton>
-            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IconButton
+            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && (!this.props.index || this.props.line.chartType !== 'polar') ? <IconButton
                 className={this.props.classes.editButton}
                 aria-label="Edit"
                 title={I18n.t('Edit')}
@@ -649,10 +652,14 @@ class LineComponent extends React.Component {
 
         if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
+            if (this.props.presetData.lines.find(line => line.chartType === 'polar')) {
+                aggregateTypes.current = 'current';
+            }
         }
 
         const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
         return <>
+            {/* Folder line */}
             <div>
                 {this.props.provided ? <span title={I18n.t('Drag me')} {...this.props.provided.dragHandleProps}><IconDrag /></span> : null }
                 <IconButton
@@ -673,7 +680,7 @@ class LineComponent extends React.Component {
                 >
                     <IconDelete />
                 </IconButton>
-                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IconButton
+                {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && (!this.props.index || this.props.line.chartType !== 'polar') ? <IconButton
                     className={this.props.classes.editButtonFull}
                     aria-label="Edit"
                     title={I18n.t('Edit')}
@@ -690,6 +697,7 @@ class LineComponent extends React.Component {
                     <IconCopy />
                 </IconButton>
             </div>
+            {/* Source and OID */}
             <div className={this.props.classes.shortFields}>
                 <IOSelect
                     formData={this.props.line}
@@ -719,9 +727,10 @@ class LineComponent extends React.Component {
                     socket={this.props.socket}
                 />
             </div>
+            {/* main settings */}
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
                 <p className={this.props.classes.title}>{I18n.t('Main')}</p>
-                {this.renderColorField(this.props.line, this.updateField, 'Color', 'color')}
+                {!this.props.index || this.props.line.chartType !== 'polar' ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color') : null}
                 <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
@@ -766,7 +775,8 @@ class LineComponent extends React.Component {
                 {this.state.isBoolean && this.state.withStates === null ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="trueText" label="Text by true" /> : null}
                 {this.renderStates()}
             </div>
-            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
+            {/* Line thick and fill */}
+            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && (!this.props.index || this.props.line.chartType !== 'polar') ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
                 <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
                 <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points" />
@@ -775,9 +785,10 @@ class LineComponent extends React.Component {
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={this.props.line.fill > 0.01 ? 0 : 1} type="number" />
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number" />
             </div> : null}
+            {/* Axis */}
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterAxis)}>
                 <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
-                {!this.props.index ? <IOSelect
+                {!this.props.index && this.props.line.chartType !== 'polar' ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
                     name="xaxe"
@@ -793,8 +804,8 @@ class LineComponent extends React.Component {
                     bottomColor: 'bottom colored', */
                     }}
                 /> : null }
-                {!this.props.index ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number" /> : null}
-                <IOSelect
+                {!this.props.index && this.props.line.chartType !== 'polar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="xticks" label="X-Axis ticks" type="number" /> : null}
+                {this.props.line.chartType !== 'polar' ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
                     tooltip={I18n.t('This time offset will be added to the request by reading data from DB')}
@@ -858,13 +869,13 @@ class LineComponent extends React.Component {
                         '-2y': '-2 years',
 
                     }}
-                />
-                <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number" />
+                /> : null}
+                {this.props.line.chartType !== 'polar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yOffset" label="Y-Offset" type="number" /> : null}
 
                 <br />
-                <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" noTranslate options={xAxisOptions} />
+                {this.props.line.chartType !== 'polar' ? <IOSelect formData={this.props.line} updateValue={this.updateField} name="commonYAxis" label="Common Y Axis" noTranslate options={xAxisOptions} /> : null}
 
-                {ownYAxis ? <IOSelect
+                {this.props.line.chartType !== 'polar' && ownYAxis ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
                     name="yaxe"
@@ -878,10 +889,11 @@ class LineComponent extends React.Component {
                         rightColor: 'right colored',
                     }}
                 /> : null}
-                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null}
+                {this.props.line.chartType !== 'polar' && ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null}
                 {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null}
-                {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number" /> : null}
+                {this.props.line.chartType !== 'polar' && ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number" /> : null}
             </div>
+            {/* Other settings */}
             <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterOther)}>
                 <p className={this.props.classes.title}>{I18n.t('Others')}</p>
                 <IOSelect
@@ -897,7 +909,7 @@ class LineComponent extends React.Component {
                 />
                 {/* <IOTextField formData={this.props.line} updateValue={this.updateField} name="smoothing" label="Smoothing" type="number" min={0} /> */}
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="afterComma" label="Digits after comma" type="number" min={0} />
-                {this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IOSelect
+                {this.props.line.chartType !== 'bar' ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
                     name="lineStyle"

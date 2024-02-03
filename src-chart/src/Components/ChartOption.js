@@ -454,6 +454,26 @@ class ChartOption {
                         type:           oneLine.dashes ? 'dashed' : (oneLine.lineStyle || 'solid'),
                     } */
                 };
+            } else if (oneLine.chartType === 'polar') {
+                cfg = {
+                    name: oneLine.name,
+                    clip: true,
+                    label: {
+                        show: !!this.config.barLabels,
+                        position: this.config.barLabels === 'topover' ? 'top' :
+                            (this.config.barLabels === 'topunder' ? 'insideTop' :
+                                (this.config.barLabels === 'bottom' ? 'insideBottom' : 'inside')),
+                        formatter: value => this.yFormatter(value, i, true),
+                        color: this.config.barFontColor || (this.themeType === 'dark' ? '#fff' : '#000'),
+                        fontSize: parseInt(this.config.barFontSize, 10) || undefined,
+                    },
+                    stack: anyNotOwnAxis ? 'total' : undefined,
+                    silent: true,
+                    type: 'radar',
+                    animation: false,
+                    data: data[i],
+                    color,
+                };
             } else {
                 cfg = {
                     name: oneLine.name,
@@ -790,8 +810,11 @@ class ChartOption {
 
     yFormatter(val, line, withUnit, interpolated, forAxis) {
         if (val && typeof val === 'object') {
-            if (val.seriesType !== 'bar') {
+            if (val.seriesType !== 'bar' && val.seriesType !== 'radar') {
                 withUnit = false;
+            }
+            if (val.seriesType === 'radar') {
+                line = val.dimensionIndex
             }
             val = val.value;
         }
@@ -852,9 +875,11 @@ class ChartOption {
 
         if (this.config.useComma) {
             val = parseFloat(val) || 0;
-            return val.toString().replace('.', ',') + (withUnit ? this.config.l[line].unit : '');
+            val = val.toString().replace('.', ',') + (withUnit ? this.config.l[line].unit : '');
+            return val;
         }
-        return val.toString() + (withUnit ? this.config.l[line].unit : '');
+        val = val.toString() + (withUnit ? this.config.l[line].unit : '');
+        return val;
     }
 
     isXLabelHasBreak() {
@@ -1006,12 +1031,12 @@ class ChartOption {
             }
         }
         const hoverNoNulls = this.config.hoverNoNulls === true || this.config.hoverNoNulls === 'true';
-        const anyBar = this.config.l.find(l => l.chartType === 'bar');
+        const anyBarOrPolar = this.config.l.find(l => l.chartType === 'bar' || l.chartType === 'polar');
 
         const values = this.option.series.map((line, i) => {
             const lineConfig = this.config.l[i];
             const p = params.find(param => param.seriesIndex === i);
-            if (anyBar) {
+            if (anyBarOrPolar) {
                 if (!p) {
                     return null;
                 }
@@ -1054,7 +1079,7 @@ class ChartOption {
                 '</div>';
         });
 
-        if (anyBar) {
+        if (anyBarOrPolar) {
             const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm';
             const _date = new Date(parseInt(ts.substring(1), 10));
             return `<b>${this.moment(_date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
@@ -1222,105 +1247,151 @@ class ChartOption {
             useCanvas,
         };
 
-        this.getMarkings(option);
+        this.config.l.forEach((item, index) => {
+            if (item.aggregate === 'current') {
+                option.series[index].data = [actualValues[index]];
+            }
+        });
 
-        if (!this.compact && !this.config.autoGridPadding) {
-            // calculate padding: left and right
-            let padLeft  = 0;
-            let padRight = 0;
-            let padBottom = 0;
-            let padTop = 0;
-            series.forEach((ser, i) => {
-                let _yAxis = option.yAxis[ser.yAxisIndex];
-                if (!_yAxis) {
-                    // it seems this axis is defined something else
-                    const cY = this.config.l[ser.yAxisIndex] ? this.config.l[ser.yAxisIndex].commonYAxis : undefined;
-                    if (cY !== undefined) {
-                        _yAxis = option.yAxis[cY];
-                    } else if (this.config.l[i].chartType === 'bar') {
-                        _yAxis = { min: ser.data[0], max: ser.data[0] };
-                        for (let s = 1; s < ser.data.length; s++) {
-                            if (ser.data[s] === null) {
-                                continue;
-                            }
-                            if (ser.data[s] < _yAxis.min || _yAxis.min === null) {
-                                _yAxis.min = ser.data[s];
-                            }
-                            if (ser.data[s] > _yAxis.max || _yAxis.max === null) {
-                                _yAxis.max = ser.data[s];
-                            }
-                        }
-                    } else {
-                        console.log(`Cannot find Y axis for line ${i}`);
-                        return;
+        if (this.config.l.find(item => item.chartType === 'polar')) {
+            option.animation = false;
+            option.radar = {
+                shape: this.config.radarCircle === 'circle' ? 'circle' : undefined,
+                indicator: [],
+            };
+            const radarSeries = [{
+                type: 'radar',
+                data: [{ value: [] }],
+                lineStyle: {
+                    color: option.series[0].color,
+                },
+                label: option.series[0].label,
+            }];
+
+            option.series.forEach((item, index) => {
+                const max = this.config.l[index].max ? parseFloat(this.config.l[index].max) || undefined : undefined;
+                option.radar.indicator.push({ name: item.name + (max !== undefined ? ` (max ${this.yFormatter(max, index, true)})` : ''), max });
+                // find last not null value;
+                let value;
+                for (let d = item.data.length - 1; d >= 0; d--) {
+                    if (item.data[d] !== undefined && item.data[d] !== null) {
+                        value = item.data[d];
+                        break;
                     }
                 }
 
-                const minTick = this.yFormatter(_yAxis.min, i, true, false, true);
-                const maxTick = this.yFormatter(!_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max, i, true, false, true);
-
-                if (xAxis[0].position === 'top') {
-                    padTop = this.isXLabelHasBreak() ? 40 : 24;
-                } else if (xAxis[0].position !== 'off' || xAxis[0].position === 'bottom') {
-                    padBottom = this.isXLabelHasBreak() ? 40 : 24;
-                }
-
-                const position = _yAxis.position;
-                if (position === 'off' || (_yAxis.axisLabel && _yAxis.axisLabel.color === 'rgba(0,0,0,0)')) {
-                    return;
-                }
-                const wMin = this.calcTextWidth(minTick, this.config.y_labels_size) + 4;
-                let wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
-
-                // if we have descriptions for every number, so find the longest one and use it as max width
-                if (ser.states) {
-                    // get the longest state
-                    let wState = '';
-                    Object.keys(ser.states).forEach(state => {
-                        if (ser.states[state].length > wState.length) {
-                            wState = ser.states[state];
-                        }
-                    });
-                    wMax = this.calcTextWidth(wState, this.config.y_labels_size) + 4;
-                }
-
-                if (position !== 'right' && position !== 'rightColor') {
-                    if (wMin > padLeft) {
-                        padLeft = wMin;
-                    }
-                    if (wMax > padLeft) {
-                        padLeft = wMax;
-                    }
+                if (value !== undefined) {
+                    radarSeries[0].data[0].value.push(value);
                 } else {
-                    if (wMin > padRight) {
-                        padRight = wMin;
-                    }
-                    if (wMax > padRight) {
-                        padRight = wMax;
-                    }
+                    radarSeries[0].data[0].value.push(0);
                 }
             });
-            option.grid.left    = padLeft  + 10;
-            option.grid.right   = padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
-            // if xAxis shown, let the place for last value
-            if (option.grid.right <= 10 && (padTop || padBottom)) {
-                option.grid.right = 18;
+            option.series = radarSeries;
+
+            delete option.xAxis;
+            delete option.yAxis;
+            delete option.grid;
+        } else {
+            this.getMarkings(option);
+
+            if (!this.compact && !this.config.autoGridPadding) {
+                // calculate padding: left and right
+                let padLeft  = 0;
+                let padRight = 0;
+                let padBottom = 0;
+                let padTop = 0;
+                series.forEach((ser, i) => {
+                    let _yAxis = option.yAxis[ser.yAxisIndex];
+                    if (!_yAxis) {
+                        // it seems this axis is defined something else
+                        const cY = this.config.l[ser.yAxisIndex] ? this.config.l[ser.yAxisIndex].commonYAxis : undefined;
+                        if (cY !== undefined) {
+                            _yAxis = option.yAxis[cY];
+                        } else if (this.config.l[i].chartType === 'bar') {
+                            _yAxis = { min: ser.data[0], max: ser.data[0] };
+                            for (let s = 1; s < ser.data.length; s++) {
+                                if (ser.data[s] === null) {
+                                    continue;
+                                }
+                                if (ser.data[s] < _yAxis.min || _yAxis.min === null) {
+                                    _yAxis.min = ser.data[s];
+                                }
+                                if (ser.data[s] > _yAxis.max || _yAxis.max === null) {
+                                    _yAxis.max = ser.data[s];
+                                }
+                            }
+                        } else {
+                            console.log(`Cannot find Y axis for line ${i}`);
+                            return;
+                        }
+                    }
+
+                    const minTick = this.yFormatter(_yAxis.min, i, true, false, true);
+                    const maxTick = this.yFormatter(!_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max, i, true, false, true);
+
+                    if (xAxis[0].position === 'top') {
+                        padTop = this.isXLabelHasBreak() ? 40 : 24;
+                    } else if (xAxis[0].position !== 'off' || xAxis[0].position === 'bottom') {
+                        padBottom = this.isXLabelHasBreak() ? 40 : 24;
+                    }
+
+                    const position = _yAxis.position;
+                    if (position === 'off' || (_yAxis.axisLabel && _yAxis.axisLabel.color === 'rgba(0,0,0,0)')) {
+                        return;
+                    }
+                    const wMin = this.calcTextWidth(minTick, this.config.y_labels_size) + 4;
+                    let wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
+
+                    // if we have descriptions for every number, so find the longest one and use it as max width
+                    if (ser.states) {
+                        // get the longest state
+                        let wState = '';
+                        Object.keys(ser.states).forEach(state => {
+                            if (ser.states[state].length > wState.length) {
+                                wState = ser.states[state];
+                            }
+                        });
+                        wMax = this.calcTextWidth(wState, this.config.y_labels_size) + 4;
+                    }
+
+                    if (position !== 'right' && position !== 'rightColor') {
+                        if (wMin > padLeft) {
+                            padLeft = wMin;
+                        }
+                        if (wMax > padLeft) {
+                            padLeft = wMax;
+                        }
+                    } else {
+                        if (wMin > padRight) {
+                            padRight = wMin;
+                        }
+                        if (wMax > padRight) {
+                            padRight = wMax;
+                        }
+                    }
+                });
+                option.grid.left    = padLeft  + 10;
+                option.grid.right   = padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
+                // if xAxis shown, let the place for last value
+                if (option.grid.right <= 10 && (padTop || padBottom)) {
+                    option.grid.right = 18;
+                }
+                if (option.grid.left <= 10 && (padTop || padBottom)) {
+                    option.grid.left = 18;
+                }
+                this.chart.padLeft  = option.grid.left;
+                this.chart.padRight = option.grid.right;
+                if (!padTop) {
+                    padTop = 8;
+                }
+                if (!padBottom) {
+                    padBottom = 8;
+                }
+                option.grid.top      = padTop;
+                option.grid.bottom   = padBottom;
+                this.chart.padTop    = option.grid.top;
+                this.chart.padBottom = option.grid.bottom;
             }
-            if (option.grid.left <= 10 && (padTop || padBottom)) {
-                option.grid.left = 18;
-            }
-            this.chart.padLeft  = option.grid.left;
-            this.chart.padRight = option.grid.right;
-            if (!padTop) {
-                padTop = 8;
-            }
-            if (!padBottom) {
-                padBottom = 8;
-            }
-            option.grid.top      = padTop;
-            option.grid.bottom   = padBottom;
-            this.chart.padTop    = option.grid.top;
-            this.chart.padBottom = option.grid.bottom;
         }
 
         // 'nw': 'Top, left',

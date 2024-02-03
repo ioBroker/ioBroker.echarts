@@ -645,29 +645,27 @@ class App extends GenericApp {
         const { source, destination, draggableId } = result;
         if (destination && draggableId.includes('***') && source.droppableId === 'Lines') {
             const [instance, stateId] = draggableId.split('***');
+            // Add new line
             this.socket.getObject(stateId)
                 .then(obj => {
                     // const len = this.state.presetData.lines.length;
                     // const color = (obj && obj.common && obj.common.color) || PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
                     const presetData = JSON.parse(JSON.stringify(this.state.presetData));
                     const newLine = DefaultPreset.getDefaultLine(this.state.systemConfig, instance, obj, I18n.getLanguage());
-                    if (!destination) {
-                        presetData.lines.push(newLine);
-                    } else {
-                        // correct commonYAxis
-                        for (let i = 0; i < presetData.lines.length; i++) {
-                            if (!presetData.lines[i].commonYAxis && presetData.lines[i].commonYAxis !== 0) {
-                                continue;
-                            }
-                            if (presetData.lines[i].commonYAxis >= destination.index.toString()) {
-                                presetData.lines[i].commonYAxis = (parseInt(presetData.lines[i].commonYAxis, 10) + 1).toString();
-                            }
+                    // correct commonYAxis
+                    for (let i = 0; i < presetData.lines.length; i++) {
+                        if (!presetData.lines[i].commonYAxis && presetData.lines[i].commonYAxis !== 0) {
+                            continue;
                         }
-
-                        // todo inform PresetTabs about change of order of linesOpened
-
-                        presetData.lines.splice(destination.index, 0, newLine);
+                        if (presetData.lines[i].commonYAxis >= destination.index.toString()) {
+                            presetData.lines[i].commonYAxis = (parseInt(presetData.lines[i].commonYAxis, 10) + 1).toString();
+                        }
                     }
+
+                    // todo inform PresetTabs about change of order of linesOpened
+
+                    presetData.lines.splice(destination.index, 0, newLine);
+
                     if (presetData.lines.length > 1) {
                         // combine new unit with the existing one
                         if (newLine.unit) {
@@ -678,12 +676,19 @@ class App extends GenericApp {
                                 }
                             }
                         }
+                        if (presetData.lines.find(item => item.chartType === 'bar')) {
+                            newLine.chartType = 'bar';
+                        } else if (presetData.lines.find(item => item.chartType === 'polar')) {
+                            newLine.chartType = 'polar';
+                            newLine.aggregate = 'current';
+                        }
                     }
 
                     this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
         } else if (destination && source.droppableId === destination.droppableId) {
+            // switch lines order
             const presetData = JSON.parse(JSON.stringify(this.state.presetData));
 
             // correct commonYAxis

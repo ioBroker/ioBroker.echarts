@@ -252,15 +252,25 @@ class PresetTabs extends React.Component {
             lines.forEach(line => {
                 line.chartType = 'polar';
                 if (line.aggregate === 'minmax') {
-                    line.aggregate = 'max';
+                    line.aggregate = 'current';
                 }
             });
         } else if (lines.find(line => line.chartType === 'bar')) {
             // remove bar from all lines
-            lines.forEach(line => line.chartType = lines[index].chartType);
+            lines.forEach(line => {
+                line.chartType = lines[index].chartType;
+                if (line.aggregate === 'current') {
+                    line.aggregate = 'minmax';
+                }
+            });
         } else if (lines.find(line => line.chartType === 'polar')) {
             // remove polar from all lines
-            lines.forEach(line => line.chartType = lines[index].chartType);
+            lines.forEach(line => {
+                line.chartType = lines[index].chartType;
+                if (line.aggregate === 'current') {
+                    line.aggregate = 'minmax';
+                }
+            });
         }
 
         this.updateField('lines', lines);
@@ -331,7 +341,7 @@ class PresetTabs extends React.Component {
             const line = presetData.lines[presetData.lines.length - 1];
             line.chartType = 'polar';
             if (line.aggregate === 'minmax') {
-                line.aggregate = 'max';
+                line.aggregate = 'current';
             }
         }
 
@@ -832,7 +842,10 @@ class PresetTabs extends React.Component {
     }
 
     renderTabOptions() {
+        const anyPolar = this.props.presetData.lines.find(item => item.chartType === 'polar');
+
         return <TabPanel value="3" classes={{ root: this.props.classes.tabContent }}>
+            {/* Legend line */}
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Legend')}</p>
                 <IOSelect
@@ -870,6 +883,7 @@ class PresetTabs extends React.Component {
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legendHeight" label="Height" min={6} type="number" />
                     </> : null}
             </div>
+            {/* Options line */}
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Options')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Hover details" name="hoverDetail" />
@@ -903,7 +917,18 @@ class PresetTabs extends React.Component {
                         1800: '30 minutes',
                     }}
                 /> : null}
+                {anyPolar ? <IOSelect
+                    formData={this.props.presetData}
+                    updateValue={this.updateField}
+                    label="Background of radar chart"
+                    name="radarCircle"
+                    options={{
+                        '': 'Polygonal',
+                        circle: 'Circle',
+                    }}
+                /> : null}
             </div>
+            {/* Links line */}
             <div className={this.props.classes.group}>
                 <p className={this.props.classes.title}>{I18n.t('Copy link to clipboard')}</p>
                 <Button
@@ -1204,6 +1229,9 @@ class PresetTabs extends React.Component {
     }
 
     render() {
+        const anyPolar = this.props.presetData.lines.find(line => line.chartType === 'polar');
+        const anyNotCurrent = this.props.presetData.lines.find(line => line.aggregate !== 'current');
+
         return <TabContext value={this.state.selectedTab}>
             <AppBar position="static" className={this.props.classes.tabsContainer}>
                 {this.props.selectedPresetChanged || this.props.autoSave ? <Checkbox
@@ -1238,8 +1266,8 @@ class PresetTabs extends React.Component {
                     classes={{ indicator: this.props.classes.indicator }}
                 >
                     <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Data')} value="0" />
-                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Markings')} value="1" />
-                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Time')} value="2" />
+                    {anyPolar ? null : <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Markings')} value="1" />}
+                    {!anyNotCurrent ? null : <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Time')} value="2" />}
                     <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Options')} value="3" />
                     <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Title')} value="4" />
                     <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Appearance')} value="5" />
@@ -1247,8 +1275,8 @@ class PresetTabs extends React.Component {
             </AppBar>
             <div className={this.props.classes.tabsBody}>
                 {this.state.selectedTab === '0' ? this.renderTabLines()      : null}
-                {this.state.selectedTab === '1' ? this.renderTabMarkings()   : null}
-                {this.state.selectedTab === '2' ? this.renderTabTime()       : null}
+                {this.state.selectedTab === '1' && !anyPolar ? this.renderTabMarkings()   : null}
+                {this.state.selectedTab === '2' && anyNotCurrent ? this.renderTabTime()       : null}
                 {this.state.selectedTab === '3' ? this.renderTabOptions()    : null}
                 {this.state.selectedTab === '4' ? this.renderTabTitle()      : null}
                 {this.state.selectedTab === '5' ? this.renderTabAppearance() : null}

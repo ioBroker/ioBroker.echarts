@@ -648,7 +648,7 @@ class ChartView extends React.Component {
     renderChart() {
         if (this.props.data) {
             this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config, this.props.actualValues, this.props.categories);
-            const hasAnyBars = !!this.props.config.l.find(item => item.chartType === 'bar');
+            const hasAnyBarOrPolar = !!this.props.config.l.find(item => item.chartType === 'bar' || item.chartType === 'polar');
 
             if (this.props.config.title) {
                 window.document.title = this.props.config.title;
@@ -680,7 +680,7 @@ class ChartView extends React.Component {
                         this.selected = JSON.parse(JSON.stringify(e.selected));
                     },
                     rendered: () =>
-                        !this.props.compact && this.props.config.zoom && !hasAnyBars && this.installEventHandlers(),
+                        !this.props.compact && this.props.config.zoom && !hasAnyBarOrPolar && this.installEventHandlers(),
                 }}
             />;
         }
