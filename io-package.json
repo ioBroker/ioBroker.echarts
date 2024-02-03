@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.7.2",
+    "version": "1.8.0",
     "news": {
+      "1.8.0": {
+        "en": "Added the radar (polar) chart type",
+        "de": "Hinzugefügt den Radar (polar) Diagrammtyp",
+        "ru": "Добавлена радиолокационная (полярная) карта",
+        "pt": "Adicionado o radar (polar) tipo gráfico",
+        "nl": "Het radar- (polaire) kaarttype is toegevoegd",
+        "fr": "Ajout du type de carte radar (polaire)",
+        "it": "Aggiunto il tipo di grafico radar (polare)",
+        "es": "Añadido el tipo de diagrama de radar (polar)",
+        "pl": "Dodano typ mapy radarowej (polarnej)",
+        "uk": "Додано тип радіолокаційної діаграми",
+        "zh-cn": "添加雷达( 极地) 图表类型"
+      },
       "1.7.2": {
         "en": "Added option to hide the value in the future",
         "de": "Option hinzugefügt, um den Wert in der Zukunft zu verbergen",
@@ -80,19 +93,6 @@
         "pl": "Obserwacja danych JSON została poprawiona",
         "uk": "Удосконалено процес обробки помилок в даних JSON",
         "zh-cn": "改进了联合办数据的处理。"
-      },
-      "1.5.0": {
-        "en": "Implemented raw data export",
-        "de": "Export von Rohdaten",
-        "ru": "Внедренный экспорт сырья",
-        "pt": "Exportação de dados brutos implementadas",
-        "nl": "Vertaling:",
-        "fr": "Exportation de données brutes appliquées",
-        "it": "Esportazione di dati grezzi",
-        "es": "Exportación de datos brutos aplicada",
-        "pl": "Poprawa eksportu surowych danych",
-        "uk": "Реалізовано експорт сировини",
-        "zh-cn": "执行原材料出口"
       }
     },
     "title": "E-Charts",
