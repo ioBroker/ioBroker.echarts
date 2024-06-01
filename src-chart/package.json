@@ -19,7 +19,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^14.0.1",
-    "react-icons": "^5.0.1",
+    "react-icons": "^5.2.1",
     "react-scripts": "^5.0.1",
     "echarts": "^5.4.3",
     "crypto-js": "^4.2.0",
