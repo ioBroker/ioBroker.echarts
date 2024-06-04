@@ -54,8 +54,8 @@
   "scripts": {
     "test:package": "mocha test/package --exit",
     "test": "npm run test:package",
-    "prepublishOnly": "node node_modules/gulp/bin/gulp.js",
-    "build": "node node_modules/gulp/bin/gulp.js",
+    "prepublishOnly": "gulp",
+    "build": "gulp",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",

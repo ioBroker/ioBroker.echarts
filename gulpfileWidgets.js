@@ -1,12 +1,12 @@
 /**
- * Copyright 2023 bluefox <dogafox@gmail.com>
+ * Copyright 2023-2024 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *
  **/
 'use strict';
 
-const fs   = require('fs');
+const fs   = require('node:fs');
 const gulpHelper  = require('@iobroker/vis-2-widgets-react-dev/gulpHelper');
 const adapterName = require('./package.json').name.split('.').pop();
 

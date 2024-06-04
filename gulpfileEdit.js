@@ -1,14 +1,14 @@
 /**
- * Copyright 2018-2023 bluefox <dogafox@gmail.com>
+ * Copyright 2018-2024 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *
  **/
 'use strict';
 
-const fs         = require('fs');
+const fs         = require('node:fs');
 const rename     = require('gulp-rename');
-const cp         = require('child_process');
+const cp         = require('node:child_process');
 
 const dir = `${__dirname}/src/src/i18n/`;
 
@@ -183,7 +183,7 @@ module.exports = function init(gulp) {
     gulp.task('[edit]3-build-dep', gulp.series('[edit]2-npm', '[edit]3-build'));
 
     function copyFiles() {
-        deleteFoldersRecursive(`${__dirname}/admin`, ['chart']);
+        deleteFoldersRecursive(`${__dirname}/admin`, ['chart', 'preview']);
 
         return Promise.all([
             gulp.src([
@@ -194,7 +194,11 @@ module.exports = function init(gulp) {
                 '!src/build/static/media/*.txt',
                 '!src/build/i18n/**/*',
                 '!src/build/i18n',
-                'admin-config/*'
+            ])
+                .pipe(gulp.dest('admin/')),
+
+            gulp.src([
+                'admin-config/*',
             ])
                 .pipe(gulp.dest('admin/')),
 
