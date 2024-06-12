@@ -129,15 +129,17 @@
     ],
     "adminTab": {
       "singleton": true,
-      "name": "ECharts"
+      "name": {
+        "en": "ECharts"
+      }
     },
-    "license": "Apache-2.0",
     "platform": "Javascript/Node.js",
     "connectionType": "local",
     "dataSource": "push",
     "icon": "echarts.png",
     "messagebox": true,
     "eraseOnUpload": true,
+    "nogit": true,
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
     "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
@@ -159,7 +161,12 @@
     },
     "restartAdapters": [
       "vis-2"
-    ]
+    ],
+    "tier": 3,
+    "licenseInformation": {
+      "license": "Apache-2.0",
+      "type": "free"
+    }
   },
   "native": {},
   "objects": [

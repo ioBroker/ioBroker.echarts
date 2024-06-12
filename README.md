@@ -100,6 +100,10 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+
+### **WORK IN PROGRESS**
+* (foxriver76) upgraded dependencies
+
 ### 1.8.0 (2024-02-03)
 * (bluefox) Added the radar (polar) chart type
 
