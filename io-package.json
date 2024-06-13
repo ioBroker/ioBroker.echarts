@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "news": {
+      "1.8.1": {
+        "en": "(foxriver76) upgraded dependencies",
+        "de": "(foxriver76) verbesserte abhängigkeiten",
+        "ru": "(foxriver76) повышенные зависимости",
+        "pt": "(foxriver76) dependências atualizadas",
+        "nl": "(foxriver76) verbeterde afhankelijkheden",
+        "fr": "(foxriver76) dépendances améliorées",
+        "it": "(foxriver76) dipendenze aggiornate",
+        "es": "(foxriver76)",
+        "pl": "(foxriver76) zmodernizowane zależności",
+        "uk": "(foxriver76) оновлені залежності",
+        "zh-cn": "(foxriver76) 升级的依赖性"
+      },
       "1.8.0": {
         "en": "Added the radar (polar) chart type",
         "de": "Hinzugefügt den Radar (polar) Diagrammtyp",
@@ -80,19 +93,6 @@
         "pl": "Dodał możliwość resetowania się zbliżenia i nachylenia po X sekundach bezczynnych",
         "uk": "Додано опцію для скидання золи та нахилу після X секунд свічки",
         "zh-cn": "在十年代之后添加了重新种植和灌木的选择。"
-      },
-      "1.5.1": {
-        "en": "Error handling in JSON data was improved",
-        "de": "Fehlerbehandlung in JSON-Daten wurde verbessert",
-        "ru": "Улучшена обработка ошибок в данных JSON",
-        "pt": "O tratamento de erros nos dados JSON foi melhorado",
-        "nl": "Error omgaan in JSON data werd verbeterd",
-        "fr": "Gestion des erreurs dans les données JSON a été améliorée",
-        "it": "La gestione degli errori nei dati JSON è stata migliorata",
-        "es": "Se mejoró el manejo de errores en los datos JSON",
-        "pl": "Obserwacja danych JSON została poprawiona",
-        "uk": "Удосконалено процес обробки помилок в даних JSON",
-        "zh-cn": "改进了联合办数据的处理。"
       }
     },
     "title": "E-Charts",
