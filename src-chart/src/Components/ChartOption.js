@@ -814,7 +814,7 @@ class ChartOption {
                 withUnit = false;
             }
             if (val.seriesType === 'radar') {
-                line = val.dimensionIndex
+                line = val.dimensionIndex;
             }
             val = val.value;
         }
