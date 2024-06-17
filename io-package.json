@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.8.2",
+    "version": "1.8.3",
     "news": {
+      "1.8.3": {
+        "en": "upgraded dependencies",
+        "de": "verbesserte abhängigkeiten",
+        "ru": "повышенная зависимость",
+        "pt": "dependências atualizadas",
+        "nl": "verbeterde afhankelijkheden",
+        "fr": "dépendances améliorées",
+        "it": "dipendenze aggiornate",
+        "es": "actualización de las dependencias",
+        "pl": "zmodernizowane zależności",
+        "uk": "покращені залежності",
+        "zh-cn": "升级的依赖关系"
+      },
       "1.8.0": {
         "en": "Added the radar (polar) chart type",
         "de": "Hinzugefügt den Radar (polar) Diagrammtyp",
