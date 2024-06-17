@@ -3,32 +3,6 @@
     "name": "echarts",
     "version": "1.8.2",
     "news": {
-      "1.8.2": {
-        "en": "(foxriver76) try to fix empty tab",
-        "de": "(foxriver76) versuchen, leere registerkarte zu reparieren",
-        "ru": "(foxriver76) попытаться исправить пустую вкладку",
-        "pt": "(foxriver76) tentar corrigir aba vazia",
-        "nl": "(foxriver76) probeer leeg tabblad op te lossen",
-        "fr": "(foxriver76) essayez de corriger l'onglet vide",
-        "it": "(foxriver76) cercare di fissare scheda vuota",
-        "es": "(foxriver76) tratar de arreglar la pestaña vacía",
-        "pl": "(foxriver76) spróbuj naprawić puste karty",
-        "uk": "(foxriver76) спробуйте виправити порожній вкладку",
-        "zh-cn": "(foxriver76) 尝试修正空标签"
-      },
-      "1.8.1": {
-        "en": "(foxriver76) upgraded dependencies",
-        "de": "(foxriver76) verbesserte abhängigkeiten",
-        "ru": "(foxriver76) повышенные зависимости",
-        "pt": "(foxriver76) dependências atualizadas",
-        "nl": "(foxriver76) verbeterde afhankelijkheden",
-        "fr": "(foxriver76) dépendances améliorées",
-        "it": "(foxriver76) dipendenze aggiornate",
-        "es": "(foxriver76)",
-        "pl": "(foxriver76) zmodernizowane zależności",
-        "uk": "(foxriver76) оновлені залежності",
-        "zh-cn": "(foxriver76) 升级的依赖性"
-      },
       "1.8.0": {
         "en": "Added the radar (polar) chart type",
         "de": "Hinzugefügt den Radar (polar) Diagrammtyp",
