@@ -100,6 +100,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### 1.8.2 (2024-06-17)
+* (foxriver76) try to fix empty tab
+
 ### 1.8.1 (2024-06-13)
 * (foxriver76) upgraded dependencies
 

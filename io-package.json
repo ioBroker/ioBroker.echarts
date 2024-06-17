@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.8.1",
+    "version": "1.8.2",
     "news": {
+      "1.8.2": {
+        "en": "(foxriver76) try to fix empty tab",
+        "de": "(foxriver76) versuchen, leere registerkarte zu reparieren",
+        "ru": "(foxriver76) попытаться исправить пустую вкладку",
+        "pt": "(foxriver76) tentar corrigir aba vazia",
+        "nl": "(foxriver76) probeer leeg tabblad op te lossen",
+        "fr": "(foxriver76) essayez de corriger l'onglet vide",
+        "it": "(foxriver76) cercare di fissare scheda vuota",
+        "es": "(foxriver76) tratar de arreglar la pestaña vacía",
+        "pl": "(foxriver76) spróbuj naprawić puste karty",
+        "uk": "(foxriver76) спробуйте виправити порожній вкладку",
+        "zh-cn": "(foxriver76) 尝试修正空标签"
+      },
       "1.8.1": {
         "en": "(foxriver76) upgraded dependencies",
         "de": "(foxriver76) verbesserte abhängigkeiten",
@@ -80,19 +93,6 @@
         "pl": "Wprowadzono opcję do dialogu eksportowego: wybór / unekstraklasyfikowany\nDodano dostępność do pokazania legendy jako dialogu",
         "uk": "Додано варіант до діалогового вікна експорту: вибрати / скасувати всі\nДодано доступність показати легенду як діалог",
         "zh-cn": "增加出口口号的选择:选择/取消一切选择\n增加是否能以图象图解。"
-      },
-      "1.5.3": {
-        "en": "Added an option to reset zoom and tilt after X seconds of idle",
-        "de": "Hinzugefügt eine Option, um Zoom und Kippen nach X Sekunden Leere zurücksetzen",
-        "ru": "Добавлена возможность сброса зоома и наклона после X секунды загадки",
-        "pt": "Adicionado uma opção para redefinir zoom e inclinação após X segundos de idle",
-        "nl": "Voeg een optie toe om zoom te resetten en te tintelen na X seconden van lege",
-        "fr": "Ajout d'une option pour réinitialiser le zoom et l'inclinaison après X secondes de ralenti",
-        "it": "Aggiunta un'opzione per ripristinare lo zoom e l'inclinazione dopo X secondi di idle",
-        "es": "Se agregó una opción para restablecer el zoom y la inclinación después de X segundos de ocio",
-        "pl": "Dodał możliwość resetowania się zbliżenia i nachylenia po X sekundach bezczynnych",
-        "uk": "Додано опцію для скидання золи та нахилу після X секунд свічки",
-        "zh-cn": "在十年代之后添加了重新种植和灌木的选择。"
       }
     },
     "title": "E-Charts",
@@ -127,11 +127,13 @@
       "charts",
       "diagram"
     ],
+    "adminUI": {
+      "config": "none",
+      "tab": "html"
+    },
     "adminTab": {
       "singleton": true,
-      "name": {
-        "en": "ECharts"
-      }
+      "name": "ECharts"
     },
     "platform": "Javascript/Node.js",
     "connectionType": "local",
