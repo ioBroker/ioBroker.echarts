@@ -3,11 +3,10 @@
   "version": "1.8.2",
   "private": true,
   "dependencies": {
-    "@iobroker/adapter-react-v5": "^5.0.2",
+    "@iobroker/adapter-react-v5": "^5.0.8",
     "@mui/material": "5.14.14",
     "@mui/styles": "5.14.14",
-    "@sentry/browser": "^8.7.0",
-    "@sentry/integrations": "^7.114.0",
+    "@sentry/browser": "^8.9.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb": "^19.0.4",
