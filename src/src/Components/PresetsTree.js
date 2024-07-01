@@ -1023,8 +1023,14 @@ class MenuList extends Component {
         try {
             await this.props.socket.delObject(id);
             const newState = await this.getAllPresets();
-            this.setState(newState, () =>
-                this.props.onSelectedChanged(null));
+            this.setState(newState, () => {
+                // Todo: find the next preset
+                if (id === this.props.selectedId) {
+                    const keys = Object.keys(this.state.presets);
+                    // first take nearest from the same folder, that any one
+                    this.props.onSelectedChanged(keys[0] || null);
+                }
+            });
         } catch (e) {
             this.onError(e, `Cannot delete object ${id}`);
         }
