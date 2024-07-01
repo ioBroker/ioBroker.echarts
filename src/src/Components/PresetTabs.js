@@ -1236,11 +1236,13 @@ class PresetTabs extends React.Component {
         return <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
             <AppBar position="static" style={styles.tabsContainer}>
                 {this.props.selectedPresetChanged || this.props.autoSave ? <Checkbox
-                    style={styles.button}
+                    style={{
+                        ...styles.button,
+                        color: this.props.theme.palette.text.primary,
+                    }}
                     checked={!!this.props.autoSave}
                     title={I18n.t('Auto save')}
                     onChange={e => this.props.onAutoSave(e.target.checked)}
-                    inputProps={{ 'aria-label': 'primary checkbox' }}
                 /> : null}
                 {!this.props.selectedPresetChanged ? <IconButton
                     style={{ ...styles.button, ...styles.noPaddingOnSide }}

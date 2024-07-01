@@ -604,41 +604,39 @@ class App extends GenericApp {
                         chartsList={this.state.chartsList}
                         onCreatePreset={this.onCreatePreset}
                         onCopyPreset={this.onCopyPreset}
-                    /> : null}
-                    {
-                        this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? <SettingsEditor
-                            socket={this.socket}
-                            key="Editor"
-                            width={window.innerWidth - this.menuSize}
-                            theme={this.state.theme}
-                            onChange={presetData => {
-                                if (this.state.autoSave) {
-                                    this.setState({ presetData }, () => this.savePreset());
-                                } else {
-                                    this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });
-                                }
-                            }}
-                            presetData={this.state.presetData}
-                            selectedId={this.state.selectedId}
-                            verticalLayout={!this.state.logHorzLayout}
-                            onLayoutChange={() => this.toggleLogLayout()}
-                            connection={this.socket}
-                            instances={this.state.instances}
-                            systemConfig={this.state.systemConfig}
-                            selectedPresetChanged={this.state.selectedPresetChanged}
-                            savePreset={this.savePreset}
-                            autoSave={this.state.autoSave}
-                            onAutoSave={autoSave => {
-                                window.localStorage.setItem('App.echarts.autoSave', autoSave ? 'true' : 'false');
-                                if (autoSave && this.state.selectedPresetChanged) {
-                                    this.savePreset()
-                                        .then(() => this.setState({ autoSave }));
-                                } else {
-                                    this.setState({ autoSave });
-                                }
-                            }}
-                        /> : null
-                    }
+                    /> : <div />}
+                    {this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? <SettingsEditor
+                        socket={this.socket}
+                        key="Editor"
+                        width={window.innerWidth - this.menuSize}
+                        theme={this.state.theme}
+                        onChange={presetData => {
+                            if (this.state.autoSave) {
+                                this.setState({ presetData }, () => this.savePreset());
+                            } else {
+                                this.setState({ presetData, selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData });
+                            }
+                        }}
+                        presetData={this.state.presetData}
+                        selectedId={this.state.selectedId}
+                        verticalLayout={!this.state.logHorzLayout}
+                        onLayoutChange={() => this.toggleLogLayout()}
+                        connection={this.socket}
+                        instances={this.state.instances}
+                        systemConfig={this.state.systemConfig}
+                        selectedPresetChanged={this.state.selectedPresetChanged}
+                        savePreset={this.savePreset}
+                        autoSave={this.state.autoSave}
+                        onAutoSave={autoSave => {
+                            window.localStorage.setItem('App.echarts.autoSave', autoSave ? 'true' : 'false');
+                            if (autoSave && this.state.selectedPresetChanged) {
+                                this.savePreset()
+                                    .then(() => this.setState({ autoSave }));
+                            } else {
+                                this.setState({ autoSave });
+                            }
+                        }}
+                    /> : <div />}
                 </ReactSplit>
             </Box>,
         ];
