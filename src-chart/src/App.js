@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import {
-    StylesProvider, createGenerateClassName, withStyles, withTheme,
-} from '@mui/styles';
 import MD5 from 'crypto-js/md5';
 
 import { LinearProgress } from '@mui/material';
@@ -20,24 +17,6 @@ import '@iobroker/adapter-react-v5/index.css';
 
 import ChartModel from './Components/ChartModel';
 import ChartView from './Components/ChartView';
-
-const generateClassName = createGenerateClassName({
-    productionPrefix: 'iob-app',
-});
-
-const styles = () => ({
-    root: {
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-    },
-    progress: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-    },
-});
 
 class App extends Component {
     constructor(props) {
@@ -114,7 +93,7 @@ class App extends Component {
         }
         */
 
-        // some people uses invalid URL to access charts
+        // some people use invalid URL to access charts
         if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/chart/')) {
             this.adminCorrectTimeout = setTimeout(() => {
                 this.adminCorrectTimeout = null;
@@ -257,7 +236,7 @@ class App extends Component {
         if (!this.state.errorText) {
             return null;
         }
-        return <DialogError classes={{}} text={this.state.errorText} onClose={() => this.setState({ errorText: '' })} />;
+        return <DialogError text={this.state.errorText} onClose={() => this.setState({ errorText: '' })} />;
     }
 
     componentDidUpdate(/* prevProps, prevState, snapshot */) {
@@ -271,13 +250,11 @@ class App extends Component {
             if (this.state.noLoader) {
                 return null;
             }
-            return <StylesProvider generateClassName={generateClassName}>
-                <StyledEngineProvider injectFirst>
-                    <ThemeProvider theme={this.state.theme}>
-                        <Loader theme={this.state.themeType} />
-                    </ThemeProvider>
-                </StyledEngineProvider>
-            </StylesProvider>;
+            return <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.state.theme}>
+                    <Loader themeType={this.state.themeType} />
+                </ThemeProvider>
+            </StyledEngineProvider>;
         }
 
         const config = this.chartData.getConfig();
@@ -288,41 +265,39 @@ class App extends Component {
             console.log(`seriesData: ${JSON.stringify(this.state.seriesData)}`);
         }
 
-        return <StylesProvider generateClassName={generateClassName}>
-            <StyledEngineProvider injectFirst>
-                <ThemeProvider theme={this.state.theme}>
-                    <div
-                        ref={this.divRef}
-                        className={this.props.classes.root}
-                        style={{
-                            width: config.width,
-                            height: config.height,
-                            background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
-                            color: this.state.theme.palette.text.primary,
-                        }}
-                    >
-                        <LinearProgress ref={this.progressRef} style={{ display: 'block' }} className={this.props.classes.progress} />
-                        <ChartView
-                            key={hash}
-                            socket={this.socket}
-                            t={I18n.t}
-                            noAnimation={this.state.noLoader}
-                            data={this.state.seriesData}
-                            actualValues={this.state.actualValues}
-                            categories={this.state.categories || []} // used for bar charts and pie charts
-                            config={config}
-                            compact={this.state.compact}
-                            lang={I18n.getLanguage()}
-                            themeType={this.state.themeType}
-                            onRangeChange={options => this.chartData.setNewRange(options)}
-                            exportData={(from, to, excludes) => this.chartData.exportData(from, to, excludes)}
-                        />
-                        {this.renderError()}
-                    </div>
-                </ThemeProvider>
-            </StyledEngineProvider>
-        </StylesProvider>;
+        return <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={this.state.theme}>
+                <div
+                    ref={this.divRef}
+                    style={{
+                        ...states.root,
+                        width: config.width,
+                        height: config.height,
+                        background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,
+                        color: this.state.theme.palette.text.primary,
+                    }}
+                >
+                    <LinearProgress ref={this.progressRef} style={{ display: 'block' }} state={states.progress} />
+                    <ChartView
+                        key={hash}
+                        socket={this.socket}
+                        t={I18n.t}
+                        noAnimation={this.state.noLoader}
+                        data={this.state.seriesData}
+                        actualValues={this.state.actualValues}
+                        categories={this.state.categories || []} // used for bar charts and pie charts
+                        config={config}
+                        compact={this.state.compact}
+                        lang={I18n.getLanguage()}
+                        themeType={this.state.themeType}
+                        onRangeChange={options => this.chartData.setNewRange(options)}
+                        exportData={(from, to, excludes) => this.chartData.exportData(from, to, excludes)}
+                    />
+                    {this.renderError()}
+                </div>
+            </ThemeProvider>
+        </StyledEngineProvider>;
     }
 }
 
-export default withWidth()(withStyles(styles)(withTheme(App)));
+export default withWidth()(App);

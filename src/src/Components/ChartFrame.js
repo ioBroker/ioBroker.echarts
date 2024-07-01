@@ -1,22 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
-import Paper from '@mui/material/Paper';
+import { Paper } from '@mui/material';
+import { Utils } from '@iobroker/adapter-react-v5';
 
-const styles = theme => ({
+const styles = {
     darkBackground: {
         stroke: '#3a3a3a !important',
         fill: '#515151 !important',
     },
-    iframe: {
+    iframe: theme => ({
         width: '100%',
         height: '100%',
         overflow: 'auto',
         border: 0,
         color: theme.palette.primary.main, // && console.log(JSON.stringify(theme))
-    },
-});
+    }),
+};
 
 /* function deParam(params, coerce) {
     const obj = {};
@@ -134,7 +134,7 @@ class ChartFrame extends React.Component {
 
     render() {
         if (window.location.port === '3000') {
-            return <Paper className={this.props.classes.iframe} style={{ background: '#333' }}>
+            return <Paper sx={styles.iframe} style={{ background: '#333' }}>
                 <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
             </Paper>;
         }
@@ -146,7 +146,7 @@ class ChartFrame extends React.Component {
         return <iframe
             ref={el => this.refIframe = el}
             title="iobrokerChart"
-            className={this.props.classes.iframe}
+            style={Utils.getStyle(this.props.theme, styles.iframe)}
             src={this.props.src}
         >
         </iframe>;
@@ -156,6 +156,7 @@ class ChartFrame extends React.Component {
 ChartFrame.propTypes = {
     src: PropTypes.string,
     presetData: PropTypes.object,
+    theme: PropTypes.object,
 };
 
-export default withStyles(styles)(ChartFrame);
+export default ChartFrame;

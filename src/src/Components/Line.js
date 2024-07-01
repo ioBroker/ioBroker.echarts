@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     IconButton,
@@ -12,7 +11,7 @@ import {
     DialogContentText,
     Dialog,
     Button,
-    TextField,
+    TextField, Box,
 } from '@mui/material';
 
 import {
@@ -46,38 +45,40 @@ const WIDTHS = {
 
 const LINE_HEIGHT = 48;
 
-const styles = theme => ({
-    card: {
+const styles = {
+    card: theme => ({
         borderStyle: 'dashed',
         borderWidth: 1,
-        marginBottom: theme.spacing(1),
-        padding: theme.spacing(1),
+        mb: '8px',
+        p: '8px',
         borderColor: theme.palette.grey['600'],
         overflow: 'initial',
-    },
-    cardPaste: {
+    }),
+    cardPaste: theme => ({
         borderColor: theme.type === 'dark' ? theme.palette.grey['400'] : theme.palette.grey['800'],
         backgroundColor: 'rgba(0,0,0,0)',
         opacity: 0.8,
-    },
+    }),
     cardContent: {
-        padding: 0,
-        margin: 0,
+        p: 0,
+        m: 0,
         '&:last-child': {
-            padding: 0,
+            p: 0,
         },
     },
-    shortFields: {
-        display: 'block',
+    shortFields: theme => ({
+        display: 'flex',
         '& > div': {
             display: 'inline-flex',
-            paddingRight: 20,
+            pr: '20px',
             width: 200,
         },
+        flexWrap: 'wrap',
+        alignItems: 'center',
         position: 'relative',
-        paddingBottom: theme.spacing(2),
+        pb: '16px',
         borderBottom: `1px dotted ${theme.palette.grey[400]}`,
-    },
+    }),
     lineClosed: {
         display: 'flex',
     },
@@ -110,7 +111,7 @@ const styles = theme => ({
     shortIdField: {
         display: 'inline-block',
         minWidth: WIDTHS.id,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -119,14 +120,14 @@ const styles = theme => ({
         lineHeight: `${LINE_HEIGHT}px`,
         display: 'inline-block',
         minWidth: WIDTHS.dataType,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         verticalAlign: 'top',
     },
     shortChartTypeField: {
         display: 'inline-block',
         minWidth: WIDTHS.chartType,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -135,7 +136,7 @@ const styles = theme => ({
         display: 'inline-block',
         minWidth: WIDTHS.color,
         width: WIDTHS.color,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -143,7 +144,7 @@ const styles = theme => ({
     shortNameField: {
         display: 'inline-block',
         minWidth: WIDTHS.name,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -151,7 +152,7 @@ const styles = theme => ({
     shortButtonsField: {
         display: 'inline-block',
         minWidth: WIDTHS.buttons,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -218,9 +219,9 @@ const styles = theme => ({
         display: 'block',
         whiteSpace: 'nowrap',
     },
-});
+};
 
-class LineComponent extends React.Component {
+class Line extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -384,8 +385,8 @@ class LineComponent extends React.Component {
             }
         }
 
-        return <div className={this.props.classes.lineClosed}>
-            {this.props.provided ? <span title={I18n.t('Drag me')} {...this.props.provided.dragHandleProps}><IconDrag /></span> : <div className={this.props.classes.emptyDrag} /> }
+        return <div style={styles.lineClosed}>
+            {this.props.provided ? <span title={I18n.t('Drag me')} {...this.props.provided.dragHandleProps}><IconDrag /></span> : <div style={styles.emptyDrag} /> }
             {this.props.onPaste && this.props.onPaste ?
                 <IconButton
                     title={I18n.t('Paste')}
@@ -414,12 +415,13 @@ class LineComponent extends React.Component {
                     return result;
                 })()}
                 minWidth={WIDTHS.instance}
-                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortInstanceField, this.props.onPaste && this.props.classes.paste) }}
+                styles={{ fieldContainer: { ...styles.shortInstanceField, ...(this.props.onPaste ? styles.paste : undefined) } }}
             />
             <IOObjectField
                 disabled={!!this.props.onPaste}
                 formData={this.props.line}
                 updateValue={this.updateField}
+                theme={this.props.theme}
                 name="id"
                 width={idWidth}
                 label="ID"
@@ -428,7 +430,7 @@ class LineComponent extends React.Component {
                         custom: this.props.line.instance ? this.props.line.instance.replace('system.adapter.', '') : this.props.systemConfig.common.defaultHistory || true,
                     },
                 } : null}
-                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortIdField, this.props.onPaste && this.props.classes.paste) }}
+                styles={{ fieldContainer: { ...styles.shortIdField, ...(this.props.onPaste ? styles.paste : undefined) } }}
                 socket={this.props.socket}
             />
             {visible.chartType ? <IOSelect
@@ -448,7 +450,7 @@ class LineComponent extends React.Component {
                     stepsStart: 'Steps on start',
                     spline: 'Spline',
                 }}
-                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortChartTypeField, this.props.onPaste && this.props.classes.paste) }}
+                styles={{ fieldContainer: { ...styles.shortChartTypeField, ...(this.props.onPaste ? styles.paste : undefined) } }}
             /> : null}
             {this.props.line.instance !== 'json' && visible.dataType && this.props.line.chartType !== 'auto' ? <IOSelect
                 disabled={!!this.props.onPaste}
@@ -458,9 +460,9 @@ class LineComponent extends React.Component {
                 name="aggregate"
                 label="Type"
                 options={aggregateTypes}
-                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortDataTypeField, this.props.onPaste && this.props.classes.paste) }}
+                styles={{ fieldContainer: { ...styles.shortDataTypeField, ...(this.props.onPaste ? styles.paste : undefined) } }}
             /> : null}
-            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, Utils.clsx(this.props.classes.shortColorField, this.props.onPaste && this.props.classes.paste), true) : null}
+            {visible.color ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color', WIDTHS.color, { ...styles.shortColorField, ...(this.props.onPaste ? styles.paste : undefined) }, true) : null}
             {visible.name ? <IOTextField
                 disabled={!!this.props.onPaste}
                 width={WIDTHS.name}
@@ -468,10 +470,10 @@ class LineComponent extends React.Component {
                 updateValue={this.updateField}
                 name="name"
                 label="Name"
-                classes={{ fieldContainer: Utils.clsx(this.props.classes.shortNameField, this.props.onPaste && this.props.classes.paste) }}
+                styles={{ fieldContainer: { ...styles.shortNameField, ...(this.props.onPaste ? styles.paste : undefined) } }}
             /> : null}
             <IconButton
-                className={this.props.classes.deleteButton}
+                style={styles.deleteButton}
                 aria-label="Delete"
                 title={I18n.t('Delete')}
                 onClick={() => this.props.deleteLine(this.props.index)}
@@ -479,7 +481,7 @@ class LineComponent extends React.Component {
                 <IconDelete />
             </IconButton>
             {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && (!this.props.index || this.props.line.chartType !== 'polar') ? <IconButton
-                className={this.props.classes.editButton}
+                style={styles.editButton}
                 aria-label="Edit"
                 title={I18n.t('Edit')}
                 onClick={() => this.setState({ dialogOpen: true })}
@@ -489,12 +491,12 @@ class LineComponent extends React.Component {
         </div>;
     }
 
-    renderColorField(formData, onUpdate, label, name, minWidth, className, noPadding) {
+    renderColorField(formData, onUpdate, label, name, minWidth, style, noPadding) {
         let textColor = Utils.isUseBright(formData[name], null);
         if (textColor === null) {
             textColor = undefined;
         }
-        return <div className={className}>
+        return <div style={style}>
             <TextField
                 variant="standard"
                 disabled={!!this.props.onPaste}
@@ -566,18 +568,17 @@ class LineComponent extends React.Component {
         if (this.state.withStates === null) {
             return null;
         }
-        return <div className={this.props.classes.states}>
+        return <div style={styles.states}>
             {this.state.withStates ?
                 Object.keys(this.state.withStates)
-                    .map(val =>
-                        <div key={val} className={this.props.classes.state}>
-                            <span className={this.props.classes.stateValue}>{val}</span>
-                            ↓
-                            <span className={this.props.classes.stateText}>{this.state.withStates[val]}</span>
-                        </div>)
+                    .map(val => <div key={val} style={styles.state}>
+                        <span style={styles.stateValue}>{val}</span>
+                        ↓
+                        <span style={styles.stateText}>{this.state.withStates[val]}</span>
+                    </div>)
                 :
-                <div className={this.props.classes.state}>
-                    <span className={this.props.classes.stateText}>{I18n.t('Text values not used')}</span>
+                <div style={styles.state}>
+                    <span style={styles.stateText}>{I18n.t('Text values not used')}</span>
                 </div>}
             <Button
                 variant="outlined"
@@ -660,7 +661,7 @@ class LineComponent extends React.Component {
         const ownYAxis = this.props.line.commonYAxis === '' || this.props.line.commonYAxis === undefined;
         return <>
             {/* Folder line */}
-            <div>
+            <div style={{ marginRight: 30 }}>
                 {this.props.provided ? <span title={I18n.t('Drag me')} {...this.props.provided.dragHandleProps}><IconDrag /></span> : null }
                 <IconButton
                     title={I18n.t('Edit')}
@@ -673,7 +674,7 @@ class LineComponent extends React.Component {
                 {this.props.index + 1}
                 {this.props.line.name ? ` - ${this.props.line.name}` : ''}
                 <IconButton
-                    className={this.props.classes.deleteButtonFull}
+                    style={styles.deleteButtonFull}
                     aria-label="Delete"
                     title={I18n.t('Delete')}
                     onClick={() => this.props.deleteLine(this.props.index)}
@@ -681,7 +682,7 @@ class LineComponent extends React.Component {
                     <IconDelete />
                 </IconButton>
                 {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && (!this.props.index || this.props.line.chartType !== 'polar') ? <IconButton
-                    className={this.props.classes.editButtonFull}
+                    style={styles.editButtonFull}
                     aria-label="Edit"
                     title={I18n.t('Edit')}
                     onClick={() => this.setState({ dialogOpen: true })}
@@ -689,7 +690,7 @@ class LineComponent extends React.Component {
                     <IconEdit />
                 </IconButton> : null}
                 <IconButton
-                    className={this.props.classes.copyButtonFull}
+                    style={styles.copyButtonFull}
                     aria-label="Copy"
                     title={I18n.t('Copy')}
                     onClick={() => this.props.onCopy(this.props.line)}
@@ -698,7 +699,7 @@ class LineComponent extends React.Component {
                 </IconButton>
             </div>
             {/* Source and OID */}
-            <div className={this.props.classes.shortFields}>
+            <Box component="div" sx={styles.shortFields} style={{ marginRight: 30 }}>
                 <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
@@ -713,8 +714,9 @@ class LineComponent extends React.Component {
                     })()}
                 />
                 <IOObjectField
+                    theme={this.props.theme}
                     formData={this.props.line}
-                    classes={{ objectContainer: this.props.classes.fullWidth }}
+                    styles={{ objectContainer: styles.fullWidth }}
                     updateValue={this.updateField}
                     name="id"
                     label="ID"
@@ -726,10 +728,10 @@ class LineComponent extends React.Component {
                     } : undefined}
                     socket={this.props.socket}
                 />
-            </div>
+            </Box>
             {/* main settings */}
-            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterMain)}>
-                <p className={this.props.classes.title}>{I18n.t('Main')}</p>
+            <Box component="div" sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterMain)}>
+                <p style={styles.title}>{I18n.t('Main')}</p>
                 {!this.props.index || this.props.line.chartType !== 'polar' ? this.renderColorField(this.props.line, this.updateField, 'Color', 'color') : null}
                 <IOSelect
                     formData={this.props.line}
@@ -766,28 +768,28 @@ class LineComponent extends React.Component {
                 {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="validTime" label="Valid time (sec)" min={0} type="number" title={I18n.t('If the current value is not older than X seconds, assume it is still the same.')} /> : null }
                 {this.props.presetData.legend ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="hide" label="Show only in legend" /> : null}
                 {this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="noFuture" label="No future" /> : null}
-            </div>
-            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterTexts)}>
-                <p className={this.props.classes.title}>{I18n.t('Texts')}</p>
+            </Box>
+            <Box component="div" sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterTexts)}>
+                <p style={styles.title}>{I18n.t('Texts')}</p>
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="name" label="Name" />
                 {!this.state.isBoolean && ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="unit" label="Unit" /> : null}
                 {this.state.isBoolean && this.state.withStates === null ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="falseText" label="Text by false" /> : null}
                 {this.state.isBoolean && this.state.withStates === null ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="trueText" label="Text by true" /> : null}
                 {this.renderStates()}
-            </div>
+            </Box>
             {/* Line thick and fill */}
-            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && (!this.props.index || this.props.line.chartType !== 'polar') ? <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterLine)}>
-                <p className={this.props.classes.title}>{I18n.t('Line and area')}</p>
+            {this.props.line.chartType !== 'scatterplot' && this.props.line.chartType !== 'bar' && (!this.props.index || this.props.line.chartType !== 'polar') ? <Box component="div" sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterLine)}>
+                <p style={styles.title}>{I18n.t('Line and area')}</p>
                 <IOSlider formData={this.props.line} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" />
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="points" label="Show points" />
                 {this.props.line.points ?
                     <IOTextField formData={this.props.line} updateValue={this.updateField} name="symbolSize" label="Point size" min={1} type="number" /> : null}
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="thickness" label="ØL - Line thickness" min={this.props.line.fill > 0.01 ? 0 : 1} type="number" />
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="shadowsize" label="ØS - Shadow size" min={0} type="number" />
-            </div> : null}
+            </Box> : null}
             {/* Axis */}
-            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterAxis)}>
-                <p className={this.props.classes.title}>{I18n.t('Axis')}</p>
+            <Box component="div" sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterAxis)}>
+                <p style={styles.title}>{I18n.t('Axis')}</p>
                 {!this.props.index && this.props.line.chartType !== 'polar' ? <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
@@ -892,10 +894,10 @@ class LineComponent extends React.Component {
                 {this.props.line.chartType !== 'polar' && ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="min" label="Min" /> : null}
                 {ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="max" label="Max" /> : null}
                 {this.props.line.chartType !== 'polar' && ownYAxis ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="yticks" label="Y-Axis ticks" type="number" /> : null}
-            </div>
+            </Box>
             {/* Other settings */}
-            <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.chapterOther)}>
-                <p className={this.props.classes.title}>{I18n.t('Others')}</p>
+            <Box component="div" sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterOther)}>
+                <p style={styles.title}>{I18n.t('Others')}</p>
                 <IOSelect
                     formData={this.props.line}
                     updateValue={this.updateField}
@@ -921,21 +923,21 @@ class LineComponent extends React.Component {
                     }}
                 /> : null}
                 <IOTextField formData={this.props.line} updateValue={this.updateField} name="convert" label="Convert formula" helperLink={this.showConvertHelp} />
-            </div>
-            {/* <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
+            </Box>
+            {/* <Box component="div" sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.shortFieldsLast)}>
                 <IOCheckbox formData={this.props.line} updateValue={this.updateField} name="dashes" label="Dashes" />
                 {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="dashLength" label="Dashes length" min={1} type="number" /> : null}
                 {this.props.line.dashes ? <IOTextField formData={this.props.line} updateValue={this.updateField} name="spaceLength" label="Space length" min={1} type="number" /> : null}
-            </div> */}
+            </Box> */}
         < />;
     }
 
     render() {
         return <Card
-            className={Utils.clsx(this.props.classes.card, this.props.onPaste && this.props.classes.cardPaste)}
+            sx={Utils.getStyle(this.props.theme, styles.card, this.props.onPaste && styles.cardPaste)}
             style={{ background: this.props.snapshot && this.props.snapshot.isDragging ? this.props.theme.palette.secondary.light : undefined }}
         >
-            <CardContent className={this.props.classes.cardContent}>
+            <CardContent sx={styles.cardContent}>
                 {this.props.opened && !this.props.onPaste ? this.renderOpenedLine() : this.renderClosedLine()}
                 <LineDialog
                     open={this.state.dialogOpen}
@@ -950,7 +952,7 @@ class LineComponent extends React.Component {
     }
 }
 
-LineComponent.propTypes = {
+Line.propTypes = {
     line: PropTypes.object,
     maxLines: PropTypes.number,
     socket: PropTypes.object,
@@ -970,6 +972,4 @@ LineComponent.propTypes = {
     onPaste: PropTypes.func,
 };
 
-const Line = withStyles(styles)(LineComponent);
 export default Line;
-export { Line };

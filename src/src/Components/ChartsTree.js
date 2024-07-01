@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, withTheme } from '@mui/styles';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 import {
@@ -59,7 +58,7 @@ function getEnumsForId(enums, id) {
 
 const LEVEL_PADDING = 16;
 
-const styles = theme => ({
+const styles = {
     noGutters: {
         paddingTop: 0,
         paddingBottom: 0,
@@ -147,11 +146,11 @@ const styles = theme => ({
     listItemSecondaryAction: {
         right: 7,
     },
-    folderItem: {
+    folderItem: theme => ({
         backgroundColor: theme.palette.secondary.main,
-        paddingLeft: theme.spacing(1),
-    },
-});
+        pl: '8px',
+    }),
+};
 
 class ChartsTree extends Component {
     constructor(props) {
@@ -492,6 +491,7 @@ class ChartsTree extends Component {
         }
         return <DialogSelectID
             key="selectDialog_add"
+            theme={this.props.theme}
             imagePrefix="../.."
             socket={this.props.socket}
             dialogName="Add"
@@ -544,24 +544,24 @@ class ChartsTree extends Component {
         return <ListItemButton
             key={`${instance}_${id}`}
             ref={selected ? this.refSelected : null}
-            classes={{ gutters: this.props.classes.noGutters }}
+            sx={{ '&.MuiListItemButton-gutters': styles.noGutters }}
             style={{ paddingLeft: LEVEL_PADDING * level }}
             selected={selected}
             onClick={dragging ? undefined : () => this.props.onSelectedChanged({ id, instance })}
         >
-            <ListItemIcon classes={{ root: this.props.classes.itemIconRoot }}>
+            <ListItemIcon style={styles.itemIconRoot}>
                 {group.types[id] === 'boolean' ?
-                    <IconBooleanChart className={this.props.classes.itemIcon} />
+                    <IconBooleanChart style={styles.itemIcon} />
                     :
-                    <IconChart className={this.props.classes.itemIcon} />}
+                    <IconChart style={styles.itemIcon} />}
             </ListItemIcon>
             <ListItemText
-                classes={{
-                    primary: this.props.classes.listItemTitle,
-                    secondary: this.props.classes.listItemSubTitle,
+                sx={{
+                    '& .MuiListItemText-primary': styles.listItemTitle,
+                    '& .MuiListItemText-secondary': styles.listItemSubTitle,
                 }}
                 primary={
-                    <span className={this.props.classes.itemNameDiv}>
+                    <span style={styles.itemNameDiv}>
                         {Utils.getIcon({ icon: group.icons[id], prefix: '../../' }, {
                             width: 20,
                             height: 20,
@@ -569,15 +569,15 @@ class ChartsTree extends Component {
                             marginRight: 4,
                         })}
                         {Array.isArray(group.names[id]) ?
-                            <span className={this.props.classes.itemName} title={group.names[id].join(' / ')}>
-                                {group.names[id].map((name, i) => <span key={i} className={this.props.classes[`itemName${i}`]}>{(i ? ' / ' : '') + name}</span>)}
+                            <span style={styles.itemName} title={group.names[id].join(' / ')}>
+                                {group.names[id].map((name, i) => <span key={i} style={styles[`itemName${i}`]}>{(i ? ' / ' : '') + name}</span>)}
                             </span> :
-                            <span className={this.props.classes.itemName} title={group.names[id]}>{group.names[id]}</span>}
+                            <span style={styles.itemName} title={group.names[id]}>{group.names[id]}</span>}
                     </span>
                 }
-                secondary={<span className={this.props.classes.itemSecondaryName} title={id}>{id.replace('system.adapter.', '')}</span>}
+                secondary={<span style={styles.itemSecondaryName} title={id}>{id.replace('system.adapter.', '')}</span>}
             />
-            {!dragging && this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+            {!dragging && this.props.multiple && this.props.chartsList ? <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
                 <Switch
                     size="small"
                     edge="end"
@@ -663,24 +663,19 @@ class ChartsTree extends Component {
         return [
             <ListItem
                 key={key}
-                style={{ paddingLeft: LEVEL_PADDING * level }}
-                classes={{ gutters: this.props.classes.noGutters }}
-                className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
+                style={{ ...styles.width100, paddingLeft: LEVEL_PADDING * level }}
+                sx={Utils.getStyle(this.props.theme, styles.folderItem, { '& .MuiListItem-gutters': styles.noGutters })}
             >
                 <ListItemIcon
-                    classes={{ root: this.props.classes.itemIconRoot }}
+                    style={styles.itemIconRoot}
                     onClick={() => this.toggleChartFolder(key)}
                 >
                     {opened ?
-                        <IconFolderOpened
-                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
-                        /> :
-                        <IconFolderClosed
-                            className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
-                        />}
+                        <IconFolderOpened style={{ ...styles.itemIcon, ...styles.itemIconFolder }} /> :
+                        <IconFolderClosed style={{ ...styles.itemIcon, ...styles.itemIconFolder }} />}
                 </ListItemIcon>
                 <ListItemText primary={this.state.enums[enumId].common.name} />
-                <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+                <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
                     <IconButton
                         size="small"
                         onClick={() => this.toggleChartFolder(key)}
@@ -727,78 +722,71 @@ class ChartsTree extends Component {
             <Droppable droppableId="Lines" isDropDisabled key="charts">
                 {(provided /* , snapshot */) =>
                     <div ref={provided.innerRef} key="chartListDiv">
-                        <List className={Utils.clsx(this.props.classes.scroll, this.props.classes.mainList)} key="chartList">
-                            {
-                                this.state.instances.map(group => {
-                                    const opened = this.state.chartsOpened[group._id];
-                                    let children = null;
+                        <List style={{ ...styles.scroll, ...styles.mainList }} key="chartList">
+                            {this.state.instances.map(group => {
+                                const opened = this.state.chartsOpened[group._id];
+                                let children = null;
 
-                                    // if instance opened
-                                    if (opened) {
-                                        // no groupBy
-                                        const ids = Object.keys(group.enabledDP)
-                                            .filter(id => !this.props.search || id.includes(this.props.search) || group.names[id].includes(this.props.search));
+                                // if instance opened
+                                if (opened) {
+                                    // no groupBy
+                                    const ids = Object.keys(group.enabledDP)
+                                        .filter(id => !this.props.search || id.includes(this.props.search) || group.names[id].includes(this.props.search));
 
-                                        if (!this.props.groupBy) {
-                                            ids.sort(sortObj);
-                                            children = this.renderListItems(group, ids, null, renderContext);
-                                        } else {
-                                            children = (group.enums || []).filter(id => id.startsWith(`enum.${this.props.groupBy}.`))
-                                                .map(eID =>
-                                                    this.renderListItems(group, ids, eID, renderContext));
-                                        }
+                                    if (!this.props.groupBy) {
+                                        ids.sort(sortObj);
+                                        children = this.renderListItems(group, ids, null, renderContext);
+                                    } else {
+                                        children = (group.enums || []).filter(id => id.startsWith(`enum.${this.props.groupBy}.`))
+                                            .map(eID =>
+                                                this.renderListItems(group, ids, eID, renderContext));
                                     }
+                                }
 
-                                    return [
-                                        <ListItem
-                                            key={group._id}
-                                            classes={{ gutters: this.props.classes.noGutters }}
-                                            className={Utils.clsx(this.props.classes.width100, this.props.classes.folderItem)}
+                                return [
+                                    <ListItem
+                                        key={group._id}
+                                        sx={Utils.getStyle(this.props.theme, styles.width100, styles.folderItem, { '&.MuiListItemButton-gutters': styles.noGutters })}
+                                    >
+                                        <ListItemIcon
+                                            style={styles.itemIconRoot}
+                                            onClick={() => this.toggleChartFolder(group._id)}
                                         >
-                                            <ListItemIcon
-                                                classes={{ root: this.props.classes.itemIconRoot }}
-                                                onClick={() => this.toggleChartFolder(group._id)}
+                                            {opened ?
+                                                <IconFolderOpened style={{ ...styles.itemIcon, ...styles.itemIconFolder }} /> :
+                                                <IconFolderClosed style={{ ...styles.itemIcon, ...styles.itemIconFolder }} />}
+                                        </ListItemIcon>
+                                        <ListItemText primary={
+                                            <div style={styles.itemNameDiv}>
+                                                <img
+                                                    style={styles.adapterIcon}
+                                                    alt=""
+                                                    src={`../../adapter/${group.name}/${group.icon}`}
+                                                />
+                                                <div style={styles.groupName}>{group._id.replace('system.adapter.', '')}</div>
+                                            </div>
+                                        }
+                                        />
+                                        <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
+                                            {opened ? <IconButton
+                                                size="small"
+                                                onClick={() => this.setState({ showAddStateDialog: group._id })}
+                                                title={I18n.t('Enable logging for new state')}
                                             >
-                                                {opened ?
-                                                    <IconFolderOpened
-                                                        className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
-                                                    /> :
-                                                    <IconFolderClosed
-                                                        className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)}
-                                                    />}
-                                            </ListItemIcon>
-                                            <ListItemText primary={
-                                                <div className={this.props.classes.itemNameDiv}>
-                                                    <img
-                                                        className={this.props.classes.adapterIcon}
-                                                        alt=""
-                                                        src={`../../adapter/${group.name}/${group.icon}`}
-                                                    />
-                                                    <div className={this.props.classes.groupName}>{group._id.replace('system.adapter.', '')}</div>
-                                                </div>
-                                            }
-                                            />
-                                            <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
-                                                {opened ? <IconButton
-                                                    size="small"
-                                                    onClick={() => this.setState({ showAddStateDialog: group._id })}
-                                                    title={I18n.t('Enable logging for new state')}
-                                                >
-                                                    <IconAdd />
-                                                </IconButton> : null}
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => this.toggleChartFolder(group._id)}
-                                                    title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
-                                                >
-                                                    {opened ? <IconCollapse /> : <IconExpand />}
-                                                </IconButton>
-                                            </ListItemSecondaryAction>
-                                        </ListItem>,
-                                        children,
-                                    ];
-                                })
-                            }
+                                                <IconAdd />
+                                            </IconButton> : null}
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => this.toggleChartFolder(group._id)}
+                                                title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
+                                            >
+                                                {opened ? <IconCollapse /> : <IconExpand />}
+                                            </IconButton>
+                                        </ListItemSecondaryAction>
+                                    </ListItem>,
+                                    children,
+                                ];
+                            })}
                             {provided.placeholder}
                         </List>
                     </div>}
@@ -827,4 +815,4 @@ ChartsTree.propTypes = {
     onSelectedChanged: PropTypes.func.isRequired,
 };
 
-export default withWidth()(withStyles(styles)(withTheme(ChartsTree)));
+export default withWidth()(ChartsTree);

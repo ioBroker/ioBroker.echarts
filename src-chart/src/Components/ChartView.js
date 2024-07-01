@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     LinearProgress,
@@ -102,7 +101,7 @@ echarts.use([
     CanvasRenderer,
 ]);
 
-const styles = () => ({
+const styles = {
     chart: {
         maxHeight: '100%',
         maxWidth: '100%',
@@ -162,7 +161,7 @@ const styles = () => ({
     resetButtonIcon: {
         paddingTop: 6,
     },
-});
+};
 
 let canvasCalcTextWidth = null;
 function calcTextWidth(text, fontSize, fontFamily) {
@@ -704,8 +703,7 @@ class ChartView extends React.Component {
             ref={this.divResetButton}
             size="small"
             color="default"
-            style={{ display: 'none' }}
-            className={this.props.classes.resetButton}
+            style={{ ...styles.resetButton, display: 'none' }}
             title={I18n.t('Reset pan and zoom')}
             onClick={() => {
                 if (this.divResetButton.current) {
@@ -714,7 +712,7 @@ class ChartView extends React.Component {
                 this.props.onRangeChange && this.props.onRangeChange();
             }}
         >
-            <IconReset className={this.props.classes.resetButtonIcon} />
+            <IconReset state={styles.resetButtonIcon} />
         </Fab>;
     }
 
@@ -722,7 +720,7 @@ class ChartView extends React.Component {
         if (this.props.config.export) {
             return <IconSaveImage
                 color={this.props.config.exportColor || 'default'}
-                className={this.props.classes.saveImageButton}
+                state={styles.saveImageButton}
                 title={this.option && this.option.useCanvas ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')}
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
@@ -856,7 +854,7 @@ class ChartView extends React.Component {
             return <IconExportData
                 style={this.state.exporting ? { opacity: 0.5 } : {}}
                 color={this.props.config.exportDataColor || 'default'}
-                className={this.props.classes.exportDataButton}
+                state={styles.exportDataButton}
                 title={I18n.t('Export raw data as CSV')}
                 onClick={() => {
                     if (this.state.exporting) {
@@ -882,11 +880,11 @@ class ChartView extends React.Component {
                 size="small"
                 color="default"
                 style={{ left: this.option?.grid?.left || 0 }}
-                className={this.props.classes.legendButton}
+                state={styles.legendButton}
                 title={I18n.t('Select lines')}
                 onClick={() => this.setState({ showLegendDialog: true })}
             >
-                <IconMenu className={this.props.classes.resetButtonIcon} />
+                <IconMenu state={styles.resetButtonIcon} />
             </Fab>
             {this.state.showLegendDialog ?
                 <Dialog
@@ -1031,7 +1029,7 @@ class ChartView extends React.Component {
         if (window.location.port === '3000') {
             return <IconCopy
                 color="default"
-                className={this.props.classes.copyButton}
+                state={styles.copyButton}
                 title="Copy option to clipboard"
                 onClick={() => Utils.copyToClipboard(JSON.stringify(this.option, null, 2))}
             />;
@@ -1050,7 +1048,7 @@ class ChartView extends React.Component {
 
         return <div
             ref={this.divRef}
-            className={this.props.classes.chart}
+            state={styles.chart}
             style={{
                 borderWidth,
                 width:       borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : undefined,
@@ -1083,4 +1081,4 @@ ChartView.propTypes = {
     exportData: PropTypes.func,
 };
 
-export default withWidth()(withStyles(styles)(ChartView));
+export default withWidth()(ChartView);

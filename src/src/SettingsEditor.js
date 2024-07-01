@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
+import { Box } from '@mui/material';
 // import IconButton from '@mui/material/IconButton';
 
 // import I18n from '@iobroker/adapter-react-v5/i18n';
@@ -13,14 +13,14 @@ import PresetTabs from './Components/PresetTabs';
 
 const TOOLBOX_WIDTH = 0; // 34;
 
-const styles = theme => ({
+const styles = {
     logBox: {
         width: '100%',
         height: '100%',
         position: 'relative',
         overflow: 'hidden',
     },
-    logBoxInner: {
+    logBoxInner: theme => ({
         color: theme.palette.mode === 'dark' ? 'white' : 'black',
         width: `calc(100% - ${TOOLBOX_WIDTH}px)`,
         height: '100%',
@@ -29,7 +29,7 @@ const styles = theme => ({
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-    },
+    }),
     toolbox: {
         position: 'absolute',
         top: 0,
@@ -44,32 +44,26 @@ const styles = theme => ({
         height: 32,
         padding: 4,
     },
-    layoutIcon: {
-        width: 24,
-        height: 24,
-        background: theme.palette.mode === 'dark' ? '#9d9d9d' : undefined,
-        borderRadius: theme.palette.mode === 'dark' ? 30 : undefined,
-    },
-});
+};
 
 class SettingsEditor extends React.Component {
     render() {
-        return <div className={this.props.classes.logBox}>
-            {/* false ? <div className={this.props.classes.toolbox} key="toolbox">
+        return <div style={styles.logBox}>
+            {/* false ? <div style={styles.toolbox} key="toolbox">
                 {this.props.onLayoutChange ?
                     (<IconButton
-                        className={this.props.classes.iconButtons}
+                        style={styles.iconButtons}
                         onClick={() => this.props.onLayoutChange()}
                         title={I18n.t('Change layout')}
                     >
                         <img
-                            className={this.props.classes.layoutIcon}
+                            style={styles.layoutIcon}
                             alt="split"
                             src={this.props.verticalLayout ? IconVerticalSplit : IconHorizontalSplit}
                         />
                     </IconButton>) : null}
             </div> : null */ }
-            <div className={this.props.classes.logBoxInner} key="logList">
+            <Box component="div" sx={styles.logBoxInner} key="logList">
                 <PresetTabs
                     width={this.props.width}
                     socket={this.props.socket}
@@ -84,7 +78,7 @@ class SettingsEditor extends React.Component {
                     onAutoSave={autoSave => this.props.onAutoSave(autoSave)}
                     autoSave={this.props.autoSave}
                 />
-            </div>
+            </Box>
         </div>;
     }
 }
@@ -106,4 +100,4 @@ SettingsEditor.propTypes = {
     systemConfig: PropTypes.object,
 };
 
-export default withStyles(styles)(SettingsEditor);
+export default SettingsEditor;
