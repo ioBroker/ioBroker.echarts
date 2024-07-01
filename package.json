@@ -18,7 +18,7 @@
   },
   "optionalDependencies": {
     "canvas": "^2.11.2",
-    "echarts": "^5.5.0",
+    "echarts": "^5.5.1",
     "jsdom": "^24.1.0"
   },
   "dependencies": {
