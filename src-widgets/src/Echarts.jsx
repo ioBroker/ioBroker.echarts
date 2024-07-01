@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, withTheme } from '@mui/styles';
 
 import {
     MenuItem,
@@ -17,14 +16,6 @@ import {
 } from '@iobroker/adapter-react-v5';
 
 import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
-
-const styles = () => ({
-    content: {
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-    },
-});
 
 const Generic = window.visRxWidget || VisRxWidget;
 
@@ -540,4 +531,4 @@ Echarts.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(withTheme(Echarts));
+export default Echarts;

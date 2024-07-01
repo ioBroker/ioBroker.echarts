@@ -1,24 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { ChromePicker } from 'react-color';
 
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-import TabContext from '@mui/lab/TabContext';
-import IconButton from '@mui/material/IconButton';
-import Tab from '@mui/material/Tab';
-import AppBar from '@mui/material/AppBar';
-import Grid from '@mui/material/Grid';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import Button from '@mui/material/Button';
-import Fab from '@mui/material/Fab';
-import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
-import Snackbar from '@mui/material/Snackbar';
+import {
+    IconButton,
+    Tab,
+    AppBar,
+    Grid,
+    Dialog,
+    DialogTitle,
+    DialogActions,
+    Button,
+    Fab,
+    TextField,
+    Checkbox,
+    Snackbar,
+    Box, Tabs,
+    Paper,
+} from '@mui/material';
 
 import {
     MdAdd as IconAdd,
@@ -28,8 +28,7 @@ import {
     MdExpandMore as IconExpand,
     MdFullscreen as IconNewWindow,
 } from 'react-icons/md';
-import IconClose from '@mui/icons-material/Close';
-import IconDelete from '@mui/icons-material/Delete';
+import { Close as IconClose, Delete as IconDelete } from '@mui/icons-material';
 
 import {
     I18n, Utils, IconCopy, ColorPicker,
@@ -39,40 +38,41 @@ import {
     IOTextField, IOCheckbox, IOSelect, IODateTimeField,
 } from './Fields';
 
-import { Line } from './Line';
+import Line from './Line';
 import Mark from './Mark';
 import DefaultPreset from './DefaultPreset';
 
-const styles = theme => ({
+const styles = {
     tabsBody: {
         overflowY: 'auto',
         flex: 1,
+        height: 'calc(100% - 48px)',
     },
     tabsContainer: {
         flexDirection: 'row',
     },
     tabContent: {
-        paddingTop: theme.spacing(1),
+        padding: 8,
         position: 'relative',
         minHeight: 'calc(100% - 32px)',
     },
     buttonAdd: {
         position: 'absolute',
-        top: theme.spacing(1),
-        right: theme.spacing(1),
+        top: 8,
+        right: 8,
         zIndex: 3,
     },
     buttonExpandAll: {
         position: 'absolute',
-        top: parseInt(theme.spacing(1), 10) + 42,
-        right: theme.spacing(1),
+        top: 8 + 42,
+        right: 8,
         opacity: 0.5,
         zIndex: 3,
     },
     buttonCollapseAll: {
         position: 'absolute',
-        top: parseInt(theme.spacing(1), 10) + 42 * 2,
-        right: theme.spacing(1),
+        top: 8 + 42 * 2,
+        right: 8,
         opacity: 0.5,
         zIndex: 3,
     },
@@ -83,39 +83,39 @@ const styles = theme => ({
         marginLeft: 5,
     },
     buttonSave: {
-        color: theme.type === 'dark' ? '#CC0000' : '#CC0000',
+        color: '#CC0000',
     },
     noContent : {
-        padding: theme.spacing(1),
+        padding: 8,
         height: 64,
         verticalAlign: 'middle',
         lineHeight: '64px',
         width: '100%',
     },
     dragHint: {
-        paddingLeft: theme.spacing(1),
+        paddingLeft: 8,
         fontSize: 10,
         fontStyle: 'italic',
         opacity: 0.8,
     },
     marginTop: {
-        marginTop: theme.spacing(2),
+        marginTop: 16,
     },
     noPaddingOnSide: {
         // paddingRight: 0,
         // paddingLeft: 0,
     },
-    group: {
+    group: theme => ({
         display: 'block',
         '& > div': {
             display: 'inline-flex',
-            paddingRight: 20,
+            pr: '20px',
             width: 200,
         },
         position: 'relative',
-        paddingBottom: theme.spacing(2),
+        pb: '16px',
         borderBottom: `1px dotted ${theme.palette.grey[400]}`,
-    },
+    }),
     title: {
         width: 'inherit',
         position: 'absolute',
@@ -135,15 +135,15 @@ const styles = theme => ({
         minHeight: 30,
         marginTop: 20,
         marginBottom: 10,
-        marginLeft: theme.spacing(2),
+        marginLeft: 16,
     },
-    selected: {
+    selected: theme => ({
         color: theme.palette.mode === 'dark' ? undefined : '#FFF !important',
-    },
-    indicator: {
+    }),
+    indicator: theme => ({
         backgroundColor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : '#FFF',
-    },
-});
+    }),
+};
 
 const PREDEFINED_COLORS_MARKS = [
     '#144578',
@@ -376,7 +376,7 @@ class PresetTabs extends React.Component {
             onClose={() => this.setState({ deleteLineDialog: null })}
         >
             <DialogTitle>{I18n.t('Are you sure for delete this line?')}</DialogTitle>
-            <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+            <DialogActions style={{ ...styles.alignRight, ...styles.buttonsContainer }}>
                 <Button
                     variant="contained"
                     color="secondary"
@@ -408,7 +408,7 @@ class PresetTabs extends React.Component {
             onClose={() => this.setState({ deleteMarkDialog: null })}
         >
             <DialogTitle>{I18n.t('Are you sure for delete this mark?')}</DialogTitle>
-            <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+            <DialogActions style={{ ...styles.alignRight, ...styles.buttonsContainer }}>
                 <Button
                     variant="contained"
                     color="secondary"
@@ -470,10 +470,10 @@ class PresetTabs extends React.Component {
                         minHeight: '100%',
                     }}
                 >
-                    <TabPanel value="0" classes={{ root: this.props.classes.tabContent }}>
-                        <Fab onClick={() => this.addLine()} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add line to chart')}><IconAdd /></Fab>
-                        {anyClosed ? <Fab onClick={this.expandAllLines} size="small" color="default" className={this.props.classes.buttonExpandAll} title={I18n.t('Expand all lines')}><IconExpand /></Fab> : null}
-                        {anyOpened ? <Fab onClick={this.collapseAllLines} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all lines')}><IconCollapse /></Fab> : null}
+                    <Paper style={styles.tabContent}>
+                        <Fab onClick={() => this.addLine()} size="small" color="secondary" style={styles.buttonAdd} title={I18n.t('Add line to chart')}><IconAdd /></Fab>
+                        {anyClosed ? <Fab onClick={this.expandAllLines} size="small" color="default" style={styles.buttonExpandAll} title={I18n.t('Expand all lines')}><IconExpand /></Fab> : null}
+                        {anyOpened ? <Fab onClick={this.collapseAllLines} size="small" color="default" style={styles.buttonCollapseAll} title={I18n.t('Collapse all lines')}><IconCollapse /></Fab> : null}
                         {this.props.presetData.lines.length ? this.props.presetData.lines.map((line, index) =>
                             <Draggable key={`${line.id}_${index}`} draggableId={`${line.id}_${index}`} index={index}>
                                 {(_provided, _snapshot) =>
@@ -508,7 +508,7 @@ class PresetTabs extends React.Component {
                                     </div>}
                             </Draggable>)
                             :
-                            <div className={this.props.classes.noContent}>
+                            <div style={styles.noContent}>
                                 {I18n.t('Create a new line with a "+" on the right.')}
                             </div>}
                         {this.state.copiedObject && this.state.copiedObject.type === 'line' ?
@@ -526,8 +526,8 @@ class PresetTabs extends React.Component {
                                 onPaste={() => this.addLine(this.state.copiedObject.data)}
                             /> : null}
                         {provided.placeholder}
-                        <div className={this.props.classes.dragHint}>{I18n.t('You can drag and drop simple lines from the left list.')}</div>
-                    </TabPanel>
+                        <div style={styles.dragHint}>{I18n.t('You can drag and drop simple lines from the left list.')}</div>
+                    </Paper>
                 </div>}
         </Droppable>;
     }
@@ -536,18 +536,19 @@ class PresetTabs extends React.Component {
         const anyClosed = this.props.presetData.marks.length > 1 && this.props.presetData.marks.find((l, i) => !this.state.marksOpened[i]);
         const anyOpened = this.props.presetData.marks.length > 1 && this.props.presetData.marks.find((l, i) =>  this.state.marksOpened[i]);
 
-        return <TabPanel value="1" classes={{ root: this.props.classes.tabContent }}>
-            <Fab onClick={() => this.addMark()} size="small" color="secondary" className={this.props.classes.buttonAdd} title={I18n.t('Add marking line to chart')}>
+        return <Paper style={styles.tabContent}>
+            <Fab onClick={() => this.addMark()} size="small" color="secondary" style={styles.buttonAdd} title={I18n.t('Add marking line to chart')}>
                 <IconAdd />
             </Fab>
-            {anyClosed ? <Fab onClick={this.expandAllMarks} size="small" color="default" className={this.props.classes.buttonExpandAll} title={I18n.t('Expand all markings')}><IconExpand /></Fab> : null}
-            {anyOpened ? <Fab onClick={this.collapseAllMarks} size="small" color="default" className={this.props.classes.buttonCollapseAll} title={I18n.t('Collapse all markings')}><IconCollapse /></Fab> : null}
+            {anyClosed ? <Fab onClick={this.expandAllMarks} size="small" color="default" style={styles.buttonExpandAll} title={I18n.t('Expand all markings')}><IconExpand /></Fab> : null}
+            {anyOpened ? <Fab onClick={this.collapseAllMarks} size="small" color="default" style={styles.buttonCollapseAll} title={I18n.t('Collapse all markings')}><IconCollapse /></Fab> : null}
             {
                 this.props.presetData.marks.length ?
                     this.props.presetData.marks.map((mark, index) => <Mark
                         mark={mark}
                         presetData={this.props.presetData}
                         updateMark={this.updateMark}
+                        theme={this.props.theme}
                         deleteMark={_index => { this.setState({ deleteMarkDialog: _index }); }}
                         index={index}
                         key={index}
@@ -560,7 +561,7 @@ class PresetTabs extends React.Component {
                             window.sessionStorage.setItem('echarts.copiedObject', JSON.stringify({ type: 'line', data }));
                         }}
                     />) :
-                    <div className={this.props.classes.noContent}>
+                    <div style={styles.noContent}>
                         {I18n.t('You can create a new markings with a "+" on the right.')}
                     </div>
             }
@@ -577,7 +578,7 @@ class PresetTabs extends React.Component {
                     opened={false}
                     onPaste={() => this.addMark(this.state.copiedObject.data)}
                 /> : null}
-        </TabPanel>;
+        </Paper>;
     }
 
     renderTabTime() {
@@ -623,9 +624,9 @@ class PresetTabs extends React.Component {
             }
         }
 
-        return <TabPanel value="2" classes={{ root: this.props.classes.tabContent }}>
-            {anyNotJson ? <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Type')}</p>
+        return <Paper style={styles.tabContent}>
+            {anyNotJson ? <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Type')}</p>
                 <IOSelect
                     formData={this.props.presetData}
                     updateValue={this.updateField}
@@ -636,15 +637,15 @@ class PresetTabs extends React.Component {
                         static: 'static',
                     }}
                 />
-            </div> : null}
-            {anyNotJson ? <div className={this.props.classes.group}>
+            </Box> : null}
+            {anyNotJson ? <Box component="div" sx={styles.group}>
                 {this.props.presetData.timeType === 'static' ?
                     <>
-                        <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
+                        <p style={styles.title}>{I18n.t('Start and end')}</p>
                         <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="start" label="Start" />
                         <IODateTimeField formData={this.props.presetData} updateValue={this.updateField} name="end" label="End" />
                     </> : <>
-                        <p className={this.props.classes.title}>{I18n.t('Relative')}</p>
+                        <p style={styles.title}>{I18n.t('Relative')}</p>
                         <IOSelect
                             formData={this.props.presetData}
                             updateValue={this.updateField}
@@ -724,14 +725,14 @@ class PresetTabs extends React.Component {
                             }}
                         />
                     </>}
-            </div> : null}
-            {/* <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Start and end')}</p>
+            </Box> : null}
+            {/* <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Start and end')}</p>
                 <IOObjectField socket={this.props.socket} formData={this.props.presetData} updateValue={this.updateField} name="ticks" label="Use X-ticks from" />
-            </div> */}
+            </box> */}
             {anyNotJson && anyNotOnChange && hasNotBarOrPolar ?
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Aggregate for lines')}</p>
+                <Box component="div" sx={styles.group}>
+                    <p style={styles.title}>{I18n.t('Aggregate for lines')}</p>
                     <IOSelect
                         formData={this.props.presetData}
                         updateValue={this.updateField}
@@ -748,10 +749,10 @@ class PresetTabs extends React.Component {
                         name="aggregateSpan"
                         label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                     />
-                </div> : null }
+                </Box> : null }
             {hasBarOrPolar ?
-                <div className={this.props.classes.group}>
-                    <p className={this.props.classes.title}>{I18n.t('Aggregate for bars')}</p>
+                <Box component="div" sx={styles.group}>
+                    <p style={styles.title}>{I18n.t('Aggregate for bars')}</p>
                     <IOSelect
                         formData={this.props.presetData}
                         updateValue={this.updateField}
@@ -759,9 +760,9 @@ class PresetTabs extends React.Component {
                         label={I18n.t('Intervalls')}
                         options={barIntervalOptions}
                     />
-                </div> : null }
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Time format')}</p>
+                </Box> : null }
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Time format')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Custom time format" name="timeFormatCustom" />
                 {!this.props.presetData.timeFormatCustom ?
                     <IOSelect
@@ -809,8 +810,8 @@ class PresetTabs extends React.Component {
                                 '5000': '5 seconds',
                                 '10000': '10 seconds',
                             }} /> */}
-            </div>
-        </TabPanel>;
+            </Box>
+        </Paper>;
     }
 
     renderToast() {
@@ -832,7 +833,7 @@ class PresetTabs extends React.Component {
                     key="close"
                     aria-label="Close"
                     color="inherit"
-                    className={this.props.classes.close}
+                    style={styles.close}
                     onClick={() => this.setState({ toast: '' })}
                 >
                     <IconClose />
@@ -844,10 +845,10 @@ class PresetTabs extends React.Component {
     renderTabOptions() {
         const anyPolar = this.props.presetData.lines.find(item => item.chartType === 'polar');
 
-        return <TabPanel value="3" classes={{ root: this.props.classes.tabContent }}>
+        return <Paper style={styles.tabContent}>
             {/* Legend line */}
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Legend')}</p>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Legend')}</p>
                 <IOSelect
                     formData={this.props.presetData}
                     updateValue={this.updateField}
@@ -882,10 +883,10 @@ class PresetTabs extends React.Component {
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legFontSize" label="Font size" min={6} type="number" />
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="legendHeight" label="Height" min={6} type="number" />
                     </> : null}
-            </div>
+            </Box>
             {/* Options line */}
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Options')}</p>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Options')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Hover details" name="hoverDetail" />
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="No interpolate in hover" name="hoverNoInterpolate" />
                 {this.props.presetData.hoverDetail ? <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} label="Hide nulls in tooltip" name="hoverNoNulls" /> : null}
@@ -927,14 +928,14 @@ class PresetTabs extends React.Component {
                         circle: 'Circle',
                     }}
                 /> : null}
-            </div>
+            </Box>
             {/* Links line */}
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Copy link to clipboard')}</p>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Copy link to clipboard')}</p>
                 <Button
                     color="grey"
                     variant="contained"
-                    className={this.props.classes.buttonCopyLink}
+                    style={styles.buttonCopyLink}
                     onClick={() => {
                         const link = `${window.location.protocol}//${window.location.host}/adapter/echarts/chart/index.html?preset=${this.props.selectedId}`;
                         this.setState({ toast: `${I18n.t('copied')}: ${link}` }, () =>
@@ -949,7 +950,7 @@ class PresetTabs extends React.Component {
                         color="grey"
                         key={i}
                         variant="contained"
-                        className={this.props.classes.buttonCopyLink}
+                        style={styles.buttonCopyLink}
                         onClick={() => {
                             const link = `${instance.link}/echarts/index.html?preset=${this.props.selectedId}`;
                             this.setState({ toast: `${I18n.t('copied')}: ${link}` }, () =>
@@ -960,14 +961,14 @@ class PresetTabs extends React.Component {
                         <IconCopy />
                         {`web.${instance.index}`}
                     </Button>)}
-            </div>
-        </TabPanel>;
+            </Box>
+        </Paper>;
     }
 
     renderTabTitle() {
-        return <TabPanel value="4" classes={{ root: this.props.classes.tabContent }}>
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Title')}</p>
+        return <Paper style={styles.tabContent}>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Title')}</p>
                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="title" label="Title" />
                 {this.props.presetData.title ?
                     <>
@@ -996,15 +997,15 @@ class PresetTabs extends React.Component {
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="titleSize" label="Title size" min={0} type="number" />
                     </>
                     : null}
-            </div>
-        </TabPanel>;
+            </Box>
+        </Paper>;
     }
 
     renderTabAppearance() {
-        return <TabPanel value="5" classes={{ root: this.props.classes.tabContent }}>
+        return <Paper style={styles.tabContent}>
             {/* <h4>{I18n.t('Appearance')}</h4> */}
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Theme')}</p>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Theme')}</p>
                 <IOSelect
                     formData={this.props.presetData}
                     updateValue={this.updateField}
@@ -1033,30 +1034,30 @@ class PresetTabs extends React.Component {
                         green: 'green',
                     }}
                 />
-            </div>
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Chart size')}</p>
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" classes={{ fieldContainer: this.props.classes.marginTop }} />
-                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" classes={{ fieldContainer: this.props.classes.marginTop }} />
-            </div>
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Backgrounds')}</p>
+            </Box>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Chart size')}</p>
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="width" label="Width" styles={{ fieldContainer: styles.marginTop }} />
+                <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="height" label="Height" styles={{ fieldContainer: styles.marginTop }} />
+            </Box>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Backgrounds')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="noBackground" label="No background" />
-                {!this.props.presetData.noBackground ? this.renderColorField(this.props.presetData, this.updateField, 'Window background', 'window_bg', undefined, this.props.classes.marginTop) : null}
-                {this.renderColorField(this.props.presetData, this.updateField, 'Chart background', 'bg_custom', undefined, this.props.classes.marginTop)}
-            </div>
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Labels')}</p>
-                {this.renderColorField(this.props.presetData, this.updateField, 'X labels color', 'x_labels_color', undefined, this.props.classes.marginTop)}
+                {!this.props.presetData.noBackground ? this.renderColorField(this.props.presetData, this.updateField, 'Window background', 'window_bg', undefined, styles.marginTop) : null}
+                {this.renderColorField(this.props.presetData, this.updateField, 'Chart background', 'bg_custom', undefined, styles.marginTop)}
+            </Box>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Labels')}</p>
+                {this.renderColorField(this.props.presetData, this.updateField, 'X labels color', 'x_labels_color', undefined, styles.marginTop)}
                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="x_labels_size" label="X labels size" min={6} type="number" />
-                {this.renderColorField(this.props.presetData, this.updateField, 'X ticks color', 'x_ticks_color', undefined, this.props.classes.marginTop)}
-                {this.renderColorField(this.props.presetData, this.updateField, 'Y labels color', 'y_labels_color', undefined, this.props.classes.marginTop)}
+                {this.renderColorField(this.props.presetData, this.updateField, 'X ticks color', 'x_ticks_color', undefined, styles.marginTop)}
+                {this.renderColorField(this.props.presetData, this.updateField, 'Y labels color', 'y_labels_color', undefined, styles.marginTop)}
                 <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="y_labels_size" label="Y labels size" min={6} type="number" />
-                {this.renderColorField(this.props.presetData, this.updateField, 'Y ticks color', 'y_ticks_color', undefined, this.props.classes.marginTop)}
+                {this.renderColorField(this.props.presetData, this.updateField, 'Y ticks color', 'y_ticks_color', undefined, styles.marginTop)}
                 <IOSelect
                     formData={this.props.presetData}
                     updateValue={this.updateField}
-                    tooltip={I18n.t('This time offset will be added to the X label by displaying data on the chart')}
+                    tooltip="This time offset will be added to the X label by displaying data on the chart"
                     name="xLabelShift"
                     label="X-Label-Offset"
                     options={{
@@ -1118,17 +1119,17 @@ class PresetTabs extends React.Component {
 
                     }}
                 />
-            </div>
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Grid')}</p>
+            </Box>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Grid')}</p>
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideX" label="Hide X grid" />
                 <IOCheckbox formData={this.props.presetData} updateValue={this.updateField} name="grid_hideY" label="Hide Y grid" />
                 {!this.props.presetData.grid_hideX || !this.props.presetData.grid_hideY ?
                     this.renderColorField(this.props.presetData, this.updateField, 'Grid color', 'grid_color')
                     : null }
-            </div>
-            <div className={this.props.classes.group}>
-                <p className={this.props.classes.title}>{I18n.t('Border')}</p>
+            </Box>
+            <Box component="div" sx={styles.group}>
+                <p style={styles.title}>{I18n.t('Border')}</p>
                 <IOSelect
                     formData={this.props.presetData}
                     updateValue={this.updateField}
@@ -1162,10 +1163,10 @@ class PresetTabs extends React.Component {
                         <IOTextField formData={this.props.presetData} updateValue={this.updateField} name="border_padding" label="Border padding" min={0} type="number" />
 
                     </> : null}
-            </div>
+            </Box>
             {this.props.presetData.lines.find(line => line.chartType === 'bar') ?
                 <Grid item sm={6} xs={12}>
-                    <p className={this.props.classes.title}>{I18n.t('Bar settings')}</p>
+                    <p style={styles.title}>{I18n.t('Bar settings')}</p>
                     <IOSelect
                         formData={this.props.presetData}
                         updateValue={this.updateField}
@@ -1184,7 +1185,7 @@ class PresetTabs extends React.Component {
                     {this.renderColorField(this.props.presetData, this.updateField, 'Label color', 'barFontColor')}
                 </Grid>
                 : null}
-        </TabPanel>;
+        </Paper>;
     }
 
     renderColorField(formData, onUpdate, label, name, minWidth, className) {
@@ -1232,60 +1233,63 @@ class PresetTabs extends React.Component {
         const anyPolar = this.props.presetData.lines.find(line => line.chartType === 'polar');
         const anyNotCurrent = this.props.presetData.lines.find(line => line.aggregate !== 'current');
 
-        return <TabContext value={this.state.selectedTab}>
-            <AppBar position="static" className={this.props.classes.tabsContainer}>
+        return <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+            <AppBar position="static" style={styles.tabsContainer}>
                 {this.props.selectedPresetChanged || this.props.autoSave ? <Checkbox
-                    className={this.props.classes.button}
+                    style={styles.button}
                     checked={!!this.props.autoSave}
                     title={I18n.t('Auto save')}
                     onChange={e => this.props.onAutoSave(e.target.checked)}
                     inputProps={{ 'aria-label': 'primary checkbox' }}
                 /> : null}
                 {!this.props.selectedPresetChanged ? <IconButton
-                    classes={{ root: this.props.classes.noPaddingOnSide }}
-                    className={this.props.classes.button}
+                    style={{ ...styles.button, ...styles.noPaddingOnSide }}
                     onClick={() => window.open(`chart/index.html?preset=${this.props.selectedId}`, 'own-preset-echarts')}
                     title={I18n.t('Open chart in own window')}
                 >
                     <IconNewWindow />
                 </IconButton> : null}
                 {!this.props.autoSave && this.props.selectedPresetChanged ? <IconButton
-                    classes={{ root: this.props.classes.noPaddingOnSide }}
-                    className={Utils.clsx(this.props.classes.button, this.props.classes.buttonSave)}
+                    style={{
+                        ...styles.noPaddingOnSide,
+                        ...styles.buttonSave,
+                        ...styles.button,
+                    }}
                     onClick={() => this.props.savePreset()}
                 >
                     <IconSave />
                 </IconButton> : null}
-                <TabList
-                    onChange={(event, newValue) => {
-                        window.localStorage.setItem('App.echarts.presetTabs.selectedTab', newValue);
-                        this.setState({ selectedTab: newValue });
+                <Tabs
+                    onChange={(event, selectedTab) => {
+                        window.localStorage.setItem('App.echarts.presetTabs.selectedTab', selectedTab);
+                        this.setState({ selectedTab });
                     }}
+                    value={this.state.selectedTab || 'data'}
                     variant="scrollable"
                     scrollButtons
-                    classes={{ indicator: this.props.classes.indicator }}
+                    sx={{ '& .MuiTabs-indicator': styles.indicator }}
                 >
-                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Data')} value="0" />
-                    {anyPolar ? null : <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Markings')} value="1" />}
-                    {!anyNotCurrent ? null : <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Time')} value="2" />}
-                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Options')} value="3" />
-                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Title')} value="4" />
-                    <Tab classes={{ selected: this.props.classes.selected }} label={I18n.t('Appearance')} value="5" />
-                </TabList>
+                    <Tab sx={{ '&.Mui-selected': styles.selected }} label={I18n.t('Data')} value="data" />
+                    {anyPolar ? null : <Tab sx={{ '&.Mui-selected': styles.selected }} label={I18n.t('Markings')} value="markings" />}
+                    {!anyNotCurrent ? null : <Tab sx={{ '&.Mui-selected': styles.selected }} label={I18n.t('Time')} value="time" />}
+                    <Tab sx={{ '&.Mui-selected': styles.selected }} label={I18n.t('Options')} value="options" />
+                    <Tab sx={{ '&.Mui-selected': styles.selected }} label={I18n.t('Title')} value="title" />
+                    <Tab sx={{ '&.Mui-selected': styles.selected }} label={I18n.t('Appearance')} value="appearance" />
+                </Tabs>
             </AppBar>
-            <div className={this.props.classes.tabsBody}>
-                {this.state.selectedTab === '0' ? this.renderTabLines()      : null}
-                {this.state.selectedTab === '1' && !anyPolar ? this.renderTabMarkings()   : null}
-                {this.state.selectedTab === '2' && anyNotCurrent ? this.renderTabTime()       : null}
-                {this.state.selectedTab === '3' ? this.renderTabOptions()    : null}
-                {this.state.selectedTab === '4' ? this.renderTabTitle()      : null}
-                {this.state.selectedTab === '5' ? this.renderTabAppearance() : null}
+            <div style={styles.tabsBody}>
+                {this.state.selectedTab === 'data' || !this.state.selectedTab ? this.renderTabLines() : null}
+                {this.state.selectedTab === 'markings' && !anyPolar ? this.renderTabMarkings() : null}
+                {this.state.selectedTab === 'time' && anyNotCurrent ? this.renderTabTime() : null}
+                {this.state.selectedTab === 'options' ? this.renderTabOptions()  : null}
+                {this.state.selectedTab === 'title' ? this.renderTabTitle()  : null}
+                {this.state.selectedTab === 'appearance' ? this.renderTabAppearance() : null}
             </div>
             {this.renderDeleteLineDialog()}
             {this.renderDeleteMarkDialog()}
             {this.renderColorDialog()}
             {this.renderToast()}
-        </TabContext>;
+        </div>;
     }
 }
 
@@ -1304,4 +1308,4 @@ PresetTabs.propTypes = {
     autoSave: PropTypes.bool,
 };
 
-export default withStyles(styles)(PresetTabs);
+export default PresetTabs;

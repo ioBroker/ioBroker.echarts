@@ -1,19 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
-import IconButton from '@mui/material/IconButton';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import TextField from '@mui/material/TextField';
+import {
+    IconButton,
+    Card,
+    CardContent,
+    TextField, Box,
+} from '@mui/material';
 
 import { MdContentCopy as IconCopy, MdContentPaste as IconPaste, MdDelete as IconDelete } from 'react-icons/md';
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
 import ClearIcon from '@mui/icons-material/Close';
 
-import ColorPicker from '@iobroker/adapter-react-v5/Components/ColorPicker';
-import { I18n, Utils } from '@iobroker/adapter-react-v5';
+import { I18n, Utils, ColorPicker } from '@iobroker/adapter-react-v5';
 
 import {
     IOTextField, IOSelect, IOObjectField, IOSlider,
@@ -31,48 +31,48 @@ const WIDTHS = {
 
 const LINE_HEIGHT = 48;
 
-const styles = theme => ({
-    card: {
+const styles = {
+    card: theme => ({
         borderStyle: 'dashed',
         borderWidth: 1,
-        marginBottom: theme.spacing(1),
-        padding: theme.spacing(1),
+        mb: '8px',
+        p: '8px',
         borderColor: theme.palette.grey['600'],
         overflow: 'initial',
-    },
-    cardPaste: {
+    }),
+    cardPaste: theme => ({
         borderColor: theme.type === 'dark' ? theme.palette.grey['400'] : theme.palette.grey['800'],
         backgroundColor: 'rgba(0,0,0,0)',
         opacity: 0.8,
-    },
+    }),
     cardContent: {
-        padding: 0,
-        margin: 0,
+        p: 0,
+        m: 0,
         '&:last-child': {
-            padding: 0,
-            paddingRight: 20,
+            p: 0,
+            pr: '20px',
         },
-        paddingRight: 20,
+        pr: '20px',
     },
-    shortFields: {
+    shortFields: theme => ({
         display: 'block',
         '& > div': {
             display: 'inline-flex',
-            paddingRight: 20,
+            pr: '20px',
             width: 200,
         },
-        paddingBottom: theme.spacing(2),
+        pb: '16px',
         borderBottom: `1px dotted ${theme.palette.grey[400]}`,
-    },
+    }),
     shortFieldsLast: {
         borderBottom: 0,
         paddingBottom: 0,
-        position: 'relaitve',
+        position: 'relative',
     },
     shortLineIdField: {
         display: 'inline-flex',
         minWidth: WIDTHS.lineId,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -90,7 +90,7 @@ const styles = theme => ({
         lineHeight: `${LINE_HEIGHT}px`,
         display: 'inline-flex',
         minWidth: WIDTHS.lowerValueOrId,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         verticalAlign: 'top',
         paddingRight: 10,
@@ -98,7 +98,7 @@ const styles = theme => ({
     shortColorField: {
         display: 'inline-flex',
         minWidth: WIDTHS.color,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -107,7 +107,7 @@ const styles = theme => ({
     shortFillField: {
         display: 'inline-flex',
         width: WIDTHS.fill,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -119,7 +119,7 @@ const styles = theme => ({
     shortTextField: {
         display: 'inline-flex',
         minWidth: WIDTHS.text,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -128,7 +128,7 @@ const styles = theme => ({
     shortButtonsField: {
         display: 'inline-flex',
         minWidth: WIDTHS.buttons,
-        marginLeft: theme.spacing(1),
+        marginLeft: 8,
         paddingTop: 0,
         lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
@@ -171,7 +171,7 @@ const styles = theme => ({
         marginBottom: 0,
         paddingRight: 40,
     },
-});
+};
 
 class Mark extends React.Component {
     constructor(props) {
@@ -244,8 +244,8 @@ class Mark extends React.Component {
     }
 
     renderClosedLine(lines, colors) {
-        return <div className={this.props.classes.lineClosedContainer}>
-            <div className={this.props.classes.lineClosed}>
+        return <div style={styles.lineClosedContainer}>
+            <div style={styles.lineClosed}>
                 {this.props.onPaste && this.props.onPaste ?
                     <IconButton
                         title={I18n.t('Paste')}
@@ -269,35 +269,37 @@ class Mark extends React.Component {
                     label="Line ID"
                     options={lines}
                     colors={colors}
-                    classes={{ fieldContainer: this.props.classes.shortLineIdField }}
+                    styles={{ fieldContainer: styles.shortLineIdField }}
                     minWidth={WIDTHS.lineId}
                 />
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
                     <IOObjectField
+                        theme={this.props.theme}
                         disabled={!!this.props.onPaste}
                         formData={this.props.mark}
                         updateValue={this.updateField}
                         name="upperValueOrId"
                         label="Upper value or ID"
                         socket={this.props.socket}
-                        classes={{ fieldContainer: this.props.classes.shortUpperValueOrIdField }}
+                        styles={{ fieldContainer: styles.shortUpperValueOrIdField }}
                         minWidth={WIDTHS.upperValueOrId}
                     /> : null}
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
                  this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
                     <IOObjectField
+                        theme={this.props.theme}
                         disabled={!!this.props.onPaste}
                         formData={this.props.mark}
                         updateValue={this.updateField}
                         name="lowerValueOrId"
                         label="Lower value or ID"
                         socket={this.props.socket}
-                        classes={{ fieldContainer: this.props.classes.shortLowerValueOrIdField }}
+                        styles={{ fieldContainer: styles.shortLowerValueOrIdField }}
                         minWidth={WIDTHS.lowerValueOrId}
                     /> : null}
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' &&
                 this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
-                    this.renderColorField(this.props.mark, this.updateField, 'Color', 'color', WIDTHS.color, this.props.classes.shortColorField) : null}
+                    this.renderColorField(this.props.mark, this.updateField, 'Color', 'color', WIDTHS.color, styles.shortColorField) : null}
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== ''  &&
                  this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' &&
                  this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '' ?
@@ -306,7 +308,7 @@ class Mark extends React.Component {
                         formData={this.props.mark}
                         updateValue={this.updateField}
                         minWidth={WIDTHS.dataType}
-                        classes={{ fieldContainer: this.props.classes.shortFillField, sliderRoot: this.props.classes.sliderRoot }}
+                        styles={{ fieldContainer: styles.shortFillField, sliderRoot: styles.sliderRoot }}
                         name="fill"
                         label="Fill (from 0 to 1)"
                     /> : null}
@@ -318,7 +320,7 @@ class Mark extends React.Component {
                         updateValue={this.updateField}
                         name="text"
                         label="Text"
-                        classes={{ fieldContainer: this.props.classes.shortTextField }}
+                        styles={{ fieldContainer: styles.shortTextField }}
                         minWidth={WIDTHS.fill}
                     /> : null}
             </div>
@@ -347,7 +349,7 @@ class Mark extends React.Component {
                 {this.props.index + 1}
                 {this.props.mark.text ? ` - ${this.props.mark.text}` : ''}
                 <IconButton
-                    className={this.props.classes.deleteButtonFull}
+                    style={styles.deleteButtonFull}
                     aria-label="Delete"
                     title={I18n.t('Delete')}
                     onClick={() => this.props.deleteMark(this.props.index)}
@@ -355,7 +357,7 @@ class Mark extends React.Component {
                     <IconDelete />
                 </IconButton>
                 <IconButton
-                    className={this.props.classes.copyButtonFull}
+                    style={styles.copyButtonFull}
                     aria-label="Copy"
                     title={I18n.t('Copy')}
                     onClick={() => this.props.onCopy(this.props.mark)}
@@ -363,8 +365,8 @@ class Mark extends React.Component {
                     <IconCopy />
                 </IconButton>
             </div>
-            <div className={this.props.classes.shortFields}>
-                <p className={this.props.classes.title}>{I18n.t('Limits')}</p>
+            <Box component="div" sx={styles.shortFields}>
+                <p style={styles.title}>{I18n.t('Limits')}</p>
                 <IOSelect
                     formData={this.props.mark}
                     updateValue={this.updateField}
@@ -377,27 +379,29 @@ class Mark extends React.Component {
 
                 {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined && this.props.mark.lineId !== '' ?
                     <IOObjectField
+                        theme={this.props.theme}
                         formData={this.props.mark}
                         updateValue={this.updateField}
                         name="upperValueOrId"
                         label="Upper value or ID"
                         socket={this.props.socket}
-                    /> : null }
+                    /> : null}
 
                 {this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '' ?
                     <IOObjectField
+                        theme={this.props.theme}
                         formData={this.props.mark}
                         updateValue={this.updateField}
                         name="lowerValueOrId"
                         label="Lower value or ID"
                         socket={this.props.socket}
-                    /> : null }
-            </div>
+                    /> : null}
+            </Box>
 
             {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
             (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
-                <div className={this.props.classes.shortFields}>
-                    <p className={this.props.classes.title}>{I18n.t('Style')}</p>
+                <Box component="div" sx={styles.shortFields}>
+                    <p style={styles.title}>{I18n.t('Style')}</p>
                     {this.renderColorField(this.props.mark, this.updateField, 'Color', 'color')}
 
                     <IOTextField
@@ -425,12 +429,12 @@ class Mark extends React.Component {
                     {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') &&
                     (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
                         <IOSlider formData={this.props.mark} updateValue={this.updateField} name="fill" label="Fill (from 0 to 1)" /> : null}
-                </div> : null}
+                </Box> : null}
 
             {(this.props.mark.upperValueOrId !== null && this.props.mark.upperValueOrId !== undefined && this.props.mark.upperValueOrId !== '') ||
             (this.props.mark.lowerValueOrId !== null && this.props.mark.lowerValueOrId !== undefined && this.props.mark.lowerValueOrId !== '') ?
-                <div className={Utils.clsx(this.props.classes.shortFields, this.props.classes.shortFieldsLast)}>
-                    <p className={this.props.classes.title}>{I18n.t('Label')}</p>
+                <Box component="div" sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.shortFieldsLast)}>
+                    <p style={styles.title}>{I18n.t('Label')}</p>
                     <IOTextField formData={this.props.mark} updateValue={this.updateField} name="text" label="Text" />
                     {this.props.mark.text ?
                         <IOSelect
@@ -455,7 +459,7 @@ class Mark extends React.Component {
                     {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textOffset" label="Text X offset" type="number" /> : null}
                     {this.props.mark.text ? <IOTextField formData={this.props.mark} updateValue={this.updateField} name="textSize" label="Text size" type="number" /> : null}
                     {this.props.mark.text ? this.renderColorField(this.props.mark, this.updateField, 'Text color', 'textColor') : null}
-                </div> : null }
+                </Box> : null}
         </>;
     }
 
@@ -466,9 +470,9 @@ class Mark extends React.Component {
             lines[index] = `${index} - ${line.id || I18n.t('No ID yet')}`;
             colors[index] = line.color;
         });
-        return <Card className={Utils.clsx(this.props.classes.card, this.props.onPaste && this.props.classes.cardPaste)}>
-            <CardContent className={this.props.classes.cardContent}>
-                { this.props.opened && !this.props.onPaste ? this.renderOpenedCard(lines, colors) : this.renderClosedLine(lines, colors)}
+        return <Card sx={Utils.getStyle(this.props.theme, styles.card, this.props.onPaste && styles.cardPaste)}>
+            <CardContent sx={styles.cardContent}>
+                {this.props.opened && !this.props.onPaste ? this.renderOpenedCard(lines, colors) : this.renderClosedLine(lines, colors)}
             </CardContent>
         </Card>;
     }
@@ -484,6 +488,7 @@ Mark.propTypes = {
     onSelectColor: PropTypes.func,
     onCopy: PropTypes.func,
     onPaste: PropTypes.func,
+    theme: PropTypes.object,
 };
 
-export default withStyles(styles)(Mark);
+export default Mark;

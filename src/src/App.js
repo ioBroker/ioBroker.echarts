@@ -1,16 +1,16 @@
 import React from 'react';
-import {
-    withStyles, withTheme, StylesProvider, createGenerateClassName,
-} from '@mui/styles';
-import SplitterLayout from 'react-splitter-layout';
+import ReactSplit, { SplitDirection } from '@devbookhq/splitter';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
-import DialogActions from '@mui/material/DialogActions';
+import {
+    Dialog,
+    DialogTitle,
+    Button,
+    DialogActions,
+    Box,
+} from '@mui/material';
 
 // icons
 import {
@@ -20,11 +20,10 @@ import {
     MdArrowBack as IconMenuOpened,
 } from 'react-icons/md';
 
-import 'react-splitter-layout/lib/index.css';
-
-import GenericApp from '@iobroker/adapter-react-v5/GenericApp';
 import {
-    I18n, Utils, Loader, withWidth,
+    I18n, Utils,
+    Loader, withWidth,
+    GenericApp,
 } from '@iobroker/adapter-react-v5';
 import '@iobroker/adapter-react-v5/index.css';
 
@@ -35,12 +34,8 @@ import DefaultPreset from './Components/DefaultPreset';
 import MenuList from './MenuList';
 import flotConverter from './utils/flotConverter';
 
-const generateClassName = createGenerateClassName({
-    productionPrefix: 'iob-app',
-});
-
-const styles = theme => ({
-    root: {
+const styles = {
+    root: theme => ({
         flexGrow: 1,
         display: 'flex',
         width: '100%',
@@ -48,26 +43,16 @@ const styles = theme => ({
         background: theme.palette.background.default,
         color: theme.palette.text.primary,
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    },
+    }),
     menuDiv: {
         overflow: 'hidden',
     },
-    splitterDivs: {
-        '&>div': {
-            overflow: 'hidden',
-            width: '100%',
-            height: '100%',
-        },
-        '& .layout-splitter': {
-            background: theme.type === 'dark' ? '#595858' : '#ccc;',
-        },
-    },
-    content: {
+    content: theme => ({
         width: '100%',
         height: '100%',
         backgroundColor: theme.palette.background.default,
         position: 'relative',
-    },
+    }),
     menuDivWithoutMenu: {
         '&>div:first-child': {
             display: 'none',
@@ -79,29 +64,29 @@ const styles = theme => ({
     progress: {
         margin: 100,
     },
-    menuOpenCloseButton: {
+    menuOpenCloseButton: theme => ({
         position: 'absolute',
         left: 0,
         borderRadius: '0 5px 5px 0',
         top: 6,
-        paddingTop: 8,
+        pt: '8px',
         cursor: 'pointer',
         zIndex: 1,
         height: 25,
         width: 20,
         background: theme.palette.secondary.main,
         color: theme.palette.primary.main,
-        paddingLeft: 3,
+        pl: '3px',
         '&:hover': {
             color: 'white',
         },
-    },
+    }),
     buttonsContainer: {
         '& button': {
             whiteSpace: 'nowrap',
         },
     },
-});
+};
 
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
 
@@ -190,10 +175,32 @@ class App extends GenericApp {
         } else if (!selectedId && this.config?.id) {
             selectedId = { id: this.config.id, instance: this.config.instance };
         }
+        const splitSizesStr = window.localStorage.getItem('App.echarts.settingsSizes');
+        let splitSizes;
+        if (splitSizesStr) {
+            try {
+                splitSizes = JSON.parse(splitSizesStr);
+            } catch (e) {
+                // ignore
+            }
+        }
+        splitSizes = splitSizes || [25, 75];
+        const menuSizesStr = window.localStorage.getItem('App.echarts.menuSizes');
+        let menuSizes;
+        if (menuSizesStr) {
+            try {
+                menuSizes = JSON.parse(menuSizesStr);
+            } catch (e) {
+                // ignore
+            }
+        }
 
+        menuSizes = menuSizes || [25, 75];
         const newState = {
             ready: false,
             instances: [],
+            splitSizes,
+            menuSizes,
 
             selectedId,
             selectedPresetChanged: false,
@@ -211,9 +218,6 @@ class App extends GenericApp {
             menuSelectId: '',
             logHorzLayout: window.localStorage.getItem('App.echarts.logHorzLayout') === 'true',
         };
-
-        this.settingsSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.echarts.settingsSize')) || 150 : 150;
-        this.menuSize = window.localStorage ? parseFloat(window.localStorage.getItem('App.echarts.menuSize')) || 500 : 500;
 
         this.objects = {};
 
@@ -479,7 +483,8 @@ class App extends GenericApp {
                 })
                 .catch(e => this.onError(e, 'Cannot read object'));
             return;
-        } if (selectedId) {
+        }
+        if (selectedId) {
             // load preset
             this.socket.getObject(selectedId)
                 .then(obj => {
@@ -528,7 +533,7 @@ class App extends GenericApp {
                             I18n.t('Are you sure for closing folder and discard unsaved changes?'))
                 }
             </DialogTitle>
-            <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+            <DialogActions sx={{ ...styles.alignRight, ...styles.buttonsContainer }}>
                 <Button
                     color="grey"
                     variant="outlined"
@@ -564,12 +569,12 @@ class App extends GenericApp {
     }
 
     renderMain() {
-        const { classes } = this.props;
         return [
-            <div className={Utils.clsx(classes.content, 'iobVerticalSplitter')} key="confirmdialog">
-                <div
+            <Box component="div" sx={styles.content} className="iobVerticalSplitter" key="confirmdialog">
+                <Box
+                    component="div"
                     key="confirmdiv"
-                    className={classes.menuOpenCloseButton}
+                    sx={styles.menuOpenCloseButton}
                     onClick={() => {
                         window.localStorage && window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
                         this.setState({ menuOpened: !this.state.menuOpened, resizing: true });
@@ -577,21 +582,19 @@ class App extends GenericApp {
                     }}
                 >
                     {this.state.menuOpened ? <IconMenuOpened /> : <IconMenuClosed />}
-                </div>
-                <SplitterLayout
-                    key="MainSplitter"
-                    vertical={!this.state.logHorzLayout}
-                    primaryMinSize={100}
-                    secondaryInitialSize={this.settingsSize}
-                    // customClassName={classes.menuDiv + ' ' + classes.splitterDivWithoutMenu}
-                    onDragStart={() => this.setState({ resizing: true })}
-                    onSecondaryPaneSizeChange={size => this.settingsSize = parseFloat(size)}
-                    onDragEnd={() => {
-                        this.setState({ resizing: false });
-                        window.localStorage && window.localStorage.setItem('App.echarts.settingsSize', this.settingsSize.toString());
+                </Box>
+                <ReactSplit
+                    direction={this.state.logHorzLayout ? SplitDirection.Horizontal : SplitDirection.Vertical}
+                    initialSizes={this.state.splitSizes}
+                    minWidths={[100, 450]}
+                    onResizeFinished={(gutterIdx, splitSizes) => {
+                        this.setState({ resizing: false, splitSizes });
+                        window.localStorage.setItem('App.echarts.settingsSizes', JSON.stringify(splitSizes));
                     }}
+                    // theme={this.props.themeType === 'dark' ? GutterTheme.Dark : GutterTheme.Light}
+                    gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
                 >
-                    { this.state.selectedId ? <MainChart
+                    {this.state.selectedId ? <MainChart
                         key="MainChart"
                         visible={!this.state.resizing}
                         theme={this.state.theme}
@@ -636,8 +639,8 @@ class App extends GenericApp {
                             }}
                         /> : null
                     }
-                </SplitterLayout>
-            </div>,
+                </ReactSplit>
+            </Box>,
         ];
     }
 
@@ -712,101 +715,91 @@ class App extends GenericApp {
     };
 
     toggleLogLayout() {
-        window.localStorage && window.localStorage.setItem('App.echarts.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
+        window.localStorage.setItem('App.echarts.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
         this.setState({ logHorzLayout: !this.state.logHorzLayout });
     }
 
     render() {
-        const { classes } = this.props;
-
         if (!this.state.ready) {
-            return <StylesProvider generateClassName={generateClassName}>
-                <StyledEngineProvider injectFirst>
-                    <ThemeProvider theme={this.state.theme}>
-                        <Loader theme={this.state.themeType} />
-                    </ThemeProvider>
-                </StyledEngineProvider>
-            </StylesProvider>;
+            return <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.state.theme}>
+                    <Loader themeType={this.state.themeType} />
+                </ThemeProvider>
+            </StyledEngineProvider>;
         }
 
-        return <StylesProvider generateClassName={generateClassName}>
-            <StyledEngineProvider injectFirst>
-                <ThemeProvider theme={this.state.theme}>
-                    <div className={classes.root} key="divSide">
-                        <DragDropContext onDragEnd={this.onDragEnd}>
-                            <SplitterLayout
-                                key="sidemenuwidth"
-                                vertical={false}
-                                primaryMinSize={300}
-                                primaryIndex={1}
-                                secondaryMinSize={300}
-                                secondaryInitialSize={this.menuSize}
-                                customClassName={Utils.clsx(classes.splitterDivs, !this.state.menuOpened ? classes.menuDivWithoutMenu : '')}
-                                onDragStart={() => this.setState({ resizing: true })}
-                                onSecondaryPaneSizeChange={size => this.menuSize = parseFloat(size)}
-                                onDragEnd={() => {
-                                    this.setState({ resizing: false });
-                                    window.localStorage && window.localStorage.setItem('App.echarts.menuSize', this.menuSize.toString());
-                                }}
-                            >
-                                <MenuList
-                                    key="menuList"
-                                    scrollToSelect={this.state.scrollToSelect}
-                                    socket={this.socket}
-                                    theme={this.state.theme}
-                                    adapterName={this.adapterName}
-                                    instances={this.state.instances}
-                                    systemConfig={this.state.systemConfig}
-                                    onShowToast={toast => this.showToast(toast)}
-                                    selectedPresetChanged={this.state.selectedPresetChanged}
-                                    chartsList={this.state.chartsList}
-                                    selectedId={this.state.selectedId}
-                                    onCopyPreset={this.onCopyPreset}
-                                    onCreatePreset={this.onCreatePreset}
-                                    onChangeList={(chartsList, cb) => {
-                                        // if some deselected
-                                        let selectedId = this.state.selectedId;
-                                        if (chartsList && this.state.chartsList && chartsList.length && chartsList.length < this.state.chartsList.length) {
-                                            const removedLine = this.state.chartsList.find(item => !chartsList.find(it => it.id === item.id && it.instance === item.instance));
-                                            const index = this.state.chartsList.indexOf(removedLine);
-                                            if (this.state.chartsList[index + 1]) {
-                                                selectedId = this.state.chartsList[index + 1];
-                                            } else if (this.state.chartsList[index - 1]) {
-                                                selectedId = this.state.chartsList[index - 1];
-                                            } else {
-                                                selectedId = chartsList[0];
-                                            }
-                                        }
-                                        this.setState({ chartsList }, () => this.loadChartOrPreset(selectedId, cb));
-                                    }}
-                                    onSelectedChanged={(selectedId, cb) => {
-                                        if (cb && this.state.selectedPresetChanged) {
-                                            this.confirmCB = confirmed => {
-                                                if (confirmed) {
-                                                    this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
-                                                } else {
-                                                    cb(false); // cancel
-                                                }
-                                                this.confirmCB = null;
-                                            };
-
-                                            this.setState({ discardChangesConfirmDialog: selectedId && typeof selectedId === 'object' ? 'chart' : (selectedId ? 'preset' : 'folder') });
+        return <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={this.state.theme}>
+                <Box component="div" sx={styles.root} key="divSide">
+                    <DragDropContext onDragEnd={this.onDragEnd}>
+                        <ReactSplit
+                            direction={SplitDirection.Horizontal}
+                            initialSizes={this.state.menuSizes}
+                            minWidths={[300, 300]}
+                            onResizeFinished={(gutterIdx, menuSizes) => {
+                                this.setState({ resizing: false, menuSizes });
+                                window.localStorage.setItem('App.echarts.menuSizes', JSON.stringify(menuSizes));
+                            }}
+                            // theme={this.props.themeType === 'dark' ? GutterTheme.Dark : GutterTheme.Light}
+                            gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
+                        >
+                            <MenuList
+                                key="menuList"
+                                scrollToSelect={this.state.scrollToSelect}
+                                socket={this.socket}
+                                theme={this.state.theme}
+                                adapterName={this.adapterName}
+                                instances={this.state.instances}
+                                systemConfig={this.state.systemConfig}
+                                onShowToast={toast => this.showToast(toast)}
+                                selectedPresetChanged={this.state.selectedPresetChanged}
+                                chartsList={this.state.chartsList}
+                                selectedId={this.state.selectedId}
+                                onCopyPreset={this.onCopyPreset}
+                                onCreatePreset={this.onCreatePreset}
+                                onChangeList={(chartsList, cb) => {
+                                    // if some deselected
+                                    let selectedId = this.state.selectedId;
+                                    if (chartsList && this.state.chartsList && chartsList.length && chartsList.length < this.state.chartsList.length) {
+                                        const removedLine = this.state.chartsList.find(item => !chartsList.find(it => it.id === item.id && it.instance === item.instance));
+                                        const index = this.state.chartsList.indexOf(removedLine);
+                                        if (this.state.chartsList[index + 1]) {
+                                            selectedId = this.state.chartsList[index + 1];
+                                        } else if (this.state.chartsList[index - 1]) {
+                                            selectedId = this.state.chartsList[index - 1];
                                         } else {
-                                            this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
+                                            selectedId = chartsList[0];
                                         }
-                                    }}
-                                />
-                                {this.renderMain()}
-                            </SplitterLayout>
-                        </DragDropContext>
-                    </div>
-                    {this.discardChangesConfirmDialog()}
-                    {this.renderError()}
-                    {this.renderToast()}
-                </ThemeProvider>
-            </StyledEngineProvider>
-        </StylesProvider>;
+                                    }
+                                    this.setState({ chartsList }, () => this.loadChartOrPreset(selectedId, cb));
+                                }}
+                                onSelectedChanged={(selectedId, cb) => {
+                                    if (cb && this.state.selectedPresetChanged) {
+                                        this.confirmCB = confirmed => {
+                                            if (confirmed) {
+                                                this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
+                                            } else {
+                                                cb(false); // cancel
+                                            }
+                                            this.confirmCB = null;
+                                        };
+
+                                        this.setState({ discardChangesConfirmDialog: selectedId && typeof selectedId === 'object' ? 'chart' : (selectedId ? 'preset' : 'folder') });
+                                    } else {
+                                        this.loadChartOrPreset(selectedId, () => cb && cb(selectedId));
+                                    }
+                                }}
+                            />
+                            {this.renderMain()}
+                        </ReactSplit>
+                    </DragDropContext>
+                </Box>
+                {this.discardChangesConfirmDialog()}
+                {this.renderError()}
+                {this.renderToast()}
+            </ThemeProvider>
+        </StyledEngineProvider>;
     }
 }
 
-export default withWidth()(withStyles(styles)(withTheme(App)));
+export default withWidth()(App);

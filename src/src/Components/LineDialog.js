@@ -1,23 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
-    Button, Dialog, DialogActions, DialogContent, DialogTitle,
+    Button, Dialog, DialogActions,
+    DialogContent, DialogTitle,
 } from '@mui/material';
 
 import I18n from '@iobroker/adapter-react-v5/i18n';
 
-import { CgBorderStyleSolid as IconSolid, CgBorderStyleDashed as IconDashed, CgBorderStyleDotted as IconDotted } from 'react-icons/cg';
+import {
+    CgBorderStyleSolid as IconSolid,
+    CgBorderStyleDashed as IconDashed,
+    CgBorderStyleDotted as IconDotted,
+} from 'react-icons/cg';
 
 import { MdClose as IconClose } from 'react-icons/md';
 import { IOSelect, IOSlider } from './Fields';
 
-const styles = () => ({
+const styles = {
     dialogSlider: {
         padding: '20px 0px',
     },
-});
+};
 
 class LineDialog extends React.Component {
     render() {
@@ -47,10 +51,10 @@ class LineDialog extends React.Component {
                         dotted: <IconDotted />,
                     }}
                 />
-                <div className={this.props.classes.dialogSlider}>
+                <div style={styles.dialogSlider}>
                     <IOSlider formData={this.props.line} updateValue={this.props.updateField} name="fill" label="Fill (from 0 to 1)" />
                 </div>
-                <div className={this.props.classes.dialogSlider}>
+                <div style={styles.dialogSlider}>
                     <IOSlider
                         formData={this.props.line}
                         updateValue={this.props.updateField}
@@ -76,4 +80,4 @@ LineDialog.propTypes = {
     onClose: PropTypes.func,
 };
 
-export default withStyles(styles)(LineDialog);
+export default LineDialog;
