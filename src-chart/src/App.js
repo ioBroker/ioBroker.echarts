@@ -97,7 +97,7 @@ class App extends Component {
         if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/chart/')) {
             this.adminCorrectTimeout = setTimeout(() => {
                 this.adminCorrectTimeout = null;
-                // Address is wrong. Navigate to /echarts/index.html
+                // The address is wrong. Navigate to /echarts/index.html
                 window.location = window.location.href.replace('/adapter/echarts/chart/', '/echarts/');
             }, 2000);
         }
@@ -270,7 +270,7 @@ class App extends Component {
                 <div
                     ref={this.divRef}
                     style={{
-                        ...states.root,
+                        ...styles.root,
                         width: config.width,
                         height: config.height,
                         background: this.state.noBackground || config.noBackground ? undefined : this.state.theme.palette.background.default,

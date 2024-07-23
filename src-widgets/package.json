@@ -4,10 +4,10 @@
     "version": "1.8.4",
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-        "@iobroker/adapter-react-v5": "^6.0.13",
-        "@iobroker/vis-2-widgets-react-dev": "^2.0.1",
-        "@mui/icons-material": "^5.15.21",
-        "@mui/material": "^5.15.21",
+        "@iobroker/adapter-react-v5": "^6.1.6",
+        "@iobroker/vis-2-widgets-react-dev": "^3.0.7",
+        "@mui/icons-material": "^5.16.4",
+        "@mui/material": "^5.16.4",
         "node-sass": "^9.0.0",
         "prop-types": "^15.8.1",
         "react": "^18.3.1",
@@ -20,11 +20,11 @@
         "eslint-config-airbnb": "^19.0.4",
         "eslint-plugin-import": "^2.29.1",
         "eslint-plugin-jsx-a11y": "^6.9.0",
-        "eslint-plugin-react": "^7.34.3",
+        "eslint-plugin-react": "^7.35.0",
         "eslint-plugin-react-hooks": "^4.6.2",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-only-warn": "^1.1.0",
-        "sass": "^1.77.6"
+        "sass": "^1.77.8"
     },
     "scripts": {
         "start": "set PORT=4173 && craco start",
