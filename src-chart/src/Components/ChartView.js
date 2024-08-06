@@ -385,7 +385,7 @@ class ChartView extends React.Component {
         this.option.yAxis = yAxis;
 
         try {
-            this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function' &&
+            typeof this.echartsReact?.getEchartsInstance === 'function' &&
                 this.echartsReact.getEchartsInstance().setOption({ yAxis });
         } catch (e) {
             console.error(`Cannot apply options 2: ${JSON.stringify(this.option)}`);
@@ -712,7 +712,7 @@ class ChartView extends React.Component {
                 this.props.onRangeChange && this.props.onRangeChange();
             }}
         >
-            <IconReset state={styles.resetButtonIcon} />
+            <IconReset style={styles.resetButtonIcon} />
         </Fab>;
     }
 
@@ -720,7 +720,7 @@ class ChartView extends React.Component {
         if (this.props.config.export) {
             return <IconSaveImage
                 color={this.props.config.exportColor || 'default'}
-                state={styles.saveImageButton}
+                style={styles.saveImageButton}
                 title={this.option && this.option.useCanvas ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')}
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
@@ -852,9 +852,8 @@ class ChartView extends React.Component {
     renderExportDataButton() {
         if (this.props.config.exportData) {
             return <IconExportData
-                style={this.state.exporting ? { opacity: 0.5 } : {}}
                 color={this.props.config.exportDataColor || 'default'}
-                state={styles.exportDataButton}
+                style={{ ...styles.exportDataButton, opacity: this.state.exporting ? 0.5 : 1 }}
                 title={I18n.t('Export raw data as CSV')}
                 onClick={() => {
                     if (this.state.exporting) {
@@ -879,12 +878,11 @@ class ChartView extends React.Component {
             <Fab
                 size="small"
                 color="default"
-                style={{ left: this.option?.grid?.left || 0 }}
-                state={styles.legendButton}
+                style={{ ...styles.legendButton, left: this.option?.grid?.left || 0 }}
                 title={I18n.t('Select lines')}
                 onClick={() => this.setState({ showLegendDialog: true })}
             >
-                <IconMenu state={styles.resetButtonIcon} />
+                <IconMenu style={styles.resetButtonIcon} />
             </Fab>
             {this.state.showLegendDialog ?
                 <Dialog
@@ -1029,7 +1027,7 @@ class ChartView extends React.Component {
         if (window.location.port === '3000') {
             return <IconCopy
                 color="default"
-                state={styles.copyButton}
+                style={styles.copyButton}
                 title="Copy option to clipboard"
                 onClick={() => Utils.copyToClipboard(JSON.stringify(this.option, null, 2))}
             />;
@@ -1048,11 +1046,11 @@ class ChartView extends React.Component {
 
         return <div
             ref={this.divRef}
-            state={styles.chart}
             style={{
+                ...styles.chart,
                 borderWidth,
-                width:       borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : undefined,
-                height:      borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : undefined,
+                width:       borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : '100%',
+                height:      borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : '100%',
                 background:  this.props.config.noBackground ? undefined : (this.props.config.window_bg || undefined),
                 borderColor: this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
                 borderStyle: this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',

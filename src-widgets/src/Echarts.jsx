@@ -17,8 +17,6 @@ import {
 
 // import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 
-// const Generic = window.visRxWidget || VisRxWidget;
-
 const ChartSelector = props => {
     const [charts, setCharts] = useState(null);
     useEffect(() => {

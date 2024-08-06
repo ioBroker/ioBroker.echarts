@@ -18,6 +18,20 @@ import '@iobroker/adapter-react-v5/index.css';
 import ChartModel from './Components/ChartModel';
 import ChartView from './Components/ChartView';
 
+const styles = {
+    root: {
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+    },
+    progress: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+    },
+};
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -277,7 +291,7 @@ class App extends Component {
                         color: this.state.theme.palette.text.primary,
                     }}
                 >
-                    <LinearProgress ref={this.progressRef} style={{ display: 'block' }} state={states.progress} />
+                    <LinearProgress ref={this.progressRef} style={{ display: 'block' }} state={styles.progress} />
                     <ChartView
                         key={hash}
                         socket={this.socket}

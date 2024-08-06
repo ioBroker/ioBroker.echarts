@@ -4,10 +4,10 @@
     "version": "1.8.4",
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-        "@iobroker/adapter-react-v5": "^6.1.6",
+        "@iobroker/adapter-react-v5": "^6.1.8",
         "@iobroker/vis-2-widgets-react-dev": "^3.0.7",
-        "@mui/icons-material": "^5.16.4",
-        "@mui/material": "^5.16.4",
+        "@mui/icons-material": "^5.16.6",
+        "@mui/material": "^5.16.6",
         "node-sass": "^9.0.0",
         "prop-types": "^15.8.1",
         "react": "^18.3.1",

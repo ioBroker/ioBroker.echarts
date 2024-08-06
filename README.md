@@ -102,6 +102,7 @@ You can debug view charts locally with:
 ## Changelog
 ### **WORK IN PROGRESS**
 * (bluefox) upgraded packages
+* (bluefox) removed `withStyles`
 
 ### 1.8.4 (2024-06-21)
 * (foxriver76) upgraded dependencies
