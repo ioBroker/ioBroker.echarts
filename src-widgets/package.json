@@ -1,7 +1,7 @@
 {
     "name": "iobroker.echarts",
     "private": true,
-    "version": "1.8.4",
+    "version": "1.9.0",
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@iobroker/adapter-react-v5": "^6.1.8",

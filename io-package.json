@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.8.4",
+    "version": "1.9.0",
     "news": {
+      "1.9.0": {
+        "en": "upgraded packages\nremoved `withStyles`",
+        "de": "erweiterte pakete\nentfernen `withStyles`",
+        "ru": "модернизированные пакеты\nудалены `withStyles'",
+        "pt": "pacotes atualizados\nremovido `comestilos`",
+        "nl": "verbeterde pakketten\nverwijderd metStyles",
+        "fr": "paquets mis à jour\nenlevé `avecStyles`",
+        "it": "pacchetti aggiornati\nrimosso `withStyles`",
+        "es": "paquetes actualizados\nremovido `con los estilos`",
+        "pl": "zmodernizowane pakiety\nusunięte \"ze stylami\"",
+        "uk": "пакети оновлені\nвидалено `withStyle`",
+        "zh-cn": "升级软件包\n以“ Styles”删除"
+      },
       "1.8.4": {
         "en": "upgraded dependencies",
         "de": "verbesserte abhängigkeiten",
