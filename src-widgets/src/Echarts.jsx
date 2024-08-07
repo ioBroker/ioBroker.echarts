@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, withTheme } from '@mui/styles';
 
 import {
     MenuItem,
@@ -16,17 +15,7 @@ import {
     IconClosed as FolderIcon, Utils,
 } from '@iobroker/adapter-react-v5';
 
-import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
-
-const styles = () => ({
-    content: {
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-    },
-});
-
-const Generic = window.visRxWidget || VisRxWidget;
+// import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
 
 const ChartSelector = props => {
     const [charts, setCharts] = useState(null);
@@ -39,7 +28,7 @@ const ChartSelector = props => {
                         preset._id && !preset._id.toString().endsWith('.') && presets.push(preset._id));
 
                 const items = [];
-                // Build tree
+                // Build a tree
                 presets.forEach(id => {
                     const parts = id.split('.');
                     if (parts.length >= 3) {
@@ -91,7 +80,7 @@ const ChartSelector = props => {
             key="___none"
             value=""
         >
-            {Generic.t('none')}
+            {I18n.t('echarts_none')}
         </MenuItem>
         {charts.map(chart =>
             <MenuItem
@@ -109,7 +98,7 @@ const ChartSelector = props => {
     </Select>;
 };
 
-class Echarts extends Generic {
+class Echarts extends window.visRxWidget {
     constructor(props) {
         super(props);
         this.refIframe = React.createRef();
@@ -425,10 +414,6 @@ class Echarts extends Generic {
         }
     }
 
-    static getI18nPrefix() {
-        return 'echarts_';
-    }
-
     async componentDidMount() {
         super.componentDidMount();
         window.addEventListener('message', this.onReceiveMessage, false);
@@ -493,7 +478,7 @@ class Echarts extends Generic {
     renderWidgetBody(props) {
         super.renderWidgetBody(props);
         let content;
-        if (!this.state.rxData.echart_oid && !this.state.presetData) {
+        if ((!this.state.rxData.echart_oid || this.state.rxData.echart_oid === 'nothing_selected') && !this.state.presetData) {
             content = <div
                 style={{
                     padding: 8,
@@ -502,7 +487,7 @@ class Echarts extends Generic {
                     backgroundColor: this.state.rxData.noChartBackground ? undefined : (this.props.context.themeType === 'dark' ? 'rgb(31, 31, 31)' : '#f0f0f0'),
                 }}
             >
-                {Generic.t('chart_not_selected')}
+                {I18n.t('echarts_chart_not_selected')}
             </div>;
         } else {
             const presetJson = JSON.stringify(this.state.presetData);
@@ -540,4 +525,4 @@ Echarts.propTypes = {
     data: PropTypes.object,
 };
 
-export default withStyles(styles)(withTheme(Echarts));
+export default Echarts;

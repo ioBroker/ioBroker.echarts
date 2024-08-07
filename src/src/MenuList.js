@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, withTheme } from '@mui/styles';
 
-import IconButton from '@mui/material/IconButton';
-import TextField from '@mui/material/TextField';
-import Toolbar from '@mui/material/Toolbar';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
+import {
+    IconButton,
+    TextField,
+    Toolbar,
+    FormGroup,
+    FormControlLabel,
+    Switch,
+    InputLabel,
+    Select,
+    MenuItem,
+    FormControl,
+} from '@mui/material';
 
 // icons
 import {
@@ -20,9 +21,11 @@ import {
     MdFullscreen as IconNewWindow,
     MdSwapVert as IconReorder,
 } from 'react-icons/md';
-import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Close';
-import PreviewIcon from '@mui/icons-material/Preview';
+import {
+    Search as SearchIcon,
+    Close as ClearIcon,
+    Preview as PreviewIcon,
+} from '@mui/icons-material';
 
 import { I18n, withWidth } from '@iobroker/adapter-react-v5';
 
@@ -31,19 +34,19 @@ import ChartsTree from './Components/ChartsTree';
 
 const TOOLBAR_HEIGHT = 48;
 
-const styles = theme => ({
+const styles = {
     mainListDiv: {
         width: '100%',
         height: '100%',
         overflow: 'hidden',
     },
-    mainToolbar: {
+    mainToolbar: theme => ({
         background: theme.palette.primary.main,
-    },
-    secondaryColors: {
+    }),
+    secondaryColors: theme => ({
         background: '#888',
         color: theme.palette.mode === 'dark' ? '#000' : '#FFF',
-    },
+    }),
     smallMargin: {
         marginTop: '8px !important',
     },
@@ -51,7 +54,7 @@ const styles = theme => ({
         height: `calc(100% - ${TOOLBAR_HEIGHT * 2}px)`,
         overflow: 'auto',
     },
-});
+};
 
 class MenuList extends Component {
     constructor(props) {
@@ -85,7 +88,7 @@ class MenuList extends Component {
     }
 
     renderListToolbar() {
-        return <Toolbar key="toolbar" variant="dense" className={this.props.classes.mainToolbar}>
+        return <Toolbar key="toolbar" variant="dense" sx={styles.mainToolbar}>
             {!this.state.reorder ? <IconButton
                 onClick={() => this.props.onCreatePreset(false)}
                 title={I18n.t('Create new preset')}
@@ -100,7 +103,7 @@ class MenuList extends Component {
                 <IconFolderAdd />
             </IconButton> : null}
 
-            {!this.state.reorder ? <span className={this.props.classes.right}>
+            {!this.state.reorder ? <span style={styles.right}>
                 <IconButton onClick={() => this.setState({ showSearch: !this.state.showSearch, search: '' })}>
                     <SearchIcon />
                 </IconButton>
@@ -110,7 +113,7 @@ class MenuList extends Component {
                 <TextField
                     variant="standard"
                     value={this.state.search}
-                    className={this.props.classes.textInput}
+                    style={styles.textInput}
                     onChange={e => this.setState({ search: e.target.value })}
                     InputProps={{
                         endAdornment: this.state.search ?
@@ -127,7 +130,6 @@ class MenuList extends Component {
             {(!this.state.showSearch && this.state.showReorder) || this.state.reorder ? <IconButton
                 key="reorder"
                 title={I18n.t('Reorder presets in folders')}
-                className={this.props.classes.toolbarButtons}
                 style={{ color: this.state.reorder ? 'red' : 'inherit', float: 'right' }}
                 onClick={e => {
                     e.stopPropagation();
@@ -147,13 +149,11 @@ class MenuList extends Component {
     }
 
     renderFooter() {
-        return <Toolbar key="toolbarBottom" variant="dense" className={this.props.classes.secondaryColors}>
+        return <Toolbar key="toolbarBottom" variant="dense" sx={styles.secondaryColors}>
             <FormGroup row>
                 {!this.props.selectedPresetChanged ? <FormControlLabel
-                    classes={{ root: this.props.secondaryColors }}
                     control={<Switch
                         checked={this.state.multiple}
-                        classes={{ root: this.props.secondaryColors }}
                         onChange={e => {
                             window.localStorage.setItem('App.echarts.multiple', e.target.checked ? 'true' : 'false');
                             if (e.target.checked) {
@@ -170,8 +170,8 @@ class MenuList extends Component {
                     />}
                     label={I18n.t('Multiple')}
                 /> : null}
-                <FormControl variant="standard">
-                    <InputLabel shrink style={{ whiteSpace: 'nowrap' }}>{I18n.t('Group by') }</InputLabel>
+                <FormControl variant="standard" style={{ minWidth: 100 }}>
+                    <InputLabel shrink style={{ whiteSpace: 'nowrap', top: 5 }}>{I18n.t('Group by') }</InputLabel>
                     <Select
                         variant="standard"
                         label={I18n.t('Group by')}
@@ -180,7 +180,7 @@ class MenuList extends Component {
                             this.setState({ groupBy: e.target.value });
                         }}
                         value={this.state.groupBy || ''}
-                        className={this.props.classes.smallMargin}
+                        style={styles.smallMargin}
                         displayEmpty
                     >
                         <MenuItem value="">{I18n.t('None')}</MenuItem>
@@ -206,9 +206,9 @@ class MenuList extends Component {
     }
 
     render() {
-        return <div className={this.props.classes.mainListDiv} key="mainMenuDiv">
+        return <div style={styles.mainListDiv} key="mainMenuDiv">
             {this.renderListToolbar()}
-            <div className={this.props.classes.heightMinusToolbar}>
+            <div style={styles.heightMinusToolbar}>
                 <PresetsTree
                     socket={this.props.socket}
                     scrollToSelect={this.props.scrollToSelect}
@@ -225,6 +225,7 @@ class MenuList extends Component {
                             this.setState({ showReorder });
                         }
                     }}
+                    theme={this.props.theme}
                     search={this.state.search}
                     reorder={this.state.reorder}
                     selectedId={this.props.selectedId}
@@ -277,4 +278,4 @@ MenuList.propTypes = {
     selectedPresetChanged: PropTypes.bool,
 };
 
-export default withWidth()(withStyles(styles)(withTheme(MenuList)));
+export default withWidth()(MenuList);

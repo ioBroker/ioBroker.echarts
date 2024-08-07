@@ -1,26 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, withTheme } from '@mui/styles';
 import { useDrag, useDrop, DndProvider as DragDropContext } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
-import CircularProgress from '@mui/material/CircularProgress';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import {
+    IconButton,
+    ListItemText,
+    Dialog,
+    DialogTitle,
+    TextField,
+    Button,
+    List,
+    ListItem,
+    ListItemSecondaryAction,
+    CircularProgress,
+    DialogActions,
+    DialogContent,
+    ListItemIcon,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+} from '@mui/material';
 
 // icons
 import {
@@ -101,13 +102,13 @@ export const Draggable = props => {
 const LEVEL_PADDING = 16;
 const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
 
-const styles = theme => ({
+const styles = {
     noGutters: {
-        paddingTop: 0,
-        paddingBottom: 0,
+        pt: 0,
+        pb: 0,
         width: '100%',
     },
-    changed: {
+    changed: theme => ({
         position: 'relative',
         '&:after': {
             content: '""',
@@ -119,7 +120,7 @@ const styles = theme => ({
             borderRadius: 5,
             background: theme.type === 'dark' ? '#CC0000' : '#CC0000',
         },
-    },
+    }),
     itemIcon: {
         width: 32,
         height: 32,
@@ -133,17 +134,17 @@ const styles = theme => ({
             whiteSpace: 'nowrap',
         },
     },
-    itemIconPreset: {
+    itemIconPreset: theme => ({
         color: theme.type === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
-    },
-    folderIconPreset: {
+    }),
+    folderIconPreset: theme => ({
         color: theme.type === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary.light,
-    },
+    }),
     width100: {
         width: '100%',
     },
     buttonIcon: {
-        marginRight: theme.spacing(0.5),
+        marginRight: 4,
     },
     itemIconRoot: {
         minWidth: 24,
@@ -159,8 +160,8 @@ const styles = theme => ({
         width: 'calc(100% - 32px)',
     },
     mainList: {
-        width: `calc(100% - ${theme.spacing(1)})`,
-        marginLeft: theme.spacing(1),
+        width: 'calc(100% - 8px)',
+        ml: '8px',
         '& .js-folder-dragover>li>.folder-reorder': {
             background: '#40adff',
         },
@@ -187,7 +188,7 @@ const styles = theme => ({
         textOverflow: 'ellipsis',
         width: 'calc(100% - 32px)',
     },
-});
+};
 
 class MenuList extends Component {
     constructor(props) {
@@ -329,22 +330,27 @@ class MenuList extends Component {
         const depthPx = (this.props.reorder ? level : level - 1) * LEVEL_PADDING;
 
         const listItem = <ListItem
-            classes={{ gutters: Utils.clsx(this.props.classes.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && this.props.classes.changed) }}
+            sx={{ '&.MuiListItem-gutters': Utils.getStyle(this.props.theme, styles.noGutters, this.props.selectedId === preset._id && this.props.selectedPresetChanged && styles.changed) }}
             style={{ paddingLeft: depthPx }}
             key={item._id}
-            className={Utils.clsx(this.props.reorder && 'item-reorder')}
+            className={this.props.reorder ? 'item-reorder' : ''}
             ref={this.props.selectedId === item._id ? this.refSelected : null}
             selected={this.props.selectedId === item._id}
             button
             onClick={() => this.props.onSelectedChanged(preset._id)}
         >
-            <ListItemIcon classes={{ root: Utils.clsx(this.props.classes.itemIconRoot, this.props.classes.itemIconPreset) }}><IconScript className={this.props.classes.itemIcon} /></ListItemIcon>
+            <ListItemIcon sx={Utils.getStyle(this.props.theme, styles.itemIconRoot, styles.itemIconPreset)}>
+                <IconScript style={styles.itemIcon} />
+            </ListItemIcon>
             <ListItemText
-                classes={{ primary: this.props.classes.listItemTitle, secondary: this.props.classes.listItemSubTitle }}
-                primary={<div className={this.props.classes.listItemTitleDiv}>{Utils.getObjectNameFromObj(preset, null, { language: I18n.getLanguage() })}</div>}
+                sx={{
+                    '& .MuiListItemText-primary': styles.listItemTitle,
+                    '& .MuiListItemText-secondary': styles.listItemSubTitle,
+                }}
+                primary={<div style={styles.listItemTitleDiv}>{Utils.getObjectNameFromObj(preset, null, { language: I18n.getLanguage() })}</div>}
                 secondary={Utils.getObjectNameFromObj(preset, null, { language: I18n.getLanguage() }, true)}
             />
-            <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+            <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
                 {this.state.changingPreset === preset._id ?
                     <CircularProgress size={24} />
                     :
@@ -368,7 +374,7 @@ class MenuList extends Component {
                                 onClick={ () => this.setState({ movePresetDialog: preset._id, newPresetFolder: getFolderPrefix(preset._id) }) }>
                                 <IconMoveToFolder />
                             </IconButton> : null */}
-                        <IconButton size="small" aria-label="Copy" title={I18n.t('Copy')} onClick={() => this.props.onCopyPreset(preset._id)}><IconCopy className={this.props.classes.iconCopy} /></IconButton>
+                        <IconButton size="small" aria-label="Copy" title={I18n.t('Copy')} onClick={() => this.props.onCopyPreset(preset._id)}><IconCopy style={styles.iconCopy} /></IconButton>
                         <IconButton size="small" aria-label="Delete" title={I18n.t('Delete')} onClick={() => this.setState({ deletePresetDialog: preset._id })}><IconDelete /></IconButton>
                     </> : null)}
             </ListItemSecondaryAction>
@@ -407,8 +413,8 @@ class MenuList extends Component {
                     .forEach(preset =>
                         reactChildren.push(this.renderTreePreset(preset, level + 1)));
             } else {
-                reactChildren.push(<ListItem key="no presets" classes={{ gutters: this.props.classes.noGutters }}>
-                    <ListItemText className={this.props.classes.folderItem}>{ I18n.t('No presets created yet')}</ListItemText>
+                reactChildren.push(<ListItem key="no presets" sx={{ '&.MuiListItem-gutters': styles.noGutters }}>
+                    <ListItemText style={styles.folderItem}>{ I18n.t('No presets created yet')}</ListItemText>
                 </ListItem>);
             }
         }
@@ -417,24 +423,24 @@ class MenuList extends Component {
         if (parent && (parent.id || this.props.reorder)) {
             const folder = <ListItem
                 key={parent.prefix}
-                classes={{ gutters: this.props.classes.noGutters }}
-                className={Utils.clsx(
-                    this.props.classes.width100,
-                    this.props.classes.folderItem,
-                    this.props.reorder && 'folder-reorder',
-                )}
-                style={{ paddingLeft: depthPx }}
+                sx={{ '&.MuiListItem-gutters': styles.noGutters }}
+                className={this.props.reorder ? 'folder-reorder' : ''}
+                style={{
+                    ...styles.width100,
+                    ...styles.folderItem,
+                    paddingLeft: depthPx,
+                }}
             >
                 <ListItemIcon
-                    classes={{ root: Utils.clsx(this.props.classes.itemIconRoot, this.props.classes.folderIconPreset) }}
+                    sx={Utils.getStyle(this.props.theme, styles.itemIconRoot, styles.folderIconPreset)}
                     onClick={() => this.togglePresetsFolder(parent)}
                 >
                     { presetsOpened ?
-                        <IconFolderOpened className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} /> :
-                        <IconFolderClosed className={Utils.clsx(this.props.classes.itemIcon, this.props.classes.itemIconFolder)} />}
+                        <IconFolderOpened style={{ ...styles.itemIcon, ...styles.itemIconFolder }} /> :
+                        <IconFolderClosed style={{ ...styles.itemIcon, ...styles.itemIconFolder }} />}
                 </ListItemIcon>
                 <ListItemText>{parent.id || I18n.t('Root')}</ListItemText>
-                <ListItemSecondaryAction className={this.props.classes.listItemSecondaryAction}>
+                <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
                     {!this.props.reorder && parent && parent.id && presetsOpened ? <IconButton
                         size="small"
                         onClick={() => this.props.onCreatePreset(null, parent.id)}
@@ -661,7 +667,7 @@ class MenuList extends Component {
                 onClose={() => this.props.onClosePresetFolderDialog()}
             >
                 <DialogTitle>{I18n.t('Create folder')}</DialogTitle>
-                <DialogContent className={this.props.classes.p}>
+                <DialogContent style={styles.p}>
                     <TextField
                         variant="standard"
                         fullWidth
@@ -680,7 +686,7 @@ class MenuList extends Component {
                         }}
                     />
                 </DialogContent>
-                <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+                <DialogActions style={{ ...styles.alignRight, ...styles.buttonsContainer }}>
                     <Button
                         variant="contained"
                         disabled={
@@ -749,7 +755,7 @@ class MenuList extends Component {
                     onChange={e => this.setState({ editPresetFolderName: e.target.value.replace(FORBIDDEN_CHARS, '_').trim() })}
                 />
             </DialogContent>
-            <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+            <DialogActions style={{ ...styles.alignRight, ...styles.buttonsContainer }}>
                 <Button
                     variant="contained"
                     disabled={!this.state.editPresetFolderName ||
@@ -797,13 +803,13 @@ class MenuList extends Component {
         >
             <DialogTitle>{I18n.t('Move to folder')}</DialogTitle>
             <DialogContent>
-                <FormControl classes={{ root: this.props.classes.width100 }} variant="standard">
+                <FormControl style={styles.width100} variant="standard">
                     <InputLabel shrink>{I18n.t('Folder')}</InputLabel>
                     <Select
                         variant="standard"
                         autoFocus
                         fullWidth
-                        className={this.props.classes.width100}
+                        style={styles.width100}
                         value={this.state.newPresetFolder || '__root__'}
                         onChange={e => this.setState({ newPresetFolder: e.target.value })}
                         onKeyUp={e => {
@@ -829,7 +835,7 @@ class MenuList extends Component {
                     </Select>
                 </FormControl>
             </DialogContent>
-            <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+            <DialogActions style={{ ...styles.alignRight, ...styles.buttonsContainer }}>
                 <Button
                     variant="contained"
                     disabled={!isIdUnique}
@@ -847,7 +853,7 @@ class MenuList extends Component {
                     onClick={() => this.setState({ movePresetDialog: null })}
                     startIcon={<IconCancel />}
                 >
-                    <IconCancel className={this.props.classes.buttonIcon} />
+                    <IconCancel style={styles.buttonIcon} />
                     {I18n.t('Cancel')}
                 </Button>
             </DialogActions>
@@ -902,7 +908,7 @@ class MenuList extends Component {
         >
             <DialogTitle>{I18n.t('Rename preset')}</DialogTitle>
             <DialogContent>
-                <FormControl classes={{ root: this.props.classes.width100 }} variant="standard">
+                <FormControl style={styles.width100} variant="standard">
                     <TextField
                         variant="standard"
                         fullWidth
@@ -921,7 +927,7 @@ class MenuList extends Component {
                     />
                 </FormControl>
             </DialogContent>
-            <DialogActions className={Utils.clsx(this.props.classes.alignRight, this.props.classes.buttonsContainer)}>
+            <DialogActions style={{ ...styles.alignRight, ...styles.buttonsContainer }}>
                 <Button
                     variant="contained"
                     disabled={!this.state.renamePresetDialogTitle || !this.isNameUnique(presetId, this.state.renamePresetDialogTitle)}
@@ -947,7 +953,8 @@ class MenuList extends Component {
 
     renderDeleteDialog() {
         return this.state.deletePresetDialog ? <ConfirmDialog
-            title={I18n.t('Are you sure for delete this preset?')}
+            title={I18n.t('Please confirm')}
+            text={I18n.t('Are you sure for delete this preset?')}
             ok={I18n.t('Delete')}
             cancel={I18n.t('Cancel')}
             suppressQuestionMinutes={3}
@@ -1016,8 +1023,14 @@ class MenuList extends Component {
         try {
             await this.props.socket.delObject(id);
             const newState = await this.getAllPresets();
-            this.setState(newState, () =>
-                this.props.onSelectedChanged(null));
+            this.setState(newState, () => {
+                // Todo: find the next preset
+                if (id === this.props.selectedId) {
+                    const keys = Object.keys(this.state.presets);
+                    // first take nearest from the same folder, that any one
+                    this.props.onSelectedChanged(keys[0] || null);
+                }
+            });
         } catch (e) {
             this.onError(e, `Cannot delete object ${id}`);
         }
@@ -1070,7 +1083,7 @@ class MenuList extends Component {
     render() {
         return <>
             <DragDropContext backend={HTML5Backend}>
-                <List className={Utils.clsx(this.props.classes.scroll, this.props.classes.mainList)}>
+                <List sx={{ ...styles.scroll, ...styles.mainList }}>
                     {this.renderPresetsTree(this.state.presetFolders)}
                 </List>
             </DragDropContext>
@@ -1099,7 +1112,8 @@ MenuList.propTypes = {
         PropTypes.object,
         PropTypes.string,
     ]),
+    theme: PropTypes.object,
     selectedPresetChanged: PropTypes.bool,
 };
 
-export default withWidth()(withStyles(styles)(withTheme(MenuList)));
+export default withWidth()(MenuList);

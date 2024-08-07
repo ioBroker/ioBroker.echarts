@@ -521,5 +521,12 @@
   "This time offset will be added to the X label by displaying data on the chart": "Questa differenza di tempo verrà aggiunta all'etichetta X visualizzando i dati sul grafico",
   "X-Label-Offset": "Offset etichetta X",
   "This time offset will be added to the request by reading data from DB": "Questo offset temporale verrà aggiunto alla richiesta leggendo i dati dal DB",
-  "No future": "Nessun valore in futuro"
+  "No future": "Nessun valore in futuro",
+  "Background of radar chart": "Sfondo del grafico radar",
+  "polar": "Carta polare",
+  "Polar": "Carta polare",
+  "current": "Valore corrente",
+  "Dialog": "Dialogo",
+  "Polygonal": "Poligonale",
+  "Circle": "Cerchio"
 }

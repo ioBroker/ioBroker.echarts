@@ -521,5 +521,12 @@
   "This time offset will be added to the X label by displaying data on the chart": "Это временное смещение будет добавлено к метке X при отображении данных на диаграмме.",
   "X-Label-Offset": "Смещение X-метки",
   "This time offset will be added to the request by reading data from DB": "Это смещение времени будет добавлено к запросу при чтении данных из БД.",
-  "No future": "Никаких ценностей в будущем"
+  "No future": "Никаких ценностей в будущем",
+  "Background of radar chart": "Фон радиолокационной диаграммы",
+  "polar": "Полярная карта (радар)",
+  "Polar": "Полярная карта (Радар)",
+  "current": "Текущая стоимость",
+  "Dialog": "Диалог",
+  "Polygonal": "Полигональный",
+  "Circle": "Круг"
 }

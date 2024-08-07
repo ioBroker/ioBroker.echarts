@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     Button,
@@ -23,11 +22,11 @@ import {
     MdDelete as IconDelete,
 } from 'react-icons/md';
 
-const styles = () => ({
+const styles = {
     stateValueEdit: {
         marginBottom: 10,
     },
-});
+};
 
 class EditStatesDialog extends React.Component {
     constructor(props) {
@@ -71,7 +70,7 @@ class EditStatesDialog extends React.Component {
             <DialogTitle>{I18n.t('Add new state name')}</DialogTitle>
             <DialogContent>
                 <TextField
-                    className={this.props.classes.stateValueEdit}
+                    style={styles.stateValueEdit}
                     variant="standard"
                     label={I18n.t('State value')}
                     value={this.state.newValue}
@@ -79,7 +78,7 @@ class EditStatesDialog extends React.Component {
                 />
                 <br />
                 <TextField
-                    className={this.props.classes.stateValueEdit}
+                    style={styles.stateValueEdit}
                     variant="standard"
                     label={I18n.t('State value text')}
                     value={this.state.newTextValue}
@@ -159,7 +158,7 @@ class EditStatesDialog extends React.Component {
                             .map(val =>
                                 <div key={val}>
                                     <TextField
-                                        className={this.props.classes.stateValueEdit}
+                                        style={styles.stateValueEdit}
                                         variant="standard"
                                         label={this.props.isBoolean ? (val === '1' ? I18n.t('TRUE') : (val === '0' ? I18n.t('FALSE') : val)) : val.toString()}
                                         value={this.state.withStates[val]}
@@ -214,4 +213,4 @@ EditStatesDialog.propTypes = {
     isBoolean: PropTypes.string,
 };
 
-export default withStyles(styles)(EditStatesDialog);
+export default EditStatesDialog;

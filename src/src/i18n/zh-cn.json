@@ -521,5 +521,12 @@
   "This time offset will be added to the X label by displaying data on the chart": "通过在图表上显示数据，此时间偏移量将添加到 X 标签",
   "X-Label-Offset": "X 标签偏移",
   "This time offset will be added to the request by reading data from DB": "该时间偏移量将通过从 DB 读取数据添加到请求中",
-  "No future": "未来没有任何价值"
+  "No future": "未来没有任何价值",
+  "Background of radar chart": "雷达图背景",
+  "polar": "极坐标图",
+  "Polar": "极坐标图",
+  "current": "当前值",
+  "Dialog": "对话",
+  "Polygonal": "多边形",
+  "Circle": "圆圈"
 }

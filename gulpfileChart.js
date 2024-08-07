@@ -1,14 +1,14 @@
 /**
- * Copyright 2018-2023 bluefox <dogafox@gmail.com>
+ * Copyright 2018-2024 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *
  **/
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
-const cp   = require('child_process');
+const fs   = require('node:fs');
+const path = require('node:path');
+const cp   = require('node:child_process');
 
 const dir = `${__dirname}/src-chart/src/i18n/`;
 

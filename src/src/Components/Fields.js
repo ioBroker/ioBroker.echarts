@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     FormControl,
@@ -22,11 +21,9 @@ import {
     Help as HelpIcon,
 } from '@mui/icons-material';
 
-import { I18n, Utils, SelectID as DialogSelectID } from '@iobroker/adapter-react-v5';
+import { I18n, SelectID as DialogSelectID, ColorPicker } from '@iobroker/adapter-react-v5';
 
-import ColorPicker from './ColorPicker';
-
-const styles = theme => ({
+const styles = {
     fieldContainer: {
         paddingTop: 10,
         whiteSpace: 'nowrap',
@@ -58,7 +55,7 @@ const styles = theme => ({
     },
     sliderRoot: {
         paddingBottom: 0,
-        paddingTop: theme.spacing(2),
+        paddingTop: 16,
     },
     selectIcon: {
         paddingRight: 4,
@@ -66,14 +63,14 @@ const styles = theme => ({
     tooltip: {
         pointerEvents: 'none',
     },
-});
+};
 
-const IOSelectClass = props => {
+const IOSelect = props => {
     const label = I18n.t(props.label);
-    return <div className={Utils.clsx(props.classes.fieldContainer, props.className)}>
+    return <div style={{ ...(props.styles?.fieldContainer || styles.fieldContainer), ...props.style }}>
         <Tooltip
             title={props.tooltip ? I18n.t(props.tooltip) : null}
-            classes={{ popper: props.classes.tooltip }}
+            componentsProps={{ popper: { sx: styles.tooltip } }}
         >
             <FormControl style={{ minWidth: props.minWidth || 200, width: props.width }} variant="standard">
                 <InputLabel shrink>{label}</InputLabel>
@@ -95,7 +92,7 @@ const IOSelectClass = props => {
                                     value={key}
                                     style={{ color: props.colors ? props.colors[key] || undefined : undefined }}
                                 >
-                                    {props.icons && props.icons[key] ? <span className={props.classes.selectIcon}>{props.icons[key]}</span> : null}
+                                    {props.icons && props.icons[key] ? <span style={styles.selectIcon}>{props.icons[key]}</span> : null}
                                     {props.noTranslate ?
                                         props.options[key] :
                                         (props.options[key] !== '' && props.options[key] !== null && props.options[key] !== undefined ?
@@ -107,7 +104,7 @@ const IOSelectClass = props => {
         </Tooltip>
     </div>;
 };
-IOSelectClass.propTypes = {
+IOSelect.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
@@ -116,13 +113,12 @@ IOSelectClass.propTypes = {
     colors: PropTypes.object,
     icons: PropTypes.object,
 };
-const IOSelect = withStyles(styles)(IOSelectClass);
 export { IOSelect };
 
-const IOCheckboxClass = props => <div className={props.classes.fieldContainer}>
+const IOCheckbox = props => <div style={props.styles?.fieldContainer || styles.fieldContainer}>
     <FormControlLabel
         style={{ paddingTop: 10 }}
-        label={<span className={props.classes.checkBoxLabel}>{I18n.t(props.label)}</span>}
+        label={<span style={styles.checkBoxLabel}>{I18n.t(props.label)}</span>}
         control={
             <Checkbox
                 disabled={!!props.disabled}
@@ -132,16 +128,15 @@ const IOCheckboxClass = props => <div className={props.classes.fieldContainer}>
         }
     />
 </div>;
-IOCheckboxClass.propTypes = {
+IOCheckbox.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     formData: PropTypes.object,
 };
-const IOCheckbox = withStyles(styles)(IOCheckboxClass);
 export { IOCheckbox };
 
-const IOTextFieldClass = props => <div className={props.classes.fieldContainer}>
+const IOTextField = props => <div style={props.styles?.fieldContainer || styles.fieldContainer}>
     <TextField
         variant="standard"
         disabled={!!props.disabled}
@@ -180,7 +175,7 @@ const IOTextFieldClass = props => <div className={props.classes.fieldContainer}>
     />
 </div>;
 
-IOTextFieldClass.propTypes = {
+IOTextField.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
@@ -191,10 +186,9 @@ IOTextFieldClass.propTypes = {
     helperLink: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     width: PropTypes.number,
 };
-const IOTextField = withStyles(styles)(IOTextFieldClass);
 export { IOTextField };
 
-const IODateTimeFieldClass = props => <div className={props.classes.fieldContainer}>
+const IODateTimeField = props => <div style={props.styles?.fieldContainer || styles.fieldContainer}>
     <TextField
         variant="standard"
         type="datetime-local"
@@ -207,23 +201,22 @@ const IODateTimeFieldClass = props => <div className={props.classes.fieldContain
         value={props.formData[props.name] ? `${props.formData[props.name]}T${props.formData[`${props.name}_time`]}` : ''}
     />
 </div>;
-IODateTimeFieldClass.propTypes = {
+IODateTimeField.propTypes = {
     label: PropTypes.string,
     name: PropTypes.string,
     formData: PropTypes.object,
 };
-const IODateTimeField = withStyles(styles)(IODateTimeFieldClass);
 export { IODateTimeField };
 
-const IOObjectFieldClass = props => {
+const IOObjectField = props => {
     const [state, setState] = useState({});
 
-    return <div className={props.classes.fieldContainer} style={{ width: props.width }}>
-        <div className={props.classes.objectContainer}>
+    return <div style={{ ...(props.styles?.fieldContainer || styles.fieldContainer), width: props.width }}>
+        <div style={props.styles?.objectContainer || styles.objectContainer}>
             <TextField
                 variant="standard"
                 disabled={!!props.disabled}
-                className={props.classes.objectField}
+                style={props.styles?.objectField}
                 label={I18n.t(props.label)}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
@@ -234,12 +227,13 @@ const IOObjectFieldClass = props => {
                 disabled={!!props.disabled}
                 size="small"
                 onClick={() => setState({ showDialog: true })}
-                className={props.classes.objectButton}
+                style={styles.objectButton}
             >
                 <IconSelectID />
             </IconButton>
         </div>
         {state.showDialog ? <DialogSelectID
+            theme={props.theme}
             imagePrefix="../.."
             key={`selectDialog_${props.name}`}
             socket={props.socket}
@@ -255,7 +249,7 @@ const IOObjectFieldClass = props => {
         /> : null}
     </div>;
 };
-IOObjectFieldClass.propTypes = {
+IOObjectField.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
@@ -263,15 +257,14 @@ IOObjectFieldClass.propTypes = {
     socket: PropTypes.object,
     customFilter: PropTypes.object,
 };
-const IOObjectField = withStyles(styles)(IOObjectFieldClass);
 export { IOObjectField };
 
-const IOColorPickerClass = props => <div className={props.classes.fieldContainer}>
+const IOColorPicker = props => <div style={props.styles?.fieldContainer || styles.fieldContainer}>
     <ColorPicker
         disabled={!!props.disabled}
         variant="standard"
         label={I18n.t(props.label)}
-        pickerClassName={props.classes.colorPicker}
+        pickerStyle={styles.colorPicker}
         inputProps={{
             style: { backgroundColor: props.formData[props.name] },
         }}
@@ -291,20 +284,19 @@ const IOColorPickerClass = props => <div className={props.classes.fieldContainer
         value={props.formData[props.name] || ''}
     />
 </div>;
-IOColorPickerClass.propTypes = {
+IOColorPicker.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
     formData: PropTypes.object,
 };
-const IOColorPicker = withStyles(styles)(IOColorPickerClass);
 export { IOColorPicker };
 
-const IOSliderClass = props => <div className={Utils.clsx(props.classes.fieldContainer, props.classes.sliderContainer)}>
-    <Typography className={props.classes.sliderLabel}>{props.label}</Typography>
+const IOSlider = props => <div style={{ ...(props.styles?.fieldContainer || styles.fieldContainer), ...(props.styles?.sliderContainer || styles.sliderContainer) }}>
+    <Typography style={props.styles?.sliderLabel || styles.sliderLabel}>{props.label}</Typography>
     <Slider
         disabled={!!props.disabled}
-        classes={{ root: props.classes.sliderRoot }}
+        style={props.styles?.sliderRoot || styles.sliderRoot}
         value={parseFloat(props.formData[props.name] || props.min || 0) || 0}
         // getAriaValueText={(props.formData[props.name] || '').toString()}
         step={parseFloat(props.step || (((props.max || 1) - (props.min || 0)) / 10)) || 0.1}
@@ -315,7 +307,7 @@ const IOSliderClass = props => <div className={Utils.clsx(props.classes.fieldCon
         valueLabelDisplay="auto"
     />
 </div>;
-IOSliderClass.propTypes = {
+IOSlider.propTypes = {
     disabled: PropTypes.bool,
     label: PropTypes.string,
     name: PropTypes.string,
@@ -324,5 +316,4 @@ IOSliderClass.propTypes = {
     step: PropTypes.number,
     formData: PropTypes.object,
 };
-const IOSlider = withStyles(styles)(IOSliderClass);
 export { IOSlider };
