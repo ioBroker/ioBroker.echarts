@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
 import {
     LinearProgress,
@@ -102,7 +101,7 @@ echarts.use([
     CanvasRenderer,
 ]);
 
-const styles = () => ({
+const styles = {
     chart: {
         maxHeight: '100%',
         maxWidth: '100%',
@@ -162,7 +161,7 @@ const styles = () => ({
     resetButtonIcon: {
         paddingTop: 6,
     },
-});
+};
 
 let canvasCalcTextWidth = null;
 function calcTextWidth(text, fontSize, fontFamily) {
@@ -386,7 +385,7 @@ class ChartView extends React.Component {
         this.option.yAxis = yAxis;
 
         try {
-            this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function' &&
+            typeof this.echartsReact?.getEchartsInstance === 'function' &&
                 this.echartsReact.getEchartsInstance().setOption({ yAxis });
         } catch (e) {
             console.error(`Cannot apply options 2: ${JSON.stringify(this.option)}`);
@@ -648,7 +647,7 @@ class ChartView extends React.Component {
     renderChart() {
         if (this.props.data) {
             this.option = this.option || this.chartOption.getOption(this.props.data, this.props.config, this.props.actualValues, this.props.categories);
-            const hasAnyBars = !!this.props.config.l.find(item => item.chartType === 'bar');
+            const hasAnyBarOrPolar = !!this.props.config.l.find(item => item.chartType === 'bar' || item.chartType === 'polar');
 
             if (this.props.config.title) {
                 window.document.title = this.props.config.title;
@@ -680,7 +679,7 @@ class ChartView extends React.Component {
                         this.selected = JSON.parse(JSON.stringify(e.selected));
                     },
                     rendered: () =>
-                        !this.props.compact && this.props.config.zoom && !hasAnyBars && this.installEventHandlers(),
+                        !this.props.compact && this.props.config.zoom && !hasAnyBarOrPolar && this.installEventHandlers(),
                 }}
             />;
         }
@@ -704,8 +703,7 @@ class ChartView extends React.Component {
             ref={this.divResetButton}
             size="small"
             color="default"
-            style={{ display: 'none' }}
-            className={this.props.classes.resetButton}
+            style={{ ...styles.resetButton, display: 'none' }}
             title={I18n.t('Reset pan and zoom')}
             onClick={() => {
                 if (this.divResetButton.current) {
@@ -714,7 +712,7 @@ class ChartView extends React.Component {
                 this.props.onRangeChange && this.props.onRangeChange();
             }}
         >
-            <IconReset className={this.props.classes.resetButtonIcon} />
+            <IconReset style={styles.resetButtonIcon} />
         </Fab>;
     }
 
@@ -722,7 +720,7 @@ class ChartView extends React.Component {
         if (this.props.config.export) {
             return <IconSaveImage
                 color={this.props.config.exportColor || 'default'}
-                className={this.props.classes.saveImageButton}
+                style={styles.saveImageButton}
                 title={this.option && this.option.useCanvas ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')}
                 onClick={() => {
                     if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
@@ -854,9 +852,8 @@ class ChartView extends React.Component {
     renderExportDataButton() {
         if (this.props.config.exportData) {
             return <IconExportData
-                style={this.state.exporting ? { opacity: 0.5 } : {}}
                 color={this.props.config.exportDataColor || 'default'}
-                className={this.props.classes.exportDataButton}
+                style={{ ...styles.exportDataButton, opacity: this.state.exporting ? 0.5 : 1 }}
                 title={I18n.t('Export raw data as CSV')}
                 onClick={() => {
                     if (this.state.exporting) {
@@ -881,12 +878,11 @@ class ChartView extends React.Component {
             <Fab
                 size="small"
                 color="default"
-                style={{ left: this.option?.grid?.left || 0 }}
-                className={this.props.classes.legendButton}
+                style={{ ...styles.legendButton, left: this.option?.grid?.left || 0 }}
                 title={I18n.t('Select lines')}
                 onClick={() => this.setState({ showLegendDialog: true })}
             >
-                <IconMenu className={this.props.classes.resetButtonIcon} />
+                <IconMenu style={styles.resetButtonIcon} />
             </Fab>
             {this.state.showLegendDialog ?
                 <Dialog
@@ -1031,7 +1027,7 @@ class ChartView extends React.Component {
         if (window.location.port === '3000') {
             return <IconCopy
                 color="default"
-                className={this.props.classes.copyButton}
+                style={styles.copyButton}
                 title="Copy option to clipboard"
                 onClick={() => Utils.copyToClipboard(JSON.stringify(this.option, null, 2))}
             />;
@@ -1050,11 +1046,11 @@ class ChartView extends React.Component {
 
         return <div
             ref={this.divRef}
-            className={this.props.classes.chart}
             style={{
+                ...styles.chart,
                 borderWidth,
-                width:       borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : undefined,
-                height:      borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : undefined,
+                width:       borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2 + 1}px)` : '100%',
+                height:      borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : '100%',
                 background:  this.props.config.noBackground ? undefined : (this.props.config.window_bg || undefined),
                 borderColor: this.props.config.noBorder !== 'noborder' ? this.props.config.border_color || undefined : undefined,
                 borderStyle: this.props.config.noBorder !== 'noborder' && borderWidth ? this.props.config.border_style || 'solid' : 'hidden',
@@ -1083,4 +1079,4 @@ ChartView.propTypes = {
     exportData: PropTypes.func,
 };
 
-export default withWidth()(withStyles(styles)(ChartView));
+export default withWidth()(ChartView);

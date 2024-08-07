@@ -1,4 +1,4 @@
-import Utils from '@iobroker/adapter-react-v5/Components/Utils';
+import { Utils } from '@iobroker/adapter-react-v5';
 
 const DEFAULT_PRESET = {
     lines:[

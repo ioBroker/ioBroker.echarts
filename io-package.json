@@ -1,8 +1,47 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.7.2",
+    "version": "1.9.0",
     "news": {
+      "1.9.0": {
+        "en": "upgraded packages\nremoved `withStyles`",
+        "de": "erweiterte pakete\nentfernen `withStyles`",
+        "ru": "модернизированные пакеты\nудалены `withStyles'",
+        "pt": "pacotes atualizados\nremovido `comestilos`",
+        "nl": "verbeterde pakketten\nverwijderd metStyles",
+        "fr": "paquets mis à jour\nenlevé `avecStyles`",
+        "it": "pacchetti aggiornati\nrimosso `withStyles`",
+        "es": "paquetes actualizados\nremovido `con los estilos`",
+        "pl": "zmodernizowane pakiety\nusunięte \"ze stylami\"",
+        "uk": "пакети оновлені\nвидалено `withStyle`",
+        "zh-cn": "升级软件包\n以“ Styles”删除"
+      },
+      "1.8.4": {
+        "en": "upgraded dependencies",
+        "de": "verbesserte abhängigkeiten",
+        "ru": "повышенная зависимость",
+        "pt": "dependências atualizadas",
+        "nl": "verbeterde afhankelijkheden",
+        "fr": "dépendances améliorées",
+        "it": "dipendenze aggiornate",
+        "es": "actualización de las dependencias",
+        "pl": "zmodernizowane zależności",
+        "uk": "покращені залежності",
+        "zh-cn": "升级的依赖关系"
+      },
+      "1.8.0": {
+        "en": "Added the radar (polar) chart type",
+        "de": "Hinzugefügt den Radar (polar) Diagrammtyp",
+        "ru": "Добавлена радиолокационная (полярная) карта",
+        "pt": "Adicionado o radar (polar) tipo gráfico",
+        "nl": "Het radar- (polaire) kaarttype is toegevoegd",
+        "fr": "Ajout du type de carte radar (polaire)",
+        "it": "Aggiunto il tipo di grafico radar (polare)",
+        "es": "Añadido el tipo de diagrama de radar (polar)",
+        "pl": "Dodano typ mapy radarowej (polarnej)",
+        "uk": "Додано тип радіолокаційної діаграми",
+        "zh-cn": "添加雷达( 极地) 图表类型"
+      },
       "1.7.2": {
         "en": "Added option to hide the value in the future",
         "de": "Option hinzugefügt, um den Wert in der Zukunft zu verbergen",
@@ -54,45 +93,6 @@
         "pl": "Wprowadzono opcję do dialogu eksportowego: wybór / unekstraklasyfikowany\nDodano dostępność do pokazania legendy jako dialogu",
         "uk": "Додано варіант до діалогового вікна експорту: вибрати / скасувати всі\nДодано доступність показати легенду як діалог",
         "zh-cn": "增加出口口号的选择:选择/取消一切选择\n增加是否能以图象图解。"
-      },
-      "1.5.3": {
-        "en": "Added an option to reset zoom and tilt after X seconds of idle",
-        "de": "Hinzugefügt eine Option, um Zoom und Kippen nach X Sekunden Leere zurücksetzen",
-        "ru": "Добавлена возможность сброса зоома и наклона после X секунды загадки",
-        "pt": "Adicionado uma opção para redefinir zoom e inclinação após X segundos de idle",
-        "nl": "Voeg een optie toe om zoom te resetten en te tintelen na X seconden van lege",
-        "fr": "Ajout d'une option pour réinitialiser le zoom et l'inclinaison après X secondes de ralenti",
-        "it": "Aggiunta un'opzione per ripristinare lo zoom e l'inclinazione dopo X secondi di idle",
-        "es": "Se agregó una opción para restablecer el zoom y la inclinación después de X segundos de ocio",
-        "pl": "Dodał możliwość resetowania się zbliżenia i nachylenia po X sekundach bezczynnych",
-        "uk": "Додано опцію для скидання золи та нахилу після X секунд свічки",
-        "zh-cn": "在十年代之后添加了重新种植和灌木的选择。"
-      },
-      "1.5.1": {
-        "en": "Error handling in JSON data was improved",
-        "de": "Fehlerbehandlung in JSON-Daten wurde verbessert",
-        "ru": "Улучшена обработка ошибок в данных JSON",
-        "pt": "O tratamento de erros nos dados JSON foi melhorado",
-        "nl": "Error omgaan in JSON data werd verbeterd",
-        "fr": "Gestion des erreurs dans les données JSON a été améliorée",
-        "it": "La gestione degli errori nei dati JSON è stata migliorata",
-        "es": "Se mejoró el manejo de errores en los datos JSON",
-        "pl": "Obserwacja danych JSON została poprawiona",
-        "uk": "Удосконалено процес обробки помилок в даних JSON",
-        "zh-cn": "改进了联合办数据的处理。"
-      },
-      "1.5.0": {
-        "en": "Implemented raw data export",
-        "de": "Export von Rohdaten",
-        "ru": "Внедренный экспорт сырья",
-        "pt": "Exportação de dados brutos implementadas",
-        "nl": "Vertaling:",
-        "fr": "Exportation de données brutes appliquées",
-        "it": "Esportazione di dati grezzi",
-        "es": "Exportación de datos brutos aplicada",
-        "pl": "Poprawa eksportu surowych danych",
-        "uk": "Реалізовано експорт сировини",
-        "zh-cn": "执行原材料出口"
       }
     },
     "title": "E-Charts",
@@ -127,17 +127,21 @@
       "charts",
       "diagram"
     ],
+    "adminUI": {
+      "config": "none",
+      "tab": "html"
+    },
     "adminTab": {
       "singleton": true,
       "name": "ECharts"
     },
-    "license": "Apache-2.0",
     "platform": "Javascript/Node.js",
     "connectionType": "local",
     "dataSource": "push",
     "icon": "echarts.png",
     "messagebox": true,
     "eraseOnUpload": true,
+    "nogit": true,
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
     "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
@@ -159,7 +163,12 @@
     },
     "restartAdapters": [
       "vis-2"
-    ]
+    ],
+    "tier": 3,
+    "licenseInformation": {
+      "license": "Apache-2.0",
+      "type": "free"
+    }
   },
   "native": {},
   "objects": [

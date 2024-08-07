@@ -74,6 +74,7 @@
   "line": "Line",
   "area": "Area",
   "bar": "Bar",
+  "polar": "Polar chart",
   "lineplot": "Line plot",
   "scatterplot": "Scatter plot",
   "steps": "Steps",
@@ -521,5 +522,11 @@
   "This time offset will be added to the X label by displaying data on the chart": "This time offset will be added to the X label by displaying data on the chart",
   "X-Label-Offset": "X-Label Offset",
   "This time offset will be added to the request by reading data from DB": "This time offset will be added to the request by reading data from DB",
-  "No future": "No values in future"
+  "No future": "No values in future",
+  "Background of radar chart": "Background of radar chart",
+  "Polar": "Polar chart (Radar)",
+  "current": "Current value",
+  "Dialog": "Dialog",
+  "Polygonal": "Polygonal",
+  "Circle": "Circle"
 }

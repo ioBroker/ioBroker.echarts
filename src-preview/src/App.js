@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import {
-    StylesProvider, createGenerateClassName, withStyles, withTheme,
-} from '@mui/styles';
 
 import {
     CircularProgress,
@@ -15,7 +12,7 @@ import {
     Slider,
     Snackbar,
     Menu,
-    MenuItem,
+    MenuItem, Box,
 } from '@mui/material';
 
 import {
@@ -39,7 +36,7 @@ import {
     Utils,
     withWidth,
     Error as DialogError,
-    Theme as theme,
+    Theme,
     ToggleThemeMenu,
 } from '@iobroker/adapter-react-v5';
 import Connection, { PROGRESS } from '@iobroker/adapter-react-v5/Connection';
@@ -47,23 +44,19 @@ import Connection, { PROGRESS } from '@iobroker/adapter-react-v5/Connection';
 import '@iobroker/adapter-react-v5/index.css';
 import logo from './assets/echarts.png';
 
-const generateClassName = createGenerateClassName({
-    productionPrefix: 'iob-app',
-});
-
-const styles = _theme => ({
-    root: {
+const styles = {
+    root: theme => ({
         width: '100%',
         height: 'calc(100% - 48px)',
         position: 'relative',
-        color: _theme.palette.mode === 'dark' ? '#fff' : '#000',
-        backgroundColor: _theme.palette.mode === 'dark' ? '#000' : '#fff',
+        color: theme.palette.mode === 'dark' ? '#fff' : '#000',
+        backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#fff',
         overflowX: 'hidden',
         overflowY: 'auto',
         display: 'flex',
         flexWrap: 'wrap',
         alignContent: 'flex-start',
-    },
+    }),
     slider: {
         color: '#FFF !important',
     },
@@ -78,14 +71,18 @@ const styles = _theme => ({
         cursor: 'pointer',
         position: 'relative',
     },
-    folderIcon: {
-        width: 'calc(100% - 28px)',
-        height: 'auto',
-        color: _theme.palette.primary.main,
-    },
-    active: {
-        color: _theme.palette.primary.main,
-    },
+    folderIcon: theme => ({
+        '& svg': {
+            width: 'calc(100% - 28px)',
+            height: 'auto',
+            color: theme.palette.primary.main,
+        },
+    }),
+    active: theme => ({
+        '& svg': {
+            color: theme.palette.primary.main,
+        },
+    }),
     folderName: {
         display: 'block',
         fontSize: 16,
@@ -116,7 +113,7 @@ const styles = _theme => ({
         bottom: 3,
         right: 3,
     },
-});
+};
 
 const iconsCache = {};
 
@@ -297,7 +294,7 @@ class App extends Component {
      * @returns {Theme}
      */
     static createTheme(name = '') {
-        return theme(Utils.getThemeName(name));
+        return Theme(Utils.getThemeName(name));
     }
 
     /**
@@ -328,7 +325,7 @@ class App extends Component {
 
         Utils.setThemeName(newThemeName);
 
-        const _theme = theme(newThemeName);
+        const _theme = Theme(newThemeName);
 
         this.setState({
             theme: _theme,
@@ -345,7 +342,7 @@ class App extends Component {
         if (!this.state.errorText) {
             return null;
         }
-        return <DialogError classes={{ }} text={this.state.errorText} onClose={() => this.setState({ errorText: '' })} />;
+        return <DialogError text={this.state.errorText} onClose={() => this.setState({ errorText: '' })} />;
     }
 
     static buildPresetTree(presets, emptyFolders) {
@@ -514,18 +511,20 @@ class App extends Component {
     renderFolder(parent) {
         const reactItems = [];
         if (this.state.location.length > 1) {
-            reactItems.push(<div
-                className={this.props.classes.button}
+            reactItems.push(<Box
+                component="div"
+                style={styles.button}
                 key="__back__"
                 onClick={() => {
                     const location = [...this.state.location];
                     location.pop();
                     window.location.hash = `#${location.join('/')}`;
                 }}
+                sx={styles.folderIcon}
             >
-                <KeyboardReturn className={this.props.classes.folderIcon} />
-                <div className={this.props.classes.folderName}>{I18n.t('back')}</div>
-            </div>);
+                <KeyboardReturn />
+                <div style={styles.folderName}>{I18n.t('back')}</div>
+            </Box>);
         }
 
         if (parent.subFolders && Object.keys(parent.subFolders).length) {
@@ -533,8 +532,9 @@ class App extends Component {
                 if (name === '_consumption_') {
                     return;
                 }
-                reactItems.push(<div
-                    className={this.props.classes.button}
+                reactItems.push(<Box
+                    component="div"
+                    style={styles.button}
                     // style={{ width: this.state.iconSize }}
                     key={name}
                     onClick={() => {
@@ -542,10 +542,11 @@ class App extends Component {
                         location.push(name);
                         window.location.hash = `#${location.join('/')}`;
                     }}
+                    sx={styles.folderIcon}
                 >
-                    <IconFolderClosed className={this.props.classes.folderIcon} />
-                    <div className={this.props.classes.folderName}>{name}</div>
-                </div>);
+                    <IconFolderClosed />
+                    <div style={styles.folderName}>{name}</div>
+                </Box>);
             });
         }
 
@@ -573,7 +574,7 @@ class App extends Component {
                 port: inst.port,
             }));
 
-            reactItems.push(<div key="br" className={this.props.classes.break} />);
+            reactItems.push(<div key="br" style={styles.break} />);
             Object.keys(parent.presets).forEach(name => {
                 const preset = parent.presets[name];
                 if (!this.state.icons[preset._id]) {
@@ -582,8 +583,7 @@ class App extends Component {
 
                 reactItems.push(<div
                     key={name}
-                    style={{ width: this.state.iconSize }}
-                    className={this.props.classes.button}
+                    style={{ ...styles.button, width: this.state.iconSize }}
                     onClick={e => {
                         if (webUrls.length > 1) {
                             this.setState({
@@ -601,19 +601,19 @@ class App extends Component {
                 >
                     {this.state.icons[preset._id] ?
                         (this.state.icons[preset._id].startsWith('error:') ?
-                            <ImageNotSupported className={this.props.classes.presetIcon} /> :
-                            <img className={this.props.classes.presetIcon} src={this.state.icons[preset._id]} alt={preset._id} />)
-                        : <CircularProgress className={this.props.classes.presetIcon} />}
+                            <ImageNotSupported style={styles.presetIcon} /> :
+                            <img style={styles.presetIcon} src={this.state.icons[preset._id]} alt={preset._id} />)
+                        : <CircularProgress style={styles.presetIcon} />}
 
-                    <div className={this.props.classes.presetName}>
+                    <div style={styles.presetName}>
                         {preset.common.name}
                     </div>
                     {this.state.icons[preset._id] && this.state.icons[preset._id].startsWith('error:') ?
-                        <div className={this.props.classes.presetError}>{this.state.icons[preset._id].substring(6)}</div> : null}
+                        <div style={styles.presetError}>{this.state.icons[preset._id].substring(6)}</div> : null}
                     <IconButton
                         size="small"
                         title={I18n.t('Copy URL to clipboard')}
-                        className={this.props.classes.copyButton}
+                        style={styles.copyButton}
                         onClick={e => {
                             e.stopPropagation();
                             if (webUrls.length > 1) {
@@ -687,7 +687,7 @@ class App extends Component {
                 <Slider
                     min={64}
                     max={512}
-                    className={this.props.classes.slider}
+                    style={styles.slider}
                     value={this.state.iconSize}
                     onChange={(e, iconSize) => {
                         window.localStorage.setItem('echarts.iconSize', iconSize.toString());
@@ -724,7 +724,7 @@ class App extends Component {
                     key="close"
                     aria-label="Close"
                     color="inherit"
-                    className={this.props.classes.close}
+                    style={styles.close}
                     onClick={() => this.setState({ toast: '' })}
                     size="large"
                 >
@@ -760,82 +760,79 @@ class App extends Component {
 
     render() {
         if (!this.state.connected) {
-            return <StylesProvider generateClassName={generateClassName}>
-                <StyledEngineProvider injectFirst>
-                    <ThemeProvider theme={this.state.theme}>
-                        <Loader theme={this.state.themeType} />
-                    </ThemeProvider>
-                </StyledEngineProvider>
-            </StylesProvider>;
+            return <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.state.theme}>
+                    <Loader themeType={this.state.themeType} />
+                </ThemeProvider>
+            </StyledEngineProvider>;
         }
 
         const folder = this.getFolder(this.state.location);
         const location = [];
 
-        return <StylesProvider generateClassName={generateClassName}>
-            <StyledEngineProvider injectFirst>
-                <ThemeProvider theme={this.state.theme}>
-                    <AppBar position="static" className={this.props.classes.appBar}>
-                        <Toolbar variant="dense">
-                            {this.isWeb ? null :
-                                <IconButton
-                                    title={I18n.t('Back to editor')}
-                                    onClick={() => {
-                                        const parts = window.location.pathname.split('/');
-                                        parts.pop();
-                                        parts.pop();
-                                        parts.push('tab.html');
-                                        window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
-                                    }}
-                                >
-                                    <ArrowCircleLeft />
-                                </IconButton>}
-                            <img src={logo} alt="echarts" style={{ width: 32, marginRight: 8 }} />
-                            <Breadcrumbs aria-label="breadcrumb">
-                                {this.state.location.map((name, i) => {
-                                    location.push(name);
-                                    return <Link key={i} underline={this.state.location.length - 1 === i ? 'none' : 'hover'} color="inherit" href={`#${location.join('/')}`}>
-                                        {name || I18n.t('root')}
-                                    </Link>;
-                                })}
-                            </Breadcrumbs>
-                            <div style={{ flexGrow: 1 }} />
-                            {this.renderSlider()}
-                            <IconButton onClick={() => this.setState({ showSlider: !this.state.showSlider })} title={I18n.t('Change size')}>
-                                {this.state.showSlider ?
-                                    <ImageNotSupported className={this.state.showSlider ? this.props.classes.active : ''} />
-                                    :
-                                    <AddPhotoAlternate />}
-                            </IconButton>
+        return <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={this.state.theme}>
+                <AppBar position="static" style={styles.appBar}>
+                    <Toolbar variant="dense">
+                        {this.isWeb ? null :
                             <IconButton
+                                title={I18n.t('Back to editor')}
                                 onClick={() => {
-                                    Object.keys(iconsCache).forEach(key => {
-                                        delete iconsCache[key];
-                                    });
-                                    this.setState({ icons: {}, forceRefresh: true });
+                                    const parts = window.location.pathname.split('/');
+                                    parts.pop();
+                                    parts.pop();
+                                    parts.push('tab.html');
+                                    window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
                                 }}
-                                title={I18n.t('Refresh snapshots')}
                             >
-                                <Refresh />
-                            </IconButton>
-                            {this.isWeb ? <ToggleThemeMenu
-                                toggleTheme={() => this.toggleTheme()}
-                                themeName={this.state.themeName}
-                                t={I18n.t}
-                            /> : null}
-                            <h4 className={this.props.classes.toolbarTitle}>Echarts viewer</h4>
-                        </Toolbar>
-                    </AppBar>
-                    <div className={this.props.classes.root}>
-                        {folder && this.renderFolder(folder)}
-                    </div>
-                    {this.renderError()}
-                    {this.renderToast()}
-                    {this.renderWebMenu()}
-                </ThemeProvider>
-            </StyledEngineProvider>
-        </StylesProvider>;
+                                <ArrowCircleLeft />
+                            </IconButton>}
+                        <img src={logo} alt="echarts" style={{ width: 32, marginRight: 8 }} />
+                        <Breadcrumbs aria-label="breadcrumb">
+                            {this.state.location.map((name, i) => {
+                                location.push(name);
+                                return <Link key={i} underline={this.state.location.length - 1 === i ? 'none' : 'hover'} color="inherit" href={`#${location.join('/')}`}>
+                                    {name || I18n.t('root')}
+                                </Link>;
+                            })}
+                        </Breadcrumbs>
+                        <div style={{ flexGrow: 1 }} />
+                        {this.renderSlider()}
+                        <IconButton
+                            onClick={() => this.setState({ showSlider: !this.state.showSlider })}
+                            title={I18n.t('Change size')}
+                            sx={this.state.showSlider ? styles.active : undefined}
+                        >
+                            {this.state.showSlider ? <ImageNotSupported /> : <AddPhotoAlternate />}
+                        </IconButton>
+                        <IconButton
+                            onClick={() => {
+                                Object.keys(iconsCache).forEach(key => {
+                                    delete iconsCache[key];
+                                });
+                                this.setState({ icons: {}, forceRefresh: true });
+                            }}
+                            title={I18n.t('Refresh snapshots')}
+                        >
+                            <Refresh />
+                        </IconButton>
+                        {this.isWeb ? <ToggleThemeMenu
+                            toggleTheme={() => this.toggleTheme()}
+                            themeName={this.state.themeName}
+                            t={I18n.t}
+                        /> : null}
+                        <h4 style={styles.toolbarTitle}>Echarts viewer</h4>
+                    </Toolbar>
+                </AppBar>
+                <Box component="div" sx={styles.root}>
+                    {folder && this.renderFolder(folder)}
+                </Box>
+                {this.renderError()}
+                {this.renderToast()}
+                {this.renderWebMenu()}
+            </ThemeProvider>
+        </StyledEngineProvider>;
     }
 }
 
-export default withWidth()(withStyles(styles)(withTheme(App)));
+export default withWidth()(App);

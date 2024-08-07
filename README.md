@@ -17,6 +17,9 @@ Build useful charts in ioBroker:
 
 ![Bars](img/bars.png)
 
+![Radar](img/radar.png)
+Use "Actual value" aggregation for predicted result.
+
 ## Usage
 Add after the restart the tab in the admin:
 ![Admin](img/admin.png)
@@ -91,13 +94,22 @@ You can debug view charts locally with:
 
 ## Todo
 - widget for vis (button)
-- widget for material
 - show enum icons on folders or near it
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### 1.9.0 (2024-08-06)
+* (bluefox) upgraded packages
+* (bluefox) removed `withStyles`
+
+### 1.8.4 (2024-06-21)
+* (foxriver76) upgraded dependencies
+
+### 1.8.0 (2024-02-03)
+* (bluefox) Added the radar (polar) chart type
+
 ### 1.7.2 (2023-11-20)
 * (bluefox) Added option to hide the value in the future
 
@@ -295,10 +307,10 @@ You can debug view charts locally with:
 ## License
 ioBroker.echarts is available under the Apache License V2.
 
-Copyright (c) 2019-2023 bluefox <dogafox@gmail.com>
+Copyright (c) 2019-2024 bluefox <dogafox@gmail.com>
 
 Apache ECharts
-Copyright (c) 2017-2023 The Apache Software Foundation
+Copyright (c) 2017-2024 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (https://www.apache.org/).

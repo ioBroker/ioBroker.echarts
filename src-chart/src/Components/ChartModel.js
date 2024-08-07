@@ -784,7 +784,7 @@ class ChartModel {
                 addID:      false,
             };
 
-            if (this.config.l[index].chartType === 'bar') {
+            if (this.config.l[index].chartType === 'bar' || this.config.l[index].chartType === 'polar') {
                 this.increaseRegionForBar(start, end, option);
             } else if (this.config.aggregateType === 'step') {
                 option.step = this.config.aggregateSpan * 1000;
@@ -880,7 +880,7 @@ class ChartModel {
                 end: values[values.length - 1].ts,
             };
 
-            if (this.config.l[index].chartType === 'bar') {
+            if (this.config.l[index].chartType === 'bar' || this.config.l[index].chartType === 'polar') {
                 this.increaseRegionForBar(option.start, option.end, option);
             }
         }
@@ -942,7 +942,7 @@ class ChartModel {
                         break;
                     }
                 }
-            } else {
+            } else if (this.config.l[index].chartType !== 'polar') {
                 if (this.config.l[index].noFuture && values[i].ts > this.now) {
                     // todo: interpolate value
                     break;
@@ -965,7 +965,7 @@ class ChartModel {
         }
 
         // add start and end
-        if (this.config.l[index].chartType !== 'bar') {
+        if (this.config.l[index].chartType !== 'bar' && this.config.l[index].chartType !== 'polar') {
             let end = option.end;
             // End cannot be in the future
             if (end > this.now) {
@@ -1078,26 +1078,28 @@ class ChartModel {
             // console.log(JSON.stringify(option));
             this.debug && console.log(`[ChartModel] ${new Date(option.start)} - ${new Date(option.end)}`);
 
-            try {
-                const res = await this.socket.getHistoryEx(id, option);
-                if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
-                    console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
-                    return;
-                }
+            if (this.config.l[index].aggregate !== 'current') {
+                try {
+                    const res = await this.socket.getHistoryEx(id, option);
+                    if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
+                        console.warn(`[ChartModel] Ignore request with sessionId=${res.sessionId}, actual is ${this.sessionId}`);
+                        return;
+                    }
 
-                if (res && res.values) {
-                    // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
-                    this.processRawData(id, index, res.values, option);
+                    if (res && res.values) {
+                        // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
+                        this.processRawData(id, index, res.values, option);
 
-                    // free memory
-                    res.values = null;
+                        // free memory
+                        res.values = null;
+                    }
+                } catch (err) {
+                    err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
+                    err && console.error(`[ChartModel] ${err}`);
                 }
-            } catch (err) {
-                err === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(err);
-                err && console.error(`[ChartModel] ${err}`);
             }
 
-            if (this.config.legActual && this.config.l[index].chartType !== 'bar') {
+            if ((this.config.legActual && this.config.l[index].chartType !== 'bar' && this.config.l[index].chartType !== 'polar') || this.config.l[index].aggregate === 'current') {
                 // read current value
                 try {
                     const state = await this.socket.getState(id);

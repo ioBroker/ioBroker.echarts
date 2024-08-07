@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@mui/styles';
 
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Popover from '@mui/material/Popover';
+import {
+    Box,
+    Toolbar,
+    Button,
+    Select,
+    MenuItem,
+    Popover,
+} from '@mui/material';
 
 import { IoMdTime as IconTime, IoMdArrowDropdown as IconDropDown } from 'react-icons/io';
 import { FiRefreshCw as IconRefresh } from 'react-icons/fi';
@@ -14,17 +16,18 @@ import { FiRefreshCw as IconRefresh } from 'react-icons/fi';
 import { MdAdd as IconPlus } from 'react-icons/md';
 
 import { I18n } from '@iobroker/adapter-react-v5';
+
 import { IOTextField, IOSelect, IODateTimeField } from './Fields';
 import IconAggregate from './IconAggregate';
 
-const styles = theme => ({
+const styles = {
     mainDiv: {
         paddingLeft: 40,
     },
     fieldsContainer: {
         '& > div': {
             display: 'flex',
-            paddingRight: 20,
+            pr: '20px',
             width: 200,
         },
     },
@@ -33,18 +36,18 @@ const styles = theme => ({
         float: 'right',
     },
     popOver: {
-        padding: theme.spacing(2),
+        padding: 16,
     },
     refreshSelect: {
         display: 'inline-block',
-        paddingLeft: 4,
+        pl: '4px',
         '& > div:before': {
             borderWidth: 0,
         },
         '& > div:hover:before': {
             borderBottom: 0,
         },
-        marginLeft: theme.spacing(1),
+        ml: '8px',
     },
     refreshSelectButtonTitle: {
         display: 'inline-flex',
@@ -61,9 +64,9 @@ const styles = theme => ({
     aggregateIcon: {
         marginTop: 4,
     },
-});
+};
 
-const RefreshSelect = props => <div className={props.className}>
+const RefreshSelect = props => <Box component="div" sx={styles.sx}>
     <Select
         variant="standard"
         onChange={e => props.updateValue(props.name, e.target.value)}
@@ -71,14 +74,12 @@ const RefreshSelect = props => <div className={props.className}>
         renderValue={props.renderValue}
         displayEmpty
     >
-        {
-            props.options ?
-                Object.keys(props.options).map(key =>
-                    <MenuItem key={key} value={key}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
-                : null
-        }
+        {props.options ?
+            Object.keys(props.options).map(key =>
+                <MenuItem key={key} value={key}>{props.noTranslate ? props.options[key] : I18n.t(props.options[key])}</MenuItem>)
+            : null}
     </Select>
-</div>;
+</Box>;
 
 const rangeOptions = {
     10: '10 minutes',
@@ -146,6 +147,7 @@ const CHART_TYPES = {
     auto: 'Auto (Line or Steps)',
     line: 'Line',
     bar: 'Bar',
+    polar: 'Polar',
     scatterplot: 'Scatter plot',
     steps: 'Steps',
     stepsStart: 'Steps on start',
@@ -182,12 +184,12 @@ class ChartSettings extends React.Component {
     };
 
     render() {
-        return <Toolbar className={this.props.classes.mainDiv} variant="dense">
+        return <Toolbar style={styles.mainDiv} variant="dense">
             <Button
                 color="grey"
                 title={I18n.t('Time span')}
                 size="small"
-                className={this.props.classes.settingsButton}
+                style={styles.settingsButton}
                 id="timeSpanOpenButton"
                 onClick={() => this.setState({ timeSpanOpened: !this.state.timeSpanOpened })}
             >
@@ -200,7 +202,7 @@ class ChartSettings extends React.Component {
                 <IconDropDown />
             </Button>
             <Popover
-                className={this.props.classes.popOver}
+                style={styles.popOver}
                 open={this.state.timeSpanOpened}
                 onClose={() => { this.setState({ timeSpanOpened: false }); }}
                 anchorEl={() => document.getElementById('timeSpanOpenButton')}
@@ -213,8 +215,8 @@ class ChartSettings extends React.Component {
                     horizontal: 'center',
                 }}
             >
-                <div className={this.props.classes.popOver}>
-                    <div className={this.props.classes.fieldsContainer}>
+                <div style={styles.popOver}>
+                    <Box component="div" sx={styles.fieldsContainer}>
                         <IOSelect
                             formData={this.props.presetData}
                             updateValue={this.updateField}
@@ -233,18 +235,18 @@ class ChartSettings extends React.Component {
                                 <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="relativeEnd" label="End" options={relativeEndOptions} />
                                 <IOSelect formData={this.props.presetData} updateValue={this.updateField} name="range" label="Range" options={rangeOptions} />
                             </>}
-                    </div>
+                    </Box>
                 </div>
             </Popover>
             <Button
                 color="grey"
                 title={I18n.t('Aggregate')}
                 size="small"
-                className={this.props.classes.settingsButton}
+                style={styles.settingsButton}
                 id="aggregateOpenButton"
                 onClick={() => this.setState({ aggregateOpened: !this.state.aggregateOpened })}
             >
-                <IconAggregate className={this.props.classes.aggregateIcon} />
+                <IconAggregate style={styles.aggregateIcon} />
                 {CHART_TYPES[this.props.presetData.chartType] ? I18n.t(CHART_TYPES[this.props.presetData.chartType]) : ''}
                 /
                 {AGGREGATES[this.props.presetData.aggregate] ? I18n.t(AGGREGATES[this.props.presetData.aggregate]) : ''}
@@ -255,8 +257,8 @@ class ChartSettings extends React.Component {
                 anchorEl={() => document.getElementById('aggregateOpenButton')}
                 onClose={() => { this.setState({ aggregateOpened: false }); }}
             >
-                <div className={this.props.classes.popOver}>
-                    <div className={this.props.classes.fieldsContainer}>
+                <div style={styles.popOver}>
+                    <Box component="div" sx={styles.fieldsContainer}>
                         <IOSelect
                             formData={this.props.presetData}
                             updateValue={this.updateField}
@@ -287,11 +289,11 @@ class ChartSettings extends React.Component {
                             name="aggregateSpan"
                             label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
                         /> : null}
-                    </div>
+                    </Box>
                 </div>
             </Popover>
             {this.props.presetData.timeType === 'relative' ? <RefreshSelect
-                className={this.props.classes.refreshSelect}
+                sx={styles.refreshSelect}
                 minWidth={0}
                 width="initial"
                 formData={this.props.presetData}
@@ -301,20 +303,20 @@ class ChartSettings extends React.Component {
                 title={I18n.t('Auto-refresh')}
                 options={liveOptions}
                 renderValue={() =>
-                    <div className={this.props.classes.refreshSelectButtonTitle}>
+                    <div style={styles.refreshSelectButtonTitle}>
                         <IconRefresh />
 &nbsp;
                         {I18n.t(liveOptions[this.props.presetData.live])}
                     </div>}
             /> : null }
-            <div className={this.props.classes.grow1} />
+            <div style={styles.grow1} />
             <Button
                 variant="contained"
                 color="primary"
-                className={this.props.classes.hintButton}
+                style={styles.hintButton}
                 onClick={() => this.props.onCreatePreset(true)}
             >
-                <IconPlus className={this.props.classes.buttonIcon} />
+                <IconPlus style={styles.buttonIcon} />
                 {I18n.t('Create preset')}
             </Button>
         </Toolbar>;
@@ -327,4 +329,4 @@ ChartSettings.propTypes = {
     onCreatePreset: PropTypes.func,
 };
 
-export default withStyles(styles)(ChartSettings);
+export default ChartSettings;
