@@ -122,17 +122,17 @@
     "adminTab": {
       "singleton": true,
       "name": {
-        "en": "E-Charts",
-        "de": "E-Charts",
-        "ru": "E-диаграмма",
-        "pt": "E-Charts",
-        "nl": "E-Grafieken",
-        "fr": "E-Charts",
-        "it": "E-Charts",
-        "es": "E-Charts",
-        "pl": "Wykresy elektroniczne",
-        "uk": "E-діаграма",
-        "zh-cn": "电子图"
+        "ru": "Графики",
+        "en": "Charts",
+        "de": "Diagramme",
+        "pt": "Gráficos",
+        "nl": "Grafieken",
+        "fr": "Graphiques",
+        "it": "Grafici",
+        "es": "Gráficos",
+        "pl": "Wykresy",
+        "uk": "Графіки",
+        "zh-cn": "图表"
       }
     },
     "platform": "Javascript/Node.js",
