@@ -29,19 +29,6 @@
         "uk": "покращені залежності",
         "zh-cn": "升级的依赖关系"
       },
-      "1.8.0": {
-        "en": "Added the radar (polar) chart type",
-        "de": "Hinzugefügt den Radar (polar) Diagrammtyp",
-        "ru": "Добавлена радиолокационная (полярная) карта",
-        "pt": "Adicionado o radar (polar) tipo gráfico",
-        "nl": "Het radar- (polaire) kaarttype is toegevoegd",
-        "fr": "Ajout du type de carte radar (polaire)",
-        "it": "Aggiunto il tipo di grafico radar (polare)",
-        "es": "Añadido el tipo de diagrama de radar (polar)",
-        "pl": "Dodano typ mapy radarowej (polarnej)",
-        "uk": "Додано тип радіолокаційної діаграми",
-        "zh-cn": "添加雷达( 极地) 图表类型"
-      },
       "1.7.2": {
         "en": "Added option to hide the value in the future",
         "de": "Option hinzugefügt, um den Wert in der Zukunft zu verbergen",
@@ -95,7 +82,6 @@
         "zh-cn": "增加出口口号的选择:选择/取消一切选择\n增加是否能以图象图解。"
       }
     },
-    "title": "E-Charts",
     "titleLang": {
       "en": "E-Charts",
       "de": "E-Charts",
@@ -106,6 +92,7 @@
       "it": "E-Charts",
       "es": "E-Charts",
       "pl": "Wykresy elektroniczne",
+      "uk": "E-діаграма",
       "zh-cn": "电子图"
     },
     "desc": {
@@ -118,6 +105,7 @@
       "it": "Crea grafici utili in ioBroker",
       "es": "Cree gráficos útiles en ioBroker",
       "pl": "Twórz przydatne wykresy w ioBroker",
+      "uk": "Створюйте корисні діаграми в ioBroker",
       "zh-cn": "在ioBroker中建立有用的图表"
     },
     "authors": [
@@ -133,7 +121,19 @@
     },
     "adminTab": {
       "singleton": true,
-      "name": "ECharts"
+      "name": {
+        "en": "E-Charts",
+        "de": "E-Charts",
+        "ru": "E-диаграмма",
+        "pt": "E-Charts",
+        "nl": "E-Grafieken",
+        "fr": "E-Charts",
+        "it": "E-Charts",
+        "es": "E-Charts",
+        "pl": "Wykresy elektroniczne",
+        "uk": "E-діаграма",
+        "zh-cn": "电子图"
+      },
     },
     "platform": "Javascript/Node.js",
     "connectionType": "local",
@@ -146,7 +146,6 @@
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
     "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
     "loglevel": "info",
-    "noConfig": true,
     "singleton": true,
     "type": "visualization",
     "mode": "daemon",
