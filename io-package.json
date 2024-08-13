@@ -133,7 +133,7 @@
         "pl": "Wykresy elektroniczne",
         "uk": "E-діаграма",
         "zh-cn": "电子图"
-      },
+      }
     },
     "platform": "Javascript/Node.js",
     "connectionType": "local",
