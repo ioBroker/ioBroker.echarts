@@ -3,7 +3,7 @@
   "version": "1.9.0",
   "private": true,
   "dependencies": {
-    "@iobroker/adapter-react-v5": "^6.1.8",
+    "@iobroker/adapter-react-v5": "^7.0.1",
     "@devbookhq/splitter": "^1.4.2",
     "@mui/icons-material": "^5.16.6",
     "@mui/material": "^5.16.6",
