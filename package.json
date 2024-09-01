@@ -23,7 +23,7 @@
   "optionalDependencies": {
     "canvas": "^2.11.2",
     "echarts": "^5.5.1",
-    "jsdom": "^24.1.1"
+    "jsdom": "^25.0.0"
   },
   "dependencies": {
     "moment": "^2.30.1",
