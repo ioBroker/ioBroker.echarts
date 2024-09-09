@@ -43,7 +43,10 @@ import { I18n, Utils, withWidth } from '@iobroker/adapter-react-v5';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
-import { LineChart, ScatterChart } from 'echarts/charts';
+import {
+    LineChart, ScatterChart,
+    BarChart, RadarChart,
+} from 'echarts/charts';
 import {
     GridComponent,
     ToolboxComponent,
@@ -95,6 +98,8 @@ echarts.use([
 
     LineChart,
     ScatterChart,
+    BarChart,
+    RadarChart,
 
     SVGRenderer,
 

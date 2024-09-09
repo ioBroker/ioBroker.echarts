@@ -8,12 +8,13 @@
 
 const fs   = require('node:fs');
 const gulpHelper  = require('@iobroker/vis-2-widgets-react-dev/gulpHelper');
+const { deleteFoldersRecursive }   = require('@iobroker/build-tools');
 const adapterName = require('./package.json').name.split('.').pop();
 
 module.exports = function init(gulp) {
     gulp.task('[widgets]0-clean', done => {
-        gulpHelper.deleteFoldersRecursive(`${__dirname}/widgets`, ['echarts.html', 'Prev_tplEchartsChart.png']);
-        gulpHelper.deleteFoldersRecursive(`${__dirname}/src-widgets/build`);
+        deleteFoldersRecursive(`${__dirname}/widgets`, ['echarts.html', 'Prev_tplEchartsChart.png']);
+        deleteFoldersRecursive(`${__dirname}/src-widgets/build`);
         done();
     });
 

@@ -7,93 +7,12 @@
 'use strict';
 
 const fs   = require('node:fs');
-const path = require('node:path');
-const cp   = require('node:child_process');
-
-function deleteFoldersRecursive(path, exceptions) {
-    if (fs.existsSync(path)) {
-        const files = fs.readdirSync(path);
-        for (const file of files) {
-            const curPath = `${path}/${file}`;
-            if (exceptions && exceptions.find(e => curPath.endsWith(e))) {
-                continue;
-            }
-
-            const stat = fs.statSync(curPath);
-            if (stat.isDirectory()) {
-                deleteFoldersRecursive(curPath);
-                fs.rmdirSync(curPath);
-            } else {
-                fs.unlinkSync(curPath);
-            }
-        }
-    }
-}
-
-function npmInstall() {
-    return new Promise((resolve, reject) => {
-        // Install node modules
-        const cwd = `${__dirname.replace(/\\/g, '/')}/src-preview/`;
-
-        const cmd = `npm install -f`;
-        console.log(`"${cmd} in ${cwd}`);
-
-        // System call used for update of js-controller itself,
-        // because during installation npm packet will be deleted too, but some files must be loaded even during the install process.
-        const child = cp.exec(cmd, {cwd});
-
-        child.stderr.pipe(process.stderr);
-        child.stdout.pipe(process.stdout);
-
-        child.on('exit', (code /* , signal */) => {
-            // code 1 is strange error that cannot be explained. Everything is installed but error :(
-            if (code && code !== 1) {
-                reject(`Cannot install: ${code}`);
-            } else {
-                console.log(`"${cmd} in ${cwd} finished.`);
-                // command succeeded
-                resolve();
-            }
-        });
-    });
-}
-
-function build() {
-    return new Promise((resolve, reject) => {
-        const options = {
-            stdio: 'pipe',
-            cwd:   `${__dirname}/src-preview/`
-        };
-
-        const version = JSON.parse(fs.readFileSync(`${__dirname}/package.json`).toString('utf8')).version;
-        const data = JSON.parse(fs.readFileSync(`${__dirname}/src-preview/package.json`).toString('utf8'));
-        data.version = version;
-        fs.writeFileSync(`${__dirname}/src-preview/package.json`, JSON.stringify(data, null, 2));
-
-        console.log(options.cwd);
-
-        let script = `${__dirname}/src-preview/node_modules/react-scripts/scripts/build.js`;
-        if (!fs.existsSync(script)) {
-            script = `${__dirname}/node_modules/react-scripts/scripts/build.js`;
-        }
-        if (!fs.existsSync(script)) {
-            console.error(`Cannot find execution file: ${script}`);
-            reject(`Cannot find execution file: ${script}`);
-        } else {
-            const child = cp.fork(script, [], options);
-            child.stdout.on('data', data => console.log(data.toString()));
-            child.stderr.on('data', data => console.log(data.toString()));
-            child.on('close', code => {
-                console.log(`child process exited with code ${code}`);
-                code ? reject(`Exit code: ${code}`) : resolve();
-            });
-        }
-
-        let widget = fs.readFileSync(`${__dirname}/widgets/echarts.html`).toString('utf8');
-        widget = widget.replace(/version: "\d+\.\d+\.\d+"/, `version: "${version}"`);
-        fs.writeFileSync(`${__dirname}/widgets/echarts.html`, widget);
-    });
-}
+const {
+    deleteFoldersRecursive,
+    npmInstall,
+    buildReact,
+    copyFolderRecursiveSync,
+}   = require('@iobroker/build-tools');
 
 module.exports = function init(gulp) {
     gulp.task('[preview]clean', done => {
@@ -105,14 +24,13 @@ module.exports = function init(gulp) {
     gulp.task('[preview]2-npm', () => {
         if (fs.existsSync(`${__dirname}/src-preview/node_modules`)) {
             return Promise.resolve();
-        } else {
-            return npmInstall();
         }
+        return npmInstall(`${__dirname.replace(/\\/g, '/')}/src-preview/`);
     });
 
     gulp.task('[preview]2-npm-dep', gulp.series('[preview]clean', '[preview]2-npm'));
 
-    gulp.task('[preview]3-build', () => build());
+    gulp.task('[preview]3-build', () => buildReact(`${__dirname}/src-preview/`, { rootDir: __dirname }));
 
     gulp.task('[preview]3-build-dep', gulp.series('[preview]2-npm', '[preview]3-build'));
 
@@ -204,54 +122,6 @@ module.exports = function init(gulp) {
                     setTimeout(() => checkChart(resolve, reject, start), 500);
                 }
             }
-        }
-    }
-
-    /*function copyFileSync(source, target) {
-        let targetFile = target;
-
-        // If target is a directory, a new file with the same name will be created
-        if (fs.existsSync(target)) {
-            if (fs.lstatSync(target).isDirectory()) {
-                targetFile = path.join(target, path.basename(source));
-            }
-        }
-
-        fs.writeFileSync(targetFile, fs.readFileSync(source));
-    }
-
-    function copyFolderRecursiveSync(source, target) {
-        let files = [];
-
-        // Copy
-        if (fs.lstatSync(source).isDirectory()) {
-            files = fs.readdirSync(source);
-            files.forEach(file => {
-                const targetFolder = path.join(target, path.basename(source));
-                if (!fs.existsSync(targetFolder)) {
-                    fs.mkdirSync(targetFolder);
-                }
-
-                const curSource = path.join(source, file);
-                if (fs.lstatSync(curSource).isDirectory() ) {
-                    copyFolderRecursiveSync(curSource, targetFolder);
-                } else {
-                    copyFileSync(curSource, targetFolder);
-                }
-            });
-        }
-    }*/
-    function copyFolderRecursiveSync(src, dest, exclude) {
-        const stats = fs.existsSync(src) && fs.statSync(src);
-        if (stats && stats.isDirectory()) {
-            !fs.existsSync(dest) && fs.mkdirSync(dest);
-            fs.readdirSync(src).forEach(childItemName=> {
-                copyFolderRecursiveSync(
-                    path.join(src, childItemName),
-                    path.join(dest, childItemName));
-            });
-        } else if (!exclude || !exclude.find(ext => src.endsWith(ext))) {
-            fs.copyFileSync(src, dest);
         }
     }
 

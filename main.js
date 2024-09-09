@@ -2,7 +2,7 @@
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020-2023 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2024 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *
@@ -11,7 +11,7 @@
 
 const utils       = require('@iobroker/adapter-core'); // Get common adapter utils
 const adapterName = require('./package.json').name.split('.').pop();
-const fs          = require('fs');
+const fs          = require('node:fs');
 prepareReactFiles(); // this call must be before require ChartModel and ChartOption
 const ChartModel  = require('./_helpers/ChartModel');
 const ChartOption = require('./_helpers/ChartOption');
@@ -47,7 +47,7 @@ function prepareReactFiles() {
             fs.writeFileSync(`${__dirname}/_helpers/ChartModel.js`, _chartModel);
         }
     } else {
-        !fs.existsSync(`${__dirname}/_helpers`) && fs.mkdirSync(__dirname + '/_helpers');
+        !fs.existsSync(`${__dirname}/_helpers`) && fs.mkdirSync(`${__dirname}/_helpers`);
         fs.writeFileSync(`${__dirname}/_helpers/ChartModel.js`, _chartModel);
     }
 

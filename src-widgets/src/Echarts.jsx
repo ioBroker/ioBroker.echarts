@@ -15,8 +15,6 @@ import {
     IconClosed as FolderIcon, Utils,
 } from '@iobroker/adapter-react-v5';
 
-// import { VisRxWidget } from '@iobroker/vis-2-widgets-react-dev';
-
 const ChartSelector = props => {
     const [charts, setCharts] = useState(null);
     useEffect(() => {
