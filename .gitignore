@@ -17,5 +17,6 @@ admin/i18n/*/flat.txt
 /src-chart/package-lock.json
 /src-chart/old
 /_helpers
+tmp
 /image.png
 /src-preview/package-lock.json

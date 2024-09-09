@@ -733,7 +733,7 @@ class App extends GenericApp {
                         <ReactSplit
                             direction={SplitDirection.Horizontal}
                             initialSizes={this.state.menuSizes}
-                            minWidths={[300, 300]}
+                            minWidths={[307, 300]}
                             onResizeFinished={(gutterIdx, menuSizes) => {
                                 this.setState({ resizing: false, menuSizes });
                                 window.localStorage.setItem('App.echarts.menuSizes', JSON.stringify(menuSizes));

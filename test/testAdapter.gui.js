@@ -11,7 +11,7 @@ async function screenshot(page, fileName) {
     await page.screenshot({ path: `${__dirname}/../tmp/screenshots/${fileName}.png` });
 }
 
-describe.skip('echarts-gui', () => {
+describe('echarts-gui', () => {
     before(async function () {
         this.timeout(240_000);
         // Clean tmp folder
