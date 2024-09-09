@@ -62,7 +62,7 @@
     "test:gui": "mocha ./test/*.gui.js --exit",
     "test": "npm run test:package",
     "prepublishOnly": "gulp",
-    "build": "build:widgets && build:chart && build:preview && build:edit",
+    "build": "npm run build:widgets && npm run build:chart && npm run build:preview && npm run build:edit",
     "build:widgets": "node tasksWidgets",
     "build:chart": "node tasksChart",
     "build:preview": "node tasksPreview",
