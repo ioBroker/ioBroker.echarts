@@ -57,6 +57,7 @@
   ],
   "scripts": {
     "test:package": "mocha test/package --exit",
+    "test:gui": "mocha ./test/*.gui.js --exit",
     "test": "npm run test:package",
     "prepublishOnly": "gulp",
     "build": "gulp",
