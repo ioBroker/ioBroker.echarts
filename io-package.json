@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "news": {
+      "1.9.1": {
+        "en": "Fixed polar and bar charts",
+        "de": "Feste Polar- und Balkendiagramme",
+        "ru": "Фиксированные полярные и барные графики",
+        "pt": "Gráficos polares e de barras fixos",
+        "nl": "Vaste pool- en staafdiagrammen",
+        "fr": "Cartes polaires et à barres fixes",
+        "it": "Carte polari e a barre fissate",
+        "es": "Gráficos polares y bar fijos",
+        "pl": "Stałe wykresy polarne i barowe",
+        "uk": "Фіксовані полярні та барні діаграми",
+        "zh-cn": "固定极地图和条形图"
+      },
       "1.9.0": {
         "en": "upgraded packages\nremoved `withStyles`",
         "de": "erweiterte pakete\nentfernen `withStyles`",
