@@ -100,7 +100,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 1.9.1 (2024-09-09)
+### **WORK IN PROGRESS**
 * (bluefox) Fixed polar and bar charts
 
 ### 1.9.0 (2024-08-06)
