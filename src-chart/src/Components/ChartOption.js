@@ -224,7 +224,7 @@ function padding2(num) {
 function rgba2hex(color) {
     const rgb = color.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
     return rgb ?
-        `#${padding2(parseInt(rgb[1], 10).toString(16))}${padding2(parseInt(rgb[2], 10).toString(16))}${padding2(parseInt(rgb[3], 10).toString(16))}` : color;
+        `#${parseInt(rgb[1], 10).toString(16).padStart(2, '0')}${parseInt(rgb[2], 10).toString(16).padStart(2, '0')}${parseInt(rgb[3], 10).toString(16).padStart(2, '0')}` : color;
 }
 
 function brighterColor(color, amt) {
@@ -949,9 +949,9 @@ class ChartOption {
             }
             if (showDate) {
                 if (isTop) {
-                    dateTxt = `{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}\n`;
+                    dateTxt = `{a|${dateInMonth.toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.}\n`;
                 } else {
-                    dateTxt = `{b|..}\n{a|${padding2(dateInMonth)}.${padding2(date.getMonth() + 1)}.}`;
+                    dateTxt = `{b|..}\n{a|${dateInMonth.toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.}`;
                 }
             }
 

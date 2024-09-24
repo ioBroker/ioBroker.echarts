@@ -178,24 +178,6 @@ function calcTextWidth(text, fontSize, fontFamily) {
     return Math.ceil(metrics.width);
 }
 
-if (!String.prototype.padStart) {
-    // Copyright (c) 2019 Behnam Mohammadi MIT https://github.com/behnammodi/polyfill/blob/master/string.polyfill.js#L273
-    // eslint-disable-next-line
-    String.prototype.padStart = function padStart(targetLength, padString) {
-        // eslint-disable-next-line no-bitwise
-        targetLength >>= 0; // floor if number or convert non-number to 0;
-        padString = String(typeof padString !== 'undefined' ? padString : ' ');
-        if (this.length > targetLength) {
-            return String(this);
-        }
-        targetLength -= this.length;
-        if (targetLength > padString.length) {
-            padString += padString.repeat(targetLength / padString.length); // append to original to ensure we are longer than needed
-        }
-        return padString.slice(0, targetLength) + String(this);
-    };
-}
-
 class ChartView extends React.Component {
     constructor(props) {
         super(props);

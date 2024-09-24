@@ -204,7 +204,15 @@ function normalizeConfig(config) {
 
     // Set default values
     config.width       = config.width                   || '100%';
-    config.height      = config.height                  || '100%';
+    config.height      = config.height                  || '100%'
+    // if width or height does not have any units, add px to it
+    if (parseFloat(config.width).toString() === config.width.toString().trim()) {
+        config.width += 'px';
+    }
+    if (parseFloat(config.height).toString() === config.height.toString().trim()) {
+        config.height += 'px';
+    }
+
     config.timeFormat  = config.timeFormat              || '';
     config.useComma    = config.useComma    === 'true'  || config.useComma    === true;
     config.zoom        = config.zoom        === 'true'  || config.zoom        === true;

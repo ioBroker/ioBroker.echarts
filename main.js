@@ -10,7 +10,7 @@
 'use strict';
 
 const utils       = require('@iobroker/adapter-core'); // Get common adapter utils
-const adapterName = require('./package.json').name.split('.').pop();
+const adapterName = require('../package.json').name.split('.').pop();
 const fs          = require('node:fs');
 prepareReactFiles(); // this call must be before require ChartModel and ChartOption
 const ChartModel  = require('./_helpers/ChartModel');
@@ -280,7 +280,7 @@ function fixSystemObject() {
 function main(adapter) {
     // fix _design/chart
     adapter.getForeignObject('_design/chart', (err, obj) => {
-        const _obj = require('./io-package.json').objects.find(ob => ob._id === '_design/chart');
+        const _obj = require('../io-package.json').objects.find(ob => ob._id === '_design/chart');
         if (!obj || (_obj && JSON.stringify(obj.views) !== JSON.stringify(_obj.views))) {
             obj = obj || {language: 'javascript'};
             obj.views = _obj && _obj.views ? _obj.views : {chart: {map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }`}};
