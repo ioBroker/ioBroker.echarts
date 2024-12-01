@@ -1,0 +1,369 @@
+import React, { Component } from 'react';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import MD5 from 'crypto-js/md5';
+
+import { LinearProgress } from '@mui/material';
+
+import {
+    Connection,
+    PROGRESS,
+    ERRORS,
+    Loader,
+    I18n,
+    Utils,
+    withWidth,
+    Error as DialogError,
+    Theme,
+} from '@iobroker/adapter-react-v5';
+
+import '@iobroker/adapter-react-v5/build/index.css';
+
+import enGlobLang from '@iobroker/adapter-react-v5/i18n/en.json';
+import deGlobLang from '@iobroker/adapter-react-v5/i18n/de.json';
+import ruGlobLang from '@iobroker/adapter-react-v5/i18n/ru.json';
+import ptGlobLang from '@iobroker/adapter-react-v5/i18n/pt.json';
+import nlGlobLang from '@iobroker/adapter-react-v5/i18n/nl.json';
+import frGlobLang from '@iobroker/adapter-react-v5/i18n/fr.json';
+import itGlobLang from '@iobroker/adapter-react-v5/i18n/it.json';
+import esGlobLang from '@iobroker/adapter-react-v5/i18n/es.json';
+import plGlobLang from '@iobroker/adapter-react-v5/i18n/pl.json';
+import ukGlobLang from '@iobroker/adapter-react-v5/i18n/uk.json';
+import zhGlobLang from '@iobroker/adapter-react-v5/i18n/zh-cn.json';
+
+import enLang from './i18n/en.json';
+import deLang from './i18n/de.json';
+import ruLang from './i18n/ru.json';
+import ptLang from './i18n/pt.json';
+import nlLang from './i18n/nl.json';
+import frLang from './i18n/fr.json';
+import itLang from './i18n/it.json';
+import esLang from './i18n/es.json';
+import plLang from './i18n/pl.json';
+import ukLang from './i18n/uk.json';
+import zhLang from './i18n/zh-cn.json';
+
+import ChartModel from './Components/ChartModel';
+import ChartView from './Components/ChartView';
+
+const styles = {
+    root: {
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+    },
+    progress: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+    },
+};
+
+class App extends Component {
+    constructor(props) {
+        super(props);
+
+        const themeInstance = App.createTheme();
+
+        const query = Utils.parseQuery(window.location.search);
+        const queryHash = Utils.parseQuery((window.location.hash || '').replace(/^#/, ''));
+
+        this.state = {
+            connected: false,
+            seriesData: null,
+            categories: null, // used for bar and pie charts
+            actualValues: null,
+            noLoader: query.noLoader || queryHash.noLoader || false,
+            theme: themeInstance,
+            themeType: App.getThemeType(themeInstance),
+            noBackground: query.noBG || queryHash.noBG || false,
+            compact: query.compact || queryHash.compact || false,
+        };
+
+        this.inEdit =
+            query.edit === '1' ||
+            query.edit === 1 ||
+            query.edit === true ||
+            query.edit === 'true' ||
+            queryHash.edit === '1' ||
+            queryHash.edit === 1 ||
+            queryHash.edit === true ||
+            queryHash.edit === 'true';
+
+        this.divRef = React.createRef();
+        this.progressRef = React.createRef();
+        this.progressShown = true;
+
+        // init translations
+        const translations = {
+            en: enGlobLang,
+            de: deGlobLang,
+            ru: ruGlobLang,
+            pt: ptGlobLang,
+            nl: nlGlobLang,
+            fr: frGlobLang,
+            it: itGlobLang,
+            es: esGlobLang,
+            pl: plGlobLang,
+            uk: ukGlobLang,
+            'zh-cn': zhGlobLang,
+        };
+
+        const ownTranslations = {
+            en: enLang,
+            de: deLang,
+            ru: ruLang,
+            pt: ptLang,
+            nl: nlLang,
+            fr: frLang,
+            it: itLang,
+            es: esLang,
+            pl: plLang,
+            uk: ukLang,
+            'zh-cn': zhLang,
+        };
+
+        // merge together
+        Object.keys(translations).forEach(
+            lang => (translations[lang] = Object.assign(translations[lang], ownTranslations[lang])),
+        );
+
+        I18n.setTranslations(translations);
+
+        if (window.socketUrl && window.socketUrl.startsWith(':')) {
+            window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
+        }
+
+        /*
+        try {
+            this.isIFrame = window.self !== window.top;
+        } catch (e) {
+            this.isIFrame = true;
+        }
+        */
+
+        // some people use invalid URL to access charts
+        if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/chart/')) {
+            this.adminCorrectTimeout = setTimeout(() => {
+                this.adminCorrectTimeout = null;
+                // The address is wrong. Navigate to /echarts/index.html
+                window.location = window.location.href.replace('/adapter/echarts/chart/', '/echarts/');
+            }, 2000);
+        }
+
+        this.socket = new Connection({
+            name: window.adapterName,
+            onProgress: progress => {
+                if (progress === PROGRESS.CONNECTING) {
+                    if (this.state.seriesData) {
+                        if (this.divRef.current) {
+                            this.divRef.current.style.opacity = 0.5;
+                        }
+                        if (this.progressRef.current) {
+                            this.progressRef.current.style.display = 'block';
+                        }
+                    } else {
+                        this.setState({ connected: false });
+                    }
+                } else if (progress === PROGRESS.READY) {
+                    this.setState({ connected: true });
+                    this.restoreAfterReconnection();
+                } else {
+                    this.setState({ connected: true });
+                    this.restoreAfterReconnection();
+                }
+            },
+            onReady: () => {
+                this.adminCorrectTimeout && clearTimeout(this.adminCorrectTimeout);
+                this.adminCorrectTimeout = null;
+                I18n.setLanguage(this.socket.systemLang);
+
+                if (this.inEdit) {
+                    window.addEventListener('message', this.onReceiveMessage);
+                    if (window.self !== window.parent) {
+                        try {
+                            window.parent.postMessage('chartReady', '*');
+                        } catch (e) {
+                            console.warn('Cannot send ready event to parent window');
+                            console.error(e);
+                        }
+                    }
+                } else {
+                    this.createChartData();
+                }
+            },
+            onError: err => {
+                console.error(err);
+                this.showError(err);
+            },
+        });
+    }
+
+    restoreAfterReconnection() {
+        this.divRef.current && (this.divRef.current.style.opacity = 1);
+        this.progressRef.current && !this.progressShown && (this.progressRef.current.style.display = 'none');
+        if (this.state.seriesData && !this.state.seriesData.find(series => series.length)) {
+            this.chartData.setNewRange();
+        }
+    }
+
+    createChartData(config) {
+        this.chartData = new ChartModel(this.socket, config, { compact: this.state.compact });
+        this.chartData.onError(err => {
+            if (err === ERRORS.NOT_CONNECTED) {
+                this.divRef.current && (this.divRef.current.style.opacity = 0.5);
+                this.progressRef.current && (this.progressRef.current.style.display = 'block');
+            } else {
+                this.showError(I18n.t(err));
+            }
+        });
+        this.chartData.onReading(reading => this.showProgress(reading));
+        this.chartData.onUpdate((seriesData, actualValues, categories) => {
+            const newState = { connected: true, dataLoaded: true };
+            if (seriesData) {
+                newState.seriesData = seriesData;
+                newState.categories = categories; // used for bar charts and pie charts
+            }
+            if (actualValues) {
+                newState.actualValues = actualValues;
+            }
+            this.setState(newState, () => this.showProgress(false));
+        });
+    }
+
+    showProgress(isShow) {
+        this.progressShown = isShow;
+        if (this.progressRef.current) {
+            this.progressRef.current.style.display = isShow ? 'block' : 'none';
+        }
+    }
+
+    componentWillUnmount() {
+        this.inEdit && window.removeEventListener('message', this.onReceiveMessage, false);
+        this.chartData && this.chartData.destroy();
+    }
+
+    onReceiveMessage = message => {
+        if (message && message.data !== 'chartReady') {
+            try {
+                const config = JSON.parse(message.data);
+                if (!this.chartData) {
+                    this.createChartData(config);
+                } else {
+                    this.chartData.setConfig(config);
+                }
+            } catch (e) {
+                console.log(`Cannot parse ${message.data}`);
+            }
+        }
+    };
+
+    /**
+     * Get a theme
+     * @param {string} name Theme name
+     * @returns {Theme}
+     */
+    static createTheme(name = '') {
+        return Theme(Utils.getThemeName(name));
+    }
+
+    /**
+     * Get the theme type
+     * @param {Theme} theme_ Theme
+     * @returns {string} Theme type
+     */
+    static getThemeType(theme_) {
+        return theme_.palette.mode;
+    }
+
+    showError(text) {
+        this.setState({ errorText: text });
+    }
+
+    renderError() {
+        if (!this.state.errorText) {
+            return null;
+        }
+        return (
+            <DialogError
+                text={this.state.errorText}
+                onClose={() => this.setState({ errorText: '' })}
+            />
+        );
+    }
+
+    componentDidUpdate(/* prevProps, prevState, snapshot */) {
+        if (!this.progressShown && this.progressRef.current && this.progressRef.current.style.display !== 'none') {
+            this.progressRef.current.style.display = 'none';
+        }
+    }
+
+    render() {
+        if (!this.state.connected || !this.state.seriesData) {
+            if (this.state.noLoader) {
+                return null;
+            }
+            return (
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={this.state.theme}>
+                        <Loader themeType={this.state.themeType} />
+                    </ThemeProvider>
+                </StyledEngineProvider>
+            );
+        }
+
+        const config = this.chartData.getConfig();
+        // get IDs hash
+        const hash = MD5(
+            JSON.stringify(((config && config.l && config.l.map(item => item.id)) || []).sort()),
+        ).toString();
+
+        if (this.state.seriesData && config.debug) {
+            console.log(`seriesData: ${JSON.stringify(this.state.seriesData)}`);
+        }
+
+        return (
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={this.state.theme}>
+                    <div
+                        ref={this.divRef}
+                        style={{
+                            ...styles.root,
+                            width: config.width,
+                            height: config.height,
+                            background:
+                                this.state.noBackground || config.noBackground
+                                    ? undefined
+                                    : this.state.theme.palette.background.default,
+                            color: this.state.theme.palette.text.primary,
+                        }}
+                    >
+                        <LinearProgress
+                            ref={this.progressRef}
+                            style={{ display: 'block' }}
+                            state={styles.progress}
+                        />
+                        <ChartView
+                            key={hash}
+                            socket={this.socket}
+                            t={I18n.t}
+                            noAnimation={this.state.noLoader}
+                            data={this.state.seriesData}
+                            actualValues={this.state.actualValues}
+                            categories={this.state.categories || []} // used for bar charts and pie charts
+                            config={config}
+                            compact={this.state.compact}
+                            lang={I18n.getLanguage()}
+                            themeType={this.state.themeType}
+                            onRangeChange={options => this.chartData.setNewRange(options)}
+                            exportData={(from, to, excludes) => this.chartData.exportData(from, to, excludes)}
+                        />
+                        {this.renderError()}
+                    </div>
+                </ThemeProvider>
+            </StyledEngineProvider>
+        );
+    }
+}
+
+export default withWidth()(App);

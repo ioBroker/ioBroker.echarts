@@ -6,18 +6,19 @@
  **/
 'use strict';
 
-const fs   = require('node:fs');
+const { existsSync, rmdirSync, readdirSync } = require('node:fs');
 const gulpHelper  = require('@iobroker/vis-2-widgets-react-dev/gulpHelper');
-const { deleteFoldersRecursive, npmInstall, copyFiles}   = require('@iobroker/build-tools');
+const { deleteFoldersRecursive, npmInstall, copyFiles, buildReact }   = require('@iobroker/build-tools');
 const adapterName = require('./package.json').name.split('.').pop();
 
 deleteFoldersRecursive(`${__dirname}/widgets`, ['echarts.html', 'Prev_tplEchartsChart.png']);
 deleteFoldersRecursive(`${__dirname}/src-widgets/build`);
+
 npmInstall(`${__dirname}/src-widgets/`)
-    .then(() => gulpHelper.buildWidgets(__dirname, `${__dirname}/src-widgets/`))
+    .then(() => buildReact(`${__dirname}/src-widgets/`, { craco: true }))
     .then(() => {
         copyFiles([`src-widgets/build/*.js`], `widgets/${adapterName}`);
-        copyFiles([`src-widgets/build/img/*`], `widgets/${adapterName}/img`);
+        copyFiles([`src-widgets/build/img/**/*`], `widgets/${adapterName}/img`);
         copyFiles([`src-widgets/build/*.map`], `widgets/${adapterName}`);
 
         copyFiles([
@@ -33,10 +34,10 @@ npmInstall(`${__dirname}/src-widgets/`)
 
         return new Promise(resolve =>
             setTimeout(() => {
-                if (fs.existsSync(`widgets/${adapterName}/static/media`) &&
-                    !fs.readdirSync(`widgets/${adapterName}/static/media`).length
+                if (existsSync(`widgets/${adapterName}/static/media`) &&
+                    !readdirSync(`widgets/${adapterName}/static/media`).length
                 ) {
-                    fs.rmdirSync(`widgets/${adapterName}/static/media`);
+                    rmdirSync(`widgets/${adapterName}/static/media`);
                 }
                 resolve(null);
             }, 500)

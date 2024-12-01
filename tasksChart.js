@@ -92,7 +92,7 @@ if (!fs.existsSync(`${__dirname}/src-chart/node_modules`)) {
 }
 
 installPromise
-    .then(() => buildReact(`${__dirname}/src-chart/`, { rootDir: __dirname }))
+    .then(() => buildReact(`${__dirname}/src-chart/`, { vite: true }))
     .then(() => copyAllFiles())
     .then(() => {
         if (fs.existsSync(`${__dirname}/admin/chart/index.html`)) {

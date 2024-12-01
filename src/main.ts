@@ -7,14 +7,12 @@
  *      MIT License
  *
  */
-'use strict';
-
-const utils       = require('@iobroker/adapter-core'); // Get common adapter utils
-const adapterName = require('../package.json').name.split('.').pop();
-const fs          = require('node:fs');
-prepareReactFiles(); // this call must be before require ChartModel and ChartOption
-const ChartModel  = require('./_helpers/ChartModel');
+import { Adapter, type AdapterOptions } from '@iobroker/adapter-core';
+import { readFileSync, existsSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
+const ChartModel = require('./_helpers/ChartModel');
 const ChartOption = require('./_helpers/ChartOption');
+
+prepareReactFiles(); // this call must be before require ChartModel and ChartOption
 
 const moment = require('moment');
 require('moment/locale/en-gb');
@@ -64,18 +62,17 @@ function prepareReactFiles() {
 function startAdapter(options) {
     options = options || {};
     Object.assign(options, {
-        name: adapterName, // adapter name
+        name: 'echarts', // adapter name
     });
 
     adapter = new utils.Adapter(options);
 
-    adapter.on('message', obj =>
-        obj && obj.command === 'send' && processMessage(adapter, obj));
+    adapter.on('message', obj => obj && obj.command === 'send' && processMessage(adapter, obj));
 
     adapter.on('ready', () => main(adapter));
 
-    adapter.__emailTransport  = null;
-    adapter.__stopTimer       = null;
+    adapter.__emailTransport = null;
+    adapter.__stopTimer = null;
     adapter.__lastMessageTime = 0;
     adapter.__lastMessageText = '';
 
@@ -90,7 +87,9 @@ const socketSimulator = {
     getHistoryEx: function (id, options) {
         return new Promise((resolve, reject) =>
             adapter.getHistory(id, options, (err, values, stepIgnore, sessionId) =>
-                err ? reject(err) : resolve({values, sessionId, stepIgnore})));
+                err ? reject(err) : resolve({ values, sessionId, stepIgnore }),
+            ),
+        );
     },
     getObject: function (id) {
         return adapter.getForeignObjectAsync(id);
@@ -102,12 +101,12 @@ const socketSimulator = {
     unsubscribeState: function () {},
     subscribeState: function () {},
     unsubscribeObject: function () {},
-    subscribeObject: function () {}
+    subscribeObject: function () {},
 };
 
 function calcTextWidth(text, fontSize, fontFamily) {
     // try to simulate
-    return Math.ceil(text.length * parseFloat(fontSize || 12) / 0.75);
+    return Math.ceil((text.length * parseFloat(fontSize || 12)) / 0.75);
 }
 
 // Todo: queue requests as  global.window is "global"
@@ -115,17 +114,19 @@ function renderImage(options) {
     return new Promise((resolve, reject) => {
         try {
             echarts = echarts || require('echarts');
-            Canvas  = Canvas  || require('canvas');
-            JSDOM   = JSDOM   || require('jsdom').JSDOM;
+            Canvas = Canvas || require('canvas');
+            JSDOM = JSDOM || require('jsdom').JSDOM;
         } catch (e) {
             adapter.log.error(`Cannot find required modules: ${e}`);
-            return reject('Cannot find required modules: looks like it is not possible to generate charts on your Hardware/OS');
+            return reject(
+                'Cannot find required modules: looks like it is not possible to generate charts on your Hardware/OS',
+            );
         }
 
-        options.width  = parseFloat(options.width)  || 1024;
+        options.width = parseFloat(options.width) || 1024;
         options.height = parseFloat(options.height) || 300;
 
-        const chartData = new ChartModel(socketSimulator, options.preset, {serverSide: true});
+        const chartData = new ChartModel(socketSimulator, options.preset, { serverSide: true });
         chartData.onError(err => adapter.log.error(err));
         chartData.onUpdate((seriesData, actualValues, categories) => {
             const systemConfig = chartData.getSystemConfig();
@@ -134,18 +135,18 @@ function renderImage(options) {
 
             const chartOption = new ChartOption(moment, theme, calcTextWidth);
             const option = chartOption.getOption(seriesData, chartData.getConfig(), null, categories);
-            const {window} = new JSDOM();
+            const { window } = new JSDOM();
 
-            global.window    = window;
+            global.window = window;
             global.navigator = window.navigator;
-            global.document  = window.document;
+            global.document = window.document;
 
             let chart;
             let canvas;
             let root;
             if (options.renderer && options.renderer !== 'svg') {
                 canvas = Canvas.createCanvas(options.width, options.height);
-                canvas.width  = options.width;
+                canvas.width = options.width;
                 canvas.height = options.height;
                 chart = echarts.init(canvas);
                 if (options.background) {
@@ -154,12 +155,13 @@ function renderImage(options) {
             } else {
                 root = global.document.createElement('div');
                 root.style.cssText = `width: ${options.width}px; height: ${options.height}px;${
-                    options.background ? 
-                        ` background: ${options.background}` 
-                        : 
-                        (theme === 'dark' ? ' background: #000;' : '')
+                    options.background
+                        ? ` background: ${options.background}`
+                        : theme === 'dark'
+                          ? ' background: #000;'
+                          : ''
                 }`;
-                chart = echarts.init(root, null, {renderer: 'svg'});
+                chart = echarts.init(root, null, { renderer: 'svg' });
             }
 
             chart.setOption(option);
@@ -167,23 +169,35 @@ function renderImage(options) {
             let data;
             switch (options.renderer || '') {
                 case 'png': {
-                        data = 'data:image/png;base64,' + canvas.toBuffer('image/png', {
-                        compressionLevel: options.compressionLevel || 3,
-                        filters: options.filters || canvas.PNG_FILTER_NONE
-                    }).toString('base64');
+                    data =
+                        'data:image/png;base64,' +
+                        canvas
+                            .toBuffer('image/png', {
+                                compressionLevel: options.compressionLevel || 3,
+                                filters: options.filters || canvas.PNG_FILTER_NONE,
+                            })
+                            .toString('base64');
                     break;
                 }
                 case 'jpg': {
-                    data = 'data:image/jpeg;base64,' + canvas.toBuffer('image/jpeg', {
-                        quality: options.quality || 0.8
-                    }).toString('base64');
+                    data =
+                        'data:image/jpeg;base64,' +
+                        canvas
+                            .toBuffer('image/jpeg', {
+                                quality: options.quality || 0.8,
+                            })
+                            .toString('base64');
                     break;
                 }
                 case 'pdf': {
-                    data = 'data:application/pdf;base64,' + canvas.toBuffer('application/pdf', {
-                        title: options.title || 'ioBroker Chart',
-                        creationDate: new Date()
-                    }).toString('base64');
+                    data =
+                        'data:application/pdf;base64,' +
+                        canvas
+                            .toBuffer('application/pdf', {
+                                title: options.title || 'ioBroker Chart',
+                                creationDate: new Date(),
+                            })
+                            .toString('base64');
                     break;
                 }
                 case '':
@@ -203,10 +217,14 @@ function renderImage(options) {
                 fs.writeFileSync(options.fileOnDisk, Buffer.from(data.split(',')[1], 'base64'));
             }
             if (options.fileName) {
-                adapter.writeFile(adapter.namespace, options.fileName, Buffer.from(data.split(',')[1], 'base64'), err =>
-                    err ? reject(err) : resolve(data));
+                adapter.writeFile(
+                    adapter.namespace,
+                    options.fileName,
+                    Buffer.from(data.split(',')[1], 'base64'),
+                    err => (err ? reject(err) : resolve(data)),
+                );
             } else {
-                resolve(data)
+                resolve(data);
             }
         });
     });
@@ -219,16 +237,32 @@ function processMessage(adapter, obj) {
 
     // filter out the double messages
     const json = JSON.stringify(obj.message);
-    if (adapter.__lastMessageTime && adapter.__lastMessageText === json && Date.now() - adapter.__lastMessageTime < 300) {
-        return adapter.log.debug(`Filter out double message [first was for ${Date.now() - adapter.__lastMessageTime}ms]: ${json}`);
+    if (
+        adapter.__lastMessageTime &&
+        adapter.__lastMessageText === json &&
+        Date.now() - adapter.__lastMessageTime < 300
+    ) {
+        return adapter.log.debug(
+            `Filter out double message [first was for ${Date.now() - adapter.__lastMessageTime}ms]: ${json}`,
+        );
     }
 
     adapter.__lastMessageTime = Date.now();
     adapter.__lastMessageText = json;
 
     if (!obj.message || !obj.message.preset) {
-        adapter.log.error('Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "png/svg"}');
-        obj.callback && adapter.sendTo(obj.from, 'send', {error: 'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "svg/png"}'}, obj.callback);
+        adapter.log.error(
+            'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "png/svg"}',
+        );
+        obj.callback &&
+            adapter.sendTo(
+                obj.from,
+                'send',
+                {
+                    error: 'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "svg/png"}',
+                },
+                obj.callback,
+            );
     } else {
         // delete cached snapshots
         Object.keys(cachedSnapshots).forEach(preset => {
@@ -237,9 +271,23 @@ function processMessage(adapter, obj) {
             }
         });
 
-        if (obj.message.cache && !obj.message.forceRefresh && cachedSnapshots[obj.message.preset] && cachedSnapshots[obj.message.preset].ts >= Date.now()) {
+        if (
+            obj.message.cache &&
+            !obj.message.forceRefresh &&
+            cachedSnapshots[obj.message.preset] &&
+            cachedSnapshots[obj.message.preset].ts >= Date.now()
+        ) {
             cachedSnapshots[obj.message.preset] = cachedSnapshots[obj.message.preset] || {};
-            obj.callback && adapter.sendTo(obj.from, 'send', {data: cachedSnapshots[obj.message.preset].data, error: cachedSnapshots[obj.message.preset].error}, obj.callback);
+            obj.callback &&
+                adapter.sendTo(
+                    obj.from,
+                    'send',
+                    {
+                        data: cachedSnapshots[obj.message.preset].data,
+                        error: cachedSnapshots[obj.message.preset].error,
+                    },
+                    obj.callback,
+                );
         } else {
             renderImage(obj.message)
                 .then(data => {
@@ -249,7 +297,7 @@ function processMessage(adapter, obj) {
                         cachedSnapshots[obj.message.preset].data = data;
                         cachedSnapshots[obj.message.preset].error = null;
                     }
-                    obj.callback && adapter.sendTo(obj.from, 'send', {data}, obj.callback);
+                    obj.callback && adapter.sendTo(obj.from, 'send', { data }, obj.callback);
                 })
                 .catch(error => {
                     if (obj.message.cache) {
@@ -258,23 +306,21 @@ function processMessage(adapter, obj) {
                         cachedSnapshots[obj.message.preset].data = null;
                         cachedSnapshots[obj.message.preset].error = error;
                     }
-                    obj.callback && adapter.sendTo(obj.from, 'send', {error}, obj.callback);
+                    obj.callback && adapter.sendTo(obj.from, 'send', { error }, obj.callback);
                 });
         }
     }
 }
 
 function fixSystemObject() {
-    return adapter.getForeignObjectAsync('_design/system')
-        .then(obj => {
-            if (obj && obj.views && !obj.views.chart) {
-                obj.views.chart = {
-                    map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc) }`
-                };
-                return adapter.setForeignObjectAsync(obj._id, obj)
-                    .then(() => true);
-            }
-        });
+    return adapter.getForeignObjectAsync('_design/system').then(obj => {
+        if (obj && obj.views && !obj.views.chart) {
+            obj.views.chart = {
+                map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc) }`,
+            };
+            return adapter.setForeignObjectAsync(obj._id, obj).then(() => true);
+        }
+    });
 }
 
 function main(adapter) {
@@ -282,8 +328,11 @@ function main(adapter) {
     adapter.getForeignObject('_design/chart', (err, obj) => {
         const _obj = require('../io-package.json').objects.find(ob => ob._id === '_design/chart');
         if (!obj || (_obj && JSON.stringify(obj.views) !== JSON.stringify(_obj.views))) {
-            obj = obj || {language: 'javascript'};
-            obj.views = _obj && _obj.views ? _obj.views : {chart: {map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }`}};
+            obj = obj || { language: 'javascript' };
+            obj.views =
+                _obj && _obj.views
+                    ? _obj.views
+                    : { chart: { map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }` } };
             adapter.setForeignObject('_design/chart', obj);
         }
     });
@@ -292,7 +341,7 @@ function main(adapter) {
     adapter.getForeignObject('_design/system', (err, obj) => {
         if (obj && obj.views && !obj.views.chart) {
             obj.views.chart = {
-                map: 'function(doc) { if (doc.type === \'chart\') emit(doc._id, doc); }',
+                map: "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }",
             };
             adapter.setForeignObject('_design/system', obj);
         }
@@ -307,8 +356,7 @@ function main(adapter) {
         }
     });
 
-    fixSystemObject()
-        .then(fixed => fixed && adapter.log.debug('Added chart view to system object'));
+    fixSystemObject().then(fixed => fixed && adapter.log.debug('Added chart view to system object'));
 
     /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
         .then(data => {

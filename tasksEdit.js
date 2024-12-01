@@ -39,7 +39,7 @@ if (fs.existsSync(`${__dirname}/src-editor/node_modules`)) {
     installPromise = npmInstall(`${__dirname.replace(/\\/g, '/')}/src-editor/`);
 }
 installPromise
-    .then(() => buildReact(`${__dirname}/src-editor/`, { rootDir: __dirname }))
+    .then(() => buildReact(`${__dirname}/src-editor/`, { vite: true }))
     .then(() => copyAllFiles())
     .then(() => {
         if (fs.existsSync(`${__dirname}/admin/tab.html`)) {

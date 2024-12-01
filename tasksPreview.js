@@ -87,7 +87,7 @@ if (fs.existsSync(`${__dirname}/src-preview/node_modules`)) {
     installPromise = npmInstall(`${__dirname.replace(/\\/g, '/')}/src-preview/`);
 }
 installPromise
-    .then(() => buildReact(`${__dirname}/src-preview/`, { rootDir: __dirname }))
+    .then(() => buildReact(`${__dirname}/src-preview/`, { vite: true }))
     .then(() => copyAllFiles())
     .then(() => {
         if (fs.existsSync(`${__dirname}/admin/preview/index.html`)) {
