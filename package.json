@@ -49,8 +49,8 @@
   "files": [
     "admin/",
     "img/",
-    "src-chart/src/Components/ChartModel.jsx",
-    "src-chart/src/Components/ChartOption.jsx",
+    "src-chart/src/Components/ChartModel.ts",
+    "src-chart/src/Components/ChartOption.ts",
     "widgets/",
     "www/",
     "io-package.json",

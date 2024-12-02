@@ -14,6 +14,9 @@ import {
     withWidth,
     Error as DialogError,
     Theme,
+    type IobTheme,
+    type ThemeName,
+    type ThemeType,
 } from '@iobroker/adapter-react-v5';
 
 import '@iobroker/adapter-react-v5/build/index.css';
@@ -45,7 +48,7 @@ import zhLang from './i18n/zh-cn.json';
 import ChartModel from './Components/ChartModel';
 import ChartView from './Components/ChartView';
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
     root: {
         width: '100%',
         height: '100%',
@@ -56,11 +59,35 @@ const styles = {
         top: 0,
         left: 0,
         right: 0,
+        display: 'block',
     },
 };
 
-class App extends Component {
-    constructor(props) {
+type AppProps = object;
+
+interface AppState {
+    connected: boolean;
+    seriesData: any;
+    categories: any;
+    actualValues: any;
+    noLoader: boolean;
+    theme: IobTheme;
+    themeType: ThemeType;
+    noBackground: boolean;
+    compact: boolean;
+    errorText?: string;
+}
+
+class App extends Component<AppProps, AppState> {
+    private readonly socket: Connection;
+    private chartData: ChartModel;
+    private readonly inEdit: boolean;
+    private readonly divRef: React.RefObject<HTMLDivElement>;
+    private readonly progressRef: React.RefObject<HTMLDivElement>;
+    private progressShown: boolean;
+    private adminCorrectTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    constructor(props: AppProps) {
         super(props);
 
         const themeInstance = App.createTheme();
@@ -73,11 +100,11 @@ class App extends Component {
             seriesData: null,
             categories: null, // used for bar and pie charts
             actualValues: null,
-            noLoader: query.noLoader || queryHash.noLoader || false,
+            noLoader: !!query.noLoader || !!queryHash.noLoader || false,
             theme: themeInstance,
             themeType: App.getThemeType(themeInstance),
-            noBackground: query.noBG || queryHash.noBG || false,
-            compact: query.compact || queryHash.compact || false,
+            noBackground: !!query.noBG || !!queryHash.noBG || false,
+            compact: !!query.compact || !!queryHash.compact || false,
         };
 
         this.inEdit =
@@ -95,7 +122,7 @@ class App extends Component {
         this.progressShown = true;
 
         // init translations
-        const translations = {
+        const translations: Record<ioBroker.Languages, Record<string, string>> = {
             en: enGlobLang,
             de: deGlobLang,
             ru: ruGlobLang,
@@ -109,7 +136,7 @@ class App extends Component {
             'zh-cn': zhGlobLang,
         };
 
-        const ownTranslations = {
+        const ownTranslations: Record<ioBroker.Languages, Record<string, string>> = {
             en: enLang,
             de: deLang,
             ru: ruLang,
@@ -125,7 +152,11 @@ class App extends Component {
 
         // merge together
         Object.keys(translations).forEach(
-            lang => (translations[lang] = Object.assign(translations[lang], ownTranslations[lang])),
+            lang =>
+                (translations[lang as ioBroker.Languages] = Object.assign(
+                    translations[lang as ioBroker.Languages],
+                    ownTranslations[lang as ioBroker.Languages],
+                )),
         );
 
         I18n.setTranslations(translations);
@@ -147,7 +178,7 @@ class App extends Component {
             this.adminCorrectTimeout = setTimeout(() => {
                 this.adminCorrectTimeout = null;
                 // The address is wrong. Navigate to /echarts/index.html
-                window.location = window.location.href.replace('/adapter/echarts/chart/', '/echarts/');
+                window.location.href = window.location.href.replace('/adapter/echarts/chart/', '/echarts/');
             }, 2000);
         }
 
@@ -157,7 +188,7 @@ class App extends Component {
                 if (progress === PROGRESS.CONNECTING) {
                     if (this.state.seriesData) {
                         if (this.divRef.current) {
-                            this.divRef.current.style.opacity = 0.5;
+                            this.divRef.current.style.opacity = '0.5';
                         }
                         if (this.progressRef.current) {
                             this.progressRef.current.style.display = 'block';
@@ -174,8 +205,10 @@ class App extends Component {
                 }
             },
             onReady: () => {
-                this.adminCorrectTimeout && clearTimeout(this.adminCorrectTimeout);
-                this.adminCorrectTimeout = null;
+                if (this.adminCorrectTimeout) {
+                    clearTimeout(this.adminCorrectTimeout);
+                    this.adminCorrectTimeout = null;
+                }
                 I18n.setLanguage(this.socket.systemLang);
 
                 if (this.inEdit) {
@@ -199,27 +232,35 @@ class App extends Component {
         });
     }
 
-    restoreAfterReconnection() {
-        this.divRef.current && (this.divRef.current.style.opacity = 1);
-        this.progressRef.current && !this.progressShown && (this.progressRef.current.style.display = 'none');
+    restoreAfterReconnection(): void {
+        if (this.divRef.current) {
+            this.divRef.current.style.opacity = '1';
+        }
+        if (this.progressRef.current && !this.progressShown) {
+            this.progressRef.current.style.display = 'none';
+        }
         if (this.state.seriesData && !this.state.seriesData.find(series => series.length)) {
             this.chartData.setNewRange();
         }
     }
 
-    createChartData(config) {
+    createChartData(config?: any): void {
         this.chartData = new ChartModel(this.socket, config, { compact: this.state.compact });
         this.chartData.onError(err => {
             if (err === ERRORS.NOT_CONNECTED) {
-                this.divRef.current && (this.divRef.current.style.opacity = 0.5);
-                this.progressRef.current && (this.progressRef.current.style.display = 'block');
+                if (this.divRef.current) {
+                    this.divRef.current.style.opacity = '0.5';
+                }
+                if (this.progressRef.current) {
+                    this.progressRef.current.style.display = 'block';
+                }
             } else {
                 this.showError(I18n.t(err));
             }
         });
         this.chartData.onReading(reading => this.showProgress(reading));
         this.chartData.onUpdate((seriesData, actualValues, categories) => {
-            const newState = { connected: true, dataLoaded: true };
+            const newState: Partial<AppState> = { connected: true, dataLoaded: true };
             if (seriesData) {
                 newState.seriesData = seriesData;
                 newState.categories = categories; // used for bar charts and pie charts
@@ -227,23 +268,23 @@ class App extends Component {
             if (actualValues) {
                 newState.actualValues = actualValues;
             }
-            this.setState(newState, () => this.showProgress(false));
+            this.setState(newState as AppState, (): void => this.showProgress(false));
         });
     }
 
-    showProgress(isShow) {
+    showProgress(isShow: boolean): void {
         this.progressShown = isShow;
         if (this.progressRef.current) {
             this.progressRef.current.style.display = isShow ? 'block' : 'none';
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         this.inEdit && window.removeEventListener('message', this.onReceiveMessage, false);
         this.chartData && this.chartData.destroy();
     }
 
-    onReceiveMessage = message => {
+    onReceiveMessage = (message): void => {
         if (message && message.data !== 'chartReady') {
             try {
                 const config = JSON.parse(message.data);
@@ -258,29 +299,19 @@ class App extends Component {
         }
     };
 
-    /**
-     * Get a theme
-     * @param {string} name Theme name
-     * @returns {Theme}
-     */
-    static createTheme(name = '') {
+    static createTheme(name?: ThemeName): IobTheme {
         return Theme(Utils.getThemeName(name));
     }
 
-    /**
-     * Get the theme type
-     * @param {Theme} theme_ Theme
-     * @returns {string} Theme type
-     */
-    static getThemeType(theme_) {
-        return theme_.palette.mode;
+    static getThemeType(_theme: IobTheme): ThemeType {
+        return _theme.palette.mode;
     }
 
-    showError(text) {
+    showError(text: string): void {
         this.setState({ errorText: text });
     }
 
-    renderError() {
+    renderError(): React.JSX.Element | null {
         if (!this.state.errorText) {
             return null;
         }
@@ -292,13 +323,13 @@ class App extends Component {
         );
     }
 
-    componentDidUpdate(/* prevProps, prevState, snapshot */) {
+    componentDidUpdate(/* prevProps, prevState, snapshot */): void {
         if (!this.progressShown && this.progressRef.current && this.progressRef.current.style.display !== 'none') {
             this.progressRef.current.style.display = 'none';
         }
     }
 
-    render() {
+    render(): React.JSX.Element | null {
         if (!this.state.connected || !this.state.seriesData) {
             if (this.state.noLoader) {
                 return null;
@@ -340,8 +371,7 @@ class App extends Component {
                     >
                         <LinearProgress
                             ref={this.progressRef}
-                            style={{ display: 'block' }}
-                            state={styles.progress}
+                            style={styles.progress}
                         />
                         <ChartView
                             key={hash}
