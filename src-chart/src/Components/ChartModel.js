@@ -1489,7 +1489,41 @@ class ChartModel {
                 }
 
                 if (this.actualValues && this.actualValues[m] !== state.val) {
-                    this.actualValues[m] = state.val;
+                    // actual values must be converted too
+                    let convertFunc;
+                    if (this.config.l[m].convert) {
+                        let convert = this.config.l[m].convert;
+                        if (!convert.includes('return')) {
+                            convert = `return ${convert}`;
+                        }
+                        try {
+                            // eslint-disable-next-line no-new-func
+                            convertFunc = new Function('val', convert);
+                        } catch (e) {
+                            console.error(`[ChartModel] Cannot parse convert function: ${e}`);
+                        }
+                    }
+
+                    let value = state.val;
+
+                    // Convert boolean values to numbers
+                    if (value === 'true' || value === true) {
+                        value = 1;
+                    } else if (value === 'false' || value === false) {
+                        value = 0;
+                    } else if (typeof value === 'string') {
+                        value = parseFloat(value);
+                    }
+                    if (this.config.l[m].chartType !== 'polar') {
+                        let val;
+                        if (convertFunc) {
+                            val = value !== null ? convertFunc(value + this.config.l[m].yOffset) : null;
+                        } else {
+                            val = value !== null ? value + this.config.l[m].yOffset : null;
+                        }
+                    }
+
+                    this.actualValues[m] = value;
                     changed = true;
                 }
                 break;
