@@ -1,5 +1,5 @@
 import React from 'react';
-import type { EChartsOption } from 'echarts/types/dist/echarts';
+import type { EChartsOption, LegendComponentOption, zrender } from 'echarts/types/dist/echarts';
 import type EChartsReactCore from 'echarts-for-react';
 
 import {
@@ -80,9 +80,7 @@ import 'echarts/theme/red-velvet';
 import 'echarts/theme/green';
 import 'echarts/theme/gray';
 import 'echarts/theme/dark-bold';
-import { type RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
-import { ZRRawEvent } from 'zrender/lib/core/types';
-import { zrender } from 'echarts/types/dist/echarts';
+import type { GridOption, RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
 
 echarts.use([
     GridComponent,
@@ -443,7 +441,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         }
     }
 
-    onMouseMove = (e: ZRRawEvent): void => {
+    onMouseMove = (e: MouseEvent): void => {
         if (this.mouseDown) {
             if (this.divResetButton.current && this.divResetButton.current.style.display !== 'block') {
                 this.divResetButton.current.style.display = 'block';
@@ -451,7 +449,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
 
             const chart = this.chartOption.getHelperChartData();
 
-            if (e.event.shiftKey) {
+            if (e.shiftKey) {
                 chart.yMoved = true;
                 const moved = chart.lastY - (e.offsetY - chart.padTop);
                 chart.lastY = e.offsetY - chart.padTop;
@@ -482,7 +480,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         }
     };
 
-    onMouseDown = (e: ZRRawEvent): void => {
+    onMouseDown = (e: MouseEvent): void => {
         this.mouseDown = true;
         const chart = this.chartOption.getHelperChartData();
         chart.lastX = e.offsetX;
@@ -516,13 +514,13 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         }
     };
 
-    onMouseWheel = (e: ZRRawEvent): void => {
+    onMouseWheel = (e: WheelEvent): void => {
         const chart = this.chartOption.getHelperChartData();
-        if (e.event.shiftKey) {
+        if (e.shiftKey) {
             const height = this.state.chartHeight - chart.padBottom - chart.padTop;
             const y = e.offsetY - chart.padTop;
             const pos = y / height;
-            const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
+            const amount = e.deltaY > 0 || e.deltaX > 0 ? 1.1 : 0.9;
             const yAxis = JSON.parse(JSON.stringify(chart.yAxis));
 
             chart.yAxis.forEach(axis => {
@@ -543,7 +541,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             const pos = x / width;
 
             const oldDiff = diff;
-            const amount = e.wheelDelta > 0 ? 1.1 : 0.9;
+            const amount = e.deltaY > 0 || e.deltaX > 0 ? 1.1 : 0.9;
             diff *= amount;
             const move = oldDiff - diff;
             chart.xMax += move * (1 - pos);
@@ -699,11 +697,15 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 selected: {},
             };
             this.props.config.l.forEach(
-                oneLine => (this.option.legend.selected[oneLine.name] = !this.state.excluded.includes(oneLine.id)),
+                oneLine =>
+                    ((this.option.legend as LegendComponentOption).selected[oneLine.name] =
+                        !this.state.excluded.includes(oneLine.id)),
             );
         } else if (this.selected && this.option.legend) {
             // merge selected
-            Object.keys(this.selected).forEach(name => (this.option.legend.selected[name] = this.selected[name]));
+            Object.keys(this.selected).forEach(
+                name => ((this.option.legend as LegendComponentOption).selected[name] = this.selected[name]),
+            );
         }
     }
 
@@ -871,6 +873,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                             if (series?.[0]?.data?.length) {
                                 const date = new Date(
                                     (option.xAxis as XAXisOption[])[0].max ||
+                                        // @ts-expect-error fix later
                                         series[0].data[series[0].data.length - 1].value[0],
                                 );
                                 try {
@@ -996,7 +999,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 <Fab
                     size="small"
                     color="default"
-                    style={{ ...styles.legendButton, left: this.option?.grid?.left || 0 }}
+                    style={{ ...styles.legendButton, left: (this.option?.grid as GridOption)?.left || 0 }}
                     title={I18n.t('Select lines')}
                     onClick={() => this.setState({ showLegendDialog: true })}
                 >

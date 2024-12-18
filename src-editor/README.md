@@ -1919,7 +1919,7 @@ for more details about this behavior.
    fetched the latest updates that will be available the next time they load the
    page (showing a "New content is available once existing tabs are closed." message). Showing
    this messages is currently left as an exercise to the developer, but as a
-   starting point, you can make use of the logic included in [`src/serviceWorker.tsx`](src/serviceWorker.jsx), which
+   starting point, you can make use of the logic included in [`src/serviceWorker.tsx`](src/serviceWorker.tsx), which
    demonstrates which service worker lifecycle events to listen for to detect each
    scenario, and which as a default, just logs appropriate messages to the
    JavaScript console.

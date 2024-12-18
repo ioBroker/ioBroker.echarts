@@ -39,6 +39,9 @@ import {
     ToggleThemeMenu,
     Connection,
     PROGRESS,
+    IobTheme,
+    ThemeType,
+    ThemeName,
 } from '@iobroker/adapter-react-v5';
 
 import '@iobroker/adapter-react-v5/build/index.css';
@@ -68,8 +71,8 @@ import plLang from './i18n/pl.json';
 import ukLang from './i18n/uk.json';
 import zhLang from './i18n/zh-cn.json';
 
-const styles = {
-    root: theme => ({
+const styles: Record<string, any> = {
+    root: (theme: IobTheme): React.CSSProperties => ({
         width: '100%',
         height: 'calc(100% - 48px)',
         position: 'relative',
@@ -95,14 +98,14 @@ const styles = {
         cursor: 'pointer',
         position: 'relative',
     },
-    folderIcon: theme => ({
+    folderIcon: (theme: IobTheme): any => ({
         '& svg': {
             width: 'calc(100% - 28px)',
             height: 'auto',
             color: theme.palette.primary.main,
         },
     }),
-    active: theme => ({
+    active: (theme: IobTheme): any => ({
         '& svg': {
             color: theme.palette.primary.main,
         },
@@ -141,8 +144,31 @@ const styles = {
 
 const iconsCache = {};
 
-class App extends Component {
-    constructor(props) {
+interface AppState {
+    connected: boolean;
+    theme: IobTheme;
+    themeType: ThemeType;
+    themeName: ThemeName;
+    location;
+    presetFolders: null;
+    icons: {};
+    iconSize: number;
+    showSlider: boolean;
+    alive: boolean;
+    toast: string;
+    webInstances: [];
+    webMenu: null;
+    forceRefresh: boolean;
+}
+
+class App extends Component<object, AppState> {
+    private adminCorrectTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    private readonly isWeb: boolean;
+
+    private socket: Connection;
+
+    constructor(props: any) {
         super(props);
 
         const themeInstance = App.createTheme();
@@ -200,8 +226,11 @@ class App extends Component {
         };
 
         // merge together
-        Object.keys(translations).forEach(
-            lang => (translations[lang] = Object.assign(translations[lang], ownTranslations[lang])),
+        Object.keys(translations).forEach(lang =>
+            Object.assign(
+                (translations as Record<ioBroker.Languages, string>)[lang],
+                (ownTranslations as Record<ioBroker.Languages, string>)[lang],
+            ),
         );
 
         I18n.setTranslations(translations);
@@ -215,7 +244,7 @@ class App extends Component {
             this.adminCorrectTimeout = setTimeout(() => {
                 this.adminCorrectTimeout = null;
                 // Address is wrong. Navigate to /echarts/index.html
-                window.location = window.location.href.replace('/adapter/echarts/preview/', '/echarts/preview/');
+                window.location.href = window.location.href.replace('/adapter/echarts/preview/', '/echarts/preview/');
             }, 2000);
         }
 
@@ -238,7 +267,7 @@ class App extends Component {
 
                 I18n.setLanguage(this.socket.systemLang);
 
-                this.socket
+                void this.socket
                     .getState('system.adapter.echarts.0.alive')
                     .catch(() => null) // ignore error
                     .then(state => {

@@ -45,8 +45,9 @@ import plLang from './i18n/pl.json';
 import ukLang from './i18n/uk.json';
 import zhLang from './i18n/zh-cn.json';
 
-import ChartModel from './Components/ChartModel';
+import ChartModel, { type SeriesData, type BarAndLineSeries } from './Components/ChartModel';
 import ChartView from './Components/ChartView';
+import type { ChartConfigMore } from './Components/ChartOption';
 
 const styles: Record<string, React.CSSProperties> = {
     root: {
@@ -67,15 +68,16 @@ type AppProps = object;
 
 interface AppState {
     connected: boolean;
-    seriesData: any;
-    categories: any;
-    actualValues: any;
+    seriesData: BarAndLineSeries[] | null;
+    categories: number[] | undefined | null;
+    actualValues: number[] | null;
     noLoader: boolean;
     theme: IobTheme;
     themeType: ThemeType;
     noBackground: boolean;
     compact: boolean;
     errorText?: string;
+    dataLoaded: boolean;
 }
 
 class App extends Component<AppProps, AppState> {
@@ -105,6 +107,7 @@ class App extends Component<AppProps, AppState> {
             themeType: App.getThemeType(themeInstance),
             noBackground: !!query.noBG || !!queryHash.noBG || false,
             compact: !!query.compact || !!queryHash.compact || false,
+            dataLoaded: false,
         };
 
         this.inEdit =
@@ -247,7 +250,7 @@ class App extends Component<AppProps, AppState> {
     createChartData(config?: any): void {
         this.chartData = new ChartModel(this.socket, config, { compact: this.state.compact });
         this.chartData.onError(err => {
-            if (err === ERRORS.NOT_CONNECTED) {
+            if (err.toString().includes(ERRORS.NOT_CONNECTED)) {
                 if (this.divRef.current) {
                     this.divRef.current.style.opacity = '0.5';
                 }
@@ -255,21 +258,23 @@ class App extends Component<AppProps, AppState> {
                     this.progressRef.current.style.display = 'block';
                 }
             } else {
-                this.showError(I18n.t(err));
+                this.showError(I18n.t(err.toString()));
             }
         });
         this.chartData.onReading(reading => this.showProgress(reading));
-        this.chartData.onUpdate((seriesData, actualValues, categories) => {
-            const newState: Partial<AppState> = { connected: true, dataLoaded: true };
-            if (seriesData) {
-                newState.seriesData = seriesData;
-                newState.categories = categories; // used for bar charts and pie charts
-            }
-            if (actualValues) {
-                newState.actualValues = actualValues;
-            }
-            this.setState(newState as AppState, (): void => this.showProgress(false));
-        });
+        this.chartData.onUpdate(
+            (seriesData: BarAndLineSeries[] | null, actualValues?: number[], categories?: number[]): void => {
+                const newState: Partial<AppState> = { connected: true, dataLoaded: true };
+                if (seriesData) {
+                    newState.seriesData = seriesData;
+                    newState.categories = categories; // used for bar charts and pie charts
+                }
+                if (actualValues) {
+                    newState.actualValues = actualValues;
+                }
+                this.setState(newState as AppState, (): void => this.showProgress(false));
+            },
+        );
     }
 
     showProgress(isShow: boolean): void {
@@ -284,7 +289,7 @@ class App extends Component<AppProps, AppState> {
         this.chartData && this.chartData.destroy();
     }
 
-    onReceiveMessage = (message): void => {
+    onReceiveMessage = (message?: { data: string }): void => {
         if (message && message.data !== 'chartReady') {
             try {
                 const config = JSON.parse(message.data);
@@ -293,7 +298,7 @@ class App extends Component<AppProps, AppState> {
                 } else {
                     this.chartData.setConfig(config);
                 }
-            } catch (e) {
+            } catch {
                 console.log(`Cannot parse ${message.data}`);
             }
         }
@@ -343,7 +348,7 @@ class App extends Component<AppProps, AppState> {
             );
         }
 
-        const config = this.chartData.getConfig();
+        const config: ChartConfigMore = this.chartData.getConfig() as ChartConfigMore;
         // get IDs hash
         const hash = MD5(
             JSON.stringify(((config && config.l && config.l.map(item => item.id)) || []).sort()),
@@ -385,8 +390,16 @@ class App extends Component<AppProps, AppState> {
                             compact={this.state.compact}
                             lang={I18n.getLanguage()}
                             themeType={this.state.themeType}
-                            onRangeChange={options => this.chartData.setNewRange(options)}
-                            exportData={(from, to, excludes) => this.chartData.exportData(from, to, excludes)}
+                            onRangeChange={(options: { stopLive?: boolean; start?: number; end?: number }): void =>
+                                this.chartData.setNewRange(options)
+                            }
+                            exportData={(
+                                from: number,
+                                to: number,
+                                excludes?: string[],
+                            ): Promise<{ [objectId: string]: SeriesData[] }> =>
+                                this.chartData.exportData(from, to, excludes)
+                            }
                         />
                         {this.renderError()}
                     </div>

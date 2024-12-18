@@ -1,12 +1,20 @@
 import type moment from 'moment';
 import type { ThemeType } from '@iobroker/adapter-react-v5';
-import type { BarAndLineSeries, BarSeries, ChartConfig, ChartLineConfig, LineSeries } from './ChartModel';
-import type { EChartsOption } from 'echarts/types/dist/echarts';
+import type {
+    BarAndLineSeries,
+    BarSeries,
+    ChartConfig,
+    ChartLineConfig,
+    EchartOneValue,
+    LineSeries,
+} from './ChartModel';
+import type { EChartsOption, LegendComponentOption } from 'echarts/types/dist/echarts';
 import type {
     CallbackDataParams,
+    GridOption,
     LinearGradientObject,
     RegisteredSeriesOption,
-    TooltipFormatterCallback,
+    TitleOption,
     XAXisOption,
     YAXisOption,
 } from 'echarts/types/dist/shared';
@@ -175,12 +183,19 @@ export interface ChartLineConfigMore extends ChartLineConfig {
     xticks?: number;
 
     xaxe?: 'off' | 'top' | 'bottom';
+
+    // Hide this in legend
+    hide?: boolean;
 }
 
 export interface ChartConfigMore extends ChartConfig {
     l: ChartLineConfigMore[];
 
     title?: string;
+    /** Title position in form "top:35;left:65" */
+    titlePos?: string;
+    titleSize?: number;
+    titleColor?: string;
 
     noBorder?: 'noborder';
     // Outer border width of the whole chart
@@ -203,6 +218,8 @@ export interface ChartConfigMore extends ChartConfig {
     barFontSize?: number;
     barWidth?: number;
 
+    noAnimation?: boolean;
+
     x_labels_size?: number;
     x_labels_color?: string;
     x_ticks_color?: string;
@@ -215,7 +232,7 @@ export interface ChartConfigMore extends ChartConfig {
     resetZoom?: number;
 
     // Show legend
-    legend?: 'nw' | 'sw' | 'ne' | 'se' | 'dialog';
+    legend?: 'nw' | 'sw' | 'ne' | 'se' | 'dialog' | 'none';
     // Legend background
     legBg?: string;
     // Legend Height
@@ -237,8 +254,11 @@ export interface ChartConfigMore extends ChartConfig {
     // Color of export button
     exportDataColor?: string;
 
-    // Make backgound of HTML window transparent
+    // Make background of HTML window transparent
     noBackground?: boolean;
+
+    // Show radar as circle
+    radarCircle?: 'circle';
 }
 
 function padding2(num: number): string {
@@ -353,6 +373,7 @@ class ChartOption {
     private readonly compact: boolean;
     private lastFormattedTime: string | number | Date | null;
     private option: EChartsOption | null;
+    private debug = false;
 
     constructor(
         moment: MomentType,
@@ -1111,16 +1132,20 @@ class ChartOption {
         ts: number,
         type: 'number' | 'boolean' | 'string',
         hoverNoNulls?: boolean,
-    ): { exact: boolean; val: number } {
-        const data = this.option.series[seriesIndex].data;
-        if (!data || !data[0] || data[0].value[0] > ts || data[data.length - 1].value[0] < ts) {
+    ): { exact?: boolean; val: number } {
+        // it cannot be bar or polar
+        const series: (RegisteredSeriesOption['line'] | RegisteredSeriesOption['scatter'])[] | undefined = this.option
+            ?.series as (RegisteredSeriesOption['line'] | RegisteredSeriesOption['scatter'])[];
+
+        const data: EchartOneValue[] = series[seriesIndex].data as EchartOneValue[];
+        if (!data?.[0] || data[0].value[0] > ts || data[data.length - 1].value[0] < ts) {
             return null;
         }
 
         for (let k = 0; k < data.length - 1; k++) {
             if (data[k].value[0] === ts) {
                 // Calculate
-                const dp = { val: data[k].value[1] };
+                const dp: { exact?: boolean; val: number } = { val: data[k].value[1] };
                 if (data[k].exact === false) {
                     dp.exact = false;
                 }
@@ -1147,8 +1172,23 @@ class ChartOption {
     }
 
     renderTooltip(params: CallbackDataParams[]): string {
+        const series:
+            | (
+                  | RegisteredSeriesOption['radar']
+                  | RegisteredSeriesOption['line']
+                  | RegisteredSeriesOption['scatter']
+                  | RegisteredSeriesOption['bar']
+              )[]
+            | undefined = this.option?.series as (
+            | RegisteredSeriesOption['radar']
+            | RegisteredSeriesOption['line']
+            | RegisteredSeriesOption['scatter']
+            | RegisteredSeriesOption['bar']
+        )[];
+
         let ts: number;
         let date: Date;
+        // It is line chart and not par or polar
         if (Array.isArray(params[0].value)) {
             ts = params[0].value[0] as number;
             date = new Date(ts);
@@ -1162,11 +1202,13 @@ class ChartOption {
                 }
             }
         }
+
         const hoverNoNulls =
             this.config.hoverNoNulls === true || (this.config.hoverNoNulls as unknown as string) === 'true';
         const anyBarOrPolar = this.config.l.find(l => l.chartType === 'bar' || l.chartType === 'polar');
 
-        const values: string[] = this.option.series.map((line, seriesIndex: number): string => {
+        let barPolarName: string;
+        const values: string[] = series.map((line, seriesIndex: number): string => {
             const lineConfig = this.config.l[seriesIndex];
             const p = params.find(param => param.seriesIndex === seriesIndex);
             if (anyBarOrPolar) {
@@ -1176,22 +1218,25 @@ class ChartOption {
                 let val;
                 if (lineConfig.afterComma !== undefined) {
                     const ex = 10 ** lineConfig.afterComma;
-                    val = Math.round(p.value * ex) / ex;
+                    val = Math.round((p.value as number) * ex) / ex;
                 } else {
                     val = p.value;
                 }
-                ts = p.name;
+                barPolarName = p.name;
 
                 return (
-                    `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${p.color}">` +
+                    `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${p.color as string}">` +
                     `<div style="display: flex;margin-right: 4px">${lineConfig.name}:</div>` +
                     '<div style="display: flex; flex-grow: 1"></div>' +
-                    `<div style="display: flex;"><b>${val}</b>${lineConfig.unit || ''}</div>` +
+                    `<div style="display: flex;"><b>${val as number}</b>${lineConfig.unit || ''}</div>` +
                     '</div>'
                 );
             }
-            let interpolated: { exact: boolean; val: number };
+
+            // It is line and not bar or polar
+            let interpolated: { exact?: boolean; val: number };
             if (p) {
+                // @ts-expect-error fix later
                 interpolated = { exact: p.data.exact !== undefined ? p.data.exact : true, val: p.value[1] as number };
             }
 
@@ -1209,7 +1254,7 @@ class ChartOption {
                     : this.yFormatter(interpolated.val, seriesIndex, false, !interpolated.exact, true);
 
             return (
-                `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color}">` +
+                `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color as string}">` +
                 `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
                 '<div style="display: flex; flex-grow: 1"></div>' +
                 `<div style="display: flex;">${interpolated.exact ? '' : 'i '}<b>${val}</b>${interpolated.val !== null ? lineConfig.unit : ''}</div>` +
@@ -1219,18 +1264,18 @@ class ChartOption {
 
         if (anyBarOrPolar) {
             const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm';
-            const _date = new Date(parseInt(ts.substring(1), 10));
+            const _date = new Date(parseInt(barPolarName.substring(1), 10));
             return `<b>${this.moment(_date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
         }
         const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm:ss.SSS';
         return `<b>${this.moment(date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
     }
 
-    getLegend(actualValues) {
+    getLegend(actualValues: number[]): LegendComponentOption {
         if (!this.config.legend || this.config.legend === 'none' || this.config.legend === 'dialog') {
             return undefined;
         }
-        const legend = {
+        const legend: LegendComponentOption = {
             data: this.config.l.map(oneLine => oneLine.name),
             show: true,
             left: this.config.legend === 'nw' || this.config.legend === 'sw' ? this.chart.padLeft + 1 : undefined,
@@ -1266,20 +1311,20 @@ class ChartOption {
         return legend;
     }
 
-    getTitle() {
+    getTitle(): TitleOption {
         if (!this.config || !this.config.title) {
             return undefined;
         }
-        const titlePos = {};
+        const titlePos: { top?: number; left?: number; bottom?: number; right?: number } = {};
         (this.config.titlePos || 'top:35;left:65').split(';').forEach(a => {
             const parts = a.split(':');
-            titlePos[parts[0].trim()] = parseInt(parts[1].trim(), 10);
+            (titlePos as Record<string, number>)[parts[0].trim()] = parseInt(parts[1].trim(), 10);
         });
 
         return {
             text: this.config.title,
             textStyle: {
-                fontSize: this.config.titleSize ? parseInt(this.config.titleSize, 10) : 20,
+                fontSize: this.config.titleSize ? parseInt(this.config.titleSize as unknown as string, 10) : 20,
                 color: this.config.titleColor || (this.themeType === 'light' ? '#000' : '#FFF'),
             },
             textVerticalAlign: titlePos.bottom ? 'bottom' : 'top',
@@ -1295,7 +1340,12 @@ class ChartOption {
         };
     }
 
-    getOption(data: BarAndLineSeries[], config, actualValues, categories): EChartsOption {
+    getOption(
+        data: BarAndLineSeries[],
+        config: ChartConfigMore,
+        actualValues: number[],
+        categories: number[],
+    ): EChartsOption {
         if (config) {
             this.config = JSON.parse(JSON.stringify(config));
         }
@@ -1306,7 +1356,7 @@ class ChartOption {
             theme = this.themeType === 'light' ? 'roma' : 'dark-bold';
         }
 
-        this.debug = this.config && this.config.debug;
+        this.debug = this.config?.debug;
 
         if (this.debug) {
             console.log(`[ChartView ] [${new Date().toISOString()}] ${JSON.stringify(this.config, null, 2)}`);
@@ -1366,68 +1416,46 @@ class ChartOption {
                     : undefined,
             xAxis,
             yAxis,
-            /* toolbox: false && (this.config.export === true || this.config.export === 'true') ? {
-                left: 'right',
-                feature: {
-                    saveAsImage: {
-                        title: props.t('Save as image'),
-                        show: true,
-                    }
-                }
-            } : undefined, */
-            /* dataZoom: [
-                {
-                    show: true,
-                    realtime: true,
-                    startValue: this.start,
-                    endValue: this.end,
-                    y: this.state.chartHeight - 50,
-                    dataBackground: {
-                        lineStyle: {
-                            color: '#FFFFFF'
-                        },
-                        areaStyle: {
-                            color: '#FFFFFFE0'
-                        }
-                    },
-                },
-                {
-                    show: true,
-                    type: 'inside',
-                    realtime: true,
-                },
-            ], */
+            // @ts-expect-error it is because of markArea.tooltip.position
             series,
             useCanvas,
         };
 
         this.config.l.forEach((item, chartIndex) => {
             if (item.aggregate === 'current') {
-                option.series[chartIndex].data = [actualValues[chartIndex]];
+                // It could be only bar or polar
+                (option.series as (RegisteredSeriesOption['radar'] | RegisteredSeriesOption['bar'])[])[
+                    chartIndex
+                ].data = [actualValues[chartIndex]];
             }
         });
 
+        // modify series for polar
         if (this.config.l.find(item => item.chartType === 'polar')) {
             option.animation = false;
             option.radar = {
                 shape: this.config.radarCircle === 'circle' ? 'circle' : undefined,
                 indicator: [],
             };
-            const radarSeries = [
+            const radarSeries: RegisteredSeriesOption['radar'][] = [
                 {
                     type: 'radar',
                     data: [{ value: [] }],
                     lineStyle: {
-                        color: option.series[0].color,
+                        // @ts-expect-error fix later
+                        color: option.series[0].color as string,
                     },
-                    label: option.series[0].label,
+                    // @ts-expect-error fix later
+                    label: option.series[0].label as string,
                 },
             ];
 
+            // @ts-expect-error fix later
             option.series.forEach((item, chartIndex) => {
                 const max = this.config.l[chartIndex].max
-                    ? parseFloat(this.config.l[chartIndex].max) || undefined
+                    ? parseFloat(this.config.l[chartIndex].max as unknown as string) || undefined
                     : undefined;
+                // @ts-expect-error fix later
                 option.radar.indicator.push({
                     name: item.name + (max !== undefined ? ` (max ${this.yFormatter(max, chartIndex, true)})` : ''),
                     max,
@@ -1442,12 +1470,14 @@ class ChartOption {
                 }
 
                 if (value !== undefined) {
+                    // @ts-expect-error fix later
                     radarSeries[0].data[0].value.push(value);
                 } else {
+                    // @ts-expect-error fix later
                     radarSeries[0].data[0].value.push(0);
                 }
             });
-            option.series = radarSeries;
+            (option.series as RegisteredSeriesOption['radar'][]) = radarSeries;
 
             delete option.xAxis;
             delete option.yAxis;
@@ -1456,31 +1486,41 @@ class ChartOption {
             this.getMarkings(option);
 
             if (!this.compact && !this.config.autoGridPadding) {
+                const lineSeries: (
+                    | RegisteredSeriesOption['line']
+                    | RegisteredSeriesOption['scatter']
+                    | RegisteredSeriesOption['bar']
+                )[] = series as (
+                    | RegisteredSeriesOption['line']
+                    | RegisteredSeriesOption['scatter']
+                    | RegisteredSeriesOption['bar']
+                )[];
                 // calculate padding: left and right
                 let padLeft = 0;
                 let padRight = 0;
                 let padBottom = 0;
                 let padTop = 0;
-                series.forEach((ser, i) => {
-                    let _yAxis = option.yAxis[ser.yAxisIndex];
+
+                lineSeries.forEach((ser, i) => {
+                    let _yAxis = (option.yAxis as YAXisOption[])[ser.yAxisIndex];
                     if (!_yAxis) {
                         // it seems this axis is defined something else
                         const cY = this.config.l[ser.yAxisIndex]
                             ? this.config.l[ser.yAxisIndex].commonYAxis
                             : undefined;
                         if (cY !== undefined) {
-                            _yAxis = option.yAxis[cY];
+                            _yAxis = (option.yAxis as YAXisOption[])[cY];
                         } else if (this.config.l[i].chartType === 'bar') {
-                            _yAxis = { min: ser.data[0], max: ser.data[0] };
+                            _yAxis = { min: ser.data[0] as number, max: ser.data[0] as number };
                             for (let s = 1; s < ser.data.length; s++) {
                                 if (ser.data[s] === null) {
                                     continue;
                                 }
                                 if (ser.data[s] < _yAxis.min || _yAxis.min === null) {
-                                    _yAxis.min = ser.data[s];
+                                    _yAxis.min = ser.data[s] as number;
                                 }
                                 if (ser.data[s] > _yAxis.max || _yAxis.max === null) {
-                                    _yAxis.max = ser.data[s];
+                                    _yAxis.max = ser.data[s] as number;
                                 }
                             }
                         } else {
@@ -1489,9 +1529,9 @@ class ChartOption {
                         }
                     }
 
-                    const minTick = this.yFormatter(_yAxis.min, i, true, false, true);
+                    const minTick = this.yFormatter(_yAxis.min as number, i, true, false, true);
                     const maxTick = this.yFormatter(
-                        !_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max,
+                        !_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : (_yAxis.max as number),
                         i,
                         true,
                         false,
@@ -1500,30 +1540,34 @@ class ChartOption {
 
                     if (xAxis[0].position === 'top') {
                         padTop = this.isXLabelHasBreak() ? 40 : 24;
-                    } else if (xAxis[0].position !== 'off' || xAxis[0].position === 'bottom') {
+                    } else if (xAxis[0].position === 'bottom') {
                         padBottom = this.isXLabelHasBreak() ? 40 : 24;
                     }
 
                     const position = _yAxis.position;
-                    if (position === 'off' || (_yAxis.axisLabel && _yAxis.axisLabel.color === 'rgba(0,0,0,0)')) {
+                    if (_yAxis.axisLabel && _yAxis.axisLabel.color === 'rgba(0,0,0,0)') {
                         return;
                     }
                     const wMin = this.calcTextWidth(minTick, this.config.y_labels_size) + 4;
                     let wMax = this.calcTextWidth(maxTick, this.config.y_labels_size) + 4;
 
                     // if we have descriptions for every number, so find the longest one and use it as max width
+                    // @ts-expect-error fix later
                     if (ser.states) {
                         // get the longest state
                         let wState = '';
+                        // @ts-expect-error fix later
                         Object.keys(ser.states).forEach(state => {
+                            // @ts-expect-error fix later
                             if (ser.states[state].length > wState.length) {
+                                // @ts-expect-error fix later
                                 wState = ser.states[state];
                             }
                         });
                         wMax = this.calcTextWidth(wState, this.config.y_labels_size) + 4;
                     }
 
-                    if (position !== 'right' && position !== 'rightColor') {
+                    if (position !== 'right') {
                         if (wMin > padLeft) {
                             padLeft = wMin;
                         }
@@ -1539,28 +1583,30 @@ class ChartOption {
                         }
                     }
                 });
-                option.grid.left = padLeft + 10;
-                option.grid.right =
-                    padRight + 10 + (this.config.export === true || this.config.export === 'true' ? 20 : 0);
+                (option.grid as GridOption).left = padLeft + 10;
+                (option.grid as GridOption).right =
+                    padRight +
+                    10 +
+                    (this.config.export === true || (this.config.export as unknown as string) === 'true' ? 20 : 0);
                 // if xAxis shown, let the place for last value
-                if (option.grid.right <= 10 && (padTop || padBottom)) {
-                    option.grid.right = 18;
+                if (((option.grid as GridOption).right as number) <= 10 && (padTop || padBottom)) {
+                    (option.grid as GridOption).right = 18;
                 }
-                if (option.grid.left <= 10 && (padTop || padBottom)) {
-                    option.grid.left = 18;
+                if (((option.grid as GridOption).left as number) <= 10 && (padTop || padBottom)) {
+                    (option.grid as GridOption).left = 18;
                 }
-                this.chart.padLeft = option.grid.left;
-                this.chart.padRight = option.grid.right;
+                this.chart.padLeft = (option.grid as GridOption).left as number;
+                this.chart.padRight = (option.grid as GridOption).right as number;
                 if (!padTop) {
                     padTop = 8;
                 }
                 if (!padBottom) {
                     padBottom = 8;
                 }
-                option.grid.top = padTop;
-                option.grid.bottom = padBottom;
-                this.chart.padTop = option.grid.top;
-                this.chart.padBottom = option.grid.bottom;
+                (option.grid as GridOption).top = padTop;
+                (option.grid as GridOption).bottom = padBottom;
+                this.chart.padTop = (option.grid as GridOption).top as number;
+                this.chart.padBottom = (option.grid as GridOption).bottom as number;
             }
         }
 
@@ -1573,7 +1619,7 @@ class ChartOption {
 
         if (!this.config.grid_color && Array.isArray(option.yAxis)) {
             option.yAxis.forEach(axis => axis.splitLine && delete axis.splitLine.lineStyle);
-            option.xAxis.forEach(axis => axis.splitLine && delete axis.splitLine.lineStyle);
+            (option.xAxis as XAXisOption[]).forEach(axis => axis.splitLine && delete axis.splitLine.lineStyle);
         }
 
         this.option = option;

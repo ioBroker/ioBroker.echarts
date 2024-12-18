@@ -7,6 +7,13 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import pack from '../package.json';
 
+declare global {
+    interface Window {
+        sentryDSN: string;
+        adapterName: string | undefined;
+    }
+}
+
 window.adapterName = 'echarts-preview';
 // window.sentryDSN = 'https://cf39325071144219aa91bb3510addcdf@sentry.iobroker.net/95';
 
@@ -53,8 +60,10 @@ if (window.location.host !== 'localhost:3000') {
 }
 
 const container = document.getElementById('root');
-const root = createRoot(container);
-root.render(<App />);
+if (container) {
+    const root = createRoot(container);
+    root.render(<App />);
+}
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

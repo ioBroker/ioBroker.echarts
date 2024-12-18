@@ -180,7 +180,7 @@ export type ChartMarkConfig = {
     ol: number;
     // shadow
     os: number;
-    lineStyle: 'solid' | 'dashed' | 'dotted';
+    lineStyle?: 'solid' | 'dashed' | 'dotted';
     text: string;
     textPosition: 'r' | 'l';
     textOffset: number;
@@ -528,7 +528,7 @@ class ChartModel {
     constructor(
         socket: Connection,
         config: ChartConfigOld,
-        options?: { updateTimeout?: number; serverSide?: boolean },
+        options?: { updateTimeout?: number; serverSide?: boolean; compact?: boolean },
     ) {
         options = { updateTimeout: 300, ...(options || {}) };
         this.socket = socket;
