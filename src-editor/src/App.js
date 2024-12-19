@@ -25,7 +25,7 @@ import {
     Loader, withWidth,
     GenericApp,
 } from '@iobroker/adapter-react-v5';
-import '@iobroker/adapter-react-v5/index.css';
+import '@iobroker/adapter-react-v5/build/index.css';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';

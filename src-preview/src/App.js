@@ -38,10 +38,10 @@ import {
     Error as DialogError,
     Theme,
     ToggleThemeMenu,
+    Connection, PROGRESS,
 } from '@iobroker/adapter-react-v5';
-import Connection, { PROGRESS } from '@iobroker/adapter-react-v5/Connection';
 
-import '@iobroker/adapter-react-v5/index.css';
+import '@iobroker/adapter-react-v5/build/index.css';
 import logo from './assets/echarts.png';
 
 const styles = {
