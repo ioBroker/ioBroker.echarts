@@ -1111,7 +1111,39 @@ class ChartModel {
                 // read current value
                 try {
                     const state = await this.socket.getState(id);
-                    this.actualValues[index] = state && (state.val || state.val === 0 || state.val === false) ? state.val : null;
+                    let value = state ? state.val : null;
+                    // convert this value
+                    let convertFunc;
+                    if (this.config.l[index].convert) {
+                        let convert = this.config.l[index].convert;
+                        if (!convert.includes('return')) {
+                            convert = `return ${convert}`;
+                        }
+                        try {
+                            // eslint-disable-next-line no-new-func
+                            convertFunc = new Function('val', convert);
+                        } catch (e) {
+                            console.error(`[ChartModel] Cannot parse convert function: ${e}`);
+                        }
+                    }
+
+                    // Convert boolean values to numbers
+                    if (value === 'true' || value === true) {
+                        value = 1;
+                    } else if (value === 'false' || value === false) {
+                        value = 0;
+                    } else if (typeof value === 'string') {
+                        value = parseFloat(value);
+                    }
+                    if (this.config.l[index].chartType !== 'polar') {
+                        if (convertFunc) {
+                            value = value !== null ? convertFunc(value + this.config.l[index].yOffset) : null;
+                        } else {
+                            value = value !== null ? value + this.config.l[index].yOffset : null;
+                        }
+                    }
+
+                    this.actualValues[index] = value;
                 } catch (e) {
                     console.warn(`Cannot read last value of "${id}": ${e}`);
                     this.actualValues[index] = null;
@@ -1515,11 +1547,10 @@ class ChartModel {
                         value = parseFloat(value);
                     }
                     if (this.config.l[m].chartType !== 'polar') {
-                        let val;
                         if (convertFunc) {
-                            val = value !== null ? convertFunc(value + this.config.l[m].yOffset) : null;
+                            value = value !== null ? convertFunc(value + this.config.l[m].yOffset) : null;
                         } else {
-                            val = value !== null ? value + this.config.l[m].yOffset : null;
+                            value = value !== null ? value + this.config.l[m].yOffset : null;
                         }
                     }
 
