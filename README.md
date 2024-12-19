@@ -100,6 +100,9 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### 1.9.3 (2024-12-19)
+* (bluefox) Convert actual values with provided "convert" function too
+
 ### 1.9.2 (2024-09-10)
 * (bluefox) Fixed polar and bar charts
 

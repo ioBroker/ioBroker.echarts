@@ -1,7 +1,7 @@
 {
     "name": "iobroker.echarts",
     "private": true,
-    "version": "1.9.2",
+    "version": "1.9.3",
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
