@@ -8,367 +8,345 @@
  *
  */
 import { Adapter, type AdapterOptions } from '@iobroker/adapter-core';
-import { readFileSync, existsSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
-const ChartModel = require('./_helpers/ChartModel');
-const ChartOption = require('./_helpers/ChartOption');
+import { readFileSync, writeFileSync } from 'node:fs';
+import ChartModel, { type BarAndLineSeries } from './lib/ChartModel';
+import ChartOption, { type ChartConfigMore } from './lib/ChartOption';
+import * as moment from 'moment';
+import 'moment/locale/en-gb';
+import 'moment/locale/es';
+import 'moment/locale/fr';
+import 'moment/locale/pl';
+import 'moment/locale/pt';
+import 'moment/locale/it';
+import 'moment/locale/nl';
+import 'moment/locale/ru';
+import 'moment/locale/zh-cn';
+import 'moment/locale/de';
+import type { EchartOptions, Connection } from './types';
+import { getSocket } from './lib/socketSimulator';
+import { type EChartsType, init as echartsInit } from 'echarts/types/dist/echarts';
+import type { Canvas, JpegConfig, PdfConfig, PngConfig } from 'canvas';
+import { type JSDOM } from 'jsdom';
 
-prepareReactFiles(); // this call must be before require ChartModel and ChartOption
+// let echartsInit:
+//     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
+//     | undefined;
+let createCanvas: ((width: number, height: number, type?: 'pdf' | 'svg') => Canvas) | undefined;
+let JsDomClass: typeof JSDOM | undefined;
 
-const moment = require('moment');
-require('moment/locale/en-gb');
-require('moment/locale/es');
-require('moment/locale/fr');
-require('moment/locale/pl');
-require('moment/locale/pt');
-require('moment/locale/it');
-require('moment/locale/nl');
-require('moment/locale/ru');
-require('moment/locale/zh-cn');
-require('moment/locale/de');
-
-let echarts;
-let Canvas;
-let JSDOM;
-let adapter;
-let cachedSnapshots = {};
-
-function prepareReactFiles() {
-    // there is a problem that node.js does not support "export default", so remove it manually from these files and create new
-    // after that require changed files and not original ones.
-    let _chartModel = fs.readFileSync(`${__dirname}/src-chart/src/Components/ChartModel.js`).toString('utf8');
-    let _chartOption = fs.readFileSync(`${__dirname}/src-chart/src/Components/ChartOption.js`).toString('utf8');
-    _chartModel = _chartModel.replace('export default ', 'module.exports = ');
-    _chartOption = _chartOption.replace('export default ', 'module.exports = ');
-
-    if (fs.existsSync(`${__dirname}/_helpers/ChartModel.js`)) {
-        if (fs.readFileSync(`${__dirname}/_helpers/ChartModel.js`).toString('utf8') !== _chartModel) {
-            fs.writeFileSync(`${__dirname}/_helpers/ChartModel.js`, _chartModel);
-        }
-    } else {
-        !fs.existsSync(`${__dirname}/_helpers`) && fs.mkdirSync(`${__dirname}/_helpers`);
-        fs.writeFileSync(`${__dirname}/_helpers/ChartModel.js`, _chartModel);
-    }
-
-    if (fs.existsSync(`${__dirname}/_helpers/ChartOption.js`)) {
-        if (fs.readFileSync(`${__dirname}/_helpers/ChartOption.js`).toString('utf8') !== _chartOption) {
-            fs.writeFileSync(`${__dirname}/_helpers/ChartOption.js`, _chartOption);
-        }
-    } else {
-        !fs.existsSync(`${__dirname}/_helpers`) && fs.mkdirSync(`${__dirname}/_helpers`);
-        fs.writeFileSync(`${__dirname}/_helpers/ChartOption.js`, _chartOption);
-    }
-}
-
-function startAdapter(options) {
-    options = options || {};
-    Object.assign(options, {
-        name: 'echarts', // adapter name
-    });
-
-    adapter = new utils.Adapter(options);
-
-    adapter.on('message', obj => obj && obj.command === 'send' && processMessage(adapter, obj));
-
-    adapter.on('ready', () => main(adapter));
-
-    adapter.__emailTransport = null;
-    adapter.__stopTimer = null;
-    adapter.__lastMessageTime = 0;
-    adapter.__lastMessageText = '';
-
-    return adapter;
-}
-let systemConfig;
-
-const socketSimulator = {
-    getState: function (id) {
-        return adapter.getForeignStateAsync(id);
-    },
-    getHistoryEx: function (id, options) {
-        return new Promise((resolve, reject) =>
-            adapter.getHistory(id, options, (err, values, stepIgnore, sessionId) =>
-                err ? reject(err) : resolve({ values, sessionId, stepIgnore }),
-            ),
-        );
-    },
-    getObject: function (id) {
-        return adapter.getForeignObjectAsync(id);
-    },
-    getSystemConfig: function () {
-        systemConfig = systemConfig || adapter.getForeignObjectAsync('system.config');
-        return systemConfig;
-    },
-    unsubscribeState: function () {},
-    subscribeState: function () {},
-    unsubscribeObject: function () {},
-    subscribeObject: function () {},
-};
-
-function calcTextWidth(text, fontSize, fontFamily) {
+function calcTextWidth(text: string, fontSize?: number | string): number {
     // try to simulate
-    return Math.ceil((text.length * parseFloat(fontSize || 12)) / 0.75);
+    return Math.ceil((text.length * (parseFloat(fontSize as string) || 12)) / 0.75);
 }
 
-// Todo: queue requests as  global.window is "global"
-function renderImage(options) {
-    return new Promise((resolve, reject) => {
-        try {
-            echarts = echarts || require('echarts');
-            Canvas = Canvas || require('canvas');
-            JSDOM = JSDOM || require('jsdom').JSDOM;
-        } catch (e) {
-            adapter.log.error(`Cannot find required modules: ${e}`);
-            return reject(
-                'Cannot find required modules: looks like it is not possible to generate charts on your Hardware/OS',
-            );
+class EchartsAdapter extends Adapter {
+    public __lastMessageTime = 0;
+    public __lastMessageText = '';
+    private cachedSnapshots: Record<string, { ts: number; data: string | null; error: string }> = {};
+    private socketSimulator: Connection = null;
+
+    public constructor(options: Partial<AdapterOptions> = {}) {
+        super({
+            ...options,
+            name: 'echarts',
+        });
+        this.on('ready', () => this.main());
+        this.on('message', obj => obj?.command === 'send' && this.processMessage(obj));
+    }
+
+    // Todo: queue requests as  global.window is "global"
+    async renderImage(options: EchartOptions): Promise<string> {
+        if (!createCanvas) {
+            try {
+                createCanvas = (await import('canvas')).createCanvas;
+                JsDomClass = (await import('jsdom')).JSDOM;
+                this.socketSimulator = getSocket(this);
+            } catch (e) {
+                this.log.error(`Cannot find required modules: ${e}`);
+                throw new Error(
+                    'Cannot find required modules: looks like it is not possible to generate charts on your Hardware/OS',
+                );
+            }
         }
 
-        options.width = parseFloat(options.width) || 1024;
-        options.height = parseFloat(options.height) || 300;
+        return new Promise((resolve, reject) => {
+            options.width = parseFloat(options.width as unknown as string) || 1024;
+            options.height = parseFloat(options.height as unknown as string) || 300;
 
-        const chartData = new ChartModel(socketSimulator, options.preset, { serverSide: true });
-        chartData.onError(err => adapter.log.error(err));
-        chartData.onUpdate((seriesData, actualValues, categories) => {
-            const systemConfig = chartData.getSystemConfig();
-            moment.locale((systemConfig && systemConfig.common && systemConfig.common.language) || 'en');
-            const theme = options.theme || options.themeType || 'light';
+            const chartData = new ChartModel(this.socketSimulator, options.preset, { serverSide: true });
 
-            const chartOption = new ChartOption(moment, theme, calcTextWidth);
-            const option = chartOption.getOption(seriesData, chartData.getConfig(), null, categories);
-            const { window } = new JSDOM();
+            chartData.onError(err => this.log.error(err.toString()));
 
-            global.window = window;
-            global.navigator = window.navigator;
-            global.document = window.document;
+            chartData.onUpdate(
+                (
+                    seriesData: BarAndLineSeries[],
+                    _actualValues?: (number | null | boolean | string)[],
+                    barCategories?: number[],
+                ) => {
+                    const systemConfig = chartData.getSystemConfig();
+                    moment.locale(systemConfig?.language || 'en');
+                    const theme = options.theme || options.themeType || 'light';
 
-            let chart;
-            let canvas;
-            let root;
-            if (options.renderer && options.renderer !== 'svg') {
-                canvas = Canvas.createCanvas(options.width, options.height);
-                canvas.width = options.width;
-                canvas.height = options.height;
-                chart = echarts.init(canvas);
-                if (options.background) {
-                    option.backgroundColor = options.background;
-                }
-            } else {
-                root = global.document.createElement('div');
-                root.style.cssText = `width: ${options.width}px; height: ${options.height}px;${
-                    options.background
-                        ? ` background: ${options.background}`
-                        : theme === 'dark'
-                          ? ' background: #000;'
-                          : ''
-                }`;
-                chart = echarts.init(root, null, { renderer: 'svg' });
-            }
+                    const chartOption = new ChartOption(moment, theme, calcTextWidth);
+                    const option = chartOption.getOption(
+                        seriesData,
+                        chartData.getConfig() as ChartConfigMore,
+                        null,
+                        barCategories,
+                    );
+                    const { window } = new JsDomClass();
 
-            chart.setOption(option);
+                    // @ts-expect-error must be so
+                    global.window = window;
+                    global.navigator = window.navigator;
+                    global.document = window.document;
 
-            let data;
-            switch (options.renderer || '') {
-                case 'png': {
-                    data =
-                        'data:image/png;base64,' +
-                        canvas
-                            .toBuffer('image/png', {
-                                compressionLevel: options.compressionLevel || 3,
-                                filters: options.filters || canvas.PNG_FILTER_NONE,
-                            })
-                            .toString('base64');
-                    break;
-                }
-                case 'jpg': {
-                    data =
-                        'data:image/jpeg;base64,' +
-                        canvas
-                            .toBuffer('image/jpeg', {
-                                quality: options.quality || 0.8,
-                            })
-                            .toString('base64');
-                    break;
-                }
-                case 'pdf': {
-                    data =
-                        'data:application/pdf;base64,' +
-                        canvas
-                            .toBuffer('application/pdf', {
-                                title: options.title || 'ioBroker Chart',
-                                creationDate: new Date(),
-                            })
-                            .toString('base64');
-                    break;
-                }
-                case '':
-                case 'svg': {
-                    const svg = root.querySelector('svg').outerHTML;
-                    data = 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
-                    break;
-                }
-                default:
-                    reject('Unsupported format');
-                    return;
-            }
+                    let chart: EChartsType;
+                    let canvas: Canvas | undefined;
+                    let root: HTMLDivElement | undefined;
+                    if (options.renderer && options.renderer !== 'svg') {
+                        canvas = createCanvas(options.width, options.height);
+                        canvas.width = options.width;
+                        canvas.height = options.height;
+                        chart = echartsInit(canvas as unknown as HTMLElement);
+                        if (options.background) {
+                            option.backgroundColor = options.background;
+                        }
+                    } else {
+                        root = global.document.createElement('div');
+                        root.style.cssText = `width: ${options.width}px; height: ${options.height}px;${
+                            options.background
+                                ? ` background: ${options.background}`
+                                : theme === 'dark'
+                                  ? ' background: #000;'
+                                  : ''
+                        }`;
+                        chart = echartsInit(root, undefined, { renderer: 'svg' });
+                    }
 
-            chart && chart.dispose();
+                    chart.setOption(option);
 
-            if (options.fileOnDisk) {
-                fs.writeFileSync(options.fileOnDisk, Buffer.from(data.split(',')[1], 'base64'));
-            }
-            if (options.fileName) {
-                adapter.writeFile(
-                    adapter.namespace,
-                    options.fileName,
-                    Buffer.from(data.split(',')[1], 'base64'),
-                    err => (err ? reject(err) : resolve(data)),
-                );
-            } else {
-                resolve(data);
-            }
-        });
-    });
-}
+                    let data: string;
+                    switch (options.renderer || '') {
+                        case 'png': {
+                            data = `data:image/png;base64,${canvas
+                                .toBuffer('image/png', {
+                                    compressionLevel: options.compressionLevel || 3,
+                                    filters: options.filters || canvas.PNG_FILTER_NONE,
+                                } as PngConfig)
+                                .toString('base64')}`;
+                            break;
+                        }
+                        case 'jpg': {
+                            data = `data:image/jpeg;base64,${canvas
+                                .toBuffer('image/jpeg', {
+                                    quality: options.quality || 0.8,
+                                } as JpegConfig)
+                                .toString('base64')}`;
+                            break;
+                        }
+                        case 'pdf': {
+                            data = `data:application/pdf;base64,${canvas
+                                .toBuffer('application/pdf', {
+                                    title: options.title || 'ioBroker Chart',
+                                    creationDate: new Date(),
+                                } as PdfConfig)
+                                .toString('base64')}`;
+                            break;
+                        }
+                        case '':
+                        case 'svg': {
+                            const svg = root.querySelector('svg').outerHTML;
+                            data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+                            break;
+                        }
+                        default:
+                            reject(new Error('Unsupported format'));
+                            return;
+                    }
 
-function processMessage(adapter, obj) {
-    if (!obj || !obj.message) {
-        return;
-    }
+                    chart?.dispose();
 
-    // filter out the double messages
-    const json = JSON.stringify(obj.message);
-    if (
-        adapter.__lastMessageTime &&
-        adapter.__lastMessageText === json &&
-        Date.now() - adapter.__lastMessageTime < 300
-    ) {
-        return adapter.log.debug(
-            `Filter out double message [first was for ${Date.now() - adapter.__lastMessageTime}ms]: ${json}`,
-        );
-    }
-
-    adapter.__lastMessageTime = Date.now();
-    adapter.__lastMessageText = json;
-
-    if (!obj.message || !obj.message.preset) {
-        adapter.log.error(
-            'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "png/svg"}',
-        );
-        obj.callback &&
-            adapter.sendTo(
-                obj.from,
-                'send',
-                {
-                    error: 'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "svg/png"}',
+                    if (options.fileOnDisk) {
+                        writeFileSync(options.fileOnDisk, Buffer.from(data.split(',')[1], 'base64'));
+                    }
+                    if (options.fileName) {
+                        this.writeFile(
+                            this.namespace,
+                            options.fileName,
+                            Buffer.from(data.split(',')[1], 'base64'),
+                            err => (err ? reject(err) : resolve(data)),
+                        );
+                    } else {
+                        resolve(data);
+                    }
                 },
-                obj.callback,
             );
-    } else {
-        // delete cached snapshots
-        Object.keys(cachedSnapshots).forEach(preset => {
-            if (cachedSnapshots[preset].ts < Date.now()) {
-                delete cachedSnapshots[preset];
-            }
         });
-
-        if (
-            obj.message.cache &&
-            !obj.message.forceRefresh &&
-            cachedSnapshots[obj.message.preset] &&
-            cachedSnapshots[obj.message.preset].ts >= Date.now()
-        ) {
-            cachedSnapshots[obj.message.preset] = cachedSnapshots[obj.message.preset] || {};
-            obj.callback &&
-                adapter.sendTo(
-                    obj.from,
-                    'send',
-                    {
-                        data: cachedSnapshots[obj.message.preset].data,
-                        error: cachedSnapshots[obj.message.preset].error,
-                    },
-                    obj.callback,
-                );
-        } else {
-            renderImage(obj.message)
-                .then(data => {
-                    if (obj.message.cache) {
-                        cachedSnapshots[obj.message.preset] = cachedSnapshots[obj.message.preset] || {};
-                        cachedSnapshots[obj.message.preset].ts = Date.now() + obj.message.cache * 1000;
-                        cachedSnapshots[obj.message.preset].data = data;
-                        cachedSnapshots[obj.message.preset].error = null;
-                    }
-                    obj.callback && adapter.sendTo(obj.from, 'send', { data }, obj.callback);
-                })
-                .catch(error => {
-                    if (obj.message.cache) {
-                        cachedSnapshots[obj.message.preset] = cachedSnapshots[obj.message.preset] || {};
-                        cachedSnapshots[obj.message.preset].ts = Date.now() + obj.message.cache * 1000;
-                        cachedSnapshots[obj.message.preset].data = null;
-                        cachedSnapshots[obj.message.preset].error = error;
-                    }
-                    obj.callback && adapter.sendTo(obj.from, 'send', { error }, obj.callback);
-                });
-        }
     }
-}
 
-function fixSystemObject() {
-    return adapter.getForeignObjectAsync('_design/system').then(obj => {
-        if (obj && obj.views && !obj.views.chart) {
+    async fixSystemObject(): Promise<boolean> {
+        const obj = await this.getForeignObjectAsync('_design/system');
+        if (obj?.views && !obj.views.chart) {
             obj.views.chart = {
                 map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc) }`,
             };
-            return adapter.setForeignObjectAsync(obj._id, obj).then(() => true);
+            await this.setForeignObjectAsync(obj._id, obj);
+            return true;
         }
-    });
-}
+        return false;
+    }
 
-function main(adapter) {
-    // fix _design/chart
-    adapter.getForeignObject('_design/chart', (err, obj) => {
-        const _obj = require('../io-package.json').objects.find(ob => ob._id === '_design/chart');
-        if (!obj || (_obj && JSON.stringify(obj.views) !== JSON.stringify(_obj.views))) {
-            obj = obj || { language: 'javascript' };
-            obj.views =
-                _obj && _obj.views
-                    ? _obj.views
-                    : { chart: { map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }` } };
-            adapter.setForeignObject('_design/chart', obj);
+    processMessage(obj: ioBroker.Message): void {
+        if (!obj?.message) {
+            return;
         }
-    });
 
-    // fix _design/system
-    adapter.getForeignObject('_design/system', (err, obj) => {
-        if (obj && obj.views && !obj.views.chart) {
-            obj.views.chart = {
+        // filter out the double messages
+        const json = JSON.stringify(obj.message);
+        if (this.__lastMessageTime && this.__lastMessageText === json && Date.now() - this.__lastMessageTime < 300) {
+            return this.log.debug(
+                `Filter out double message [first was for ${Date.now() - this.__lastMessageTime}ms]: ${json}`,
+            );
+        }
+
+        this.__lastMessageTime = Date.now();
+        this.__lastMessageText = json;
+
+        const message: EchartOptions = obj.message;
+
+        if (!message?.preset) {
+            this.log.error(
+                'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "png/svg"}',
+            );
+            if (obj.callback) {
+                this.sendTo(
+                    obj.from,
+                    'send',
+                    {
+                        error: 'Please define settings: {"preset": "echarts.0.XXX", width: 500, height: 200, renderer: "svg/png"}',
+                    },
+                    obj.callback,
+                );
+            }
+        } else {
+            // delete cached snapshots
+            Object.keys(this.cachedSnapshots).forEach(preset => {
+                if (this.cachedSnapshots[preset].ts < Date.now()) {
+                    delete this.cachedSnapshots[preset];
+                }
+            });
+
+            if (
+                message.cache &&
+                !message.forceRefresh &&
+                this.cachedSnapshots[message.preset] &&
+                this.cachedSnapshots[message.preset].ts >= Date.now()
+            ) {
+                if (obj.callback) {
+                    this.sendTo(
+                        obj.from,
+                        'send',
+                        {
+                            data: this.cachedSnapshots[message.preset].data,
+                            error: this.cachedSnapshots[message.preset].error,
+                        },
+                        obj.callback,
+                    );
+                }
+            } else {
+                this.renderImage(message)
+                    .then(data => {
+                        if (message.cache) {
+                            if (!this.cachedSnapshots[message.preset]) {
+                                this.cachedSnapshots[message.preset] = {
+                                    ts: Date.now() + message.cache * 1000,
+                                    data,
+                                    error: null,
+                                };
+                            } else {
+                                this.cachedSnapshots[message.preset].ts = Date.now() + message.cache * 1000;
+                                this.cachedSnapshots[message.preset].data = data;
+                                this.cachedSnapshots[message.preset].error = null;
+                            }
+                        }
+                        if (obj.callback) {
+                            this.sendTo(obj.from, 'send', { data }, obj.callback);
+                        }
+                    })
+                    .catch(error => {
+                        if (message.cache) {
+                            if (!this.cachedSnapshots[message.preset]) {
+                                this.cachedSnapshots[message.preset] = {
+                                    ts: Date.now() + message.cache * 1000,
+                                    data: null,
+                                    error,
+                                };
+                            } else {
+                                this.cachedSnapshots[message.preset].ts = Date.now() + message.cache * 1000;
+                                this.cachedSnapshots[message.preset].data = null;
+                                this.cachedSnapshots[message.preset].error = error;
+                            }
+                        }
+                        if (obj.callback) {
+                            this.sendTo(obj.from, 'send', { error }, obj.callback);
+                        }
+                    });
+            }
+        }
+    }
+
+    async main(): Promise<void> {
+        // fix _design/chart
+        let designObject: ioBroker.DesignObject | null | undefined = await this.getForeignObjectAsync('_design/chart');
+        const _obj: any = JSON.parse(readFileSync(`${__dirname}/../io-package.json`).toString('utf8')).objects.find(
+            (ob: ioBroker.Object) => ob._id === '_design/chart',
+        );
+
+        if (!designObject || (_obj && JSON.stringify(designObject.views) !== JSON.stringify(_obj.views))) {
+            designObject = { language: 'javascript' } as ioBroker.DesignObject;
+            designObject.views = _obj?.views
+                ? _obj.views
+                : { chart: { map: `function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }` } };
+            await this.setForeignObjectAsync('_design/chart', designObject);
+        }
+
+        // fix _design/system
+        const systemDesign = await this.getForeignObjectAsync('_design/system');
+        if (systemDesign?.views && !systemDesign.views.chart) {
+            systemDesign.views.chart = {
                 map: "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }",
             };
-            adapter.setForeignObject('_design/system', obj);
+            await this.setForeignObjectAsync('_design/system', systemDesign);
         }
-    });
 
-    // enabled mode daemon and message box
-    adapter.getForeignObject(`system.adapter.${adapter.namespace}`, (err, obj) => {
-        if (obj && obj.common && (obj.common.mode !== 'daemon' || !obj.common.messagebox)) {
-            obj.common.mode = 'daemon';
-            obj.common.messagebox = true;
-            adapter.setForeignObject(obj._id, obj);
+        // enabled mode daemon and message box
+        const adapterInstance = await this.getForeignObjectAsync(`system.adapter.${this.namespace}`);
+        if (
+            adapterInstance?.common &&
+            (adapterInstance.common.mode !== 'daemon' || !adapterInstance.common.messagebox)
+        ) {
+            adapterInstance.common.mode = 'daemon';
+            adapterInstance.common.messagebox = true;
+            await this.setForeignObjectAsync(adapterInstance._id, adapterInstance);
         }
-    });
 
-    fixSystemObject().then(fixed => fixed && adapter.log.debug('Added chart view to system object'));
+        if (await this.fixSystemObject()) {
+            this.log.debug('Added chart view to system object');
+        }
 
-    /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
-        .then(data => {
-            const base64 = Buffer.from(data.split(',')[1], 'base64');
-            require('fs').writeFileSync('image.png', base64);
-        });*/
+        /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
+            .then(data => {
+                const base64 = Buffer.from(data.split(',')[1], 'base64');
+                require('fs').writeFileSync('image.png', base64);
+            });*/
+    }
 }
 
-// If started as allInOne mode => return function to create instance
-if (module && module.parent) {
-    module.exports = startAdapter;
+if (require.main !== module) {
+    // Export the constructor in compact mode
+    module.exports = (options: Partial<AdapterOptions> | undefined) => new EchartsAdapter(options);
 } else {
-    // or start the instance directly
-    startAdapter();
+    // otherwise start the instance directly
+    (() => new EchartsAdapter())();
 }

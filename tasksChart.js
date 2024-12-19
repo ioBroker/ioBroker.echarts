@@ -6,7 +6,7 @@
  **/
 'use strict';
 
-const fs   = require('node:fs');
+const { readFileSync, existsSync, writeFileSync }   = require('node:fs');
 const {
     deleteFoldersRecursive,
     npmInstall,
@@ -16,6 +16,8 @@ const {
 
 function copyAllFiles() {
     deleteFoldersRecursive(`${__dirname}/admin/chart`);
+
+    copyReactFilesToBackEnd();
 
     copyFiles([
         'src-chart/build/*',
@@ -42,7 +44,7 @@ function checkChart(resolve, reject, start) {
             checkChart(resolve, reject, Date.now()));
     }
     console.log('Check src-chart/build/service-worker.js');
-    if (fs.existsSync(`${__dirname}/src-chart/build/index.html`)) {
+    if (existsSync(`${__dirname}/src-chart/build/index.html`)) {
         console.log('Exists src-chart/build/index.html');
         setTimeout(() => resolve(), 500);
     } else {
@@ -63,8 +65,8 @@ function copyFilesToWWW() {
             copyFolderRecursiveSync(`${__dirname}/admin/chart/`, `${__dirname}/www`, ['.svg', '.txt']))
         .then(() =>
             new Promise(resolve => {
-                if (fs.existsSync(`${__dirname}/www/index.html`)) {
-                    let code = fs.readFileSync(`${__dirname}/www/index.html`).toString('utf8');
+                if (existsSync(`${__dirname}/www/index.html`)) {
+                    let code = readFileSync(`${__dirname}/www/index.html`).toString('utf8');
                     code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                         `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`);
                     code = code.replace('<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>',
@@ -74,7 +76,7 @@ function copyFilesToWWW() {
                         code = code.replace('<script type="text/javascript" src="./../lib/js/socket.io.js"></script>', '<script type="text/javascript" src="./../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>');
                     }
 
-                    fs.writeFileSync(`${__dirname}/www/index.html`, code);
+                    writeFileSync(`${__dirname}/www/index.html`, code);
                 }
 
                 resolve();
@@ -84,8 +86,19 @@ function copyFilesToWWW() {
 deleteFoldersRecursive(`${__dirname}/admin/chart`);
 deleteFoldersRecursive(`${__dirname}/src-chart/build`);
 
+
+function copyReactFilesToBackEnd() {
+    const chartOptions = readFileSync(`${__dirname}/src-chart/src/Components/ChartOption.ts`).toString('utf8');
+    let chartModel = readFileSync(`${__dirname}/src-chart/src/Components/ChartModel.ts`).toString('utf8');
+
+    chartModel = chartModel.replace('import type { Connection } from \'@iobroker/adapter-react-v5\';', 'import type { Connection } from \'../types.d.ts\';');
+
+    writeFileSync(`${__dirname}/src/lib/ChartOption.ts`, chartOptions);
+    writeFileSync(`${__dirname}/src/lib/ChartModel.ts`, chartModel);
+}
+
 let installPromise;
-if (!fs.existsSync(`${__dirname}/src-chart/node_modules`)) {
+if (!existsSync(`${__dirname}/src-chart/node_modules`)) {
     installPromise = npmInstall(`${__dirname.replace(/\\/g, '/')}/src-chart/`);
 } else {
     installPromise = Promise.resolve();
@@ -95,19 +108,19 @@ installPromise
     .then(() => buildReact(`${__dirname}/src-chart/`, { vite: true }))
     .then(() => copyAllFiles())
     .then(() => {
-        if (fs.existsSync(`${__dirname}/admin/chart/index.html`)) {
-            let code = fs.readFileSync(`${__dirname}/admin/chart/index.html`).toString('utf8');
+        if (existsSync(`${__dirname}/admin/chart/index.html`)) {
+            let code = readFileSync(`${__dirname}/admin/chart/index.html`).toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
-            fs.writeFileSync(`${__dirname}/admin/chart/index.html`, code);
+            writeFileSync(`${__dirname}/admin/chart/index.html`, code);
         }
-        if (fs.existsSync(`${__dirname}/src-chart/build/index.html`)) {
-            let code = fs.readFileSync(`${__dirname}/src-chart/build/index.html`).toString('utf8');
+        if (existsSync(`${__dirname}/src-chart/build/index.html`)) {
+            let code = readFileSync(`${__dirname}/src-chart/build/index.html`).toString('utf8');
             code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
 
-            fs.writeFileSync(`${__dirname}/src-chart/build/index.html`, code);
+            writeFileSync(`${__dirname}/src-chart/build/index.html`, code);
         }
     })
     .then(() => copyFilesToWWW());

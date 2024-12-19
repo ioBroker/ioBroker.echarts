@@ -4,14 +4,14 @@
     "version": "1.9.3",
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-        "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
         "@craco/craco": "^7.1.0",
+        "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
         "craco-esbuild": "^0.6.1",
         "craco-module-federation": "^1.1.0",
         "node-sass": "^9.0.0",
         "prop-types": "^15.8.1",
         "react-scripts": "^5.0.1",
-        "sass": "^1.81.0"
+        "sass": "^1.83.0"
     },
     "scripts": {
         "start": "set PORT=4173 && craco start",

@@ -39,9 +39,9 @@ import {
     ToggleThemeMenu,
     Connection,
     PROGRESS,
-    IobTheme,
-    ThemeType,
-    ThemeName,
+    type IobTheme,
+    type ThemeType,
+    type ThemeName,
 } from '@iobroker/adapter-react-v5';
 
 import '@iobroker/adapter-react-v5/build/index.css';
@@ -70,6 +70,13 @@ import esLang from './i18n/es.json';
 import plLang from './i18n/pl.json';
 import ukLang from './i18n/uk.json';
 import zhLang from './i18n/zh-cn.json';
+
+interface Folder {
+    subFolders: Record<string, Folder>;
+    presets: Record<string, ioBroker.ChartObject>;
+    id: string;
+    prefix: string;
+}
 
 const styles: Record<string, any> = {
     root: (theme: IobTheme): React.CSSProperties => ({
@@ -142,23 +149,34 @@ const styles: Record<string, any> = {
     },
 };
 
-const iconsCache = {};
-
 interface AppState {
     connected: boolean;
     theme: IobTheme;
     themeType: ThemeType;
     themeName: ThemeName;
-    location;
-    presetFolders: null;
-    icons: {};
+    location: string[];
+    presetFolders: Folder | null;
+    icons: Record<string, string>;
     iconSize: number;
     showSlider: boolean;
     alive: boolean;
     toast: string;
-    webInstances: [];
-    webMenu: null;
+    webInstances: {
+        port: string | number;
+        bind: string;
+        id: string;
+        enabled: boolean;
+        protocol: 'https://' | 'http://';
+    }[];
+    webMenu: null | {
+        id: string;
+        webUrls: { url: string; port: string | number }[];
+        copy: boolean;
+        anchorEl: HTMLButtonElement | HTMLDivElement | null;
+    };
     forceRefresh: boolean;
+    presets: Record<string, ioBroker.ChartObject> | null;
+    errorText: string | null;
 }
 
 class App extends Component<object, AppState> {
@@ -167,6 +185,14 @@ class App extends Component<object, AppState> {
     private readonly isWeb: boolean;
 
     private socket: Connection;
+
+    private readonly timeout: Record<string, ReturnType<typeof setTimeout> | null> = {};
+
+    private snapShotQueue: string[] = [];
+
+    private toastTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    private readonly iconsCache: Record<string, string> = {};
 
     constructor(props: any) {
         super(props);
@@ -194,10 +220,12 @@ class App extends Component<object, AppState> {
             webInstances: [],
             webMenu: null,
             forceRefresh: false,
+            presets: null,
+            errorText: null,
         };
 
         // init translations
-        const translations = {
+        const translations: Record<ioBroker.Languages, Record<string, string>> = {
             en: enGlobLang,
             de: deGlobLang,
             ru: ruGlobLang,
@@ -211,7 +239,7 @@ class App extends Component<object, AppState> {
             'zh-cn': zhGlobLang,
         };
 
-        const ownTranslations = {
+        const ownTranslations: Record<ioBroker.Languages, Record<string, string>> = {
             en: enLang,
             de: deLang,
             ru: ruLang,
@@ -227,10 +255,7 @@ class App extends Component<object, AppState> {
 
         // merge together
         Object.keys(translations).forEach(lang =>
-            Object.assign(
-                (translations as Record<ioBroker.Languages, string>)[lang],
-                (ownTranslations as Record<ioBroker.Languages, string>)[lang],
-            ),
+            Object.assign(translations[lang as ioBroker.Languages], ownTranslations[lang as ioBroker.Languages]),
         );
 
         I18n.setTranslations(translations);
@@ -261,24 +286,20 @@ class App extends Component<object, AppState> {
                     this.setState({ connected: true });
                 }
             },
-            onReady: () => {
+            onReady: async () => {
                 this.adminCorrectTimeout && clearTimeout(this.adminCorrectTimeout);
                 this.adminCorrectTimeout = null;
 
                 I18n.setLanguage(this.socket.systemLang);
 
-                void this.socket
-                    .getState('system.adapter.echarts.0.alive')
-                    .catch(() => null) // ignore error
-                    .then(state => {
-                        this.setState({ alive: state && state.val });
-                        return this.getWebInstances();
-                    })
-                    .then(webInstances => {
-                        this.setState({ webInstances });
-                        return this.getAllPresets();
-                    })
-                    .then(newState => this.setState(newState));
+                const state = await this.socket.getState('system.adapter.echarts.0.alive').catch(() => null); // ignore error
+                this.setState({ alive: state && state.val });
+
+                const webInstances = await this.getWebInstances();
+                this.setState({ webInstances });
+
+                const newState = await this.getAllPresets();
+                this.setState(newState as AppState);
             },
             onError: err => {
                 console.error(err);
@@ -291,7 +312,15 @@ class App extends Component<object, AppState> {
         this.timeout = {};
     }
 
-    async getWebInstances() {
+    async getWebInstances(): Promise<
+        {
+            port: string | number;
+            bind: string;
+            id: string;
+            enabled: boolean;
+            protocol: 'https://' | 'http://';
+        }[]
+    > {
         const instances = await this.socket.getObjectViewSystem(
             'instance',
             'system.adapter.web.',
@@ -300,44 +329,41 @@ class App extends Component<object, AppState> {
         return Object.keys(instances).map(id => {
             const obj = instances[id];
             return {
-                port: obj.native.port,
-                bind: obj.native.bind,
+                port: obj.native.port as string | number,
+                bind: obj.native.bind as string,
                 id: obj._id.replace('system.adapter.', ''),
-                enabled: obj.common.enabled,
+                enabled: !!obj.common.enabled,
                 protocol: obj.native.secure ? 'https://' : 'http://',
             };
         });
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         window.addEventListener('message', this.onReceiveMessage, false);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         window.removeEventListener('message', this.onReceiveMessage, false);
         this.toastTimeout && clearTimeout(this.toastTimeout);
         this.toastTimeout = null;
     }
 
-    onReceiveMessage = message => {
+    onReceiveMessage = (message: { data: 'updateTheme' }): void => {
         if (message?.data === 'updateTheme') {
             const newThemeName = Utils.getThemeName();
             Utils.setThemeName(Utils.getThemeName());
 
-            const _theme = App.createTheme(newThemeName);
+            const theme = App.createTheme(newThemeName);
 
-            this.setState(
-                {
-                    theme: _theme,
-                    themeName: App.getThemeName(_theme),
-                    themeType: App.getThemeType(_theme),
-                },
-                () => this.props.onThemeChange && this.props.onThemeChange(newThemeName),
-            );
+            this.setState({
+                theme: theme,
+                themeName: App.getThemeName(theme),
+                themeType: App.getThemeType(theme),
+            });
         }
     };
 
-    onHashChanged = () => {
+    onHashChanged: () => void = (): void => {
         const queryHash = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
         const location = queryHash.split('/');
         if (!location.length) {
@@ -352,63 +378,53 @@ class App extends Component<object, AppState> {
 
     /**
      * Get a theme
-     * @param {string} name Theme name
-     * @returns {Theme}
+     *
+     * @param name Theme name
      */
-    static createTheme(name = '') {
+    static createTheme(name?: ThemeName): IobTheme {
         return Theme(Utils.getThemeName(name));
     }
 
     /**
      * Get the theme name
-     * @param {Theme} theme_ Theme
-     * @returns {string} Theme name
+     *
+     * @param theme Theme
      */
-    static getThemeName(theme_) {
-        return theme_.name;
+    static getThemeName(theme: IobTheme): ThemeName {
+        return theme.name;
     }
 
     /**
      * Get the theme type
-     * @param {Theme} theme_ Theme
-     * @returns {string} Theme type
+     *
+     * @param theme Theme
      */
-    static getThemeType(theme_) {
-        return theme_.palette.mode;
+    static getThemeType(theme: IobTheme): ThemeType {
+        return theme.palette.mode;
     }
 
-    toggleTheme() {
+    toggleTheme(): void {
         const themeName = this.state.themeName;
 
         // dark => blue => colored => light => dark
-        const newThemeName =
-            themeName === 'dark'
-                ? 'blue'
-                : themeName === 'blue'
-                  ? 'colored'
-                  : themeName === 'colored'
-                    ? 'light'
-                    : 'dark';
+        const newThemeName = themeName === 'dark' ? 'light' : 'dark';
 
         Utils.setThemeName(newThemeName);
 
-        const _theme = Theme(newThemeName);
+        const theme = Theme(newThemeName);
 
-        this.setState(
-            {
-                theme: _theme,
-                themeName: _theme.name,
-                themeType: _theme.palette.type,
-            },
-            () => this.props.onThemeChange(_theme.name),
-        );
+        this.setState({
+            theme,
+            themeName: theme.name,
+            themeType: theme.palette.mode,
+        });
     }
 
-    showError(text) {
+    showError(text: string): void {
         this.setState({ errorText: text });
     }
 
-    renderError() {
+    renderError(): React.JSX.Element | null {
         if (!this.state.errorText) {
             return null;
         }
@@ -420,11 +436,10 @@ class App extends Component<object, AppState> {
         );
     }
 
-    static buildPresetTree(presets, emptyFolders) {
-        // console.log(presets);
-        presets = Object.values(presets);
+    static buildPresetTree(presets: Record<string, ioBroker.ChartObject>, emptyFolders: string[]): Folder {
+        const aPresets: ioBroker.ChartObject[] = Object.values(presets);
 
-        const presetFolders = {
+        const presetFolders: Folder = {
             subFolders: {},
             presets: {},
             id: '',
@@ -432,7 +447,7 @@ class App extends Component<object, AppState> {
         };
 
         // create missing folders
-        presets.forEach(preset => {
+        aPresets.forEach(preset => {
             const id = preset._id;
             const parts = id.split('.');
             parts.shift();
@@ -457,7 +472,7 @@ class App extends Component<object, AppState> {
             currentFolder.presets[id] = preset;
         });
 
-        if (emptyFolders && emptyFolders.length) {
+        if (emptyFolders?.length) {
             emptyFolders.forEach(id => {
                 const parts = id.split('.');
                 let currentFolder = presetFolders;
@@ -483,10 +498,10 @@ class App extends Component<object, AppState> {
         return presetFolders;
     }
 
-    getEmptyFolders(presetFolders, _path, _result) {
+    getEmptyFolders(presetFolders?: Folder, _path?: string[], _result?: string[]): string[] {
         _result = _result || [];
         _path = _path || [];
-        presetFolders = presetFolders || this.state.presetFolders || {};
+        presetFolders = presetFolders || this.state.presetFolders || ({} as Folder);
 
         if (
             presetFolders.id /* && !Object.keys(presetFolders.subFolders).length && !Object.keys(presetFolders.presets).length */
@@ -505,21 +520,24 @@ class App extends Component<object, AppState> {
         return _result;
     }
 
-    async getAllPresets(newState) {
+    async getAllPresets(newState?: Partial<AppState>): Promise<Partial<AppState>> {
         newState = newState || {};
-        const presets = {};
+        const presets: Record<string, ioBroker.ChartObject> = {};
 
         const res = await this.socket.getObjectViewSystem('chart', 'echarts.', 'echarts.\u9999');
-        res &&
-            Object.values(res).forEach(
-                preset => preset._id && !preset._id.toString().endsWith('.') && (presets[preset._id] = preset),
-            );
+        if (res) {
+            Object.values(res).forEach(preset => {
+                if (preset?._id && !preset._id.toString().endsWith('.')) {
+                    presets[preset._id] = preset;
+                }
+            });
+        }
         newState.presets = presets;
 
         // fill missing info
         Object.keys(newState.presets).forEach(id => {
             const presetObj = newState.presets[id];
-            presetObj.common = presetObj.common || {};
+            presetObj.common = presetObj.common || ({} as ioBroker.ChartCommon);
             presetObj.native = presetObj.native || {};
         });
 
@@ -529,10 +547,10 @@ class App extends Component<object, AppState> {
         return newState;
     }
 
-    getSnapshot(id) {
-        if (iconsCache[id]) {
+    getSnapshot(id: string): void {
+        if (this.iconsCache[id]) {
             const icons = JSON.parse(JSON.stringify(this.state.icons));
-            icons[id] = iconsCache[id];
+            icons[id] = this.iconsCache[id];
             setTimeout(() => this.setState({ icons }), 50);
             return;
         }
@@ -550,7 +568,7 @@ class App extends Component<object, AppState> {
         }
     }
 
-    getSnapshotNext() {
+    getSnapshotNext(): void {
         if (!this.snapShotQueue.length) {
             if (this.state.forceRefresh) {
                 setTimeout(() => this.setState({ forceRefresh: false }), 50);
@@ -561,7 +579,7 @@ class App extends Component<object, AppState> {
         this.timeout[id] = setTimeout(() => {
             const icons = JSON.parse(JSON.stringify(this.state.icons));
             icons[id] = 'error:timeout';
-            iconsCache[id] = icons[id];
+            this.iconsCache[id] = icons[id];
             if (this.snapShotQueue[0] === id) {
                 this.snapShotQueue.shift();
             }
@@ -578,17 +596,19 @@ class App extends Component<object, AppState> {
                 cache: 600 /* 5 minutes */,
                 forceRefresh: this.state.forceRefresh,
             },
-            data => {
-                this.timeout[id] && clearTimeout(this.timeout[id]);
-                this.timeout[id] = null;
+            (result: { data?: string; error?: string }) => {
+                if (this.timeout[id]) {
+                    clearTimeout(this.timeout[id]);
+                    this.timeout[id] = null;
+                }
 
                 const icons = JSON.parse(JSON.stringify(this.state.icons));
-                if (data.error) {
-                    icons[id] = `error:${data.error}`;
+                if (result.error) {
+                    icons[id] = `error:${result.error}`;
                 } else {
-                    icons[id] = data.data;
+                    icons[id] = result.data;
                 }
-                iconsCache[id] = icons[id];
+                this.iconsCache[id] = icons[id];
                 if (this.snapShotQueue[0] === id) {
                     this.snapShotQueue.shift();
                 }
@@ -598,8 +618,8 @@ class App extends Component<object, AppState> {
         );
     }
 
-    renderFolder(parent) {
-        const reactItems = [];
+    renderFolder(parent): React.JSX.Element[] {
+        const reactItems: React.JSX.Element[] = [];
         if (this.state.location.length > 1) {
             reactItems.push(
                 <Box
@@ -663,7 +683,7 @@ class App extends Component<object, AppState> {
                 instances = this.state.webInstances;
             }
 
-            const webUrls = instances.map(inst => ({
+            const webUrls: { url: string; port: string | number }[] = instances.map(inst => ({
                 url: `${inst.protocol}${inst.bind === '0.0.0.0' ? window.location.hostname : inst.bind}:${inst.port}/echarts/index.html?preset=`,
                 port: inst.port,
             }));
@@ -747,7 +767,7 @@ class App extends Component<object, AppState> {
         return reactItems;
     }
 
-    onCopyUrl(url) {
+    onCopyUrl(url: string): void {
         this.toastTimeout && clearTimeout(this.toastTimeout);
         Utils.copyToClipboard(url);
         this.setState({ toast: `${I18n.t('URL copied to clipboard')}: ${url}` });
@@ -757,7 +777,7 @@ class App extends Component<object, AppState> {
         }, 4000);
     }
 
-    getFolder(location, parent, _index) {
+    getFolder(location: string[], parent?: Folder, _index?: number): Folder {
         _index = _index || 0;
         parent = parent || this.state.presetFolders;
         if (!parent) {
@@ -782,7 +802,7 @@ class App extends Component<object, AppState> {
         return this.state.presetFolders;
     }
 
-    renderSlider() {
+    renderSlider(): React.JSX.Element | null {
         if (this.state.showSlider) {
             return (
                 <Stack
@@ -798,7 +818,7 @@ class App extends Component<object, AppState> {
                         max={512}
                         style={styles.slider}
                         value={this.state.iconSize}
-                        onChange={(e, iconSize) => {
+                        onChange={(_e: Event, iconSize: number): void => {
                             window.localStorage.setItem('echarts.iconSize', iconSize.toString());
                             this.setState({ iconSize });
                         }}
@@ -812,9 +832,8 @@ class App extends Component<object, AppState> {
 
     /**
      * Renders the toast.
-     * @returns {JSX.Element | null} The JSX element.
      */
-    renderToast() {
+    renderToast(): React.JSX.Element | null {
         if (!this.state.toast) {
             return null;
         }
@@ -846,7 +865,7 @@ class App extends Component<object, AppState> {
         );
     }
 
-    renderWebMenu() {
+    renderWebMenu(): React.JSX.Element | null {
         if (!this.state.webMenu) {
             return null;
         }
@@ -874,7 +893,7 @@ class App extends Component<object, AppState> {
         );
     }
 
-    render() {
+    render(): React.JSX.Element {
         if (!this.state.connected) {
             return (
                 <StyledEngineProvider injectFirst>
@@ -886,7 +905,7 @@ class App extends Component<object, AppState> {
         }
 
         const folder = this.getFolder(this.state.location);
-        const location = [];
+        const location: string[] = [];
 
         return (
             <StyledEngineProvider injectFirst>
@@ -904,7 +923,7 @@ class App extends Component<object, AppState> {
                                         parts.pop();
                                         parts.pop();
                                         parts.push('tab.html');
-                                        window.location = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
+                                        window.location.href = `${window.location.protocol}//${window.location.host}${parts.join('/')}`;
                                     }}
                                 >
                                     <ArrowCircleLeft />
@@ -941,8 +960,8 @@ class App extends Component<object, AppState> {
                             </IconButton>
                             <IconButton
                                 onClick={() => {
-                                    Object.keys(iconsCache).forEach(key => {
-                                        delete iconsCache[key];
+                                    Object.keys(this.iconsCache).forEach(key => {
+                                        delete this.iconsCache[key];
                                     });
                                     this.setState({ icons: {}, forceRefresh: true });
                                 }}
@@ -950,7 +969,7 @@ class App extends Component<object, AppState> {
                             >
                                 <Refresh />
                             </IconButton>
-                            {this.isWeb ? (
+                            {this.isWeb && this.state.themeName !== 'PT' && this.state.themeName !== 'DX' ? (
                                 <ToggleThemeMenu
                                     toggleTheme={() => this.toggleTheme()}
                                     themeName={this.state.themeName}
@@ -964,7 +983,7 @@ class App extends Component<object, AppState> {
                         component="div"
                         sx={styles.root}
                     >
-                        {folder && this.renderFolder(folder)}
+                        {folder ? this.renderFolder(folder) : null}
                     </Box>
                     {this.renderError()}
                     {this.renderToast()}

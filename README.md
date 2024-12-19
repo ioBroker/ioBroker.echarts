@@ -35,7 +35,7 @@ Lower case `i` indicates that the value was interpolated from the 2-neighbour va
 
 ### Data from JSON
 You can define the data source from JSON. In this case you can create some custom state of type `json` and store the value like this:
-```
+```json
 [
   {"ts": 1675887847000, "val": 45},
   {"ts": 1675887848000, "val": 77},
@@ -52,7 +52,7 @@ The chart will be automatically updated every time the value changes.
 ### Server side rendering
 You can render the presets on the server and get it as base64 URL or save it on disk on in ioBroker DB:
 
-```
+```js
 sendTo('echarts.0', {
     preset:   'echarts.0.myPreset', // the only mandatory attribute
 

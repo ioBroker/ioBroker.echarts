@@ -1,209 +1,200 @@
 {
-  "common": {
-    "name": "echarts",
-    "version": "1.9.3",
-    "news": {
-      "1.9.3": {
-        "en": "Convert actual values with provided \"convert\" function too",
-        "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
-        "ru": "Конвертировать фактические значения с предоставленной функцией «конверт»",
-        "pt": "Converta valores reais com função \"converter\" fornecida também",
-        "nl": "Converteer werkelijke waarden met de opgegeven \"convert\" functie ook",
-        "fr": "Convertir les valeurs réelles avec la fonction \"convert\" fournie aussi",
-        "it": "Converti valori effettivi con funzione \"convert\" fornita",
-        "es": "Convertir valores reales con función \"convert\" proporcionada también",
-        "pl": "Przelicz wartości rzeczywiste z zapewnioną funkcją \"convert\"",
-        "uk": "Перетворення фактичних значень за допомогою функції \"convert\" занадто",
-        "zh-cn": "将实际值转换为“ 转换” 函数"
-      },
-      "1.9.2": {
-        "en": "Fixed polar and bar charts",
-        "de": "Feste Polar- und Balkendiagramme",
-        "ru": "Фиксированные полярные и барные графики",
-        "pt": "Gráficos polares e de barras fixos",
-        "nl": "Vaste pool- en staafdiagrammen",
-        "fr": "Cartes polaires et à barres fixes",
-        "it": "Carte polari e a barre fissate",
-        "es": "Gráficos polares y bar fijos",
-        "pl": "Stałe wykresy polarne i barowe",
-        "uk": "Фіксовані полярні та барні діаграми",
-        "zh-cn": "固定极地图和条形图"
-      },
-      "1.9.0": {
-        "en": "upgraded packages\nremoved `withStyles`",
-        "de": "erweiterte pakete\nentfernen `withStyles`",
-        "ru": "модернизированные пакеты\nудалены `withStyles'",
-        "pt": "pacotes atualizados\nremovido `comestilos`",
-        "nl": "verbeterde pakketten\nverwijderd metStyles",
-        "fr": "paquets mis à jour\nenlevé `avecStyles`",
-        "it": "pacchetti aggiornati\nrimosso `withStyles`",
-        "es": "paquetes actualizados\nremovido `con los estilos`",
-        "pl": "zmodernizowane pakiety\nusunięte \"ze stylami\"",
-        "uk": "пакети оновлені\nвидалено `withStyle`",
-        "zh-cn": "升级软件包\n以“ Styles”删除"
-      },
-      "1.8.4": {
-        "en": "upgraded dependencies",
-        "de": "verbesserte abhängigkeiten",
-        "ru": "повышенная зависимость",
-        "pt": "dependências atualizadas",
-        "nl": "verbeterde afhankelijkheden",
-        "fr": "dépendances améliorées",
-        "it": "dipendenze aggiornate",
-        "es": "actualización de las dependencias",
-        "pl": "zmodernizowane zależności",
-        "uk": "покращені залежності",
-        "zh-cn": "升级的依赖关系"
-      },
-      "1.7.2": {
-        "en": "Added option to hide the value in the future",
-        "de": "Option hinzugefügt, um den Wert in der Zukunft zu verbergen",
-        "ru": "Добавлена возможность скрыть значение в будущем",
-        "pt": "Opção adicionada para esconder o valor no futuro",
-        "nl": "Optie om de waarde in de toekomst te verbergen",
-        "fr": "Option supplémentaire pour cacher la valeur dans le futur",
-        "it": "Aggiunta opzione per nascondere il valore in futuro",
-        "es": "Opción agregada para ocultar el valor en el futuro",
-        "pl": "Wstępna możliwość ukrywania wartości w przyszłości",
-        "uk": "Додана можливість приховати значення в майбутньому",
-        "zh-cn": "增加今后隐藏价值的选择"
-      },
-      "1.7.1": {
-        "en": "Added X-Label offset\nCorrected icons in the object selection dialog",
-        "de": "X-Label Offset hinzugefügt\nKorrigierte Icons im Objektauswahldialog",
-        "ru": "Добавлена компенсация X-Label\nИсправлены иконки в диалоге выбора объекта",
-        "pt": "Adicionado X-Label offset\nÍcones corrigidos na caixa de diálogo seleção de objetos",
-        "nl": "Vertaling:\nVertaling:",
-        "fr": "Ajout de X-Label\nLes icônes corrigées dans le dialogue de sélection d'objets",
-        "it": "Aggiunto X-Label offset\nLe icone corrette nella finestra di dialogo selezione oggetto",
-        "es": "Offset X-Label\nIconos corregidos en el diálogo de selección de objetos",
-        "pl": "Added X-Label offset\nKwalifikowane ikony w dialogach do wyboru obiektów",
-        "uk": "Доданий X-Label зсув\nВиправлені іконки в діалоговому вікні вибору об'єкта",
-        "zh-cn": "增加X-Label抵消\n目标选择口号中的对应线"
-      },
-      "1.6.1": {
-        "en": "Added vis-2 widget",
-        "de": "Vis-2 Widget",
-        "ru": "Добавлен виджет vis-2",
-        "pt": "Adicionado vis-2 widget",
-        "nl": "Vertaling:",
-        "fr": "Ajout du widget vis-2",
-        "it": "Aggiunto vis-2 widget",
-        "es": "Añadido vis-2 widget",
-        "pl": "Widget 2",
-        "uk": "Додано vis-2 віджет",
-        "zh-cn": "添加到2部目标"
-      }
-    },
-    "titleLang": {
-      "en": "E-Charts",
-      "de": "E-Charts",
-      "ru": "E-диаграмма",
-      "pt": "E-Charts",
-      "nl": "E-Grafieken",
-      "fr": "E-Charts",
-      "it": "E-Charts",
-      "es": "E-Charts",
-      "pl": "Wykresy elektroniczne",
-      "uk": "E-діаграма",
-      "zh-cn": "电子图"
-    },
-    "desc": {
-      "en": "Build useful charts in ioBroker",
-      "de": "Erstellen Sie nützliche Diagramme in ioBroker",
-      "ru": "Создавайте полезные графики в ioBroker",
-      "pt": "Crie gráficos úteis no ioBroker",
-      "nl": "Bouw handige grafieken in ioBroker",
-      "fr": "Construire des graphiques utiles dans ioBroker",
-      "it": "Crea grafici utili in ioBroker",
-      "es": "Cree gráficos útiles en ioBroker",
-      "pl": "Twórz przydatne wykresy w ioBroker",
-      "uk": "Створюйте корисні діаграми в ioBroker",
-      "zh-cn": "在ioBroker中建立有用的图表"
-    },
-    "authors": [
-      "bluefox <dogafox@gmail.com>"
-    ],
-    "keywords": [
-      "charts",
-      "diagram"
-    ],
-    "adminUI": {
-      "config": "none",
-      "tab": "html"
-    },
-    "adminTab": {
-      "singleton": true,
-      "name": {
-        "ru": "Графики",
-        "en": "Charts",
-        "de": "Diagramme",
-        "pt": "Gráficos",
-        "nl": "Grafieken",
-        "fr": "Graphiques",
-        "it": "Grafici",
-        "es": "Gráficos",
-        "pl": "Wykresy",
-        "uk": "Графіки",
-        "zh-cn": "图表"
-      }
-    },
-    "platform": "Javascript/Node.js",
-    "connectionType": "local",
-    "dataSource": "push",
-    "icon": "echarts.png",
-    "messagebox": true,
-    "eraseOnUpload": true,
-    "nogit": true,
-    "enabled": true,
-    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
-    "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
-    "loglevel": "info",
-    "singleton": true,
-    "type": "visualization",
-    "mode": "daemon",
-    "compact": true,
-    "visWidgets": {
-      "echarts": {
-        "i18n": "component",
+    "common": {
         "name": "echarts",
-        "url": "echarts/customWidgets.js",
-        "components": [
-          "Echarts"
-        ]
-      }
-    },
-    "restartAdapters": [
-      "vis-2"
-    ],
-    "tier": 3,
-    "licenseInformation": {
-      "license": "Apache-2.0",
-      "type": "free"
-    }
-  },
-  "native": {},
-  "objects": [
-    {
-      "_id": "_design/chart",
-      "type": "design",
-      "language": "javascript",
-      "views": {
-        "chart": {
-          "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
+        "version": "1.9.3",
+        "news": {
+            "1.9.3": {
+                "en": "Convert actual values with provided \"convert\" function too",
+                "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
+                "ru": "Конвертировать фактические значения с предоставленной функцией «конверт»",
+                "pt": "Converta valores reais com função \"converter\" fornecida também",
+                "nl": "Converteer werkelijke waarden met de opgegeven \"convert\" functie ook",
+                "fr": "Convertir les valeurs réelles avec la fonction \"convert\" fournie aussi",
+                "it": "Converti valori effettivi con funzione \"convert\" fornita",
+                "es": "Convertir valores reales con función \"convert\" proporcionada también",
+                "pl": "Przelicz wartości rzeczywiste z zapewnioną funkcją \"convert\"",
+                "uk": "Перетворення фактичних значень за допомогою функції \"convert\" занадто",
+                "zh-cn": "将实际值转换为“ 转换” 函数"
+            },
+            "1.9.2": {
+                "en": "Fixed polar and bar charts",
+                "de": "Feste Polar- und Balkendiagramme",
+                "ru": "Фиксированные полярные и барные графики",
+                "pt": "Gráficos polares e de barras fixos",
+                "nl": "Vaste pool- en staafdiagrammen",
+                "fr": "Cartes polaires et à barres fixes",
+                "it": "Carte polari e a barre fissate",
+                "es": "Gráficos polares y bar fijos",
+                "pl": "Stałe wykresy polarne i barowe",
+                "uk": "Фіксовані полярні та барні діаграми",
+                "zh-cn": "固定极地图和条形图"
+            },
+            "1.9.0": {
+                "en": "upgraded packages\nremoved `withStyles`",
+                "de": "erweiterte pakete\nentfernen `withStyles`",
+                "ru": "модернизированные пакеты\nудалены `withStyles'",
+                "pt": "pacotes atualizados\nremovido `comestilos`",
+                "nl": "verbeterde pakketten\nverwijderd metStyles",
+                "fr": "paquets mis à jour\nenlevé `avecStyles`",
+                "it": "pacchetti aggiornati\nrimosso `withStyles`",
+                "es": "paquetes actualizados\nremovido `con los estilos`",
+                "pl": "zmodernizowane pakiety\nusunięte \"ze stylami\"",
+                "uk": "пакети оновлені\nвидалено `withStyle`",
+                "zh-cn": "升级软件包\n以“ Styles”删除"
+            },
+            "1.8.4": {
+                "en": "upgraded dependencies",
+                "de": "verbesserte abhängigkeiten",
+                "ru": "повышенная зависимость",
+                "pt": "dependências atualizadas",
+                "nl": "verbeterde afhankelijkheden",
+                "fr": "dépendances améliorées",
+                "it": "dipendenze aggiornate",
+                "es": "actualización de las dependencias",
+                "pl": "zmodernizowane zależności",
+                "uk": "покращені залежності",
+                "zh-cn": "升级的依赖关系"
+            },
+            "1.7.2": {
+                "en": "Added option to hide the value in the future",
+                "de": "Option hinzugefügt, um den Wert in der Zukunft zu verbergen",
+                "ru": "Добавлена возможность скрыть значение в будущем",
+                "pt": "Opção adicionada para esconder o valor no futuro",
+                "nl": "Optie om de waarde in de toekomst te verbergen",
+                "fr": "Option supplémentaire pour cacher la valeur dans le futur",
+                "it": "Aggiunta opzione per nascondere il valore in futuro",
+                "es": "Opción agregada para ocultar el valor en el futuro",
+                "pl": "Wstępna możliwość ukrywania wartości w przyszłości",
+                "uk": "Додана можливість приховати значення в майбутньому",
+                "zh-cn": "增加今后隐藏价值的选择"
+            },
+            "1.7.1": {
+                "en": "Added X-Label offset\nCorrected icons in the object selection dialog",
+                "de": "X-Label Offset hinzugefügt\nKorrigierte Icons im Objektauswahldialog",
+                "ru": "Добавлена компенсация X-Label\nИсправлены иконки в диалоге выбора объекта",
+                "pt": "Adicionado X-Label offset\nÍcones corrigidos na caixa de diálogo seleção de objetos",
+                "nl": "Vertaling:\nVertaling:",
+                "fr": "Ajout de X-Label\nLes icônes corrigées dans le dialogue de sélection d'objets",
+                "it": "Aggiunto X-Label offset\nLe icone corrette nella finestra di dialogo selezione oggetto",
+                "es": "Offset X-Label\nIconos corregidos en el diálogo de selección de objetos",
+                "pl": "Added X-Label offset\nKwalifikowane ikony w dialogach do wyboru obiektów",
+                "uk": "Доданий X-Label зсув\nВиправлені іконки в діалоговому вікні вибору об'єкта",
+                "zh-cn": "增加X-Label抵消\n目标选择口号中的对应线"
+            },
+            "1.6.1": {
+                "en": "Added vis-2 widget",
+                "de": "Vis-2 Widget",
+                "ru": "Добавлен виджет vis-2",
+                "pt": "Adicionado vis-2 widget",
+                "nl": "Vertaling:",
+                "fr": "Ajout du widget vis-2",
+                "it": "Aggiunto vis-2 widget",
+                "es": "Añadido vis-2 widget",
+                "pl": "Widget 2",
+                "uk": "Додано vis-2 віджет",
+                "zh-cn": "添加到2部目标"
+            }
+        },
+        "titleLang": {
+            "en": "E-Charts",
+            "de": "E-Charts",
+            "ru": "E-диаграмма",
+            "pt": "E-Charts",
+            "nl": "E-Grafieken",
+            "fr": "E-Charts",
+            "it": "E-Charts",
+            "es": "E-Charts",
+            "pl": "Wykresy elektroniczne",
+            "uk": "E-діаграма",
+            "zh-cn": "电子图"
+        },
+        "desc": {
+            "en": "Build useful charts in ioBroker",
+            "de": "Erstellen Sie nützliche Diagramme in ioBroker",
+            "ru": "Создавайте полезные графики в ioBroker",
+            "pt": "Crie gráficos úteis no ioBroker",
+            "nl": "Bouw handige grafieken in ioBroker",
+            "fr": "Construire des graphiques utiles dans ioBroker",
+            "it": "Crea grafici utili in ioBroker",
+            "es": "Cree gráficos útiles en ioBroker",
+            "pl": "Twórz przydatne wykresy w ioBroker",
+            "uk": "Створюйте корисні діаграми в ioBroker",
+            "zh-cn": "在ioBroker中建立有用的图表"
+        },
+        "authors": ["bluefox <dogafox@gmail.com>"],
+        "keywords": ["charts", "diagram"],
+        "adminUI": {
+            "config": "none",
+            "tab": "html"
+        },
+        "adminTab": {
+            "singleton": true,
+            "name": {
+                "ru": "Графики",
+                "en": "Charts",
+                "de": "Diagramme",
+                "pt": "Gráficos",
+                "nl": "Grafieken",
+                "fr": "Graphiques",
+                "it": "Grafici",
+                "es": "Gráficos",
+                "pl": "Wykresy",
+                "uk": "Графіки",
+                "zh-cn": "图表"
+            }
+        },
+        "platform": "Javascript/Node.js",
+        "connectionType": "local",
+        "dataSource": "push",
+        "icon": "echarts.png",
+        "messagebox": true,
+        "eraseOnUpload": true,
+        "nogit": true,
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
+        "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
+        "loglevel": "info",
+        "singleton": true,
+        "type": "visualization",
+        "mode": "daemon",
+        "compact": true,
+        "visWidgets": {
+            "echarts": {
+                "i18n": "component",
+                "name": "echarts",
+                "url": "echarts/customWidgets.js",
+                "components": ["Echarts"]
+            }
+        },
+        "restartAdapters": ["vis-2"],
+        "tier": 3,
+        "licenseInformation": {
+            "license": "Apache-2.0",
+            "type": "free"
         }
-      }
-    }
-  ],
-  "instanceObjects": [
-    {
-      "_id": "",
-      "type": "meta",
-      "common": {
-        "name": "user files and images for echarts",
-        "type": "meta.user"
-      },
-      "native": {}
-    }
-  ]
+    },
+    "native": {},
+    "objects": [
+        {
+            "_id": "_design/chart",
+            "type": "design",
+            "language": "javascript",
+            "views": {
+                "chart": {
+                    "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
+                }
+            }
+        }
+    ],
+    "instanceObjects": [
+        {
+            "_id": "",
+            "type": "meta",
+            "common": {
+                "name": "user files and images for echarts",
+                "type": "meta.user"
+            },
+            "native": {}
+        }
+    ]
 }

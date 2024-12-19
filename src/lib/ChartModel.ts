@@ -1,4 +1,4 @@
-import type { Connection } from '@iobroker/adapter-react-v5';
+import type { Connection } from '../types.d.ts';
 
 /*
 function deParam(params, coerce) {
