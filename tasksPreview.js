@@ -87,6 +87,11 @@ if (fs.existsSync(`${__dirname}/src-preview/node_modules`)) {
     installPromise = npmInstall(`${__dirname.replace(/\\/g, '/')}/src-preview/`);
 }
 installPromise
+    .then(() => {
+        if (fs.existsSync(`${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/build`)) {
+            fs.copyFileSync(`${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/build/index.css`, `${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/index.css`);
+        }
+    })
     .then(() => buildReact(`${__dirname}/src-preview/`, { rootDir: __dirname }))
     .then(() => copyAllFiles())
     .then(() => {

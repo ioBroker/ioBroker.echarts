@@ -14,6 +14,11 @@ const adapterName = require('./package.json').name.split('.').pop();
 deleteFoldersRecursive(`${__dirname}/widgets`, ['echarts.html', 'Prev_tplEchartsChart.png']);
 deleteFoldersRecursive(`${__dirname}/src-widgets/build`);
 npmInstall(`${__dirname}/src-widgets/`)
+    .then(() => {
+        if (fs.existsSync(`${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/build`)) {
+            fs.copyFileSync(`${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/build/index.css`, `${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/index.css`);
+        }
+    })
     .then(() => gulpHelper.buildWidgets(__dirname, `${__dirname}/src-widgets/`))
     .then(() => {
         copyFiles([`src-widgets/build/*.js`], `widgets/${adapterName}`);

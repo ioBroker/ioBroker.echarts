@@ -39,6 +39,11 @@ if (fs.existsSync(`${__dirname}/src-editor/node_modules`)) {
     installPromise = npmInstall(`${__dirname.replace(/\\/g, '/')}/src-editor/`);
 }
 installPromise
+    .then(() => {
+        if (fs.existsSync(`${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/build`)) {
+            fs.copyFileSync(`${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/build/index.css`, `${__dirname}/src-widgets/node_modules/@iobroker/adapter-react-v5/index.css`);
+        }
+    })
     .then(() => buildReact(`${__dirname}/src-editor/`, { rootDir: __dirname }))
     .then(() => copyAllFiles())
     .then(() => {
