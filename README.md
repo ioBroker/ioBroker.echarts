@@ -100,7 +100,7 @@ You can debug view charts locally with:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.9.4 (2024-12-20)
 * (bluefox) Convert actual values with provided "convert" function too
 
 ### 1.9.2 (2024-09-10)

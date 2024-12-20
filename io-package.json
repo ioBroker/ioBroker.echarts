@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "1.9.3",
+    "version": "1.9.4",
     "news": {
+      "1.9.4": {
+        "en": "Convert actual values with provided \"convert\" function too",
+        "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
+        "ru": "Конвертировать фактические значения с предоставленной функцией «конверт»",
+        "pt": "Converta valores reais com função \"converter\" fornecida também",
+        "nl": "Converteer werkelijke waarden met de opgegeven \"convert\" functie ook",
+        "fr": "Convertir les valeurs réelles avec la fonction \"convert\" fournie aussi",
+        "it": "Converti valori effettivi con funzione \"convert\" fornita",
+        "es": "Convertir valores reales con función \"convert\" proporcionada también",
+        "pl": "Przelicz wartości rzeczywiste z zapewnioną funkcją \"convert\"",
+        "uk": "Перетворення фактичних значень за допомогою функції \"convert\" занадто",
+        "zh-cn": "将实际值转换为“ 转换” 函数"
+      },
       "1.9.2": {
         "en": "Fixed polar and bar charts",
         "de": "Feste Polar- und Balkendiagramme",
