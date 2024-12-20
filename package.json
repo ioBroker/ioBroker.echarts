@@ -34,7 +34,7 @@
     "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
     "@alcalzone/release-script-plugin-license": "^3.7.0",
     "@iobroker/build-tools": "^1.1.0",
-    "@iobroker/legacy-testing": "^1.0.13",
+    "@iobroker/legacy-testing": "^2.0.1",
     "@iobroker/vis-2-widgets-react-dev": "^4.0.3",
     "@iobroker/testing": "^5.0.0",
     "axios": "^1.7.7",
