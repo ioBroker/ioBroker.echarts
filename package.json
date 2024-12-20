@@ -41,7 +41,7 @@
     "colorette": "^2.0.20",
     "chai": "^4.5.0",
     "eslint": "^8.57.1",
-    "puppeteer": "^23.4.1",
+    "puppeteer": "^23.9.0",
     "mocha": "^10.7.3"
   },
   "main": "src/main.ts",
