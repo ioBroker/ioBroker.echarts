@@ -41,7 +41,7 @@ import {
     Connection, PROGRESS,
 } from '@iobroker/adapter-react-v5';
 
-import '@iobroker/adapter-react-v5/build/index.css';
+import '@iobroker/adapter-react-v5/index.css';
 import logo from './assets/echarts.png';
 
 const styles = {

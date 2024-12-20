@@ -13,7 +13,7 @@ import {
     Theme,
 } from '@iobroker/adapter-react-v5';
 
-import '@iobroker/adapter-react-v5/build/index.css';
+import '@iobroker/adapter-react-v5/index.css';
 
 import ChartModel from './Components/ChartModel';
 import ChartView from './Components/ChartView';
