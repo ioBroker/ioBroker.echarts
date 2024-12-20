@@ -6,7 +6,7 @@
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@iobroker/adapter-react-v5": "^7.1.4",
         "@mui/material": "^6.1.1",
-        "@sentry/browser": "^8.31.0",
+        "@sentry/browser": "^8.41.0",
         "@sentry/integrations": "^7.114.0",
         "babel-eslint": "^10.1.0",
         "eslint": "^8.57.0",
