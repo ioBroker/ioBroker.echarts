@@ -42,7 +42,7 @@
     "chai": "^4.5.0",
     "eslint": "^8.57.1",
     "puppeteer": "^23.11.1",
-    "mocha": "^10.7.3"
+    "mocha": "^11.0.1"
   },
   "main": "src/main.ts",
   "files": [
