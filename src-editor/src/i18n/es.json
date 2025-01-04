@@ -485,7 +485,7 @@
   "convert_help": "Ingrese la fórmula como \"val / 1000 + 3\". Esta fórmula se aplicará a todos los valores del punto de datos seleccionado.",
   "Aggregate for lines": "Agregación por líneas",
   "Convert formula": "fórmula de conversión",
-  "Intervalls": "Intervalos",
+  "Intervals": "Intervalos",
   "auto": "auto",
   "i15min": "15 minutos",
   "i1hour": "1 hora",

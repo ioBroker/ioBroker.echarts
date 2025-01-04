@@ -485,7 +485,7 @@
   "convert_help": "Inserisci la formula come \"val / 1000 + 3\". Questa formula verrà applicata a tutti i valori del datapoint selezionato.",
   "Aggregate for lines": "Aggregazione per linee",
   "Convert formula": "Formula di conversione",
-  "Intervalls": "Intervalli",
+  "Intervals": "Intervalli",
   "auto": "auto",
   "i15min": "15 minuti",
   "i1hour": "1 ora",

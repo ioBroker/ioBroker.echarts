@@ -47,7 +47,7 @@ import zhLang from './i18n/zh-cn.json';
 
 import ChartModel, { type SeriesData, type BarAndLineSeries } from './Components/ChartModel';
 import ChartView from './Components/ChartView';
-import type { ChartConfigMore } from './Components/ChartOption';
+import type { ChartConfigMore } from '../../src/types';
 
 const styles: Record<string, React.CSSProperties> = {
     root: {

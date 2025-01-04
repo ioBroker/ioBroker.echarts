@@ -618,7 +618,7 @@ class App extends Component<object, AppState> {
         );
     }
 
-    renderFolder(parent): React.JSX.Element[] {
+    renderFolder(parent: Folder): React.JSX.Element[] {
         const reactItems: React.JSX.Element[] = [];
         if (this.state.location.length > 1) {
             reactItems.push(
@@ -733,7 +733,11 @@ class App extends Component<object, AppState> {
                             <CircularProgress style={styles.presetIcon} />
                         )}
 
-                        <div style={styles.presetName}>{preset.common.name}</div>
+                        <div style={styles.presetName}>
+                            {typeof preset.common.name === 'object'
+                                ? preset.common.name[I18n.getLanguage()] || preset.common.name.en || ''
+                                : preset.common.name}
+                        </div>
                         {this.state.icons[preset._id] && this.state.icons[preset._id].startsWith('error:') ? (
                             <div style={styles.presetError}>{this.state.icons[preset._id].substring(6)}</div>
                         ) : null}

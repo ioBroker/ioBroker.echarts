@@ -60,7 +60,7 @@ import {
 
 import { SVGRenderer, CanvasRenderer } from 'echarts/renderers';
 
-import ChartOption, { type ChartConfigMore } from './ChartOption';
+import ChartOption from './ChartOption';
 
 // Themes
 import 'echarts/theme/azul';
@@ -81,6 +81,7 @@ import 'echarts/theme/green';
 import 'echarts/theme/gray';
 import 'echarts/theme/dark-bold';
 import type { GridOption, RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
+import type {ChartConfigMore, ChartLineConfigMore} from '../../../src/types';
 
 echarts.use([
     GridComponent,
@@ -214,7 +215,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     private updatePropertiesTimeout: ReturnType<typeof setTimeout> | null = null;
     private updateDataTimer: ReturnType<typeof setTimeout> | null = null;
     private debug = false;
-    // Is actually mouse pressed down
+    // If actually mouse pressed down
     private mouseDown = false;
     private option: EChartsOption | null = null;
     private zr: zrender.ZRenderType | null = null;
@@ -240,7 +241,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
 
         moment.locale(I18n.getLanguage());
 
-        this.lastIds = this.props.config?.l?.map(item => item.id) || [];
+        this.lastIds = this.props.config?.l?.map((item: ChartLineConfigMore): string => item.id) || [];
         this.lastIds.sort();
 
         this.chartOption = new ChartOption(moment, this.props.themeType, calcTextWidth, undefined, this.props.compact);
@@ -278,7 +279,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         this.updatePropertiesTimeout = null;
         if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
             const chartInstance = this.echartsReact.getEchartsInstance();
-            const lastIds = (props.config && props.config.l && props.config.l.map(item => item.id)) || [];
+            const lastIds: string[] = props.config?.l?.map((item: ChartLineConfigMore): string => item.id) || [];
             lastIds.sort();
             const changed = JSON.stringify(lastIds) !== JSON.stringify(this.lastIds);
             // If the list of IDs changed => clear all settings
@@ -737,7 +738,9 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
 
             return (
                 <ReactEchartsCore
-                    ref={e => (this.echartsReact = e)}
+                    ref={(e: EChartsReactCore): void => {
+                        this.echartsReact = e;
+                    }}
                     echarts={echarts}
                     option={this.option}
                     notMerge
@@ -754,7 +757,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                         legendselectchanged: (params: {
                             /** change legend name */
                             name: string;
-                            // table of all legend selecting states
+                            // table of all legends selecting states
                             selected: { [name: string]: boolean };
                         }) => {
                             this.selected = JSON.parse(JSON.stringify(params.selected));

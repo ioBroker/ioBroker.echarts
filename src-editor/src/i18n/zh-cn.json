@@ -485,7 +485,7 @@
   "convert_help": "输入公式，如“val / 1000 + 3”。此公式将应用于所选数据点的所有值。",
   "Aggregate for lines": "线路聚合",
   "Convert formula": "换算公式",
-  "Intervalls": "间隔",
+  "Intervals": "间隔",
   "auto": "汽车",
   "i15min": "15分钟",
   "i1hour": "1小时",

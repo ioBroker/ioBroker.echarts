@@ -1867,7 +1867,7 @@ the build process will generate a service worker file, but it will not be
 registered, so it will not take control of your production web app.
 
 In order to opt-in to the offline-first behavior, developers should look for the
-following in their [`src/index.tsx`](src/index.jsx) file:
+following in their [`src/index.tsx`](src/index.tsx) file:
 
 ```js
 // If you want your app to work offline and load faster, you can change

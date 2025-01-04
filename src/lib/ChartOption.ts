@@ -1,12 +1,6 @@
 import type * as moment from 'moment';
-import type {
-    BarAndLineSeries,
-    BarSeries,
-    ChartConfig,
-    ChartLineConfig,
-    EchartOneValue,
-    LineSeries,
-} from './ChartModel';
+import type { ChartConfigMore, ThemeChartType } from '../../../src/types';
+import type { BarAndLineSeries, BarSeries, EchartsOneValue, LineSeries } from './ChartModel';
 import type { EChartsOption, LegendComponentOption } from 'echarts/types/dist/echarts';
 import type {
     CallbackDataParams,
@@ -19,26 +13,6 @@ import type {
 } from 'echarts/types/dist/shared';
 
 type ThemeType = 'light' | 'dark';
-
-type ThemeChartType =
-    | 'azul'
-    | 'bee-inspired'
-    | 'blue'
-    | 'infographic'
-    | 'vintage'
-    | 'dark'
-    | 'macarons'
-    | 'shine'
-    | 'roma'
-    | 'royal'
-    | 'dark-blue'
-    | 'tech-blue'
-    | 'red'
-    | 'red-velvet'
-    | 'green'
-    | 'light'
-    | 'gray'
-    | 'dark-bold';
 
 const THEMES: Record<ThemeChartType, string[]> = {
     azul: ['#f2385a', '#f5a503', '#4ad9d9', '#f7879c', '#c1d7a8', '#4dffd2', '#fccfd7', '#d5f6f6'],
@@ -168,99 +142,6 @@ const THEMES: Record<ThemeChartType, string[]> = {
 };
 
 type MomentType = typeof moment;
-
-export interface ChartLineConfigMore extends ChartLineConfig {
-    // Show points on the line
-    points?: boolean;
-    // Point size
-    symbolSize?: number;
-    // Style of the line
-    lineStyle: 'solid' | 'dashed' | 'dotted';
-    // Fill the area under the line
-    fill?: number;
-    // splitNumber for Y axis
-    yticks?: number;
-    // splitNumber for X axis
-    xticks?: number;
-
-    xaxe?: 'off' | 'top' | 'bottom';
-
-    // Hide this in legend
-    hide?: boolean;
-}
-
-export interface ChartConfigMore extends ChartConfig {
-    l: ChartLineConfigMore[];
-
-    title?: string;
-    /** Title position in form "top:35;left:65" */
-    titlePos?: string;
-    titleSize?: number;
-    titleColor?: string;
-
-    noBorder?: 'noborder';
-    // Outer border width of the whole chart
-    border_width?: number;
-    // Outer padding of the whole chart
-    border_padding?: number;
-    // Color of border
-    border_color?: string;
-    border_style?: 'solid' | 'dashed' | 'dotted';
-
-    // Color of export button
-    exportColor?: string;
-
-    // Window background
-    window_bg?: string;
-
-    theme?: ThemeChartType | 'default';
-    barFontColor?: string;
-    barLabels?: 'topover' | 'topunder' | 'bottom' | 'inside';
-    barFontSize?: number;
-    barWidth?: number;
-
-    noAnimation?: boolean;
-
-    x_labels_size?: number;
-    x_labels_color?: string;
-    x_ticks_color?: string;
-    y_labels_size?: number;
-    y_labels_color?: string;
-    y_ticks_color?: string;
-    // Grid color
-    grid_color?: string;
-    // Time after which the zoom position will be reset
-    resetZoom?: number;
-
-    // Show legend
-    legend?: 'nw' | 'sw' | 'ne' | 'se' | 'dialog' | 'none';
-    // Legend background
-    legBg?: string;
-    // Legend Height
-    legendHeight?: number;
-    legColor?: string;
-    legFontSize?: number;
-    legendDirection?: 'vertical' | 'horizontal';
-
-    // Calculate padding for chart automatically
-    autoGridPadding?: boolean;
-    // Background for chart itslef (not window)
-    bg_custom?: string;
-
-    hoverNoNulls?: boolean;
-    hoverNoInterpolate?: boolean;
-
-    // Show export data button
-    exportData?: boolean;
-    // Color of export button
-    exportDataColor?: string;
-
-    // Make background of HTML window transparent
-    noBackground?: boolean;
-
-    // Show radar as circle
-    radarCircle?: 'circle';
-}
 
 function padding2(num: number): string {
     if (!num) {
@@ -864,7 +745,7 @@ class ChartOption {
                         itemStyle: {
                             color: oneMark.color || (series.itemStyle.color as string),
                             borderWidth: 0,
-                            opacity: parseFloat(oneMark.fill) || 0,
+                            opacity: parseFloat(oneMark.fill as unknown as string) || 0,
                         },
                     },
                     {
@@ -1049,11 +930,11 @@ class ChartOption {
             const _date = new Date(parseInt(value.substring(1), 10));
             if (this.config.xLabelShift) {
                 if (this.config.xLabelShiftMonth) {
-                    _date.setMonth(_date.getMonth() + this.config.xLabelShift);
+                    _date.setMonth(_date.getMonth() + (this.config.xLabelShift as number));
                 } else if (this.config.xLabelShiftYear) {
-                    _date.setFullYear(_date.getFullYear() + this.config.xLabelShift);
+                    _date.setFullYear(_date.getFullYear() + (this.config.xLabelShift as number));
                 } else {
-                    _date.setSeconds(_date.getSeconds() + this.config.xLabelShift);
+                    _date.setSeconds(_date.getSeconds() + (this.config.xLabelShift as number));
                 }
             }
 
@@ -1076,11 +957,11 @@ class ChartOption {
 
         if (this.config.xLabelShift) {
             if (this.config.xLabelShiftMonth) {
-                date.setMonth(date.getMonth() + this.config.xLabelShift);
+                date.setMonth(date.getMonth() + (this.config.xLabelShift as number));
             } else if (this.config.xLabelShiftYear) {
-                date.setFullYear(date.getFullYear() + this.config.xLabelShift);
+                date.setFullYear(date.getFullYear() + (this.config.xLabelShift as number));
             } else {
-                date.setSeconds(date.getSeconds() + this.config.xLabelShift);
+                date.setSeconds(date.getSeconds() + (this.config.xLabelShift as number));
             }
         }
 
@@ -1138,7 +1019,7 @@ class ChartOption {
         const series: (RegisteredSeriesOption['line'] | RegisteredSeriesOption['scatter'])[] | undefined = this.option
             ?.series as (RegisteredSeriesOption['line'] | RegisteredSeriesOption['scatter'])[];
 
-        const data: EchartOneValue[] = series[seriesIndex].data as EchartOneValue[];
+        const data: EchartsOneValue[] = series[seriesIndex].data as EchartsOneValue[];
         if (!data?.[0] || data[0].value[0] > ts || data[data.length - 1].value[0] < ts) {
             return null;
         }
@@ -1195,11 +1076,11 @@ class ChartOption {
             date = new Date(ts);
             if (this.config.xLabelShift) {
                 if (this.config.xLabelShiftMonth) {
-                    date.setMonth(date.getMonth() + this.config.xLabelShift);
+                    date.setMonth(date.getMonth() + (this.config.xLabelShift as number));
                 } else if (this.config.xLabelShiftYear) {
-                    date.setFullYear(date.getFullYear() + this.config.xLabelShift);
+                    date.setFullYear(date.getFullYear() + (this.config.xLabelShift as number));
                 } else {
-                    date.setSeconds(date.getSeconds() + this.config.xLabelShift);
+                    date.setSeconds(date.getSeconds() + (this.config.xLabelShift as number));
                 }
             }
         }
@@ -1273,7 +1154,7 @@ class ChartOption {
     }
 
     getLegend(actualValues: number[]): LegendComponentOption {
-        if (!this.config.legend || this.config.legend === 'none' || this.config.legend === 'dialog') {
+        if (!this.config.legend || this.config.legend === 'dialog') {
             return undefined;
         }
         const legend: LegendComponentOption = {
@@ -1371,11 +1252,13 @@ class ChartOption {
         )[] = this.getSeries(data, theme);
 
         if (this.config.start) {
-            if (this.chart.xMax < this.config.end) {
-                this.chart.xMax = this.config.end;
+            const end = parseInt(this.config.end as string, 10);
+            if (this.chart.xMax < end) {
+                this.chart.xMax = end;
             }
-            if (this.chart.xMin > this.config.start) {
-                this.chart.xMin = this.config.start;
+            const start = parseInt(this.config.start as string, 10);
+            if (this.chart.xMin > start) {
+                this.chart.xMin = start;
             }
         }
 

@@ -1,4 +1,13 @@
 import type { Connection } from '../types.d.ts';
+import type {
+    ChartAggregateType,
+    ChartMarkConfig,
+    ChartType,
+    ChartConfig,
+    ChartRelativeEnd,
+    ChartLineConfig,
+    ChartRangeOptions,
+} from '../../../src/types';
 
 /*
 function deParam(params, coerce) {
@@ -90,11 +99,9 @@ function deParam(params, coerce) {
     return obj;
 }
 */
-export type ChartAggregateType = 'minmax' | 'min' | 'max' | 'average' | 'total' | 'count' | 'none' | 'current'; // current does not exist in history
 
-export type ChartType = 'bar' | 'polar' | 'line' | 'auto' | 'steps' | 'stepsStart' | 'scatterplot' | 'spline';
-export type EchartOneValue = { value: [number, number]; exact?: false };
-type EchartAnyValue = { value: [number, number | string | boolean]; exact?: false };
+export type EchartsOneValue = { value: [number, number]; exact?: false };
+type EchartsAnyValue = { value: [number, number | string | boolean]; exact?: false };
 
 export type ChartLineConfigOld = {
     // @deprecated use chartType
@@ -119,46 +126,12 @@ export type ChartLineConfigOld = {
     instance?: string;
 };
 
-export type ChartLineConfig = {
-    id: string;
-    unit: string;
-
-    // conversion function
-    convert?: string;
-    // cut chart after "now"
-    noFuture?: boolean;
-    postProcessing?: 'diff';
-    offset?: number;
-    name?: string;
-    aggregate?: ChartAggregateType;
-    color?: string;
-    thickness?: number;
-    shadowsize?: number;
-    dashes?: boolean;
-    min?: number;
-    max?: number;
-    yOffset?: number;
-    validTime?: number;
-    chartType?: ChartType;
-    instance?: string;
-    ignoreNull?: boolean;
-    type?: 'number' | 'boolean' | 'string'; // obj.common.type
-    states?: Record<string, string> | false; // obj.common.states
-    falseText?: string;
-    trueText?: string;
-
-    afterComma?: number;
-
-    commonYAxis?: number;
-    yaxe?: 'off' | 'left' | 'right' | 'leftColor' | 'rightColor';
-};
-
 export type ChartMarkConfigOld = {
     l: number; // lineId
     v: string | number; // upperValueOrId
     vl: string | number; // lowerValueOrId
     c: string; // color
-    f: string; // fill
+    f: string | number; // fill
     t: number; // ol - line width
     s: number; // os - shadow
     d: string; // text - descriptions
@@ -166,26 +139,6 @@ export type ChartMarkConfigOld = {
     py: number; // textOffset
     fc: string; // textColor
     fs: number; // textSize
-};
-
-export type ChartMarkConfig = {
-    lineId: number;
-    upperValueOrId: string | number;
-    upperValue?: number | null; // parsed from upperValueOrId
-    lowerValueOrId: string | number;
-    lowerValue?: number | null; // parsed from lowerValueOrId
-    color: string;
-    fill: string;
-    // line width
-    ol: number;
-    // shadow
-    os: number;
-    lineStyle?: 'solid' | 'dashed' | 'dotted';
-    text: string;
-    textPosition: 'r' | 'l';
-    textOffset: number;
-    textColor: string;
-    textSize: number;
 };
 
 export type ChartConfigOld = {
@@ -238,65 +191,7 @@ export type ChartConfigOld = {
     xLabelShiftYear?: boolean;
 };
 
-export type ChartRelativeEnd =
-    | 'now'
-    | 'month'
-    | 'year'
-    | 'minute'
-    | 'hour'
-    | 'today'
-    | 'weekUsa'
-    | 'weekEurope'
-    | 'week2Usa'
-    | 'week2Europe';
-
-export interface ChartConfig {
-    aggregate?: ChartAggregateType;
-    ignoreNull?: boolean;
-    aggregateBar?: number;
-    aggregateType: 'step' | 'count';
-    aggregateSpan: number;
-    relativeEnd: ChartRelativeEnd;
-    postProcessing?: 'diff';
-
-    // Show actual values in legend
-    legActual?: boolean;
-
-    start_time?: string; // 00:00
-    end_time?: string; // 23:59
-    start?: number;
-    end?: number;
-
-    l: ChartLineConfig[];
-    marks: ChartMarkConfig[];
-    ticks?: string;
-
-    width?: string | number;
-    height?: string | number;
-    timeFormat?: string;
-    useComma?: boolean;
-    zoom?: boolean;
-    export?: boolean;
-    grid_hideX: boolean;
-    grid_hideY: boolean;
-    hoverDetail: boolean;
-    noLoader: boolean;
-    noedit: boolean;
-    animation: number;
-    afterComma: number;
-    timeType: 'relative' | 'static';
-    xLabelShift?: number;
-    xLabelShiftMonth?: boolean;
-    xLabelShiftYear?: boolean;
-
-    lang: ioBroker.Languages;
-    live: number;
-    debug: boolean;
-    presetId: string;
-    range: string | number;
-}
-
-export type LineSeries = EchartOneValue[];
+export type LineSeries = EchartsOneValue[];
 export type BarSeries = number[];
 export type BarAndLineSeries = BarSeries | LineSeries;
 
@@ -419,7 +314,7 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
                 upperValueOrId: config.m[j].v,
                 lowerValueOrId: config.m[j].vl,
                 color: config.m[j].c,
-                fill: config.m[j].f,
+                fill: parseFloat(config.m[j].f as string),
                 ol: config.m[j].t,
                 os: config.m[j].s,
                 text: config.m[j].d,
@@ -489,7 +384,7 @@ class ChartModel {
     private barData: BarSeries[] = [];
     // Actual values for every line/bar. Only if config.legActual === true
     private readonly actualValues: (number | null | boolean | string)[] = [];
-    private ticks: EchartAnyValue[] = null;
+    private ticks: EchartsAnyValue[] = null;
     private reading: boolean = false;
     private subscribes: string[] = [];
     private sessionId: number = 1;
@@ -521,7 +416,7 @@ class ChartModel {
     private barCategories?: number[];
     private now: number = Date.now();
     private hash?: {
-        range: string | number;
+        range: ChartRangeOptions;
         relativeEnd: ChartRelativeEnd;
     };
 
@@ -602,7 +497,7 @@ class ChartModel {
                     this.preset = hQuery.preset as string;
                     if (hQuery.range || hQuery.relativeEnd) {
                         this.hash = {
-                            range: hQuery.range as string | number,
+                            range: hQuery.range as ChartRangeOptions,
                             relativeEnd: hQuery.relativeEnd as ChartRelativeEnd,
                         };
                     }
@@ -662,10 +557,18 @@ class ChartModel {
                 this.config.debug = this.debug;
                 this.config.presetId = this.preset;
 
-                if (this.hash && this.hash.range) {
-                    this.config.range = this.hash.range;
+                if (this.hash?.range) {
+                    if (
+                        typeof this.hash.range === 'string' &&
+                        !this.hash.range.includes('y') &&
+                        !this.hash.range.includes('m')
+                    ) {
+                        this.config.range = parseInt(this.hash.range, 10);
+                    } else {
+                        this.config.range = this.hash.range;
+                    }
                 }
-                if (this.hash && this.hash.relativeEnd) {
+                if (this.hash?.relativeEnd) {
                     this.config.relativeEnd = this.hash.relativeEnd;
                 }
 
@@ -678,7 +581,7 @@ class ChartModel {
                     this.presetSubscribed = this.preset;
                     await this.socket.subscribeObject(this.preset, this.onPresetUpdate);
                 }
-                if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+                if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
                     this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                 }
             } catch (e) {
@@ -694,7 +597,7 @@ class ChartModel {
             this.config.live = parseInt(this.config.live as unknown as string, 10) || 0;
             this.config.debug = this.debug;
             await this.readData();
-            if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+            if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
         }
@@ -964,22 +867,34 @@ class ChartModel {
         let _nowTs: number;
         this.config.l[index].offset = this.config.l[index].offset || 0;
 
-        const isMonthRange: boolean = typeof this.config.range === 'string' && this.config.range.includes('m');
-
         // check config range
-        if (isMonthRange && this.config.l.length > 1) {
-            const monthRange = parseInt(this.config.range as unknown as string, 10) || 1;
+        if (typeof this.config.range === 'string' && this.config.range.includes('m') && this.config.l.length > 1) {
+            const monthRange = parseInt(this.config.range as string, 10) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
-                if (this.config.l[a].offset && this.config.l[a].offset !== 0) {
+                if (this.config.l[a].offset) {
                     // Check what the month has first index
-                    _nowTs = ChartModel.addTime(this.now, this.config.l[0].offset);
+                    _nowTs = ChartModel.addTime(this.now, this.config.l[a].offset);
                     const minusMonth = new Date(_nowTs);
                     minusMonth.setMonth(minusMonth.getMonth() - monthRange);
-                    this.config.range = Math.floor((_nowTs - minusMonth.getTime()) / 60000).toString();
+                    this.config.range = Math.floor((_nowTs - minusMonth.getTime()) / 60000);
+                    break;
+                }
+            }
+        } else if (typeof this.config.range === 'string' && this.config.range.includes('y') && this.config.l.length > 1) {
+            const yearRange = parseInt(this.config.range as string, 10) || 1;
+            for (let a = 0; a < this.config.l.length; a++) {
+                if (this.config.l[a].offset) {
+                    // Check what the month has first index
+                    _nowTs = ChartModel.addTime(this.now, this.config.l[a].offset);
+                    const minusYear = new Date(_nowTs);
+                    minusYear.setFullYear(minusYear.getFullYear() - yearRange);
+                    this.config.range = Math.floor((_nowTs - minusYear.getTime()) / 60000);
                     break;
                 }
             }
         }
+
+        // todo: What about year?
 
         if (!step) {
             if (this.zoomData) {
@@ -1095,10 +1010,10 @@ class ChartModel {
                     _nowDate.setMilliseconds(0);
                 }
 
-                this.config.range = this.config.range || '30m';
+                this.config.range = this.config.range || 30;
 
                 endTs = ChartModel.addTime(_nowDate, this.config.l[index].offset);
-                startTs = ChartModel.addTime(endTs, this.config.range, false, true);
+                startTs = ChartModel.addTime(endTs, this.config.range, true);
             }
 
             const aggregate = this.config.l[index].aggregate || this.config.aggregate;
@@ -1156,10 +1071,10 @@ class ChartModel {
             from: false,
             ack: false,
             q: false,
-            addID: false,
+            addId: false,
         };
 
-        this.config.start = ChartModel.addTime(endTs, this.config.range, false, true);
+        this.config.start = ChartModel.addTime(endTs, this.config.range, true);
         this.config.end = endTs;
 
         return option;
@@ -1169,7 +1084,7 @@ class ChartModel {
         series: BarSeries[],
         categories: number[],
         aggregate: ChartAggregateType,
-        postProcessingMethod?: 'diff',
+        postProcessingMethod?: 'diff' | '',
     ): BarSeries {
         const barSeries: BarSeries = [];
 
@@ -1217,6 +1132,7 @@ class ChartModel {
             barSeries.splice(0, 1);
             categories.splice(0, 1);
         }
+
         for (let i = 0; i < series.length; i++) {
             console.log(`${categories[i]}: ${barSeries[i]}`);
         }
@@ -1320,7 +1236,7 @@ class ChartModel {
                     break;
                 }
 
-                const dp: EchartOneValue = { value: [values[i].ts, value] };
+                const dp: EchartsOneValue = { value: [values[i].ts, value] };
 
                 // If value was interpolated by backend
                 if (values[i].i) {
@@ -1363,7 +1279,7 @@ class ChartModel {
             // TODO: May be not required?
             seriesData.sort((a, b) => (a.value[0] > b.value[0] ? 1 : a.value[0] < b.value[0] ? -1 : 0));
 
-            // Next line is not required, as it is already done at start
+            // The next line is not required, as it is already done at the start
             return { seriesData };
         }
 
@@ -1598,7 +1514,7 @@ class ChartModel {
                 from: false,
                 ack: false,
                 q: false,
-                addID: false,
+                addId: false,
             };
 
             option.instance = instance;
@@ -1754,7 +1670,7 @@ class ChartModel {
                     return;
                 }
 
-                const _series: EchartAnyValue[] = this.ticks || [];
+                const _series: EchartsAnyValue[] = this.ticks || [];
                 if (res?.values) {
                     if (this.ticks?.length) {
                         this.ticks.splice(0, this.ticks.length);
@@ -1960,7 +1876,6 @@ class ChartModel {
     static addTime(
         time: number | Date,
         offset: string | number,
-        plusOrMinus?: boolean,
         isOffsetInMinutes?: boolean,
     ): number {
         const date: Date = new Date(time);
@@ -1968,23 +1883,17 @@ class ChartModel {
         if (typeof offset === 'string') {
             if (offset[1] === 'm' || offset[2] === 'm') {
                 offset = parseInt(offset, 10);
-                date.setMonth(plusOrMinus ? date.getMonth() + offset : date.getMonth() - offset);
+                date.setMonth(date.getMonth() - offset);
                 time = date.getTime();
             } else if (offset[1] === 'y' || offset[2] === 'y') {
                 offset = parseInt(offset, 10);
-                date.setFullYear(plusOrMinus ? date.getFullYear() + offset : date.getFullYear() - offset);
+                date.setFullYear(date.getFullYear() - offset);
                 time = date.getTime();
             } else {
                 time = date.getTime();
                 if (isOffsetInMinutes) {
-                    if (plusOrMinus) {
-                        time += (parseInt(offset, 10) || 0) * 60000;
-                    } else {
-                        time -= (parseInt(offset, 10) || 0) * 60000;
-                    }
-                } else if (plusOrMinus) {
-                    time += (parseInt(offset, 10) || 0) * 1000;
-                } else {
+                    time -= (parseInt(offset, 10) || 0) * 60000;
+                }else {
                     time -= (parseInt(offset, 10) || 0) * 1000;
                 }
             }
@@ -1992,13 +1901,7 @@ class ChartModel {
             offset = offset || 0;
             time = date.getTime();
             if (isOffsetInMinutes) {
-                if (plusOrMinus) {
-                    time += offset * 60000;
-                } else {
-                    time -= offset * 60000;
-                }
-            } else if (plusOrMinus) {
-                time += offset * 1000;
+                time -= offset * 60000;
             } else {
                 time -= offset * 1000;
             }

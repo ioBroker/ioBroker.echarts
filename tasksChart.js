@@ -6,7 +6,7 @@
  **/
 'use strict';
 
-const { readFileSync, existsSync, writeFileSync }   = require('node:fs');
+const { readFileSync, existsSync, writeFileSync } = require('node:fs');
 const {
     deleteFoldersRecursive,
     npmInstall,
@@ -20,22 +20,8 @@ function copyAllFiles() {
     copyReactFilesToBackEnd();
 
     copyFiles([
-        'src-chart/build/*',
-        '!src-chart/build/index.html',
-        '!src-chart/build/static/js/main.*.chunk.js',
-        '!src-chart/build/static/media/*.svg',
-        '!src-chart/build/static/media/*.txt',
-        '!src-chart/build/i18n/**/*',
-        '!src-chart/build/i18n',
+        'src-chart/build/**/*',
     ],'admin/chart/');
-
-    copyFiles([
-        'src-chart/build/index.html',
-    ], 'admin/chart/');
-
-    copyFiles([
-        'src-chart/build/static/js/main.*.chunk.js',
-    ], 'admin/chart/static/js/');
 }
 
 function checkChart(resolve, reject, start) {
@@ -105,7 +91,7 @@ if (!existsSync(`${__dirname}/src-chart/node_modules`)) {
 }
 
 installPromise
-    .then(() => buildReact(`${__dirname}/src-chart/`, { vite: true }))
+    .then(() => buildReact(`${__dirname}/src-chart/`, { vite: true, tsc: true }))
     .then(() => copyAllFiles())
     .then(() => {
         if (existsSync(`${__dirname}/admin/chart/index.html`)) {

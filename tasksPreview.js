@@ -18,18 +18,8 @@ function copyAllFiles() {
     deleteFoldersRecursive(`${__dirname}/admin/preview`);
 
     copyFiles([
-        'src-preview/build/*',
-        '!src-preview/build/index.html',
-        '!src-preview/build/static/js/main.*.chunk.js',
-        '!src-preview/build/static/media/*.svg',
-        '!src-preview/build/static/media/*.txt',
-        '!src-preview/build/i18n/*',
-        '!src-preview/build/i18n',
+        'src-preview/build/**/*',
     ], 'admin/preview/');
-
-    copyFiles('src-preview/build/index.html', 'admin/preview/');
-
-    copyFiles('src-preview/build/static/js/main.*.chunk.js', 'admin/preview/static/js/');
 }
 
 function checkChart(resolve, reject, start) {
@@ -87,7 +77,7 @@ if (fs.existsSync(`${__dirname}/src-preview/node_modules`)) {
     installPromise = npmInstall(`${__dirname.replace(/\\/g, '/')}/src-preview/`);
 }
 installPromise
-    .then(() => buildReact(`${__dirname}/src-preview/`, { vite: true }))
+    .then(() => buildReact(`${__dirname}/src-preview/`, { rootDir: `${__dirname}/src-preview/`, vite: true, tsc: true }))
     .then(() => copyAllFiles())
     .then(() => {
         if (fs.existsSync(`${__dirname}/admin/preview/index.html`)) {
