@@ -45,13 +45,13 @@ class MainChart extends React.Component<MainChartProps> {
     getChartFrame(): React.JSX.Element {
         const URL = (window.location.search || '').includes('dev=true') ? 'http://localhost:3000/' : 'chart/';
 
-        const data = JSON.parse(JSON.stringify(this.props.presetData));
+        const data: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
 
-        if (typeof this.props.selectedId === 'object') {
+        if (typeof this.props.selectedId === 'object' && data.l) {
             // fast chart
-            // remove settings from line
-            delete data.lines[0].aggregate;
-            delete data.lines[0].chartType;
+            // remove settings from line and use from root
+            delete data.l[0].aggregate;
+            delete data.l[0].chartType;
         }
 
         return (

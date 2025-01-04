@@ -46,8 +46,12 @@ const styles: Record<string, any> = {
     smallMargin: {
         marginTop: '8px !important',
     },
-    heightMinusToolbar: {
+    heightMinusTwoToolbars: {
         height: `calc(100% - ${TOOLBAR_HEIGHT * 2}px)`,
+        overflow: 'auto',
+    },
+    heightMinusToolbar: {
+        height: `calc(100% - ${TOOLBAR_HEIGHT}px)`,
         overflow: 'auto',
     },
 };
@@ -277,7 +281,7 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                 key="mainMenuDiv"
             >
                 {this.renderListToolbar()}
-                <div style={styles.heightMinusToolbar}>
+                <div style={this.state.reorder ? styles.heightMinusToolbar : styles.heightMinusTwoToolbars}>
                     <PresetsTree
                         socket={this.props.socket}
                         scrollToSelect={this.props.scrollToSelect}

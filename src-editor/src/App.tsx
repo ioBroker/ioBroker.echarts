@@ -342,8 +342,8 @@ class App extends GenericApp<GenericAppProps, AppState> {
         let count = 0;
         let obj: ioBroker.Object | null | undefined;
         do {
-            const newId = `${id}_${I18n.t('copy')}`;
-            const newName = `${name} ${I18n.t('copy')}`;
+            const newId = `${id}_${I18n.t('copy')}${count ? `_${count}` : ''}`;
+            const newName = `${name} ${I18n.t('copy')}${count ? ` ${count}` : ''}`;
             try {
                 obj = await this.socket.getObject(newId);
             } catch {
@@ -354,7 +354,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 return { name: newName, id: newId };
             }
             count++;
-        } while (count < 10);
+        } while (count < 100);
 
         throw new Error(I18n.t('Cannot create unique ID'));
     }
@@ -502,6 +502,23 @@ class App extends GenericApp<GenericAppProps, AppState> {
         ) {
             presetData.range = parseInt(presetData.range, 10);
         }
+
+        presetData.l?.forEach(line => {
+            if (typeof line.commonYAxis === 'string') {
+                if (line.commonYAxis === '') {
+                    delete line.commonYAxis;
+                } else {
+                    line.commonYAxis = parseInt(line.commonYAxis as unknown as string, 10);
+                }
+            }
+            if (typeof line.fill === 'string') {
+                if (line.fill === '') {
+                    delete line.fill;
+                } else {
+                    line.fill = parseFloat(line.fill as unknown as string);
+                }
+            }
+        });
     }
 
     async loadChartOrPreset(selectedId: SelectedChart): Promise<void> {
@@ -718,6 +735,79 @@ class App extends GenericApp<GenericAppProps, AppState> {
     }
 
     renderMain(): React.JSX.Element[] {
+        let settingsEditor: React.JSX.Element | null = null;
+        let mainChart: React.JSX.Element | null = null;
+        if (this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string') {
+            settingsEditor = (
+                <SettingsEditor
+                    socket={this.socket}
+                    key="Editor"
+                    width={window.innerWidth}
+                    theme={this.state.theme}
+                    onChange={presetData => {
+                        if (this.state.autoSave) {
+                            this.setState({ presetData }, () => this.savePreset());
+                        } else {
+                            this.setState({
+                                presetData,
+                                selectedPresetChanged: JSON.stringify(presetData) !== this.state.originalPresetData,
+                            });
+                        }
+                    }}
+                    presetData={this.state.presetData}
+                    selectedId={this.state.selectedId}
+                    instances={this.state.instances}
+                    systemConfig={this.state.systemConfig}
+                    selectedPresetChanged={this.state.selectedPresetChanged}
+                    savePreset={this.savePreset}
+                    autoSave={this.state.autoSave}
+                    onAutoSave={autoSave => {
+                        window.localStorage.setItem('App.echarts.autoSave', autoSave ? 'true' : 'false');
+                        if (autoSave && this.state.selectedPresetChanged) {
+                            void this.savePreset().then(() => this.setState({ autoSave }));
+                        } else {
+                            this.setState({ autoSave });
+                        }
+                    }}
+                />
+            );
+        }
+
+        if (this.state.selectedId) {
+            mainChart = (
+                <MainChart
+                    key="MainChart"
+                    visible={!this.state.resizing}
+                    theme={this.state.theme}
+                    onChange={presetData => this.setState({ presetData })}
+                    presetData={this.state.presetData}
+                    selectedId={this.state.selectedId}
+                    onCreatePreset={this.onCreatePreset}
+                />
+            );
+        }
+        let splitter: React.JSX.Element;
+        if (mainChart && settingsEditor) {
+            splitter = (
+                <ReactSplit
+                    direction={this.state.logHorzLayout ? SplitDirection.Horizontal : SplitDirection.Vertical}
+                    initialSizes={this.state.splitSizes}
+                    minWidths={[100, 450]}
+                    onResizeFinished={(_gutterIdx: number, splitSizes: [number, number]): void => {
+                        this.setState({ resizing: false, splitSizes });
+                        window.localStorage.setItem('App.echarts.settingsSizes', JSON.stringify(splitSizes));
+                    }}
+                    // theme={this.props.themeType === 'dark' ? GutterTheme.Dark : GutterTheme.Light}
+                    gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
+                >
+                    {mainChart}
+                    {settingsEditor}
+                </ReactSplit>
+            );
+        } else {
+            splitter = mainChart;
+        }
+
         return [
             <Box
                 component="div"
@@ -730,78 +820,14 @@ class App extends GenericApp<GenericAppProps, AppState> {
                     key="confirmdiv"
                     sx={styles.menuOpenCloseButton}
                     onClick={() => {
-                        window.localStorage &&
-                            window.localStorage.setItem(
-                                'App.echarts.menuOpened',
-                                this.state.menuOpened ? 'false' : 'true',
-                            );
+                        window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
                         this.setState({ menuOpened: !this.state.menuOpened, resizing: true });
                         setTimeout(() => this.setState({ resizing: false }), 300);
                     }}
                 >
                     {this.state.menuOpened ? <IconMenuOpened /> : <IconMenuClosed />}
                 </Box>
-                <ReactSplit
-                    direction={this.state.logHorzLayout ? SplitDirection.Horizontal : SplitDirection.Vertical}
-                    initialSizes={this.state.splitSizes}
-                    minWidths={[100, 450]}
-                    onResizeFinished={(_gutterIdx: number, splitSizes: [number, number]): void => {
-                        this.setState({ resizing: false, splitSizes });
-                        window.localStorage.setItem('App.echarts.settingsSizes', JSON.stringify(splitSizes));
-                    }}
-                    // theme={this.props.themeType === 'dark' ? GutterTheme.Dark : GutterTheme.Light}
-                    gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
-                >
-                    {this.state.selectedId ? (
-                        <MainChart
-                            key="MainChart"
-                            visible={!this.state.resizing}
-                            theme={this.state.theme}
-                            onChange={presetData => this.setState({ presetData })}
-                            presetData={this.state.presetData}
-                            selectedId={this.state.selectedId}
-                            onCreatePreset={this.onCreatePreset}
-                        />
-                    ) : (
-                        <div />
-                    )}
-                    {this.state.presetData && this.state.selectedId && typeof this.state.selectedId === 'string' ? (
-                        <SettingsEditor
-                            socket={this.socket}
-                            key="Editor"
-                            width={window.innerWidth}
-                            theme={this.state.theme}
-                            onChange={presetData => {
-                                if (this.state.autoSave) {
-                                    this.setState({ presetData }, () => this.savePreset());
-                                } else {
-                                    this.setState({
-                                        presetData,
-                                        selectedPresetChanged:
-                                            JSON.stringify(presetData) !== this.state.originalPresetData,
-                                    });
-                                }
-                            }}
-                            presetData={this.state.presetData}
-                            selectedId={this.state.selectedId}
-                            instances={this.state.instances}
-                            systemConfig={this.state.systemConfig}
-                            selectedPresetChanged={this.state.selectedPresetChanged}
-                            savePreset={this.savePreset}
-                            autoSave={this.state.autoSave}
-                            onAutoSave={autoSave => {
-                                window.localStorage.setItem('App.echarts.autoSave', autoSave ? 'true' : 'false');
-                                if (autoSave && this.state.selectedPresetChanged) {
-                                    void this.savePreset().then(() => this.setState({ autoSave }));
-                                } else {
-                                    this.setState({ autoSave });
-                                }
-                            }}
-                        />
-                    ) : (
-                        <div />
-                    )}
-                </ReactSplit>
+                {splitter}
             </Box>,
         ];
     }
@@ -866,17 +892,17 @@ class App extends GenericApp<GenericAppProps, AppState> {
             }
         } else if (destination && source.droppableId === destination.droppableId) {
             // switch lines order
-            const presetData = JSON.parse(JSON.stringify(this.state.presetData));
+            const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.state.presetData));
 
             // correct commonYAxis
             for (let i = 0; i < presetData.l.length; i++) {
                 if (!presetData.l[i].commonYAxis && presetData.l[i].commonYAxis !== 0) {
                     continue;
                 }
-                if (presetData.l[i].commonYAxis === source.index.toString()) {
-                    presetData.l[i].commonYAxis = destination.index.toString();
-                } else if (presetData.l[i].commonYAxis === destination.index.toString()) {
-                    presetData.l[i].commonYAxis = source.index.toString();
+                if (presetData.l[i].commonYAxis === source.index) {
+                    presetData.l[i].commonYAxis = destination.index;
+                } else if (presetData.l[i].commonYAxis === destination.index) {
+                    presetData.l[i].commonYAxis = source.index;
                 }
             }
 
@@ -891,9 +917,73 @@ class App extends GenericApp<GenericAppProps, AppState> {
         }
     };
 
-    toggleLogLayout(): void {
-        window.localStorage.setItem('App.echarts.logHorzLayout', this.state.logHorzLayout ? 'false' : 'true');
-        this.setState({ logHorzLayout: !this.state.logHorzLayout });
+    renderMenu(): React.JSX.Element {
+        return (
+            <MenuList
+                key="menuList"
+                scrollToSelect={this.state.scrollToSelect}
+                socket={this.socket}
+                theme={this.state.theme}
+                adapterName={this.adapterName}
+                instances={this.state.instances}
+                systemConfig={this.state.systemConfig}
+                onShowToast={(toast: string): void => this.showToast(toast)}
+                selectedPresetChanged={this.state.selectedPresetChanged}
+                chartsList={this.state.chartsList}
+                selectedId={this.state.selectedId}
+                onCopyPreset={this.onCopyPreset}
+                onCreatePreset={this.onCreatePreset}
+                onChangeList={(chartsList: { id: string; instance: string }[]): void => {
+                    // if some deselected
+                    let selectedId = this.state.selectedId;
+                    if (
+                        chartsList &&
+                        this.state.chartsList &&
+                        chartsList.length &&
+                        chartsList.length < this.state.chartsList.length
+                    ) {
+                        const removedLine = this.state.chartsList.find(
+                            item => !chartsList.find(it => it.id === item.id && it.instance === item.instance),
+                        );
+                        const index = this.state.chartsList.indexOf(removedLine);
+                        if (this.state.chartsList[index + 1]) {
+                            selectedId = this.state.chartsList[index + 1];
+                        } else if (this.state.chartsList[index - 1]) {
+                            selectedId = this.state.chartsList[index - 1];
+                        } else {
+                            selectedId = chartsList[0];
+                        }
+                    }
+                    this.setState({ chartsList }, () => this.loadChartOrPreset(selectedId));
+                }}
+                onSelectedChanged={(
+                    selectedId: SelectedChart | null,
+                    cb?: (presetId: false | SelectedChart) => void,
+                ): void => {
+                    if (this.state.selectedPresetChanged) {
+                        this.confirmCB = (confirmed: boolean): void => {
+                            if (confirmed) {
+                                void this.loadChartOrPreset(selectedId).then(() => cb && cb(selectedId));
+                            } else {
+                                cb && cb(false); // cancel
+                            }
+                            this.confirmCB = null;
+                        };
+
+                        this.setState({
+                            discardChangesConfirmDialog:
+                                selectedId && typeof selectedId === 'object'
+                                    ? 'chart'
+                                    : selectedId
+                                      ? 'preset'
+                                      : 'folder',
+                        });
+                    } else {
+                        void this.loadChartOrPreset(selectedId);
+                    }
+                }}
+            />
+        );
     }
 
     render(): React.JSX.Element {
@@ -907,6 +997,28 @@ class App extends GenericApp<GenericAppProps, AppState> {
             );
         }
 
+        let splitter: React.JSX.Element | React.JSX.Element[];
+        if (this.state.menuOpened) {
+            // @ts-expect-error idk
+            splitter = <DragDropContext onDragEnd={this.onDragEnd}>
+                <ReactSplit
+                    direction={SplitDirection.Horizontal}
+                    initialSizes={this.state.menuSizes}
+                    minWidths={[307, 300]}
+                    onResizeFinished={(_gutterIdx: number, menuSizes: [number, number]): void => {
+                        this.setState({ resizing: false, menuSizes });
+                        window.localStorage.setItem('App.echarts.menuSizes', JSON.stringify(menuSizes));
+                    }}
+                    gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
+                >
+                    {this.renderMenu()}
+                    {this.renderMain()}
+                </ReactSplit>
+            </DragDropContext>;
+        } else {
+            splitter = this.renderMain();
+        }
+
         return (
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={this.state.theme}>
@@ -915,90 +1027,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                         sx={styles.root}
                         key="divSide"
                     >
-                        {/* @ts-expect-error idk */}
-                        <DragDropContext onDragEnd={this.onDragEnd}>
-                            <ReactSplit
-                                direction={SplitDirection.Horizontal}
-                                initialSizes={this.state.menuSizes}
-                                minWidths={[307, 300]}
-                                onResizeFinished={(gutterIdx: number, menuSizes: [number, number]): void => {
-                                    this.setState({ resizing: false, menuSizes });
-                                    window.localStorage.setItem('App.echarts.menuSizes', JSON.stringify(menuSizes));
-                                }}
-                                gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
-                            >
-                                <MenuList
-                                    key="menuList"
-                                    scrollToSelect={this.state.scrollToSelect}
-                                    socket={this.socket}
-                                    theme={this.state.theme}
-                                    adapterName={this.adapterName}
-                                    instances={this.state.instances}
-                                    systemConfig={this.state.systemConfig}
-                                    onShowToast={(toast: string): void => this.showToast(toast)}
-                                    selectedPresetChanged={this.state.selectedPresetChanged}
-                                    chartsList={this.state.chartsList}
-                                    selectedId={this.state.selectedId}
-                                    onCopyPreset={this.onCopyPreset}
-                                    onCreatePreset={this.onCreatePreset}
-                                    onChangeList={(chartsList: { id: string; instance: string }[]): void => {
-                                        // if some deselected
-                                        let selectedId = this.state.selectedId;
-                                        if (
-                                            chartsList &&
-                                            this.state.chartsList &&
-                                            chartsList.length &&
-                                            chartsList.length < this.state.chartsList.length
-                                        ) {
-                                            const removedLine = this.state.chartsList.find(
-                                                item =>
-                                                    !chartsList.find(
-                                                        it => it.id === item.id && it.instance === item.instance,
-                                                    ),
-                                            );
-                                            const index = this.state.chartsList.indexOf(removedLine);
-                                            if (this.state.chartsList[index + 1]) {
-                                                selectedId = this.state.chartsList[index + 1];
-                                            } else if (this.state.chartsList[index - 1]) {
-                                                selectedId = this.state.chartsList[index - 1];
-                                            } else {
-                                                selectedId = chartsList[0];
-                                            }
-                                        }
-                                        this.setState({ chartsList }, () => this.loadChartOrPreset(selectedId));
-                                    }}
-                                    onSelectedChanged={(
-                                        selectedId: SelectedChart | null,
-                                        cb?: (presetId: false | SelectedChart) => void,
-                                    ): void => {
-                                        if (cb && this.state.selectedPresetChanged) {
-                                            this.confirmCB = (confirmed: boolean): void => {
-                                                if (confirmed) {
-                                                    void this.loadChartOrPreset(selectedId).then(
-                                                        () => cb && cb(selectedId),
-                                                    );
-                                                } else {
-                                                    cb(false); // cancel
-                                                }
-                                                this.confirmCB = null;
-                                            };
-
-                                            this.setState({
-                                                discardChangesConfirmDialog:
-                                                    selectedId && typeof selectedId === 'object'
-                                                        ? 'chart'
-                                                        : selectedId
-                                                          ? 'preset'
-                                                          : 'folder',
-                                            });
-                                        } else {
-                                            void this.loadChartOrPreset(selectedId);
-                                        }
-                                    }}
-                                />
-                                {this.renderMain()}
-                            </ReactSplit>
-                        </DragDropContext>
+                        {splitter}
                     </Box>
                     {this.discardChangesConfirmDialog()}
                     {this.renderError()}

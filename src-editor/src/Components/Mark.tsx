@@ -355,7 +355,11 @@ class Mark extends React.Component<MarkProps, MarkState> {
                         <IOObjectField
                             theme={this.props.theme}
                             disabled={!!this.props.onPaste}
-                            value={this.props.mark.upperValueOrId.toString()}
+                            value={
+                                this.props.mark.upperValueOrId === undefined
+                                    ? ''
+                                    : this.props.mark.upperValueOrId.toString()
+                            }
                             updateValue={(value: string): void => {
                                 const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
                                 mark.upperValueOrId = value;
@@ -376,7 +380,11 @@ class Mark extends React.Component<MarkProps, MarkState> {
                         <IOObjectField
                             theme={this.props.theme}
                             disabled={!!this.props.onPaste}
-                            value={this.props.mark.lowerValueOrId.toString()}
+                            value={
+                                this.props.mark.lowerValueOrId === undefined
+                                    ? ''
+                                    : this.props.mark.lowerValueOrId.toString()
+                            }
                             updateValue={(value: string): void => {
                                 const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
                                 mark.lowerValueOrId = value;
@@ -504,7 +512,11 @@ class Mark extends React.Component<MarkProps, MarkState> {
                     {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined ? (
                         <IOObjectField
                             theme={this.props.theme}
-                            value={this.props.mark.upperValueOrId.toString()}
+                            value={
+                                this.props.mark.upperValueOrId === undefined
+                                    ? ''
+                                    : this.props.mark.upperValueOrId.toString()
+                            }
                             updateValue={(value: string): void => {
                                 const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
                                 mark.upperValueOrId = value;
@@ -521,7 +533,11 @@ class Mark extends React.Component<MarkProps, MarkState> {
                     this.props.mark.upperValueOrId !== '' ? (
                         <IOObjectField
                             theme={this.props.theme}
-                            value={this.props.mark.lowerValueOrId.toString()}
+                            value={
+                                this.props.mark.lowerValueOrId === undefined
+                                    ? ''
+                                    : this.props.mark.lowerValueOrId.toString()
+                            }
                             updateValue={(value: string): void => {
                                 const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
                                 mark.lowerValueOrId = value;

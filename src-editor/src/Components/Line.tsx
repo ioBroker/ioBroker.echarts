@@ -42,8 +42,6 @@ const WIDTHS = {
     buttons: 50 + 50 + 16 + 50,
 };
 
-const LINE_HEIGHT = 48;
-
 const styles: Record<string, any> = {
     card: (theme: IobTheme): any => ({
         borderStyle: 'dashed',
@@ -80,6 +78,8 @@ const styles: Record<string, any> = {
     }),
     lineClosed: {
         display: 'flex',
+        gap: 4,
+        alignItems: 'center',
     },
     title: {
         width: 'inherit',
@@ -104,76 +104,50 @@ const styles: Record<string, any> = {
         display: 'inline-block',
         minWidth: WIDTHS.instance,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortIdField: {
         display: 'inline-block',
         minWidth: WIDTHS.id,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortDataTypeField: {
-        lineHeight: `${LINE_HEIGHT}px`,
         display: 'inline-block',
         minWidth: WIDTHS.dataType,
-        marginLeft: 8,
         paddingTop: 0,
         verticalAlign: 'top',
     },
     shortChartTypeField: {
         display: 'inline-block',
         minWidth: WIDTHS.chartType,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortColorField: {
         display: 'inline-block',
         minWidth: WIDTHS.color,
         width: WIDTHS.color,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortNameField: {
         display: 'inline-block',
         minWidth: WIDTHS.name,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     shortButtonsField: {
         display: 'inline-block',
         minWidth: WIDTHS.buttons,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
-    editButton: {
-        float: 'right',
-    },
-    deleteButton: {
-        float: 'right',
-        marginRight: 12,
-    },
-    editButtonFull: {
-        float: 'right',
-    },
-    deleteButtonFull: {
-        float: 'right',
-        marginRight: 12,
-    },
-    copyButtonFull: {
-        float: 'right',
-        marginRight: 0,
-    },
+    editButton: {},
+    deleteButton: {},
+    editButtonFull: {},
+    deleteButtonFull: {},
+    copyButtonFull: {},
     fullWidth: {
         width: '100%',
         minWidth: 200,
@@ -461,6 +435,7 @@ class Line extends React.Component<LineProps, LineState> {
                 {this.props.provided ? (
                     <span
                         title={I18n.t('Drag me')}
+                        style={{ marginTop: 4 }}
                         {...this.props.provided.dragHandleProps}
                     >
                         <IconDrag />
@@ -468,7 +443,7 @@ class Line extends React.Component<LineProps, LineState> {
                 ) : (
                     <div style={styles.emptyDrag} />
                 )}
-                {this.props.onPaste && this.props.onPaste ? (
+                {this.props.onPaste ? (
                     <IconButton
                         title={I18n.t('Paste')}
                         onClick={() => this.props.onPaste()}
@@ -506,6 +481,7 @@ class Line extends React.Component<LineProps, LineState> {
                         fieldContainer: {
                             ...styles.shortInstanceField,
                             ...(this.props.onPaste ? styles.paste : undefined),
+                            marginTop: 2,
                         },
                     }}
                 />
@@ -558,6 +534,7 @@ class Line extends React.Component<LineProps, LineState> {
                             fieldContainer: {
                                 ...styles.shortChartTypeField,
                                 ...(this.props.onPaste ? styles.paste : undefined),
+                                marginTop: 2,
                             },
                         }}
                     />
@@ -617,15 +594,9 @@ class Line extends React.Component<LineProps, LineState> {
                         }}
                     />
                 ) : null}
-                <IconButton
-                    style={styles.deleteButton}
-                    aria-label="Delete"
-                    title={I18n.t('Delete')}
-                    onClick={() => this.props.deleteLine(this.props.index)}
-                >
-                    <IconDelete />
-                </IconButton>
-                {this.props.line.chartType !== 'scatterplot' &&
+                <div style={{ flexGrow: 1 }} />
+                {!this.props.onPaste &&
+                this.props.line.chartType !== 'scatterplot' &&
                 this.props.line.chartType !== 'bar' &&
                 (!this.props.index || this.props.line.chartType !== 'polar') ? (
                     <IconButton
@@ -637,6 +608,15 @@ class Line extends React.Component<LineProps, LineState> {
                         <IconEdit />
                     </IconButton>
                 ) : null}
+                <IconButton
+                    style={styles.deleteButton}
+                    aria-label="Delete"
+                    title={I18n.t('Delete')}
+                    onClick={() => this.props.deleteLine(this.props.index)}
+                >
+                    <IconDelete />
+                </IconButton>
+                <div style={{ width: 30 }} />
             </div>
         );
     }
@@ -779,7 +759,7 @@ class Line extends React.Component<LineProps, LineState> {
                                 });
                                 const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
                                 if (withStates) {
-                                    const states = JSON.parse(JSON.stringify(withStates));
+                                    const states: Record<string, string> = JSON.parse(JSON.stringify(withStates));
                                     const originalStates = JSON.parse(this.state.originalStates);
                                     Object.keys(states).forEach(val => {
                                         if (states[val] === originalStates[val]) {
@@ -852,7 +832,7 @@ class Line extends React.Component<LineProps, LineState> {
         return (
             <>
                 {/* Folder line */}
-                <div style={{ marginRight: 30 }}>
+                <div style={styles.lineClosed}>
                     {this.props.provided ? (
                         <span
                             title={I18n.t('Drag me')}
@@ -862,20 +842,21 @@ class Line extends React.Component<LineProps, LineState> {
                         </span>
                     ) : null}
                     <IconButton
-                        title={I18n.t('Edit')}
+                        title={I18n.t('Close')}
                         onClick={() => this.props.lineOpenToggle(this.props.index)}
                     >
                         <IconFolderOpened />
                     </IconButton>
                     {I18n.t('Line')} {this.props.index + 1}
                     {this.props.line.name ? ` - ${this.props.line.name}` : ''}
+                    <div style={{ flexGrow: 1 }} />
                     <IconButton
-                        style={styles.deleteButtonFull}
-                        aria-label="Delete"
-                        title={I18n.t('Delete')}
-                        onClick={() => this.props.deleteLine(this.props.index)}
+                        style={styles.copyButtonFull}
+                        aria-label="Copy"
+                        title={I18n.t('Copy')}
+                        onClick={() => this.props.onCopy(this.props.line)}
                     >
-                        <IconDelete />
+                        <IconCopy />
                     </IconButton>
                     {this.props.line.chartType !== 'scatterplot' &&
                     this.props.line.chartType !== 'bar' &&
@@ -890,13 +871,14 @@ class Line extends React.Component<LineProps, LineState> {
                         </IconButton>
                     ) : null}
                     <IconButton
-                        style={styles.copyButtonFull}
-                        aria-label="Copy"
-                        title={I18n.t('Copy')}
-                        onClick={() => this.props.onCopy(this.props.line)}
+                        style={styles.deleteButtonFull}
+                        aria-label="Delete"
+                        title={I18n.t('Delete')}
+                        onClick={() => this.props.deleteLine(this.props.index)}
                     >
-                        <IconCopy />
+                        <IconDelete />
                     </IconButton>
+                    <div style={{ width: 30 }} />
                 </div>
                 {/* Source and OID */}
                 <Box
@@ -1234,23 +1216,27 @@ class Line extends React.Component<LineProps, LineState> {
                     ) : null}
                     {this.props.line.chartType !== 'polar' ? (
                         <IOSelect
-                            value={this.props.line.offset.toString()}
+                            value={this.props.line.offset === undefined ? '0' : this.props.line.offset.toString()}
                             updateValue={(value: string | number): void => {
                                 const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.offset = value as
-                                    | number
-                                    | '1m'
-                                    | '2m'
-                                    | '3m'
-                                    | '6m'
-                                    | '1y'
-                                    | '2y'
-                                    | '-1m'
-                                    | '-2m'
-                                    | '-3m'
-                                    | '-6m'
-                                    | '-1y'
-                                    | '-2y';
+                                if (!value) {
+                                    delete line.offset;
+                                } else {
+                                    line.offset = value as
+                                        | number
+                                        | '1m'
+                                        | '2m'
+                                        | '3m'
+                                        | '6m'
+                                        | '1y'
+                                        | '2y'
+                                        | '-1m'
+                                        | '-2m'
+                                        | '-3m'
+                                        | '-6m'
+                                        | '-1y'
+                                        | '-2y';
+                                }
                                 this.props.updateLine(this.props.index, line);
                             }}
                             tooltip={I18n.t('This time offset will be added to the request by reading data from DB')}
@@ -1403,7 +1389,9 @@ class Line extends React.Component<LineProps, LineState> {
                 >
                     <p style={styles.title}>{I18n.t('Others')}</p>
                     <IOSelect
-                        value={this.props.line.ignoreNull.toString()}
+                        value={
+                            this.props.line.ignoreNull === undefined ? 'false' : this.props.line.ignoreNull.toString()
+                        }
                         updateValue={(value: string): void => {
                             const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
                             line.ignoreNull = value === 'true' ? true : value === '0' ? 0 : false;

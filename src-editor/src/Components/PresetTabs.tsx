@@ -296,14 +296,14 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
     }
 
     lineOpenToggle = (index: number): void => {
-        const linesOpened = JSON.parse(JSON.stringify(this.state.linesOpened));
+        const linesOpened =[...this.state.linesOpened];
         linesOpened[index] = !this.state.linesOpened[index];
         this.setState({ linesOpened });
         window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify(linesOpened));
     };
 
     markOpenToggle = (index: number): void => {
-        const marksOpened = JSON.parse(JSON.stringify(this.state.marksOpened));
+        const marksOpened = [...this.state.marksOpened];
         marksOpened[index] = !this.state.marksOpened[index];
         this.setState({ marksOpened });
         window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify(marksOpened));
@@ -432,12 +432,12 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
 
         // Check if the yaxis of this line is used somewhere else and correct commonYAxis
         for (let i = 0; i < presetData.l.length; i++) {
-            if (!presetData.l[i].commonYAxis && presetData.l[i].commonYAxis !== 0) {
+            if (presetData.l[i].commonYAxis === undefined) {
                 continue;
             }
-            if (presetData.l[i].commonYAxis.toString() > index.toString()) {
-                presetData.l[i].commonYAxis = parseInt(presetData.l[i].commonYAxis as unknown as string, 10) - 1;
-            } else if (presetData.l[i].commonYAxis.toString() === index.toString()) {
+            if (presetData.l[i].commonYAxis > index) {
+                presetData.l[i].commonYAxis = presetData.l[i].commonYAxis - 1;
+            } else if (presetData.l[i].commonYAxis === index) {
                 delete presetData.l[i].commonYAxis;
             }
         }
@@ -559,7 +559,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         style={{
                             background: snapshot.isDraggingOver ? this.props.theme.palette.secondary.dark : undefined,
                             width: '100%',
-                            minHeight: '100%',
+                            minHeight: 'calc(100% - 32px)',
                         }}
                     >
                         <Paper style={styles.tabContent}>
@@ -664,7 +664,10 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                                     instances={this.props.instances}
                                     systemConfig={this.props.systemConfig}
                                     width={this.props.width}
-                                    deleteLine={() => this.setState({ copiedObject: null })}
+                                    deleteLine={() => {
+                                        window.sessionStorage.removeItem('echarts.copiedObject');
+                                        this.setState({ copiedObject: null });
+                                    }}
                                     key="copiedLine"
                                     socket={this.props.socket}
                                     opened={false}
@@ -766,7 +769,10 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         presetData={this.props.presetData}
                         mark={this.state.copiedObject.mark}
                         theme={this.props.theme}
-                        deleteMark={() => this.setState({ copiedObject: null })}
+                        deleteMark={() => {
+                            window.sessionStorage.removeItem('echarts.copiedObject');
+                            this.setState({ copiedObject: null });
+                        }}
                         key="copiedMark"
                         opened={false}
                         onPaste={() =>
@@ -857,7 +863,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                             <>
                                 <p style={styles.title}>{I18n.t('Start and end')}</p>
                                 <IODateTimeField
-                                    date={this.props.presetData.start.toString()}
+                                    date={this.props.presetData.start === undefined ? '' : this.props.presetData.start.toString()}
                                     time={this.props.presetData.start_time}
                                     updateValue={(date: string, time: string): void => {
                                         const presetData: ChartConfigMore = JSON.parse(
@@ -870,7 +876,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                                     label="Start"
                                 />
                                 <IODateTimeField
-                                    date={this.props.presetData.end.toString()}
+                                    date={this.props.presetData.end === undefined ? '' : this.props.presetData.end.toString()}
                                     time={this.props.presetData.end_time}
                                     updateValue={(date: string, time: string): void => {
                                         const presetData: ChartConfigMore = JSON.parse(
@@ -917,7 +923,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                                     }}
                                 />
                                 <IOSelect
-                                    value={this.props.presetData.range.toString()}
+                                    value={this.props.presetData.range === undefined ? '' : this.props.presetData.range.toString()}
                                     updateValue={(value: string): void => {
                                         const presetData: ChartConfigMore = JSON.parse(
                                             JSON.stringify(this.props.presetData),
@@ -1580,20 +1586,28 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                 >
                     <p style={styles.title}>{I18n.t('Chart size')}</p>
                     <IOTextField
-                        value={this.props.presetData.width.toString()}
+                        value={this.props.presetData.width === undefined ? '' : this.props.presetData.width.toString()}
                         updateValue={(value: string): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                            presetData.width = value;
+                            if (!value) {
+                                delete presetData.width;
+                            } else {
+                                presetData.width = value;
+                            }
                             this.props.onChange(presetData);
                         }}
                         label="Width"
                         styles={{ fieldContainer: styles.marginTop }}
                     />
                     <IOTextField
-                        value={this.props.presetData.height.toString()}
+                        value={this.props.presetData.height === undefined ? '' : this.props.presetData.height.toString()}
                         updateValue={(value: string): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                            presetData.height = value;
+                            if (!value) {
+                                delete presetData.height;
+                            } else {
+                                presetData.height = value;
+                            }
                             this.props.onChange(presetData);
                         }}
                         label="Height"
@@ -1685,7 +1699,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         styles.marginTop,
                     )}
                     <IOSelect
-                        value={this.props.presetData.xLabelShift.toString()}
+                        value={this.props.presetData.xLabelShift === undefined ? '' : this.props.presetData.xLabelShift.toString()}
                         updateValue={(value: string): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
                             if (value.includes('m') || value.includes('y')) {
@@ -1990,7 +2004,6 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         inputLabel: { shrink: true },
                         htmlInput: {
                             style: {
-                                paddingLeft: 8,
                                 backgroundColor: value,
                                 color: textColor ? '#FFF' : '#000',
                             },

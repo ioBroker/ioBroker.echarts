@@ -8,7 +8,6 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    ListItemSecondaryAction,
     ListItemButton,
     Switch,
 } from '@mui/material';
@@ -66,6 +65,7 @@ const styles: Record<string, any> = {
     },
     itemIconFolder: {
         cursor: 'pointer',
+        marginLeft: 8,
     },
     width100: {
         width: '100%',
@@ -689,7 +689,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                     }
                 />
                 {!dragging && this.props.multiple && this.props.chartsList ? (
-                    <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
+                    <div style={styles.listItemSecondaryAction}>
                         <Switch
                             size="small"
                             edge="end"
@@ -730,7 +730,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                             }}
                             checked={!!this.props.chartsList.find(item => item.id === id && item.instance === instance)}
                         />{' '}
-                    </ListItemSecondaryAction>
+                    </div>
                 ) : null}
             </ListItemButton>
         );
@@ -739,7 +739,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
     renderListItems(
         group: CustomInstance,
         ids: string[],
-        enumId: string,
+        enumId: string | null,
         renderContext?: { gIndex: number },
     ): React.ReactNode[] {
         renderContext.gIndex = renderContext.gIndex || 0;
@@ -795,9 +795,25 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
 
         return [
             <ListItem
+                className="denis1"
                 key={key}
                 style={{ ...styles.width100, paddingLeft: LEVEL_PADDING * level }}
-                sx={Utils.getStyle(this.props.theme, styles.folderItem, { '& .MuiListItem-gutters': styles.noGutters })}
+                sx={Utils.getStyle(this.props.theme, styles.folderItem, { '&.MuiListItem-gutters': styles.noGutters })}
+                secondaryAction={
+                    <IconButton
+                        size="small"
+                        className="denis"
+                        onClick={() => this.toggleChartFolder(key)}
+                        title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
+                    >
+                        <IconExpand
+                            style={{
+                                transform: opened ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.2s ease-in-out',
+                            }}
+                        />
+                    </IconButton>
+                }
             >
                 <ListItemIcon
                     style={styles.itemIconRoot}
@@ -810,15 +826,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                     )}
                 </ListItemIcon>
                 <ListItemText primary={name} />
-                <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
-                    <IconButton
-                        size="small"
-                        onClick={() => this.toggleChartFolder(key)}
-                        title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
-                    >
-                        {opened ? <IconCollapse /> : <IconExpand />}
-                    </IconButton>
-                </ListItemSecondaryAction>
             </ListItem>,
             opened ? (
                 <List key={`${key}_LIST`}>
@@ -912,9 +919,36 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                     styles.width100,
                                                     styles.folderItem,
                                                     {
-                                                        '&.MuiListItemButton-gutters': styles.noGutters,
+                                                        '&.MuiListItem-gutters': styles.noGutters,
                                                     },
                                                 )}
+                                                secondaryAction={
+                                                    <>
+                                                        {opened ? (
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() =>
+                                                                    this.setState({ showAddStateDialog: group._id })
+                                                                }
+                                                                title={I18n.t('Enable logging for new state')}
+                                                            >
+                                                                <IconAdd />
+                                                            </IconButton>
+                                                        ) : null}
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => this.toggleChartFolder(group._id)}
+                                                            title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
+                                                        >
+                                                            <IconExpand
+                                                                style={{
+                                                                    transform: opened ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                                    transition: 'transform 0.2s ease-in-out',
+                                                                }}
+                                                            />
+                                                        </IconButton>
+                                                    </>
+                                                }
                                             >
                                                 <ListItemIcon
                                                     style={styles.itemIconRoot}
@@ -944,26 +978,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                         </div>
                                                     }
                                                 />
-                                                <ListItemSecondaryAction style={styles.listItemSecondaryAction}>
-                                                    {opened ? (
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() =>
-                                                                this.setState({ showAddStateDialog: group._id })
-                                                            }
-                                                            title={I18n.t('Enable logging for new state')}
-                                                        >
-                                                            <IconAdd />
-                                                        </IconButton>
-                                                    ) : null}
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => this.toggleChartFolder(group._id)}
-                                                        title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
-                                                    >
-                                                        {opened ? <IconCollapse /> : <IconExpand />}
-                                                    </IconButton>
-                                                </ListItemSecondaryAction>
                                             </ListItem>,
                                             children,
                                         ];

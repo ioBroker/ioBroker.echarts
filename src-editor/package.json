@@ -20,7 +20,7 @@
     },
     "homepage": ".",
     "scripts": {
-        "start": "vite start --config vite.config.mjs",
+        "start": "vite dev --config vite.config.mjs --host",
         "build": "vite build --config vite.config.mjs",
         "lint": "eslint -c eslint.config.mjs --debug",
         "npm": "npm i -f",
