@@ -183,6 +183,7 @@ interface PresetTabsProps {
     systemConfig: ioBroker.SystemConfigObject;
     onAutoSave: (autoSave: boolean) => void;
     autoSave: boolean;
+    windowWidth: number;
 }
 
 interface PresetTabsState {
@@ -197,6 +198,7 @@ interface PresetTabsState {
     colorDialogValue: string;
     webInstances: { index: string; link: string }[];
     toast: string;
+    clientWidth: number;
 
     legColor: string;
     legBg: string;
@@ -217,8 +219,15 @@ interface PresetTabsState {
 class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
     private colorPickerCb: null | ((color: string) => void);
 
+    private readonly paperLineRef: React.RefObject<HTMLDivElement>;
+    private readonly paperMarkRef: React.RefObject<HTMLDivElement>;
+
+    private windowWidth: number;
+
     constructor(props: PresetTabsProps) {
         super(props);
+
+        this.windowWidth = this.props.windowWidth;
 
         const copiedObjectStr = window.sessionStorage.getItem('echarts.copiedObject');
         let copiedObject:
@@ -249,7 +258,13 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
             presetData: getDefaultPreset(this.props.systemConfig),
             selectedTab:
                 window.localStorage.getItem('App.echarts.presetTabs.selectedTab') !== null
-                    ? (window.localStorage.getItem('App.echarts.presetTabs.selectedTab') as 'data')
+                    ? (window.localStorage.getItem('App.echarts.presetTabs.selectedTab') as
+                          | 'data'
+                          | 'markings'
+                          | 'time'
+                          | 'options'
+                          | 'title'
+                          | 'appearance')
                     : 'data',
             linesOpened:
                 window.localStorage.getItem('App.echarts.Lines.opened') !== null
@@ -266,6 +281,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
             webInstances: [],
             toast: '',
             copiedObject,
+            clientWidth: 0,
 
             legColor: '',
             legBg: '',
@@ -292,11 +308,38 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
             this.setState({ webInstances });
         });
 
+        this.paperLineRef = React.createRef();
+        this.paperMarkRef = React.createRef();
+
         this.colorPickerCb = null;
     }
 
+    componentDidMount() {
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
+    }
+
+    handleResize = (): void => {
+        if (
+            (!this.state.selectedTab || this.state.selectedTab === 'data') &&
+            this.paperLineRef.current &&
+            this.paperLineRef.current.clientWidth !== this.state.clientWidth
+        ) {
+            this.setState({ clientWidth: this.paperLineRef.current.clientWidth });
+        } else if (
+            this.state.selectedTab === 'markings' &&
+            this.paperMarkRef.current &&
+            this.paperMarkRef.current.clientWidth !== this.state.clientWidth
+        ) {
+            this.setState({ clientWidth: this.paperMarkRef.current.clientWidth });
+        }
+    };
+
     lineOpenToggle = (index: number): void => {
-        const linesOpened =[...this.state.linesOpened];
+        const linesOpened = [...this.state.linesOpened];
         linesOpened[index] = !this.state.linesOpened[index];
         this.setState({ linesOpened });
         window.localStorage.setItem('App.echarts.Lines.opened', JSON.stringify(linesOpened));
@@ -543,6 +586,26 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
         );
     }
 
+    componentDidUpdate(): void {
+        if (
+            (!this.state.selectedTab || this.state.selectedTab === 'data') &&
+            this.paperLineRef.current &&
+            this.paperLineRef.current.clientWidth !== this.state.clientWidth
+        ) {
+            // This one is just to trigger the update of component if width of menu changed
+            this.windowWidth = this.props.windowWidth;
+            this.setState({ clientWidth: this.paperLineRef.current.clientWidth });
+        } else if (
+            this.state.selectedTab === 'markings' &&
+            this.paperMarkRef.current &&
+            this.paperMarkRef.current.clientWidth !== this.state.clientWidth
+        ) {
+            // This one is just to trigger the update of component if width of menu changed
+            this.windowWidth = this.props.windowWidth;
+            this.setState({ clientWidth: this.paperMarkRef.current.clientWidth });
+        }
+    }
+
     renderTabLines(): React.ReactNode {
         const anyClosed =
             this.props.presetData.l.length > 1 && this.props.presetData.l.find((l, i) => !this.state.linesOpened[i]);
@@ -552,138 +615,147 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
         return (
             // @ts-expect-error idk
             <Droppable droppableId="tabs">
-                {(provided, snapshot) => (
-                    <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        style={{
-                            background: snapshot.isDraggingOver ? this.props.theme.palette.secondary.dark : undefined,
-                            width: '100%',
-                            minHeight: 'calc(100% - 32px)',
-                        }}
-                    >
-                        <Paper style={styles.tabContent}>
-                            <Fab
-                                onClick={() => this.addLine()}
-                                size="small"
-                                color="secondary"
-                                style={styles.buttonAdd}
-                                title={I18n.t('Add line to chart')}
+                {(provided, snapshot) => {
+                    return (
+                        <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            style={{
+                                background: snapshot.isDraggingOver
+                                    ? this.props.theme.palette.secondary.dark
+                                    : undefined,
+                                width: '100%',
+                                minHeight: 'calc(100% - 32px)',
+                            }}
+                        >
+                            <Paper
+                                style={styles.tabContent}
+                                ref={this.paperLineRef}
                             >
-                                <IconAdd />
-                            </Fab>
-                            {anyClosed ? (
                                 <Fab
-                                    onClick={this.expandAllLines}
+                                    onClick={() => this.addLine()}
                                     size="small"
-                                    color="default"
-                                    style={styles.buttonExpandAll}
-                                    title={I18n.t('Expand all lines')}
+                                    color="secondary"
+                                    style={styles.buttonAdd}
+                                    title={I18n.t('Add line to chart')}
                                 >
-                                    <IconExpand />
+                                    <IconAdd />
                                 </Fab>
-                            ) : null}
-                            {anyOpened ? (
-                                <Fab
-                                    onClick={this.collapseAllLines}
-                                    size="small"
-                                    color="default"
-                                    style={styles.buttonCollapseAll}
-                                    title={I18n.t('Collapse all lines')}
-                                >
-                                    <IconCollapse />
-                                </Fab>
-                            ) : null}
-                            {this.props.presetData.l.length ? (
-                                this.props.presetData.l.map((line, index) => (
-                                    // @ts-expect-error idk
-                                    <Draggable
-                                        key={`${line.id}_${index}`}
-                                        draggableId={`${line.id}_${index}`}
-                                        index={index}
+                                {anyClosed ? (
+                                    <Fab
+                                        onClick={this.expandAllLines}
+                                        size="small"
+                                        color="default"
+                                        style={styles.buttonExpandAll}
+                                        title={I18n.t('Expand all lines')}
                                     >
-                                        {(_provided, _snapshot) => (
-                                            <div
-                                                ref={_provided.innerRef}
-                                                {..._provided.draggableProps}
-                                                style={getItemStyle(
-                                                    _snapshot.isDragging,
-                                                    _provided.draggableProps.style,
-                                                )}
-                                            >
-                                                <Line
-                                                    provided={_provided}
-                                                    snapshot={_snapshot}
-                                                    theme={this.props.theme}
-                                                    instances={this.props.instances}
-                                                    systemConfig={this.props.systemConfig}
-                                                    line={line}
-                                                    presetData={this.props.presetData}
-                                                    width={this.props.width}
-                                                    updateLine={this.updateLine}
-                                                    deleteLine={_index => this.setState({ deleteLineDialog: _index })}
-                                                    index={index}
-                                                    key={index}
-                                                    socket={this.props.socket}
-                                                    opened={
-                                                        typeof this.state.linesOpened[index] !== 'undefined' &&
-                                                        this.state.linesOpened[index] === true
-                                                    }
-                                                    lineOpenToggle={this.lineOpenToggle}
-                                                    maxLines={this.props.presetData.l.length}
-                                                    onSelectColor={(value: string, cb) =>
-                                                        this.showColorPicker(value, cb)
-                                                    }
-                                                    onCopy={_line => {
-                                                        this.setState({
-                                                            copiedObject: {
-                                                                type: 'line',
-                                                                line: JSON.parse(JSON.stringify(_line)),
-                                                            },
-                                                        });
-                                                        window.sessionStorage.setItem(
-                                                            'echarts.copiedObject',
-                                                            JSON.stringify({ type: 'line', line: _line }),
-                                                        );
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))
-                            ) : (
-                                <div style={styles.noContent}>
-                                    {I18n.t('Create a new line with a "+" on the right.')}
+                                        <IconExpand />
+                                    </Fab>
+                                ) : null}
+                                {anyOpened ? (
+                                    <Fab
+                                        onClick={this.collapseAllLines}
+                                        size="small"
+                                        color="default"
+                                        style={styles.buttonCollapseAll}
+                                        title={I18n.t('Collapse all lines')}
+                                    >
+                                        <IconCollapse />
+                                    </Fab>
+                                ) : null}
+                                {this.props.presetData.l.length ? (
+                                    this.props.presetData.l.map((line, index) => (
+                                        // @ts-expect-error idk
+                                        <Draggable
+                                            key={`${line.id}_${index}`}
+                                            draggableId={`${line.id}_${index}`}
+                                            index={index}
+                                        >
+                                            {(_provided, _snapshot) => (
+                                                <div
+                                                    ref={_provided.innerRef}
+                                                    {..._provided.draggableProps}
+                                                    style={getItemStyle(
+                                                        _snapshot.isDragging,
+                                                        _provided.draggableProps.style,
+                                                    )}
+                                                >
+                                                    <Line
+                                                        provided={_provided}
+                                                        snapshot={_snapshot}
+                                                        theme={this.props.theme}
+                                                        instances={this.props.instances}
+                                                        systemConfig={this.props.systemConfig}
+                                                        line={line}
+                                                        presetData={this.props.presetData}
+                                                        width={this.state.clientWidth}
+                                                        updateLine={this.updateLine}
+                                                        deleteLine={_index =>
+                                                            this.setState({ deleteLineDialog: _index })
+                                                        }
+                                                        index={index}
+                                                        key={index}
+                                                        socket={this.props.socket}
+                                                        opened={
+                                                            typeof this.state.linesOpened[index] !== 'undefined' &&
+                                                            this.state.linesOpened[index] === true
+                                                        }
+                                                        lineOpenToggle={this.lineOpenToggle}
+                                                        maxLines={this.props.presetData.l.length}
+                                                        onSelectColor={(value: string, cb) =>
+                                                            this.showColorPicker(value, cb)
+                                                        }
+                                                        onCopy={_line => {
+                                                            this.setState({
+                                                                copiedObject: {
+                                                                    type: 'line',
+                                                                    line: JSON.parse(JSON.stringify(_line)),
+                                                                },
+                                                            });
+                                                            window.sessionStorage.setItem(
+                                                                'echarts.copiedObject',
+                                                                JSON.stringify({ type: 'line', line: _line }),
+                                                            );
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))
+                                ) : (
+                                    <div style={styles.noContent}>
+                                        {I18n.t('Create a new line with a "+" on the right.')}
+                                    </div>
+                                )}
+                                {this.state.copiedObject?.type === 'line' ? (
+                                    <Line
+                                        presetData={this.props.presetData}
+                                        line={this.state.copiedObject.line}
+                                        theme={this.props.theme}
+                                        instances={this.props.instances}
+                                        systemConfig={this.props.systemConfig}
+                                        width={this.state.clientWidth}
+                                        deleteLine={() => {
+                                            window.sessionStorage.removeItem('echarts.copiedObject');
+                                            this.setState({ copiedObject: null });
+                                        }}
+                                        key="copiedLine"
+                                        socket={this.props.socket}
+                                        opened={false}
+                                        onPaste={() =>
+                                            this.state.copiedObject?.type === 'line' &&
+                                            this.addLine(this.state.copiedObject.line)
+                                        }
+                                    />
+                                ) : null}
+                                {provided.placeholder as any}
+                                <div style={styles.dragHint}>
+                                    {I18n.t('You can drag and drop simple lines from the left list.')}
                                 </div>
-                            )}
-                            {this.state.copiedObject?.type === 'line' ? (
-                                <Line
-                                    presetData={this.props.presetData}
-                                    line={this.state.copiedObject.line}
-                                    theme={this.props.theme}
-                                    instances={this.props.instances}
-                                    systemConfig={this.props.systemConfig}
-                                    width={this.props.width}
-                                    deleteLine={() => {
-                                        window.sessionStorage.removeItem('echarts.copiedObject');
-                                        this.setState({ copiedObject: null });
-                                    }}
-                                    key="copiedLine"
-                                    socket={this.props.socket}
-                                    opened={false}
-                                    onPaste={() =>
-                                        this.state.copiedObject?.type === 'line' &&
-                                        this.addLine(this.state.copiedObject.line)
-                                    }
-                                />
-                            ) : null}
-                            {provided.placeholder as any}
-                            <div style={styles.dragHint}>
-                                {I18n.t('You can drag and drop simple lines from the left list.')}
-                            </div>
-                        </Paper>
-                    </div>
-                )}
+                            </Paper>
+                        </div>
+                    );
+                }}
             </Droppable>
         );
     }
@@ -697,7 +769,10 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
             this.props.presetData.marks.find((l, i) => this.state.marksOpened[i]);
 
         return (
-            <Paper style={styles.tabContent}>
+            <Paper
+                style={styles.tabContent}
+                ref={this.paperMarkRef}
+            >
                 <Fab
                     onClick={() => this.addMark()}
                     size="small"
@@ -742,6 +817,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                             index={index}
                             key={index}
                             socket={this.props.socket}
+                            width={this.state.clientWidth}
                             opened={
                                 typeof this.state.marksOpened[index] !== 'undefined' &&
                                 this.state.marksOpened[index] === true
@@ -769,6 +845,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         presetData={this.props.presetData}
                         mark={this.state.copiedObject.mark}
                         theme={this.props.theme}
+                        width={this.state.clientWidth}
                         deleteMark={() => {
                             window.sessionStorage.removeItem('echarts.copiedObject');
                             this.setState({ copiedObject: null });
@@ -863,7 +940,11 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                             <>
                                 <p style={styles.title}>{I18n.t('Start and end')}</p>
                                 <IODateTimeField
-                                    date={this.props.presetData.start === undefined ? '' : this.props.presetData.start.toString()}
+                                    date={
+                                        this.props.presetData.start === undefined
+                                            ? ''
+                                            : this.props.presetData.start.toString()
+                                    }
                                     time={this.props.presetData.start_time}
                                     updateValue={(date: string, time: string): void => {
                                         const presetData: ChartConfigMore = JSON.parse(
@@ -876,7 +957,11 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                                     label="Start"
                                 />
                                 <IODateTimeField
-                                    date={this.props.presetData.end === undefined ? '' : this.props.presetData.end.toString()}
+                                    date={
+                                        this.props.presetData.end === undefined
+                                            ? ''
+                                            : this.props.presetData.end.toString()
+                                    }
                                     time={this.props.presetData.end_time}
                                     updateValue={(date: string, time: string): void => {
                                         const presetData: ChartConfigMore = JSON.parse(
@@ -923,7 +1008,11 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                                     }}
                                 />
                                 <IOSelect
-                                    value={this.props.presetData.range === undefined ? '' : this.props.presetData.range.toString()}
+                                    value={
+                                        this.props.presetData.range === undefined
+                                            ? ''
+                                            : this.props.presetData.range.toString()
+                                    }
                                     updateValue={(value: string): void => {
                                         const presetData: ChartConfigMore = JSON.parse(
                                             JSON.stringify(this.props.presetData),
@@ -1600,7 +1689,9 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         styles={{ fieldContainer: styles.marginTop }}
                     />
                     <IOTextField
-                        value={this.props.presetData.height === undefined ? '' : this.props.presetData.height.toString()}
+                        value={
+                            this.props.presetData.height === undefined ? '' : this.props.presetData.height.toString()
+                        }
                         updateValue={(value: string): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
                             if (!value) {
@@ -1699,7 +1790,11 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         styles.marginTop,
                     )}
                     <IOSelect
-                        value={this.props.presetData.xLabelShift === undefined ? '' : this.props.presetData.xLabelShift.toString()}
+                        value={
+                            this.props.presetData.xLabelShift === undefined
+                                ? ''
+                                : this.props.presetData.xLabelShift.toString()
+                        }
                         updateValue={(value: string): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
                             if (value.includes('m') || value.includes('y')) {
@@ -2072,7 +2167,10 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         </IconButton>
                     ) : null}
                     <Tabs
-                        onChange={(event, selectedTab) => {
+                        onChange={(
+                            _event,
+                            selectedTab: 'data' | 'markings' | 'time' | 'options' | 'title' | 'appearance',
+                        ) => {
                             window.localStorage.setItem('App.echarts.presetTabs.selectedTab', selectedTab);
                             this.setState({ selectedTab });
                         }}

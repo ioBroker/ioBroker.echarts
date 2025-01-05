@@ -434,6 +434,7 @@
   "convert_help": "Inserisci la formula come \"val / 1000 + 3\". Questa formula verrà applicata a tutti i valori del datapoint selezionato.",
   "copied": "copiato",
   "copy": "copia",
+  "count": "contare",
   "counts": "Conteggi",
   "current": "Valore corrente",
   "dashed": "tratteggiata",

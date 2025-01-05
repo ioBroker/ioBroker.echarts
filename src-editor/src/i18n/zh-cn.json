@@ -434,6 +434,7 @@
   "convert_help": "输入公式，如“val / 1000 + 3”。此公式将应用于所选数据点的所有值。",
   "copied": "复制的",
   "copy": "复制",
+  "count": "数数",
   "counts": "计数",
   "current": "当前值",
   "dashed": "虚线",

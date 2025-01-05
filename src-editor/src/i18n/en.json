@@ -434,6 +434,7 @@
   "convert_help": "Enter the formula like \"val / 1000 + 3\". This formula will be applied to all values of the selected datapoint.",
   "copied": "copied",
   "copy": "copy",
+  "count": "count",
   "counts": "counts",
   "current": "Current value",
   "dashed": "dashed",

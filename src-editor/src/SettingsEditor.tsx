@@ -39,6 +39,7 @@ interface SettingsEditorProps {
     onAutoSave: (autoSave: boolean) => void;
     autoSave: boolean;
     systemConfig: ioBroker.SystemConfigObject;
+    windowWidth: number;
 }
 
 class SettingsEditor extends React.Component<SettingsEditorProps> {
@@ -62,6 +63,7 @@ class SettingsEditor extends React.Component<SettingsEditorProps> {
                         theme={this.props.theme}
                         onAutoSave={autoSave => this.props.onAutoSave(autoSave)}
                         autoSave={this.props.autoSave}
+                        windowWidth={this.props.windowWidth}
                     />
                 </Box>
             </div>

@@ -34,11 +34,11 @@ import type { ChartAggregateType, ChartConfigMore, ChartLineConfigMore, ChartTyp
 
 const WIDTHS = {
     instance: 100,
-    id: 200,
+    id: 100,
     chartType: 120,
     dataType: 110,
     color: 100,
-    name: 200,
+    name: 150,
     buttons: 50 + 50 + 16 + 50,
 };
 
@@ -355,10 +355,9 @@ class Line extends React.Component<LineProps, LineState> {
             name?: boolean;
         } = {};
 
-        const windowWidth = this.props.width - 95;
-        const padding = 8;
+        const windowWidth = (this.props.width || 1024) - 32 - 40 - 20; // 32 is padding, width of folder icon is 40, 20 is drag handle
+        const padding = 4;
 
-        let idWidth: string;
         if (
             windowWidth >=
             WIDTHS.instance +
@@ -370,7 +369,6 @@ class Line extends React.Component<LineProps, LineState> {
                 WIDTHS.buttons +
                 padding * 6
         ) {
-            idWidth = `calc(100% - ${WIDTHS.instance + WIDTHS.chartType + WIDTHS.dataType + WIDTHS.color + WIDTHS.name + WIDTHS.buttons + padding * 6}px)`;
             visible.chartType = true;
             visible.dataType = true;
             visible.color = true;
@@ -385,7 +383,6 @@ class Line extends React.Component<LineProps, LineState> {
                 WIDTHS.buttons +
                 padding * 5
         ) {
-            idWidth = `calc(100% - ${WIDTHS.buttons + WIDTHS.instance + WIDTHS.chartType + WIDTHS.dataType + WIDTHS.color + padding * 5}px)`;
             visible.chartType = true;
             visible.dataType = true;
             visible.color = true;
@@ -393,16 +390,10 @@ class Line extends React.Component<LineProps, LineState> {
             windowWidth >=
             WIDTHS.instance + WIDTHS.id + WIDTHS.chartType + WIDTHS.dataType + WIDTHS.buttons + padding * 4
         ) {
-            idWidth = `calc(100% - ${WIDTHS.buttons + WIDTHS.instance + WIDTHS.chartType + WIDTHS.dataType + padding * 4}px)`;
             visible.chartType = true;
             visible.dataType = true;
         } else if (windowWidth >= WIDTHS.instance + WIDTHS.id + WIDTHS.chartType + WIDTHS.buttons + padding * 3) {
-            // nothing visible
-            idWidth = `calc(100% - ${WIDTHS.buttons + WIDTHS.instance + WIDTHS.chartType + padding * 3}px)`;
             visible.chartType = true;
-        } else {
-            // nothing visible
-            idWidth = `calc(100% - ${WIDTHS.buttons + WIDTHS.instance + padding * 2}px)`;
         }
 
         const hasBarOrPolar = this.props.presetData.l.find(
@@ -460,7 +451,7 @@ class Line extends React.Component<LineProps, LineState> {
                 )}
                 <IOSelect
                     disabled={!!this.props.onPaste}
-                    value={this.props.line.instance}
+                    value={this.props.line.instance || ''}
                     updateValue={(value: string): void => {
                         const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
                         line.instance = value;
@@ -474,6 +465,9 @@ class Line extends React.Component<LineProps, LineState> {
                             instance => (result[instance._id] = instance._id.replace('system.adapter.', '')),
                         );
                         result.json = 'JSON';
+                        if (!result[this.props.line.instance]) {
+                            result[this.props.line.instance] = this.props.line.instance.replace('system.adapter.', '');
+                        }
                         return result;
                     })()}
                     minWidth={WIDTHS.instance}
@@ -490,7 +484,6 @@ class Line extends React.Component<LineProps, LineState> {
                     value={this.props.line.id}
                     updateValue={this.onIdChanged}
                     theme={this.props.theme}
-                    width={idWidth}
                     name="id"
                     label="ID"
                     customFilter={
@@ -505,7 +498,7 @@ class Line extends React.Component<LineProps, LineState> {
                             : null
                     }
                     styles={{
-                        fieldContainer: { ...styles.shortIdField, ...(this.props.onPaste ? styles.paste : undefined) },
+                        fieldContainer: { ...styles.shortIdField, ...(this.props.onPaste ? styles.paste : undefined), flexGrow: 1 },
                     }}
                     socket={this.props.socket}
                 />
@@ -594,7 +587,6 @@ class Line extends React.Component<LineProps, LineState> {
                         }}
                     />
                 ) : null}
-                <div style={{ flexGrow: 1 }} />
                 {!this.props.onPaste &&
                 this.props.line.chartType !== 'scatterplot' &&
                 this.props.line.chartType !== 'bar' &&

@@ -14,15 +14,13 @@ import type { ChartConfigMore, ChartMarkConfig } from '../../../src/types';
 
 const WIDTHS = {
     lineId: 100,
-    upperValueOrId: 100,
+    upperValueOrId: 150,
     lowerValueOrId: 100,
     color: 100,
     fill: 100,
-    text: 200,
-    buttons: 100,
+    text: 150,
+    buttons: 70,
 };
-
-const LINE_HEIGHT = 48;
 
 const styles: Record<string, any> = {
     card: (theme: IobTheme): any => ({
@@ -43,9 +41,7 @@ const styles: Record<string, any> = {
         m: 0,
         '&:last-child': {
             p: 0,
-            pr: '20px',
         },
-        pr: '20px',
     },
     shortFields: (theme: IobTheme): any => ({
         display: 'block',
@@ -65,46 +61,33 @@ const styles: Record<string, any> = {
     shortLineIdField: {
         display: 'inline-flex',
         minWidth: WIDTHS.lineId,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
-        paddingRight: 10,
+        marginTop: 2,
     },
     shortUpperValueOrIdField: {
         display: 'inline-flex',
         minWidth: WIDTHS.upperValueOrId,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
-        paddingRight: 10,
     },
     shortLowerValueOrIdField: {
-        lineHeight: `${LINE_HEIGHT}px`,
         display: 'inline-flex',
         minWidth: WIDTHS.lowerValueOrId,
-        marginLeft: 8,
         paddingTop: 0,
         verticalAlign: 'top',
-        paddingRight: 10,
     },
     shortColorField: {
         display: 'inline-flex',
         minWidth: WIDTHS.color,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
-        paddingRight: 10,
     },
     shortFillField: {
         display: 'inline-flex',
         width: WIDTHS.fill,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
-        paddingRight: 10,
     },
     sliderRoot: {
         marginTop: 10,
@@ -112,18 +95,13 @@ const styles: Record<string, any> = {
     shortTextField: {
         display: 'inline-flex',
         minWidth: WIDTHS.text,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
-        paddingRight: 10,
     },
     shortButtonsField: {
         display: 'inline-flex',
         minWidth: WIDTHS.buttons,
-        marginLeft: 8,
         paddingTop: 0,
-        lineHeight: `${LINE_HEIGHT}px`,
         verticalAlign: 'top',
     },
     lineClosed: {
@@ -132,23 +110,15 @@ const styles: Record<string, any> = {
         overflow: 'hidden',
         flexDirection: 'row',
         flex: 1,
-        height: LINE_HEIGHT,
     },
     lineClosedContainer: {
         display: 'flex',
+        alignItems: 'center',
+        gap: 4,
     },
-    deleteButton: {
-        float: 'right',
-        marginRight: 12,
-    },
-    deleteButtonFull: {
-        float: 'right',
-        marginRight: 12,
-    },
-    copyButtonFull: {
-        float: 'right',
-        marginRight: 0,
-    },
+    deleteButton: {},
+    deleteButtonFull: {},
+    copyButtonFull: {},
     title: {
         width: 'inherit',
         position: 'absolute',
@@ -179,6 +149,7 @@ interface MarkProps {
     onCopy?: (mark: ChartMarkConfig) => void;
     theme: IobTheme;
     presetData: ChartConfigMore;
+    width: number;
 }
 
 interface MarkState {
@@ -318,142 +289,201 @@ class Mark extends React.Component<MarkProps, MarkState> {
     }
 
     renderClosedLine(lines: Record<number, string>, colors: Record<number, string>): React.JSX.Element {
+        const visible: {
+            upper?: boolean;
+            lower?: boolean;
+            color?: boolean;
+            fill?: boolean;
+            text?: boolean;
+        } = {};
+        const upperVisible = this.props.mark.lineId !== null && this.props.mark.lineId !== undefined ? 1 : 0;
+        const lowerVisible =
+            upperVisible &&
+            this.props.mark.upperValueOrId !== null &&
+            this.props.mark.upperValueOrId !== undefined &&
+            this.props.mark.upperValueOrId !== ''
+                ? 1
+                : 0;
+        const fillVisible =
+            lowerVisible &&
+            this.props.mark.lowerValueOrId !== null &&
+            this.props.mark.lowerValueOrId !== undefined &&
+            this.props.mark.lowerValueOrId !== ''
+                ? 1
+                : 0;
+        const windowWidth = (this.props.width || 1024) - 32 - 40; // 32 is padding, width of folder icon is 40
+        const padding = 4;
+
+        if (
+            windowWidth >=
+            WIDTHS.lineId +
+                WIDTHS.upperValueOrId * upperVisible +
+                WIDTHS.lowerValueOrId * lowerVisible +
+                WIDTHS.color * lowerVisible +
+                WIDTHS.fill * fillVisible +
+                WIDTHS.text * lowerVisible +
+                WIDTHS.buttons +
+                padding * 6
+        ) {
+            visible.upper = !!upperVisible;
+            visible.lower = !!lowerVisible;
+            visible.color = !!lowerVisible;
+            visible.fill = !!fillVisible;
+            visible.text = !!lowerVisible;
+        } else if (
+            windowWidth >=
+            WIDTHS.lineId +
+                WIDTHS.upperValueOrId * upperVisible +
+                WIDTHS.lowerValueOrId * lowerVisible +
+                WIDTHS.color * lowerVisible +
+                WIDTHS.fill * fillVisible +
+                WIDTHS.buttons +
+                padding * 5
+        ) {
+            visible.upper = !!upperVisible;
+            visible.lower = !!lowerVisible;
+            visible.color = !!lowerVisible;
+            visible.fill = !!fillVisible;
+        } else if (
+            windowWidth >=
+            WIDTHS.lineId +
+                WIDTHS.upperValueOrId * upperVisible +
+                WIDTHS.lowerValueOrId * lowerVisible +
+                WIDTHS.color * lowerVisible +
+                WIDTHS.buttons +
+                padding * 4
+        ) {
+            visible.upper = !!upperVisible;
+            visible.lower = !!lowerVisible;
+            visible.color = !!lowerVisible;
+        } else if (
+            windowWidth >=
+            WIDTHS.lineId +
+                WIDTHS.upperValueOrId * upperVisible +
+                WIDTHS.lowerValueOrId * lowerVisible +
+                WIDTHS.buttons +
+                padding * 3
+        ) {
+            visible.upper = !!upperVisible;
+            visible.lower = !!lowerVisible;
+        } else {
+            visible.upper = !!upperVisible;
+        }
+
         return (
             <div style={styles.lineClosedContainer}>
-                <div style={styles.lineClosed}>
-                    {this.props.onPaste ? (
-                        <IconButton
-                            title={I18n.t('Paste')}
-                            onClick={() => this.props.onPaste()}
-                        >
-                            <IconPaste />
-                        </IconButton>
-                    ) : (
-                        <IconButton
-                            title={I18n.t('Edit')}
-                            onClick={() => this.props.markOpenToggle(this.props.index)}
-                        >
-                            <IconFolderClosed />
-                        </IconButton>
-                    )}
-                    <IOSelect
+                {this.props.onPaste ? (
+                    <IconButton
+                        title={I18n.t('Paste')}
+                        onClick={() => this.props.onPaste()}
+                    >
+                        <IconPaste />
+                    </IconButton>
+                ) : (
+                    <IconButton
+                        title={I18n.t('Edit')}
+                        onClick={() => this.props.markOpenToggle(this.props.index)}
+                    >
+                        <IconFolderClosed />
+                    </IconButton>
+                )}
+                <IOSelect
+                    disabled={!!this.props.onPaste}
+                    noTranslate
+                    value={this.props.mark.lineId === undefined ? '' : this.props.mark.lineId.toString()}
+                    updateValue={(value: string): void => {
+                        const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
+                        mark.lineId = value ? parseInt(value, 10) : undefined;
+                        this.props.updateMark(this.props.index, mark);
+                    }}
+                    label="Line ID"
+                    options={lines}
+                    colors={colors}
+                    styles={{ fieldContainer: styles.shortLineIdField }}
+                    minWidth={WIDTHS.lineId}
+                />
+                {visible.upper ? (
+                    <IOObjectField
+                        theme={this.props.theme}
                         disabled={!!this.props.onPaste}
-                        noTranslate
-                        value={this.props.mark.lineId === undefined ? '' : this.props.mark.lineId.toString()}
+                        value={
+                            this.props.mark.upperValueOrId === undefined
+                                ? ''
+                                : this.props.mark.upperValueOrId.toString()
+                        }
                         updateValue={(value: string): void => {
                             const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
-                            mark.lineId = value ? parseInt(value, 10) : undefined;
+                            mark.upperValueOrId = value;
                             this.props.updateMark(this.props.index, mark);
                         }}
-                        label="Line ID"
-                        options={lines}
-                        colors={colors}
-                        styles={{ fieldContainer: styles.shortLineIdField }}
-                        minWidth={WIDTHS.lineId}
+                        name="upperValueOrId"
+                        label="Upper value or ID"
+                        socket={this.props.socket}
+                        styles={{ fieldContainer: styles.shortUpperValueOrIdField }}
+                        minWidth={WIDTHS.upperValueOrId}
                     />
-                    {this.props.mark.lineId !== null && this.props.mark.lineId !== undefined ? (
-                        <IOObjectField
-                            theme={this.props.theme}
-                            disabled={!!this.props.onPaste}
-                            value={
-                                this.props.mark.upperValueOrId === undefined
-                                    ? ''
-                                    : this.props.mark.upperValueOrId.toString()
-                            }
-                            updateValue={(value: string): void => {
-                                const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
-                                mark.upperValueOrId = value;
-                                this.props.updateMark(this.props.index, mark);
-                            }}
-                            name="upperValueOrId"
-                            label="Upper value or ID"
-                            socket={this.props.socket}
-                            styles={{ fieldContainer: styles.shortUpperValueOrIdField }}
-                            minWidth={WIDTHS.upperValueOrId}
-                        />
-                    ) : null}
-                    {this.props.mark.lineId !== null &&
-                    this.props.mark.lineId !== undefined &&
-                    this.props.mark.upperValueOrId !== null &&
-                    this.props.mark.upperValueOrId !== undefined &&
-                    this.props.mark.upperValueOrId !== '' ? (
-                        <IOObjectField
-                            theme={this.props.theme}
-                            disabled={!!this.props.onPaste}
-                            value={
-                                this.props.mark.lowerValueOrId === undefined
-                                    ? ''
-                                    : this.props.mark.lowerValueOrId.toString()
-                            }
-                            updateValue={(value: string): void => {
-                                const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
-                                mark.lowerValueOrId = value;
-                                this.props.updateMark(this.props.index, mark);
-                            }}
-                            name="lowerValueOrId"
-                            label="Lower value or ID"
-                            socket={this.props.socket}
-                            styles={{ fieldContainer: styles.shortLowerValueOrIdField }}
-                            minWidth={WIDTHS.lowerValueOrId}
-                        />
-                    ) : null}
-                    {this.props.mark.lineId !== null &&
-                    this.props.mark.lineId !== undefined &&
-                    this.props.mark.upperValueOrId !== null &&
-                    this.props.mark.upperValueOrId !== undefined &&
-                    this.props.mark.upperValueOrId !== ''
-                        ? this.renderColorField(WIDTHS.color, styles.shortColorField)
-                        : null}
-                    {this.props.mark.lineId !== null &&
-                    this.props.mark.lineId !== undefined &&
-                    this.props.mark.upperValueOrId !== null &&
-                    this.props.mark.upperValueOrId !== undefined &&
-                    this.props.mark.upperValueOrId !== '' &&
-                    this.props.mark.lowerValueOrId !== null &&
-                    this.props.mark.lowerValueOrId !== undefined &&
-                    this.props.mark.lowerValueOrId !== '' ? (
-                        <IOSlider
-                            disabled={!!this.props.onPaste}
-                            value={this.props.mark.fill}
-                            updateValue={(value: number): void => {
-                                const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
-                                mark.fill = value;
-                                this.props.updateMark(this.props.index, mark);
-                            }}
-                            styles={{ fieldContainer: styles.shortFillField, sliderRoot: styles.sliderRoot }}
-                            label="Fill (from 0 to 1)"
-                            min={0}
-                            max={1}
-                            step={0.1}
-                        />
-                    ) : null}
-                    {this.props.mark.lineId !== null &&
-                    this.props.mark.lineId !== undefined &&
-                    this.props.mark.upperValueOrId !== null &&
-                    this.props.mark.upperValueOrId !== undefined &&
-                    this.props.mark.upperValueOrId !== '' ? (
-                        <IOTextField
-                            disabled={!!this.props.onPaste}
-                            value={this.props.mark.text}
-                            updateValue={(value: string): void => {
-                                const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
-                                mark.text = value;
-                                this.props.updateMark(this.props.index, mark);
-                            }}
-                            label="Text"
-                            styles={{ fieldContainer: styles.shortTextField }}
-                            minWidth={WIDTHS.fill}
-                        />
-                    ) : null}
-                </div>
+                ) : null}
+                {visible.lower ? (
+                    <IOObjectField
+                        theme={this.props.theme}
+                        disabled={!!this.props.onPaste}
+                        value={
+                            this.props.mark.lowerValueOrId === undefined
+                                ? ''
+                                : this.props.mark.lowerValueOrId.toString()
+                        }
+                        updateValue={(value: string): void => {
+                            const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
+                            mark.lowerValueOrId = value;
+                            this.props.updateMark(this.props.index, mark);
+                        }}
+                        name="lowerValueOrId"
+                        label="Lower value or ID"
+                        socket={this.props.socket}
+                        styles={{ fieldContainer: styles.shortLowerValueOrIdField }}
+                        minWidth={WIDTHS.lowerValueOrId}
+                    />
+                ) : null}
+                {visible.color ? this.renderColorField(WIDTHS.color, styles.shortColorField) : null}
+                {visible.fill ? (
+                    <IOSlider
+                        disabled={!!this.props.onPaste}
+                        value={this.props.mark.fill}
+                        updateValue={(value: number): void => {
+                            const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
+                            mark.fill = value;
+                            this.props.updateMark(this.props.index, mark);
+                        }}
+                        styles={{ fieldContainer: styles.shortFillField, sliderRoot: styles.sliderRoot }}
+                        label="Fill (from 0 to 1)"
+                        min={0}
+                        max={1}
+                        step={0.1}
+                    />
+                ) : null}
+                {visible.text ? (
+                    <IOTextField
+                        disabled={!!this.props.onPaste}
+                        value={this.props.mark.text}
+                        updateValue={(value: string): void => {
+                            const mark: ChartMarkConfig = JSON.parse(JSON.stringify(this.props.mark));
+                            mark.text = value;
+                            this.props.updateMark(this.props.index, mark);
+                        }}
+                        label="Text"
+                        styles={{ fieldContainer: styles.shortTextField }}
+                        minWidth={WIDTHS.fill}
+                    />
+                ) : null}
+                <div style={{ flexGrow: 1 }} />
                 <IconButton
-                    style={{ marginLeft: 5 }}
                     aria-label="Delete"
                     title={I18n.t('Delete')}
                     onClick={() => this.props.deleteMark(this.props.index)}
                 >
                     <IconDelete />
                 </IconButton>
+                <div style={{ width: 30 }} />
             </div>
         );
     }
@@ -461,23 +491,16 @@ class Mark extends React.Component<MarkProps, MarkState> {
     renderOpenedCard(lines: Record<number, string>, colors: Record<number, string>): React.JSX.Element {
         return (
             <>
-                <div>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                     <IconButton
-                        title={I18n.t('Edit')}
+                        title={I18n.t('Close')}
                         onClick={() => this.props.markOpenToggle(this.props.index)}
                     >
                         <IconFolderOpened />
                     </IconButton>
                     {I18n.t('Mark')} {this.props.index + 1}
                     {this.props.mark.text ? ` - ${this.props.mark.text}` : ''}
-                    <IconButton
-                        style={styles.deleteButtonFull}
-                        aria-label="Delete"
-                        title={I18n.t('Delete')}
-                        onClick={() => this.props.deleteMark(this.props.index)}
-                    >
-                        <IconDelete />
-                    </IconButton>
+                    <div style={{ flexGrow: 1 }} />
                     <IconButton
                         style={styles.copyButtonFull}
                         aria-label="Copy"
@@ -486,6 +509,15 @@ class Mark extends React.Component<MarkProps, MarkState> {
                     >
                         <IconCopy />
                     </IconButton>
+                    <IconButton
+                        style={styles.deleteButtonFull}
+                        aria-label="Delete"
+                        title={I18n.t('Delete')}
+                        onClick={() => this.props.deleteMark(this.props.index)}
+                    >
+                        <IconDelete />
+                    </IconButton>
+                    <div style={{ width: 30 }} />
                 </div>
                 <Box
                     component="div"

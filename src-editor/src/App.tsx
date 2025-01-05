@@ -2,7 +2,7 @@ import React from 'react';
 import ReactSplit, { SplitDirection } from '@devbookhq/splitter';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
-import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, type DropResult, type DragUpdate, DragStart } from 'react-beautiful-dnd';
 
 import { Dialog, DialogTitle, Button, DialogActions, Box } from '@mui/material';
 
@@ -49,8 +49,6 @@ import type {
 
 const styles: Record<string, any> = {
     root: (theme: IobTheme): React.CSSProperties => ({
-        flexGrow: 1,
-        display: 'flex',
         width: '100%',
         height: '100%',
         background: theme.palette.background.default,
@@ -769,6 +767,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                             this.setState({ autoSave });
                         }
                     }}
+                    windowWidth={this.state.menuSizes[1]}
                 />
             );
         }
@@ -834,10 +833,11 @@ class App extends GenericApp<GenericAppProps, AppState> {
 
     onDragEnd = async (result: DropResult): Promise<void> => {
         const { source, destination, draggableId } = result;
+
         if (destination && draggableId.includes('***') && source.droppableId === 'Lines') {
+            // Add new line to preset
             const [instance, stateId] = draggableId.split('***');
             try {
-                // Add new line
                 const obj: ioBroker.StateObject | null | undefined = (await this.socket.getObject(stateId)) as
                     | ioBroker.StateObject
                     | null
@@ -891,7 +891,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 this.onError(e, 'Cannot read object');
             }
         } else if (destination && source.droppableId === destination.droppableId) {
-            // switch lines order
+            // switch lines order in the current preset
             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.state.presetData));
 
             // correct commonYAxis
@@ -999,31 +999,40 @@ class App extends GenericApp<GenericAppProps, AppState> {
 
         let splitter: React.JSX.Element | React.JSX.Element[];
         if (this.state.menuOpened) {
-            // @ts-expect-error idk
-            splitter = <DragDropContext onDragEnd={this.onDragEnd}>
-                <ReactSplit
-                    direction={SplitDirection.Horizontal}
-                    initialSizes={this.state.menuSizes}
-                    minWidths={[307, 300]}
-                    onResizeFinished={(_gutterIdx: number, menuSizes: [number, number]): void => {
-                        this.setState({ resizing: false, menuSizes });
-                        window.localStorage.setItem('App.echarts.menuSizes', JSON.stringify(menuSizes));
-                    }}
-                    gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
+            splitter = (
+                // @ts-expect-error idk
+                <DragDropContext
+                    onDragEnd={this.onDragEnd}
                 >
-                    {this.renderMenu()}
-                    {this.renderMain()}
-                </ReactSplit>
-            </DragDropContext>;
+                    <ReactSplit
+                        direction={SplitDirection.Horizontal}
+                        initialSizes={this.state.menuSizes}
+                        minWidths={[307, 300]}
+                        onResizeFinished={(_gutterIdx: number, menuSizes: [number, number]): void => {
+                            this.setState({ resizing: false, menuSizes: [menuSizes[0], 100 - menuSizes[0]] });
+                            window.localStorage.setItem('App.echarts.menuSizes', JSON.stringify(menuSizes));
+                        }}
+                        gutterClassName={this.state.themeType === 'dark' ? 'Dark visGutter' : 'Light visGutter'}
+                    >
+                        {this.renderMenu()}
+                        {this.renderMain()}
+                    </ReactSplit>
+                </DragDropContext>
+            );
         } else {
-            splitter = this.renderMain();
+            splitter = splitter = (
+                // @ts-expect-error idk
+                <DragDropContext
+                    onDragEnd={this.onDragEnd}
+                >
+                    {this.renderMain()}
+                </DragDropContext>);
         }
 
         return (
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={this.state.theme}>
                     <Box
-                        component="div"
                         sx={styles.root}
                         key="divSide"
                     >

@@ -27,11 +27,13 @@ const styles: Record<string, React.CSSProperties> = {
         fontSize: '0.8rem',
         whiteSpace: 'break-spaces',
     },
-    objectContainer: { display: 'flex' },
+    objectContainer: { display: 'flex', alignItems: 'center' },
     objectField: { flex: 1 },
     objectButton: {
         marginTop: 'auto',
         paddingLeft: 0,
+        maxHeight: 29,
+        height: 29,
     },
     sliderContainer: {
         position: 'relative',
@@ -165,8 +167,8 @@ export const IOTextField = (props: IOTextFieldProps): React.JSX.Element => (
         <TextField
             variant="standard"
             disabled={!!props.disabled}
+            fullWidth
             style={{
-                width: props.value ? (props.width ? props.width - 30 : 'calc(100% - 30px)') : props.width || '100%',
                 minWidth: props.minWidth,
             }}
             label={I18n.t(props.label)}

@@ -434,6 +434,7 @@
   "convert_help": "Hier die Formel wie \"val / 1000 + 3\" eingeben. Diese Formel wird auf alle Werte des ausgewählten Datenpunkts angewendet.",
   "copied": "kopiert",
   "copy": "Kopieren",
+  "count": "zählen",
   "counts": "Anzahl",
   "current": "Aktueller Wert",
   "dashed": "gestrichelt",

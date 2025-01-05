@@ -434,6 +434,7 @@
   "convert_help": "Digite a fórmula como \"val / 1000 + 3\". Esta fórmula será aplicada a todos os valores do ponto de dados selecionado.",
   "copied": "copiado",
   "copy": "cópia",
+  "count": "contar",
   "counts": "contagens",
   "current": "Valor atual",
   "dashed": "tracejadas",
