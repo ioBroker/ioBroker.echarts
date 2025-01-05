@@ -121,7 +121,7 @@ You can debug view charts locally with:
 - (@GermanBluefox) Project was completely rewritten with TypeScript
 - (@GermanBluefox) Better mobile layouts added
 
-### 1.9.3 (2024-12-19)
+### 1.9.5 (2024-12-20)
 
 - (@GermanBluefox) Convert actual values with provided "convert" function too
 

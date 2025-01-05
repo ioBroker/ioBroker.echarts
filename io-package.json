@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "echarts",
-        "version": "1.9.3",
+        "version": "1.9.5",
         "news": {
-            "1.9.3": {
+            "1.9.5": {
                 "en": "Convert actual values with provided \"convert\" function too",
                 "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
                 "ru": "Конвертировать фактические значения с предоставленной функцией «конверт»",

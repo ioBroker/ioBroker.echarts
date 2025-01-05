@@ -1,7 +1,7 @@
 {
     "name": "iobroker.echarts",
     "private": true,
-    "version": "1.9.3",
+    "version": "1.9.5",
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@craco/craco": "^7.1.0",

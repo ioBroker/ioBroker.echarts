@@ -1,6 +1,6 @@
 {
     "name": "echarts.index",
-    "version": "1.9.3",
+    "version": "1.9.5",
     "private": true,
     "dependencies": {
         "@types/crypto-js": "^4.2.2",
