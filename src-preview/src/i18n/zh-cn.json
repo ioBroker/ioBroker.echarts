@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "将 URL 复制到剪贴板",
   "Back to editor": "返回编辑器",
-  "root": "根文件夹",
   "Change size": "改变尺寸",
+  "Copy URL to clipboard": "将 URL 复制到剪贴板",
   "Refresh snapshots": "刷新快照",
+  "URL copied to clipboard": "网址已复制到剪贴板",
   "back": "后退",
-  "URL copied to clipboard": "网址已复制到剪贴板"
+  "but instance is offline": "但实例处于离线状态",
+  "root": "根文件夹"
 }

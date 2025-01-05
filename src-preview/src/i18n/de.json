@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "URL in die Zwischenablage kopieren",
   "Back to editor": "Zurück zum Herausgeber",
-  "root": "root",
   "Change size": "Größe ändern",
+  "Copy URL to clipboard": "URL in die Zwischenablage kopieren",
   "Refresh snapshots": "Schnappschüsse aktualisieren",
+  "URL copied to clipboard": "URL in die Zwischenablage kopiert",
   "back": "zurück",
-  "URL copied to clipboard": "URL in die Zwischenablage kopiert"
+  "but instance is offline": "aber die Instanz ist offline",
+  "root": "root"
 }

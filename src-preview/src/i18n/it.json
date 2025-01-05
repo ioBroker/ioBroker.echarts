@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Copia l'URL negli appunti",
   "Back to editor": "Torniamo all'editore",
-  "root": "cartella root",
   "Change size": "Cambia taglia",
+  "Copy URL to clipboard": "Copia l'URL negli appunti",
   "Refresh snapshots": "Aggiorna le istantanee",
+  "URL copied to clipboard": "URL copiato negli appunti",
   "back": "Indietro",
-  "URL copied to clipboard": "URL copiato negli appunti"
+  "but instance is offline": "ma l'istanza è offline",
+  "root": "cartella root"
 }

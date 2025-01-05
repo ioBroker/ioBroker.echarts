@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Copiar URL al portapapeles",
   "Back to editor": "volver al editor",
-  "root": "carpeta raíz",
   "Change size": "Cambiar tamaño",
+  "Copy URL to clipboard": "Copiar URL al portapapeles",
   "Refresh snapshots": "Actualizar instantáneas",
+  "URL copied to clipboard": "URL copiada al portapapeles",
   "back": "atrás",
-  "URL copied to clipboard": "URL copiada al portapapeles"
+  "but instance is offline": "pero la instancia está fuera de línea",
+  "root": "carpeta raíz"
 }

@@ -1,13 +1,16 @@
 import React from 'react';
 
-import { Box, Toolbar, Button, Select, MenuItem, Popover } from '@mui/material';
+import { Box, Toolbar, Button, Select, MenuItem, Popover, Dialog, DialogActions, IconButton } from '@mui/material';
+import {
+    Close,
+    Add as IconPlus,
+    Refresh as IconRefresh,
+    ArrowDropDown as IconDropDown,
+    AccessTime as IconTime,
+    MoreVert,
+} from '@mui/icons-material';
 
-import { IoMdTime as IconTime, IoMdArrowDropdown as IconDropDown } from 'react-icons/io';
-import { FiRefreshCw as IconRefresh } from 'react-icons/fi';
-
-import { MdAdd as IconPlus } from 'react-icons/md';
-
-import { I18n } from '@iobroker/adapter-react-v5';
+import { I18n, type IobTheme } from '@iobroker/adapter-react-v5';
 
 import { IOSelect, IODateTimeField, IONumberField } from './Fields';
 import IconAggregate from './IconAggregate';
@@ -18,11 +21,18 @@ import type {
     ChartRelativeEnd,
     ChartType,
 } from '../../../src/types';
-import { IconButton } from '@material-ui/core';
+import { DialogContent } from '@material-ui/core';
+
+const WIDTHS = {
+    timeSpan: 200,
+    aggregate: 250,
+    autoRefresh: 150,
+    bigButton: 200,
+};
 
 const styles: Record<string, any> = {
     mainDiv: {
-        paddingLeft: 40,
+        gap: 2,
     },
     fieldsContainer: {
         '& > div': {
@@ -36,14 +46,12 @@ const styles: Record<string, any> = {
     },
     refreshSelect: {
         display: 'inline-block',
-        pl: '4px',
         '& > div:before': {
             borderWidth: 0,
         },
         '& > div:hover:before': {
             borderBottom: 0,
         },
-        ml: '8px',
     },
     refreshSelectButtonTitle: {
         display: 'inline-flex',
@@ -53,19 +61,26 @@ const styles: Record<string, any> = {
         color: 'currentColor',
         fontSize: 16,
         textTransform: 'inherit',
+        flexGrow: 1,
     },
     grow1: {
-        flexGrow: 1,
+        flexGrow: 2,
     },
     aggregateIcon: {
         marginTop: 4,
     },
+    divider: (theme: IobTheme): React.CSSProperties => ({
+        borderLeftColor: theme.palette.mode === 'dark' ? '#CCC' : '#444',
+        borderLeftStyle: 'dotted',
+        borderLeftWidth: '1px',
+        width: '1px',
+        height: '80%',
+    }),
 };
 
 interface RefreshSelectProps {
-    formData: Record<string, string | number | boolean>;
-    updateValue: (name: string, value: any) => void;
-    name: string;
+    value: number;
+    updateValue: (value: number) => void;
     options: Record<string, string>;
     renderValue: () => React.JSX.Element;
     noTranslate?: boolean;
@@ -81,8 +96,8 @@ const RefreshSelect = (props: RefreshSelectProps): React.JSX.Element => (
     >
         <Select
             variant="standard"
-            onChange={e => props.updateValue(props.name, e.target.value)}
-            value={props.formData[props.name] || ''}
+            onChange={e => props.updateValue(parseInt(e.target.value, 10))}
+            value={props.value.toString() || ''}
             renderValue={props.renderValue}
             displayEmpty
         >
@@ -200,6 +215,7 @@ interface ChartSettingsState {
     timeSpanOpened: boolean;
     aggregateOpened: boolean;
     clientWidth: number;
+    showMore: boolean;
 }
 
 class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsState> {
@@ -215,6 +231,7 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
             timeSpanOpened: false,
             aggregateOpened: false,
             clientWidth: 0,
+            showMore: false,
         };
 
         this.toolbarRef = React.createRef();
@@ -242,6 +259,120 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
         }
     }
 
+    renderShowMore(): React.JSX.Element | null {
+        if (!this.state.showMore) {
+            return null;
+        }
+        return (
+            <Dialog
+                maxWidth="xs"
+                fullWidth
+                open={!0}
+                onClose={() => this.setState({ showMore: false })}
+            >
+                <DialogContent>
+                    {this.renderTimeSpanElements()}
+                    {this.renderAggregateElements()}
+                    {this.renderAutoRefresh()}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        variant="contained"
+                        onClick={() => this.setState({ showMore: false })}
+                        startIcon={<Close />}
+                    >
+                        {I18n.t('Close')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        );
+    }
+
+    renderTimeSpanElements(): (React.JSX.Element | null)[] {
+        return [
+            <IOSelect
+                fullWidth
+                key="time-type"
+                value={this.props.presetData.timeType}
+                updateValue={(value: string): void => {
+                    const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                    presetData.timeType = value as 'relative' | 'static';
+                    this.props.onChange(presetData);
+                    window.localStorage.setItem(`App.echarts.__timeType`, value.toString());
+                }}
+                label="Type"
+                options={{
+                    relative: 'relative',
+                    static: 'static',
+                }}
+            />,
+            this.props.presetData.timeType === 'static' ? (
+                <IODateTimeField
+                    fullWidth
+                    key="static-start"
+                    date={this.props.presetData.start.toString()}
+                    time={this.props.presetData.start_time}
+                    updateValue={(date: string, time: string): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.start = date;
+                        presetData.start_time = time;
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__start`, date);
+                        window.localStorage.setItem(`App.echarts.__start_time`, time);
+                    }}
+                    label="Start"
+                />
+            ) : null,
+            this.props.presetData.timeType === 'static' ? (
+                <IODateTimeField
+                    fullWidth
+                    key="static-end"
+                    date={this.props.presetData.end.toString()}
+                    time={this.props.presetData.end_time}
+                    updateValue={(date: string, time: string): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.end = date;
+                        presetData.end_time = time;
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__end`, date);
+                        window.localStorage.setItem(`App.echarts.__end_time`, time);
+                    }}
+                    label="End"
+                />
+            ) : null,
+            this.props.presetData.timeType !== 'static' ? (
+                <IOSelect
+                    fullWidth
+                    key="non-static-end"
+                    value={this.props.presetData.relativeEnd}
+                    updateValue={(value: string): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.relativeEnd = value as ChartRelativeEnd;
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__relativeEnd`, value);
+                    }}
+                    label="End"
+                    options={relativeEndOptions}
+                />
+            ) : null,
+            this.props.presetData.timeType !== 'static' ? (
+                <IOSelect
+                    fullWidth
+                    key="non-static-range"
+                    value={this.props.presetData.range.toString()}
+                    updateValue={(value: string): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.range = value as ChartRangeOptions;
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__range`, value);
+                    }}
+                    label="Range"
+                    options={rangeOptions}
+                />
+            ) : null,
+        ];
+    }
+
     renderTimeSpan(): React.JSX.Element {
         return (
             <>
@@ -259,6 +390,7 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                         : `${this.props.presetData.start} ${this.props.presetData.start_time} - ${this.props.presetData.end} ${this.props.presetData.end_time}`}
                     <IconDropDown />
                 </Button>
+                <Box sx={styles.divider} />
                 <Popover
                     style={styles.popOver}
                     open={this.state.timeSpanOpened}
@@ -280,90 +412,77 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                             component="div"
                             sx={styles.fieldsContainer}
                         >
-                            <IOSelect
-                                value={this.props.presetData.timeType}
-                                updateValue={(value: string): void => {
-                                    const presetData: ChartConfigMore = JSON.parse(
-                                        JSON.stringify(this.props.presetData),
-                                    );
-                                    presetData.timeType = value as 'relative' | 'static';
-                                    this.props.onChange(presetData);
-                                    window.localStorage.setItem(`App.echarts.__timeType`, value.toString());
-                                }}
-                                label="Type"
-                                options={{
-                                    relative: 'relative',
-                                    static: 'static',
-                                }}
-                            />
-                            {this.props.presetData.timeType === 'static' ? (
-                                <>
-                                    <IODateTimeField
-                                        date={this.props.presetData.start.toString()}
-                                        time={this.props.presetData.start_time}
-                                        updateValue={(date: string, time: string): void => {
-                                            const presetData: ChartConfigMore = JSON.parse(
-                                                JSON.stringify(this.props.presetData),
-                                            );
-                                            presetData.start = date;
-                                            presetData.start_time = time;
-                                            this.props.onChange(presetData);
-                                            window.localStorage.setItem(`App.echarts.__start`, date);
-                                            window.localStorage.setItem(`App.echarts.__start_time`, time);
-                                        }}
-                                        label="Start"
-                                    />
-                                    <IODateTimeField
-                                        date={this.props.presetData.end.toString()}
-                                        time={this.props.presetData.end_time}
-                                        updateValue={(date: string, time: string): void => {
-                                            const presetData: ChartConfigMore = JSON.parse(
-                                                JSON.stringify(this.props.presetData),
-                                            );
-                                            presetData.end = date;
-                                            presetData.end_time = time;
-                                            this.props.onChange(presetData);
-                                            window.localStorage.setItem(`App.echarts.__end`, date);
-                                            window.localStorage.setItem(`App.echarts.__end_time`, time);
-                                        }}
-                                        label="End"
-                                    />
-                                </>
-                            ) : (
-                                <>
-                                    <IOSelect
-                                        value={this.props.presetData.relativeEnd}
-                                        updateValue={(value: string): void => {
-                                            const presetData: ChartConfigMore = JSON.parse(
-                                                JSON.stringify(this.props.presetData),
-                                            );
-                                            presetData.relativeEnd = value as ChartRelativeEnd;
-                                            this.props.onChange(presetData);
-                                            window.localStorage.setItem(`App.echarts.__relativeEnd`, value);
-                                        }}
-                                        label="End"
-                                        options={relativeEndOptions}
-                                    />
-                                    <IOSelect
-                                        value={this.props.presetData.range.toString()}
-                                        updateValue={(value: string): void => {
-                                            const presetData: ChartConfigMore = JSON.parse(
-                                                JSON.stringify(this.props.presetData),
-                                            );
-                                            presetData.range = value as ChartRangeOptions;
-                                            this.props.onChange(presetData);
-                                            window.localStorage.setItem(`App.echarts.__range`, value);
-                                        }}
-                                        label="Range"
-                                        options={rangeOptions}
-                                    />
-                                </>
-                            )}
+                            {this.renderTimeSpanElements()}
                         </Box>
                     </div>
                 </Popover>
             </>
         );
+    }
+
+    renderAggregateElements(): (React.JSX.Element | null)[] {
+        return [
+            <IOSelect
+                key="chart-type"
+                fullWidth
+                value={this.props.presetData.chartType}
+                updateValue={(value: string): void => {
+                    const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                    presetData.chartType = value as ChartType;
+                    this.props.onChange(presetData);
+                    window.localStorage.setItem(`App.echarts.__chartType`, value);
+                }}
+                label="Chart type"
+                options={CHART_TYPES}
+            />,
+            this.props.presetData.chartType !== 'auto' ? (
+                <IOSelect
+                    key="aggregate"
+                    fullWidth
+                    value={this.props.presetData.aggregate}
+                    updateValue={(value: string): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.aggregate = value as ChartAggregateType;
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__aggregate`, value);
+                    }}
+                    label="Aggregate"
+                    options={AGGREGATES}
+                />
+            ) : null,
+            this.props.presetData.aggregate !== 'onchange' ? (
+                <IOSelect
+                    key="aggregateType"
+                    fullWidth
+                    value={this.props.presetData.aggregateType}
+                    updateValue={(value: string): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.aggregateType = value as 'count' | 'step';
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__aggregateType`, value);
+                    }}
+                    label="Step type"
+                    options={{
+                        count: 'counts',
+                        step: 'seconds',
+                    }}
+                />
+            ) : null,
+            this.props.presetData.aggregate !== 'onchange' ? (
+                <IONumberField
+                    key="aggregateSpan"
+                    fullWidth
+                    value={this.props.presetData.aggregateSpan}
+                    updateValue={(value: number): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.aggregateSpan = value;
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__aggregateSpan`, value.toString());
+                    }}
+                    label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
+                />
+            ) : null,
+        ];
     }
 
     renderAggregate(): React.JSX.Element {
@@ -387,6 +506,7 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                         : ''}
                     <IconDropDown />
                 </Button>
+                <Box sx={styles.divider} />
                 <Popover
                     open={this.state.aggregateOpened}
                     anchorEl={() => document.getElementById('aggregateOpenButton')}
@@ -399,70 +519,38 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                             component="div"
                             sx={styles.fieldsContainer}
                         >
-                            <IOSelect
-                                value={this.props.presetData.chartType}
-                                updateValue={(value: string): void => {
-                                    const presetData: ChartConfigMore = JSON.parse(
-                                        JSON.stringify(this.props.presetData),
-                                    );
-                                    presetData.chartType = value as ChartType;
-                                    this.props.onChange(presetData);
-                                    window.localStorage.setItem(`App.echarts.__chartType`, value);
-                                }}
-                                label="Chart type"
-                                options={CHART_TYPES}
-                            />
-                            {this.props.presetData.chartType !== 'auto' ? (
-                                <IOSelect
-                                    value={this.props.presetData.aggregate}
-                                    updateValue={(value: string): void => {
-                                        const presetData: ChartConfigMore = JSON.parse(
-                                            JSON.stringify(this.props.presetData),
-                                        );
-                                        presetData.aggregate = value as ChartAggregateType;
-                                        this.props.onChange(presetData);
-                                        window.localStorage.setItem(`App.echarts.__aggregate`, value);
-                                    }}
-                                    label="Aggregate"
-                                    options={AGGREGATES}
-                                />
-                            ) : null}
-                            {this.props.presetData.aggregate !== 'onchange' ? (
-                                <IOSelect
-                                    value={this.props.presetData.aggregateType}
-                                    updateValue={(value: string): void => {
-                                        const presetData: ChartConfigMore = JSON.parse(
-                                            JSON.stringify(this.props.presetData),
-                                        );
-                                        presetData.aggregateType = value as 'count' | 'step';
-                                        this.props.onChange(presetData);
-                                        window.localStorage.setItem(`App.echarts.__aggregateType`, value);
-                                    }}
-                                    label="Step type"
-                                    options={{
-                                        count: 'counts',
-                                        step: 'seconds',
-                                    }}
-                                />
-                            ) : null}
-                            {this.props.presetData.aggregate !== 'onchange' ? (
-                                <IONumberField
-                                    value={this.props.presetData.aggregateSpan}
-                                    updateValue={(value: number): void => {
-                                        const presetData: ChartConfigMore = JSON.parse(
-                                            JSON.stringify(this.props.presetData),
-                                        );
-                                        presetData.aggregateSpan = value;
-                                        this.props.onChange(presetData);
-                                        window.localStorage.setItem(`App.echarts.__aggregateSpan`, value.toString());
-                                    }}
-                                    label={this.props.presetData.aggregateType === 'step' ? 'Seconds' : 'Counts'}
-                                />
-                            ) : null}
+                            {this.renderAggregateElements()}
                         </Box>
                     </div>
                 </Popover>
             </>
+        );
+    }
+
+    renderAutoRefresh() {
+        if (this.props.presetData.timeType !== 'relative') {
+            return null;
+        }
+        return (
+            <RefreshSelect
+                sx={styles.refreshSelect}
+                value={this.props.presetData.live}
+                updateValue={(value: number): void => {
+                    const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                    presetData.live = value;
+                    this.props.onChange(presetData);
+                    window.localStorage.setItem(`App.echarts.__live`, value.toString());
+                }}
+                tooltip={I18n.t('Auto-refresh')}
+                options={liveOptions}
+                renderValue={() => (
+                    <div style={styles.refreshSelectButtonTitle}>
+                        <IconRefresh />
+                        &nbsp;
+                        {I18n.t(liveOptions[this.props.presetData.live])}
+                    </div>
+                )}
+            />
         );
     }
 
@@ -473,6 +561,53 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
             autoRefresh: false,
             bigButton: false,
         };
+        let showMore = false;
+
+        const windowWidth = (this.state.clientWidth || 1024) - 32 - 40 - 20; // 32 is padding, width of folder icon is 40, 20 is drag handle
+        const padding = 4;
+        const refreshVisible = this.props.presetData.timeType === 'relative' ? 1 : 0;
+
+        if (
+            windowWidth >=
+            WIDTHS.timeSpan + WIDTHS.aggregate + WIDTHS.autoRefresh * refreshVisible + WIDTHS.bigButton + padding * 3
+        ) {
+            visible.timeSpan = true;
+            visible.aggregate = true;
+            visible.autoRefresh = true;
+            visible.bigButton = true;
+        } else if (
+            windowWidth >=
+            WIDTHS.timeSpan +
+                WIDTHS.aggregate +
+                WIDTHS.autoRefresh * refreshVisible +
+                48 + // small button
+                padding * 3
+        ) {
+            visible.timeSpan = true;
+            visible.aggregate = true;
+            visible.autoRefresh = !!refreshVisible;
+            visible.bigButton = false;
+        } else if (
+            windowWidth >=
+            WIDTHS.timeSpan +
+                WIDTHS.aggregate +
+                48 + // small button
+                padding * 2
+        ) {
+            visible.timeSpan = true;
+            visible.aggregate = true;
+            showMore = !!refreshVisible;
+        } else if (
+            windowWidth >=
+            WIDTHS.timeSpan +
+                48 + // small button
+                padding
+        ) {
+            visible.timeSpan = true;
+            showMore = true;
+        } else {
+            showMore = true;
+        }
 
         return (
             <Toolbar
@@ -480,34 +615,30 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                 style={styles.mainDiv}
                 variant="dense"
             >
+                {this.renderShowMore()}
                 {visible.timeSpan ? this.renderTimeSpan() : null}
                 {visible.aggregate ? this.renderAggregate() : null}
-                {visible.autoRefresh && this.props.presetData.timeType === 'relative' ? (
-                    <RefreshSelect
-                        sx={styles.refreshSelect}
-                        formData={this.props.presetData as unknown as Record<string, string>}
-                        updateValue={(_name: string, value: string): void => {
-                            const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                            presetData.live = parseInt(value, 10);
-                            this.props.onChange(presetData);
-                            window.localStorage.setItem(`App.echarts.__live`, value);
-                        }}
-                        name="live"
-                        tooltip={I18n.t('Auto-refresh')}
-                        options={liveOptions}
-                        renderValue={() => (
-                            <div style={styles.refreshSelectButtonTitle}>
-                                <IconRefresh />
-                                &nbsp;
-                                {I18n.t(liveOptions[this.props.presetData.live])}
-                            </div>
-                        )}
-                    />
+                {visible.autoRefresh ? (
+                    <>
+                        {this.renderAutoRefresh()}
+                        <Box sx={styles.divider} />
+                    </>
                 ) : null}
                 <div style={styles.grow1} />
+                {showMore ? (
+                    <IconButton
+                        size="small"
+                        title={I18n.t('Show controls')}
+                        onClick={() => this.setState({ showMore: true })}
+                    >
+                        <MoreVert />
+                    </IconButton>
+                ) : null}
                 {!visible.bigButton ? (
                     <IconButton
+                        size="small"
                         color="primary"
+                        title={I18n.t('Create preset')}
                         onClick={() => this.props.onCreatePreset(true)}
                     >
                         <IconPlus />
@@ -518,6 +649,7 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                         color="primary"
                         onClick={() => this.props.onCreatePreset(true)}
                         startIcon={<IconPlus />}
+                        style={{ whiteSpace: 'nowrap' }}
                     >
                         {I18n.t('Create preset')}
                     </Button>

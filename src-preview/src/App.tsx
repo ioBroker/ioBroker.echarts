@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
 import {
-    CircularProgress,
     Breadcrumbs,
     Link,
     Toolbar,
@@ -14,6 +13,7 @@ import {
     Menu,
     MenuItem,
     Box,
+    LinearProgress,
 } from '@mui/material';
 
 import { FaFolder as IconFolderClosed } from 'react-icons/fa';
@@ -177,6 +177,8 @@ interface AppState {
     forceRefresh: boolean;
     presets: Record<string, ioBroker.ChartObject> | null;
     errorText: string | null;
+    done: boolean;
+    currentInstance: string;
 }
 
 class App extends Component<object, AppState> {
@@ -215,13 +217,15 @@ class App extends Component<object, AppState> {
             icons: {},
             iconSize: parseInt(window.localStorage.getItem('echarts.iconSize'), 10) || 128,
             showSlider: false,
-            alive: true,
+            alive: false,
             toast: '',
             webInstances: [],
             webMenu: null,
             forceRefresh: false,
             presets: null,
             errorText: null,
+            done: false,
+            currentInstance: '',
         };
 
         // init translations
@@ -264,11 +268,11 @@ class App extends Component<object, AppState> {
             window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
         }
 
-        // some people uses invalid URL to access charts
+        // some people use invalid URL to access charts
         if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/preview/')) {
             this.adminCorrectTimeout = setTimeout(() => {
                 this.adminCorrectTimeout = null;
-                // Address is wrong. Navigate to /echarts/index.html
+                // The address is wrong. Navigate to /echarts/index.html
                 window.location.href = window.location.href.replace('/adapter/echarts/preview/', '/echarts/preview/');
             }, 2000);
         }
@@ -287,13 +291,21 @@ class App extends Component<object, AppState> {
                 }
             },
             onReady: async () => {
-                this.adminCorrectTimeout && clearTimeout(this.adminCorrectTimeout);
-                this.adminCorrectTimeout = null;
+                if (this.adminCorrectTimeout) {
+                    clearTimeout(this.adminCorrectTimeout);
+                    this.adminCorrectTimeout = null;
+                }
+
+                this.socket.getRawSocket().emit('getCurrentInstance', (_err: Error | null, instance?: string): void => {
+                    this.setState({ currentInstance: instance || '' });
+                });
 
                 I18n.setLanguage(this.socket.systemLang);
 
-                const state = await this.socket.getState('system.adapter.echarts.0.alive').catch(() => null); // ignore error
-                this.setState({ alive: state && state.val });
+                const state: ioBroker.State | null | undefined = await this.socket
+                    .getState('system.adapter.echarts.0.alive')
+                    .catch((): null => null); // ignore error
+                this.setState({ alive: !!state?.val });
 
                 const webInstances = await this.getWebInstances();
                 this.setState({ webInstances });
@@ -344,9 +356,30 @@ class App extends Component<object, AppState> {
 
     componentWillUnmount(): void {
         window.removeEventListener('message', this.onReceiveMessage, false);
+        this.socket.unsubscribeState('system.adapter.echarts.0.alive', this.onAliveChanged);
         this.toastTimeout && clearTimeout(this.toastTimeout);
         this.toastTimeout = null;
     }
+
+    onAliveChanged = (_id: string, state: ioBroker.State | null | undefined): void => {
+        if (this.state.alive !== !!state?.val) {
+            this.setState({ alive: !!state.val }, () => {
+                if (this.state.alive && !this.state.done) {
+                    const icons: Record<string, string> = JSON.parse(JSON.stringify(this.state.icons));
+                    let changed = false;
+                    Object.keys(icons).forEach(id => {
+                        if (icons[id] === 'error:not alive') {
+                            changed = true;
+                            icons[id] = null;
+                        }
+                    });
+                    if (changed) {
+                        this.setState({ icons });
+                    }
+                }
+            });
+        }
+    };
 
     onReceiveMessage = (message: { data: 'updateTheme' }): void => {
         if (message?.data === 'updateTheme') {
@@ -549,14 +582,14 @@ class App extends Component<object, AppState> {
 
     getSnapshot(id: string): void {
         if (this.iconsCache[id]) {
-            const icons = JSON.parse(JSON.stringify(this.state.icons));
+            const icons: Record<string, string> = JSON.parse(JSON.stringify(this.state.icons));
             icons[id] = this.iconsCache[id];
             setTimeout(() => this.setState({ icons }), 50);
             return;
         }
 
         if (!this.state.alive) {
-            const icons = JSON.parse(JSON.stringify(this.state.icons));
+            const icons: Record<string, string> = JSON.parse(JSON.stringify(this.state.icons));
             icons[id] = 'error:not alive';
             setTimeout(() => this.setState({ icons }), 50);
             return;
@@ -577,13 +610,15 @@ class App extends Component<object, AppState> {
         }
         const id = this.snapShotQueue[0];
         this.timeout[id] = setTimeout(() => {
-            const icons = JSON.parse(JSON.stringify(this.state.icons));
-            icons[id] = 'error:timeout';
+            const icons: Record<string, string> = JSON.parse(JSON.stringify(this.state.icons));
+            if (!icons[id]) {
+                icons[id] = 'error:timeout';
+            }
             this.iconsCache[id] = icons[id];
             if (this.snapShotQueue[0] === id) {
                 this.snapShotQueue.shift();
             }
-            this.setState({ icons });
+            this.setState({ icons, done: true });
             this.getSnapshotNext();
         }, 5000);
 
@@ -602,7 +637,7 @@ class App extends Component<object, AppState> {
                     this.timeout[id] = null;
                 }
 
-                const icons = JSON.parse(JSON.stringify(this.state.icons));
+                const icons: Record<string, string> = JSON.parse(JSON.stringify(this.state.icons));
                 if (result.error) {
                     icons[id] = `error:${result.error}`;
                 } else {
@@ -612,7 +647,7 @@ class App extends Component<object, AppState> {
                 if (this.snapShotQueue[0] === id) {
                     this.snapShotQueue.shift();
                 }
-                this.setState({ icons });
+                this.setState({ icons, done: true });
                 this.getSnapshotNext();
             },
         );
@@ -677,9 +712,10 @@ class App extends Component<object, AppState> {
             }
 
             let instances;
-            if (this.state.webInstances.find(i => i.enabled)) {
+            if (this.state.webInstances.find(i => i.enabled) || this.state.currentInstance.startsWith('admin.')) {
                 instances = this.state.webInstances.filter(i => i.enabled);
             } else {
+                // Just take all if no one enabled
                 instances = this.state.webInstances;
             }
 
@@ -687,6 +723,13 @@ class App extends Component<object, AppState> {
                 url: `${inst.protocol}${inst.bind === '0.0.0.0' ? window.location.hostname : inst.bind}:${inst.port}/echarts/index.html?preset=`,
                 port: inst.port,
             }));
+
+            if (this.state.currentInstance.startsWith('admin.')) {
+                webUrls.unshift({
+                    url: '../chart/index.html?preset=',
+                    port: window.location.port,
+                });
+            }
 
             reactItems.push(
                 <div
@@ -730,7 +773,7 @@ class App extends Component<object, AppState> {
                                 />
                             )
                         ) : (
-                            <CircularProgress style={styles.presetIcon} />
+                            <LinearProgress style={styles.presetIcon} />
                         )}
 
                         <div style={styles.presetName}>
@@ -963,13 +1006,18 @@ class App extends Component<object, AppState> {
                                 {this.state.showSlider ? <ImageNotSupported /> : <AddPhotoAlternate />}
                             </IconButton>
                             <IconButton
+                                style={{ color: this.state.alive ? '#0F0' : '#FF0' }}
                                 onClick={() => {
                                     Object.keys(this.iconsCache).forEach(key => {
                                         delete this.iconsCache[key];
                                     });
                                     this.setState({ icons: {}, forceRefresh: true });
                                 }}
-                                title={I18n.t('Refresh snapshots')}
+                                title={
+                                    this.state.alive
+                                        ? I18n.t('Refresh snapshots')
+                                        : `${I18n.t('Refresh snapshots')}, ${I18n.t('but instance is offline')}`
+                                }
                             >
                                 <Refresh />
                             </IconButton>

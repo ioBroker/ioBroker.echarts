@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Скопировать URL в буфер обмена",
   "Back to editor": "Вернуться к редактору",
-  "root": "Корневая папка",
   "Change size": "Изменить размер",
+  "Copy URL to clipboard": "Скопировать URL в буфер обмена",
   "Refresh snapshots": "Обновить снимки",
+  "URL copied to clipboard": "URL скопирован в буфер обмена",
   "back": "назад",
-  "URL copied to clipboard": "URL скопирован в буфер обмена"
+  "but instance is offline": "но экземпляр не активирован",
+  "root": "Корневая папка"
 }

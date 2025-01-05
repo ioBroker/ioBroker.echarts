@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Copier l'URL dans le presse-papiers",
   "Back to editor": "Retour à l'éditeur",
-  "root": "dossier racine",
   "Change size": "Changer la taille",
+  "Copy URL to clipboard": "Copier l'URL dans le presse-papiers",
   "Refresh snapshots": "Actualiser les instantanés",
+  "URL copied to clipboard": "URL copiée dans le presse-papiers",
   "back": "dos",
-  "URL copied to clipboard": "URL copiée dans le presse-papiers"
+  "but instance is offline": "mais l'instance est hors ligne",
+  "root": "dossier racine"
 }

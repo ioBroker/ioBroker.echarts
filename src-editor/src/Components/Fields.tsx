@@ -64,6 +64,7 @@ interface IOProps {
     tooltip?: string;
     styles?: Record<string, React.CSSProperties>;
     style?: React.CSSProperties;
+    fullWidth?: boolean;
 }
 
 interface IOSelectProps extends Omit<IOProps, 'updateValue'> {
@@ -81,17 +82,25 @@ interface IOSelectProps extends Omit<IOProps, 'updateValue'> {
 export const IOSelect = (props: IOSelectProps): React.JSX.Element => {
     const label = I18n.t(props.label);
     return (
-        <div style={{ ...(props.styles?.fieldContainer || styles.fieldContainer), ...props.style }}>
+        <div
+            style={{
+                ...(props.fullWidth ? { width: '100%' } : undefined),
+                ...(props.styles?.fieldContainer || styles.fieldContainer),
+                ...props.style,
+            }}
+        >
             <Tooltip
                 title={props.tooltip ? I18n.t(props.tooltip) : null}
                 slotProps={{ popper: { sx: styles.tooltip } }}
             >
                 <FormControl
+                    fullWidth={props.fullWidth}
                     style={{ minWidth: props.minWidth || 200, width: props.width }}
                     variant="standard"
                 >
                     <InputLabel shrink>{label}</InputLabel>
                     <Select
+                        fullWidth={props.fullWidth}
                         variant="standard"
                         disabled={!!props.disabled}
                         label={label}
@@ -139,7 +148,12 @@ interface IOCheckboxProps extends Omit<IOProps, 'updateValue'> {
     updateValue: (value: boolean) => void;
 }
 export const IOCheckbox = (props: IOCheckboxProps): React.JSX.Element => (
-    <div style={props.styles?.fieldContainer || styles.fieldContainer}>
+    <div
+        style={{
+            ...(props.fullWidth ? { width: '100%' } : undefined),
+            ...(props.styles?.fieldContainer || styles.fieldContainer),
+        }}
+    >
         <FormControlLabel
             style={{ paddingTop: 10 }}
             label={<span style={styles.checkBoxLabel}>{I18n.t(props.label)}</span>}
@@ -163,7 +177,12 @@ interface IOTextFieldProps extends IOProps {
 }
 
 export const IOTextField = (props: IOTextFieldProps): React.JSX.Element => (
-    <div style={props.styles?.fieldContainer || styles.fieldContainer}>
+    <div
+        style={{
+            ...(props.fullWidth ? { width: '100%' } : undefined),
+            ...(props.styles?.fieldContainer || styles.fieldContainer),
+        }}
+    >
         <TextField
             variant="standard"
             disabled={!!props.disabled}
@@ -221,10 +240,16 @@ interface IONumberFieldProps extends IOProps {
 }
 
 export const IONumberField = (props: IONumberFieldProps): React.JSX.Element => (
-    <div style={props.styles?.fieldContainer || styles.fieldContainer}>
+    <div
+        style={{
+            ...(props.fullWidth ? { width: '100%' } : undefined),
+            ...(props.styles?.fieldContainer || styles.fieldContainer),
+        }}
+    >
         <TextField
             variant="standard"
             disabled={!!props.disabled}
+            fullWidth={props.fullWidth}
             style={{
                 width: props.width || '100%',
             }}
@@ -253,11 +278,17 @@ interface IODateTimeFieldProps extends Omit<IOProps, 'updateValue'> {
 }
 
 export const IODateTimeField = (props: IODateTimeFieldProps): React.JSX.Element => (
-    <div style={props.styles?.fieldContainer || styles.fieldContainer}>
+    <div
+        style={{
+            ...(props.fullWidth ? { width: '100%' } : undefined),
+            ...(props.styles?.fieldContainer || styles.fieldContainer),
+        }}
+    >
         <TextField
             variant="standard"
             type="datetime-local"
             label={I18n.t(props.label)}
+            fullWidth={props.fullWidth}
             slotProps={{
                 inputLabel: {
                     shrink: true,
@@ -288,12 +319,18 @@ export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
     return (
         <div
             style={{
+                ...(props.fullWidth ? { width: '100%' } : undefined),
                 ...(props.styles?.fieldContainer || styles.fieldContainer),
                 width: props.width,
                 minWidth: props.minWidth,
             }}
         >
-            <div style={props.styles?.objectContainer || styles.objectContainer}>
+            <div
+                style={{
+                    ...(props.fullWidth ? { width: '100%' } : undefined),
+                    ...(props.styles?.objectContainer || styles.objectContainer),
+                }}
+            >
                 <TextField
                     variant="standard"
                     disabled={!!props.disabled}

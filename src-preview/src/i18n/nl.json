@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Kopieer de URL naar het klembord",
   "Back to editor": "Terug naar de redactie",
-  "root": "hoofdmap",
   "Change size": "Wijzig de maat",
+  "Copy URL to clipboard": "Kopieer de URL naar het klembord",
   "Refresh snapshots": "Momentopnamen vernieuwen",
+  "URL copied to clipboard": "URL gekopieerd naar klembord",
   "back": "rug",
-  "URL copied to clipboard": "URL gekopieerd naar klembord"
+  "but instance is offline": "maar het exemplaar is offline",
+  "root": "hoofdmap"
 }
