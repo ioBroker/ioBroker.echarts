@@ -399,10 +399,10 @@ You can debug view charts locally with:
 
 ioBroker.echarts is available under the Apache License V2.
 
-Copyright (c) 2019-2024 @GermanBluefox <dogafox@gmail.com>
+Copyright (c) 2019-2025 @GermanBluefox <dogafox@gmail.com>
 
 Apache ECharts
-Copyright (c) 2017-2024 The Apache Software Foundation
+Copyright (c) 2017-2025 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (https://www.apache.org/).
