@@ -1,4 +1,4 @@
-import type { Connection } from '../types.d.ts';
+import type { Connection } from '../types';
 import type {
     ChartAggregateType,
     ChartMarkConfig,
@@ -7,7 +7,7 @@ import type {
     ChartRelativeEnd,
     ChartLineConfig,
     ChartRangeOptions,
-} from '../../../src/types';
+} from '../types';
 
 /*
 function deParam(params, coerce) {

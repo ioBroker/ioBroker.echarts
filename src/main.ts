@@ -10,7 +10,7 @@
 import { Adapter, type AdapterOptions } from '@iobroker/adapter-core';
 import { readFileSync, writeFileSync } from 'node:fs';
 import ChartModel, { type BarAndLineSeries } from './lib/ChartModel';
-import ChartOption, { type ChartConfigMore } from './lib/ChartOption';
+import ChartOption from './lib/ChartOption';
 import * as moment from 'moment';
 import 'moment/locale/en-gb';
 import 'moment/locale/es';
@@ -22,7 +22,7 @@ import 'moment/locale/nl';
 import 'moment/locale/ru';
 import 'moment/locale/zh-cn';
 import 'moment/locale/de';
-import type { EchartOptions, Connection } from './types';
+import type { EchartsOptions, Connection, ChartConfigMore } from './types';
 import { getSocket } from './lib/socketSimulator';
 import { type EChartsType, init as echartsInit } from 'echarts/types/dist/echarts';
 import type { Canvas, JpegConfig, PdfConfig, PngConfig } from 'canvas';
@@ -55,7 +55,7 @@ class EchartsAdapter extends Adapter {
     }
 
     // Todo: queue requests as  global.window is "global"
-    async renderImage(options: EchartOptions): Promise<string> {
+    async renderImage(options: EchartsOptions): Promise<string> {
         if (!createCanvas) {
             try {
                 createCanvas = (await import('canvas')).createCanvas;
@@ -213,7 +213,7 @@ class EchartsAdapter extends Adapter {
         this.__lastMessageTime = Date.now();
         this.__lastMessageText = json;
 
-        const message: EchartOptions = obj.message;
+        const message: EchartsOptions = obj.message;
 
         if (!message?.preset) {
             this.log.error(

@@ -20,7 +20,7 @@ export function getSocket(adapter: ioBroker.Adapter): Connection {
                 adapter.getHistory(
                     id,
                     options,
-                    (err: Error | null, values?: ioBroker.GetHistoryResult, step?: number, sessionId?: string): void =>
+                    (err: Error | null, values?: ioBroker.GetHistoryResult, step?: number, sessionId?: number): void =>
                         err ? reject(err) : resolve({ values, sessionId, step }),
                 ),
             );

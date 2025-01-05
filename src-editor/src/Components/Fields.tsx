@@ -336,7 +336,7 @@ export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
                     socket={props.socket}
                     dialogName={props.name}
                     customFilter={props.customFilter}
-                    title={I18n.t('Select for ') + props.label}
+                    title={`${I18n.t('Select for')} ${props.label}`}
                     selected={props.value}
                     onOk={(e: string | string[]): void => {
                         if (Array.isArray(e)) {
@@ -352,22 +352,6 @@ export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
         </div>
     );
 };
-
-interface IOColorPickerProps extends IOProps {
-    value: string;
-    updateValue: (value: string) => void;
-}
-export const IOColorPicker = (props: IOColorPickerProps): React.JSX.Element => (
-    <div style={props.styles?.fieldContainer || styles.fieldContainer}>
-        <ColorPicker
-            disabled={!!props.disabled}
-            label={I18n.t(props.label)}
-            style={{ backgroundColor: props.value }}
-            onChange={color => props.updateValue(color)}
-            value={props.value || ''}
-        />
-    </div>
-);
 
 interface IOSliderProps extends IOProps {
     value: number;

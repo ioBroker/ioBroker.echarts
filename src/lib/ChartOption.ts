@@ -1,5 +1,5 @@
 import type * as moment from 'moment';
-import type { ChartConfigMore, ThemeChartType } from '../../../src/types';
+import type { ChartConfigMore, ThemeChartType } from '../types';
 import type { BarAndLineSeries, BarSeries, EchartsOneValue, LineSeries } from './ChartModel';
 import type { EChartsOption, LegendComponentOption } from 'echarts/types/dist/echarts';
 import type {

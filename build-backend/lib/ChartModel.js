@@ -92,7 +92,7 @@ function normalizeConfig(config) {
                 upperValueOrId: config.m[j].v,
                 lowerValueOrId: config.m[j].vl,
                 color: config.m[j].c,
-                fill: config.m[j].f,
+                fill: parseFloat(config.m[j].f),
                 ol: config.m[j].t,
                 os: config.m[j].s,
                 text: config.m[j].d,
@@ -302,10 +302,17 @@ class ChartModel {
                 this.config.live = parseInt(this.config.live, 10) || 0;
                 this.config.debug = this.debug;
                 this.config.presetId = this.preset;
-                if (this.hash && this.hash.range) {
-                    this.config.range = this.hash.range;
+                if (this.hash?.range) {
+                    if (typeof this.hash.range === 'string' &&
+                        !this.hash.range.includes('y') &&
+                        !this.hash.range.includes('m')) {
+                        this.config.range = parseInt(this.hash.range, 10);
+                    }
+                    else {
+                        this.config.range = this.hash.range;
+                    }
                 }
-                if (this.hash && this.hash.relativeEnd) {
+                if (this.hash?.relativeEnd) {
                     this.config.relativeEnd = this.hash.relativeEnd;
                 }
                 await this.readData();
@@ -316,7 +323,7 @@ class ChartModel {
                     this.presetSubscribed = this.preset;
                     await this.socket.subscribeObject(this.preset, this.onPresetUpdate);
                 }
-                if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+                if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
                     this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
                 }
             }
@@ -334,7 +341,7 @@ class ChartModel {
             this.config.live = parseInt(this.config.live, 10) || 0;
             this.config.debug = this.debug;
             await this.readData();
-            if (!this.serverSide && this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+            if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
         }
@@ -582,21 +589,34 @@ class ChartModel {
         let startTs;
         let _nowTs;
         this.config.l[index].offset = this.config.l[index].offset || 0;
-        const isMonthRange = typeof this.config.range === 'string' && this.config.range.includes('m');
         // check config range
-        if (isMonthRange && this.config.l.length > 1) {
+        if (typeof this.config.range === 'string' && this.config.range.includes('m') && this.config.l.length > 1) {
             const monthRange = parseInt(this.config.range, 10) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
-                if (this.config.l[a].offset && this.config.l[a].offset !== 0) {
+                if (this.config.l[a].offset) {
                     // Check what the month has first index
-                    _nowTs = ChartModel.addTime(this.now, this.config.l[0].offset);
+                    _nowTs = ChartModel.addTime(this.now, this.config.l[a].offset);
                     const minusMonth = new Date(_nowTs);
                     minusMonth.setMonth(minusMonth.getMonth() - monthRange);
-                    this.config.range = Math.floor((_nowTs - minusMonth.getTime()) / 60000).toString();
+                    this.config.range = Math.floor((_nowTs - minusMonth.getTime()) / 60000);
                     break;
                 }
             }
         }
+        else if (typeof this.config.range === 'string' && this.config.range.includes('y') && this.config.l.length > 1) {
+            const yearRange = parseInt(this.config.range, 10) || 1;
+            for (let a = 0; a < this.config.l.length; a++) {
+                if (this.config.l[a].offset) {
+                    // Check what the month has first index
+                    _nowTs = ChartModel.addTime(this.now, this.config.l[a].offset);
+                    const minusYear = new Date(_nowTs);
+                    minusYear.setFullYear(minusYear.getFullYear() - yearRange);
+                    this.config.range = Math.floor((_nowTs - minusYear.getTime()) / 60000);
+                    break;
+                }
+            }
+        }
+        // todo: What about year?
         if (!step) {
             if (this.zoomData) {
                 startTs = this.zoomData.start;
@@ -721,9 +741,9 @@ class ChartModel {
                     _nowDate.setSeconds(0);
                     _nowDate.setMilliseconds(0);
                 }
-                this.config.range = this.config.range || '30m';
+                this.config.range = this.config.range || 30;
                 endTs = ChartModel.addTime(_nowDate, this.config.l[index].offset);
-                startTs = ChartModel.addTime(endTs, this.config.range, false, true);
+                startTs = ChartModel.addTime(endTs, this.config.range, true);
             }
             const aggregate = this.config.l[index].aggregate || this.config.aggregate;
             if (aggregate === 'current') {
@@ -775,9 +795,9 @@ class ChartModel {
             from: false,
             ack: false,
             q: false,
-            addID: false,
+            addId: false,
         };
-        this.config.start = ChartModel.addTime(endTs, this.config.range, false, true);
+        this.config.start = ChartModel.addTime(endTs, this.config.range, true);
         this.config.end = endTs;
         return option;
     }
@@ -958,7 +978,7 @@ class ChartModel {
             }
             // TODO: May be not required?
             seriesData.sort((a, b) => (a.value[0] > b.value[0] ? 1 : a.value[0] < b.value[0] ? -1 : 0));
-            // Next line is not required, as it is already done at start
+            // The next line is not required, as it is already done at the start
             return { seriesData };
         }
         // it is not the series, it is bar data
@@ -1184,7 +1204,7 @@ class ChartModel {
                 from: false,
                 ack: false,
                 q: false,
-                addID: false,
+                addId: false,
             };
             option.instance = instance;
             option.sessionId = this.sessionId;
@@ -1491,31 +1511,23 @@ class ChartModel {
         }
         changed && this.onUpdateFunc(null, this.actualValues);
     };
-    static addTime(time, offset, plusOrMinus, isOffsetInMinutes) {
+    static addTime(time, offset, isOffsetInMinutes) {
         const date = new Date(time);
         if (typeof offset === 'string') {
             if (offset[1] === 'm' || offset[2] === 'm') {
                 offset = parseInt(offset, 10);
-                date.setMonth(plusOrMinus ? date.getMonth() + offset : date.getMonth() - offset);
+                date.setMonth(date.getMonth() - offset);
                 time = date.getTime();
             }
             else if (offset[1] === 'y' || offset[2] === 'y') {
                 offset = parseInt(offset, 10);
-                date.setFullYear(plusOrMinus ? date.getFullYear() + offset : date.getFullYear() - offset);
+                date.setFullYear(date.getFullYear() - offset);
                 time = date.getTime();
             }
             else {
                 time = date.getTime();
                 if (isOffsetInMinutes) {
-                    if (plusOrMinus) {
-                        time += (parseInt(offset, 10) || 0) * 60000;
-                    }
-                    else {
-                        time -= (parseInt(offset, 10) || 0) * 60000;
-                    }
-                }
-                else if (plusOrMinus) {
-                    time += (parseInt(offset, 10) || 0) * 1000;
+                    time -= (parseInt(offset, 10) || 0) * 60000;
                 }
                 else {
                     time -= (parseInt(offset, 10) || 0) * 1000;
@@ -1526,15 +1538,7 @@ class ChartModel {
             offset = offset || 0;
             time = date.getTime();
             if (isOffsetInMinutes) {
-                if (plusOrMinus) {
-                    time += offset * 60000;
-                }
-                else {
-                    time -= offset * 60000;
-                }
-            }
-            else if (plusOrMinus) {
-                time += offset * 1000;
+                time -= offset * 60000;
             }
             else {
                 time -= offset * 1000;

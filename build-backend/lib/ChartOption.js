@@ -994,7 +994,7 @@ class ChartOption {
         return `<b>${this.moment(date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
     }
     getLegend(actualValues) {
-        if (!this.config.legend || this.config.legend === 'none' || this.config.legend === 'dialog') {
+        if (!this.config.legend || this.config.legend === 'dialog') {
             return undefined;
         }
         const legend = {
@@ -1071,11 +1071,13 @@ class ChartOption {
         }
         const series = this.getSeries(data, theme);
         if (this.config.start) {
-            if (this.chart.xMax < this.config.end) {
-                this.chart.xMax = this.config.end;
+            const end = parseInt(this.config.end, 10);
+            if (this.chart.xMax < end) {
+                this.chart.xMax = end;
             }
-            if (this.chart.xMin > this.config.start) {
-                this.chart.xMin = this.config.start;
+            const start = parseInt(this.config.start, 10);
+            if (this.chart.xMin > start) {
+                this.chart.xMin = start;
             }
         }
         this.chart.diff = this.chart.xMax - this.chart.xMin;
