@@ -904,7 +904,7 @@ class ChartModel {
             barCategories.forEach(() => _barSeries.push([]));
         }
         let convertFunc;
-        if (line.convert.trim()) {
+        if (line.convert?.trim()) {
             if (!this.convertFunctions[line.convert.trim()]) {
                 let convert = line.convert.trim();
                 if (!convert.includes('return')) {
