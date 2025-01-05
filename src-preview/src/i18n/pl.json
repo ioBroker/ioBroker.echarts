@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Skopiuj adres URL do schowka",
   "Back to editor": "Powrót do edytora",
-  "root": "Folder główny",
   "Change size": "Zmień rozmiar",
+  "Copy URL to clipboard": "Skopiuj adres URL do schowka",
   "Refresh snapshots": "Odśwież migawki",
+  "URL copied to clipboard": "URL skopiowany do schowka",
   "back": "z powrotem",
-  "URL copied to clipboard": "URL skopiowany do schowka"
+  "but instance is offline": "ale instancja jest offline",
+  "root": "Folder główny"
 }

@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Copy URL to clipboard",
   "Back to editor": "Back to editor",
-  "root": "root folder",
   "Change size": "Change size",
+  "Copy URL to clipboard": "Copy URL to clipboard",
   "Refresh snapshots": "Refresh snapshots",
+  "URL copied to clipboard": "URL copied to clipboard",
   "back": "back",
-  "URL copied to clipboard": "URL copied to clipboard"
+  "but instance is offline": "but instance is offline",
+  "root": "root folder"
 }

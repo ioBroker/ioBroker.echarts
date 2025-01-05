@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "skipLibCheck": true,
+        "moduleResolution": "Bundler",
+        "module": "esnext",
+        "target": "esnext",
+        "baseUrl": ".",
+        "checkJs": false,
+        "allowJs": true,
+        "noEmit": false,
+        "outDir": "./build",
+        "sourceMap": true,
+        "sourceRoot": "./src",
+        "noImplicitAny": true,
+        "lib": ["es2018", "DOM"],
+        "jsx": "react",
+        "types": ["@iobroker/types"]
+    },
+    "include": ["./**/*"]
+}

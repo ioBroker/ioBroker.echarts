@@ -1,9 +1,10 @@
 {
-  "Copy URL to clipboard": "Copiar URL para a área de transferência",
   "Back to editor": "Voltar ao editor",
-  "root": "pasta raiz",
   "Change size": "Alterar tamanho",
+  "Copy URL to clipboard": "Copiar URL para a área de transferência",
   "Refresh snapshots": "Atualizar instantâneos",
+  "URL copied to clipboard": "URL copiado para a área de transferência",
   "back": "voltar",
-  "URL copied to clipboard": "URL copiado para a área de transferência"
+  "but instance is offline": "mas a instância está offline",
+  "root": "pasta raiz"
 }
