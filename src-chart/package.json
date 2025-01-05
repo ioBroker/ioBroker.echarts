@@ -15,8 +15,8 @@
     "homepage": ".",
     "_proxy": "http://localhost:8081",
     "scripts": {
-        "start": "vite start",
-        "build": "vite build",
+        "start": "vite dev --config vite.config.mjs --host",
+        "build": "vite build --config vite.config.mjs",
         "lint": "eslint -c eslint.config.mjs"
     },
     "eslintConfig": {

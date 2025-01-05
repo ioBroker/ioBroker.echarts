@@ -52,7 +52,7 @@ const styles: Record<string, any> = {
         width: '100%',
         height: '100%',
         background: theme.palette.background.default,
-        color: theme.palette.text.primary,
+        color: theme.palette.mode === 'dark' ? '#FFF' : '#000',
         fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     }),
     menuDiv: {
@@ -782,6 +782,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                     presetData={this.state.presetData}
                     selectedId={this.state.selectedId}
                     onCreatePreset={this.onCreatePreset}
+                    windowWidth={this.state.menuSizes[1]}
                 />
             );
         }
@@ -1034,7 +1035,6 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 <ThemeProvider theme={this.state.theme}>
                     <Box
                         sx={styles.root}
-                        key="divSide"
                     >
                         {splitter}
                     </Box>

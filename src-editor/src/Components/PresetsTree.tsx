@@ -211,6 +211,9 @@ const styles: Record<string, any> = {
         textAlign: 'center',
         color: theme.palette.mode === 'dark' ? '#000' : '#FFF',
     }),
+    textColor: (theme: IobTheme): React.CSSProperties => ({
+        color: theme.palette.mode === 'dark' ? '#FFF !important' : '#000 !important',
+    }),
 };
 
 interface PresetsTreeProps {
@@ -389,7 +392,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
         return newState;
     }
 
-    renderTreePreset(item: ioBroker.ChartObject, level?: number): React.JSX.Element | React.JSX.Element[] | null {
+    renderPreset(item: ioBroker.ChartObject, level?: number): React.JSX.Element | React.JSX.Element[] | null {
         const preset = this.state.presets[item._id];
         const name =
             typeof item.common.name === 'object'
@@ -416,11 +419,11 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                     '&.MuiListItemButton-gutters': Utils.getStyle(
                         this.props.theme,
                         styles.noGutters,
-                        this.props.selectedId === preset._id && this.props.selectedPresetChanged && styles.changed,
+                        this.props.selectedId === item._id && this.props.selectedPresetChanged && styles.changed,
                     ),
-                    backgroundColor: (theme: IobTheme): string =>
-                        this.props.selectedId === item._id ? theme.palette.secondary.main : undefined,
+                    height: 48,
                 }}
+                selected={this.props.selectedId === item._id}
                 style={{ paddingLeft: depthPx }}
                 key={item._id}
                 className={this.props.reorder ? 'item-reorder' : ''}
@@ -452,6 +455,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                                 size="small"
                                 aria-label="Rename"
                                 title={I18n.t('Rename')}
+                                sx={styles.textColor}
                                 onClick={e => {
                                     e.stopPropagation();
                                     this.setState({
@@ -475,12 +479,14 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                             size="small"
                             aria-label="Copy"
                             title={I18n.t('Copy')}
+                            sx={styles.textColor}
                             onClick={() => this.props.onCopyPreset(preset._id)}
                         >
                             <IconCopy style={styles.iconCopy} />
                         </IconButton>
                         <IconButton
                             size="small"
+                            sx={styles.textColor}
                             aria-label="Delete"
                             title={I18n.t('Delete')}
                             onClick={() => this.setState({ deletePresetDialog: preset._id })}
@@ -507,7 +513,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
         return listItem;
     }
 
-    renderPresetsTree(parent: PresetFolder, level?: number): React.JSX.Element[] {
+    renderFolder(parent: PresetFolder, level?: number): React.JSX.Element[] {
         const result: React.JSX.Element[] = [];
 
         level = level || 0;
@@ -527,13 +533,13 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
             subFolders
                 .sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0))
                 .filter(subFolder => !(hideFolder && subFolder.id === HIDDEN_FOLDER))
-                .forEach(subFolder => reactChildren.push(this.renderPresetsTree(subFolder, level + 1)));
+                .forEach(subFolder => reactChildren.push(this.renderFolder(subFolder, level + 1)));
 
             // Add as second the presets
             if (values.length || subFolders.length) {
                 values
                     .sort((a, b) => (a._id > b._id ? 1 : a._id < b._id ? -1 : 0))
-                    .forEach(preset => reactChildren.push(this.renderTreePreset(preset, level + 1)));
+                    .forEach(preset => reactChildren.push(this.renderPreset(preset, level + 1)));
             } else if (level === 0) {
                 reactChildren.push(
                     <ListItem
@@ -551,18 +557,22 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
             const folder = (
                 <ListItem
                     key={parent.prefix}
-                    sx={{ '&.MuiListItem-gutters': styles.noGutters }}
+                    sx={{
+                        '&.MuiListItem-gutters': styles.noGutters,
+                    }}
                     className={this.props.reorder ? 'folder-reorder' : ''}
                     style={{
                         ...styles.width100,
                         ...styles.folderItem,
                         paddingLeft: depthPx,
+                        height: 48,
                     }}
                     secondaryAction={
                         <>
                             {!this.props.reorder && parent && parent.id && presetsOpened ? (
                                 <IconButton
                                     size="small"
+                                    sx={styles.textColor}
                                     onClick={() => this.props.onCreatePreset(parent.id)}
                                     title={I18n.t('Create new preset')}
                                 >
@@ -572,6 +582,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                             {!this.props.reorder ? (
                                 <IconButton
                                     size="small"
+                                    sx={styles.textColor}
                                     onClick={() =>
                                         this.setState({
                                             editPresetFolderDialog: parent,
@@ -588,6 +599,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                                 <IconButton
                                     size="small"
                                     onClick={() => this.togglePresetsFolder(parent)}
+                                    sx={styles.textColor}
                                     title={presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')}
                                 >
                                     <IconExpand
@@ -1263,7 +1275,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
             <>
                 <DragDropContext backend={HTML5Backend}>
                     <List sx={{ ...styles.scroll, ...styles.mainList }}>
-                        {this.renderPresetsTree(this.state.presetFolders)}
+                        {this.renderFolder(this.state.presetFolders)}
                     </List>
                 </DragDropContext>
                 {this.renderAddFolderDialog()}

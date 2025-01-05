@@ -24,7 +24,7 @@ import 'moment/locale/zh-cn';
 import 'moment/locale/de';
 import type { EchartsOptions, Connection, ChartConfigMore } from './types';
 import { getSocket } from './lib/socketSimulator';
-import { type EChartsType, init as echartsInit } from 'echarts/types/dist/echarts';
+import { type EChartsType, init as echartsInit } from 'echarts';
 import type { Canvas, JpegConfig, PdfConfig, PngConfig } from 'canvas';
 import { type JSDOM } from 'jsdom';
 

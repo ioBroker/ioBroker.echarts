@@ -25,7 +25,7 @@ require("moment/locale/ru");
 require("moment/locale/zh-cn");
 require("moment/locale/de");
 const socketSimulator_1 = require("./lib/socketSimulator");
-const echarts_1 = require("echarts/types/dist/echarts");
+const echarts_1 = require("echarts");
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
 //     | undefined;

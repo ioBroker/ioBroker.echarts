@@ -1201,7 +1201,7 @@ class ChartModel {
         }
 
         let convertFunc: ((val: number) => number) | undefined;
-        if (line.convert.trim()) {
+        if (line.convert?.trim()) {
             if (!this.convertFunctions[line.convert.trim()]) {
                 let convert = line.convert.trim();
                 if (!convert.includes('return')) {

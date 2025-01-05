@@ -27,12 +27,14 @@ interface MainChartProps {
     presetData: ChartConfigMore;
     selectedId: SelectedChart;
     theme: IobTheme;
+    windowWidth: number;
 }
 
 class MainChart extends React.Component<MainChartProps> {
     renderToolbar(): React.JSX.Element | null {
         return this.props.selectedId && typeof this.props.selectedId === 'string' ? null : (
             <ChartSettings
+                windowWidth={this.props.windowWidth}
                 onChange={this.props.onChange}
                 presetData={this.props.presetData}
                 onCreatePreset={(isFromCurrentSelection: boolean, parentId?: string): void =>

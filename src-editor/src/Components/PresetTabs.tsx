@@ -145,7 +145,7 @@ const styles: Record<string, any> = {
         color: theme.palette.mode === 'dark' ? undefined : '#FFF !important',
     }),
     indicator: (theme: IobTheme): React.CSSProperties => ({
-        backgroundColor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : '#FFF',
+        backgroundColor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : theme.palette.secondary.main,
     }),
 };
 

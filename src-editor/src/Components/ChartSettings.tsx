@@ -18,6 +18,7 @@ import type {
     ChartRelativeEnd,
     ChartType,
 } from '../../../src/types';
+import { IconButton } from '@material-ui/core';
 
 const styles: Record<string, any> = {
     mainDiv: {
@@ -29,10 +30,6 @@ const styles: Record<string, any> = {
             pr: '20px',
             width: 200,
         },
-    },
-    hintButton: {
-        marginRight: 20,
-        float: 'right',
     },
     popOver: {
         padding: 16,
@@ -196,38 +193,58 @@ interface ChartSettingsProps {
     onChange: (presetData: ChartConfigMore) => void;
     presetData: ChartConfigMore;
     onCreatePreset: (isFromCurrentSelection: boolean, parentId?: string) => void;
+    windowWidth: number;
 }
 
 interface ChartSettingsState {
     timeSpanOpened: boolean;
     aggregateOpened: boolean;
+    clientWidth: number;
 }
 
 class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsState> {
+    private windowWidth: number;
+    private readonly toolbarRef: React.RefObject<HTMLDivElement>;
+
     constructor(props: ChartSettingsProps) {
         super(props);
+
+        this.windowWidth = this.props.windowWidth;
+
         this.state = {
             timeSpanOpened: false,
             aggregateOpened: false,
+            clientWidth: 0,
         };
+
+        this.toolbarRef = React.createRef();
     }
 
-    updateField = (name: string, value: string | boolean | number, time?: boolean): void => {
-        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-        (presetData as unknown as Record<string, string | boolean | number>)[name] = value;
-        if (time) {
-            (presetData as unknown as Record<string, string | boolean | number>)[`${name}_time`] = time;
+    componentDidMount() {
+        window.addEventListener('resize', this.handleResize);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize);
+    }
+
+    handleResize = (): void => {
+        if (this.toolbarRef.current && this.toolbarRef.current.clientWidth !== this.state.clientWidth) {
+            this.setState({ clientWidth: this.toolbarRef.current.clientWidth });
         }
-        this.props.onChange(presetData);
-        window.localStorage.setItem(`App.echarts.__${name}`, value.toString());
     };
 
-    render(): React.JSX.Element {
+    componentDidUpdate(): void {
+        if (this.toolbarRef.current && this.toolbarRef.current.clientWidth !== this.state.clientWidth) {
+            // This one is just to trigger the update of component if width of a menu changed
+            this.windowWidth = this.props.windowWidth;
+            this.setState({ clientWidth: this.toolbarRef.current.clientWidth });
+        }
+    }
+
+    renderTimeSpan(): React.JSX.Element {
         return (
-            <Toolbar
-                style={styles.mainDiv}
-                variant="dense"
-            >
+            <>
                 <Button
                     color="grey"
                     title={I18n.t('Time span')}
@@ -345,6 +362,13 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                         </Box>
                     </div>
                 </Popover>
+            </>
+        );
+    }
+
+    renderAggregate(): React.JSX.Element {
+        return (
+            <>
                 <Button
                     color="grey"
                     title={I18n.t('Aggregate')}
@@ -438,7 +462,27 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                         </Box>
                     </div>
                 </Popover>
-                {this.props.presetData.timeType === 'relative' ? (
+            </>
+        );
+    }
+
+    render(): React.JSX.Element {
+        const visible = {
+            timeSpan: false,
+            aggregate: false,
+            autoRefresh: false,
+            bigButton: false,
+        };
+
+        return (
+            <Toolbar
+                ref={this.toolbarRef}
+                style={styles.mainDiv}
+                variant="dense"
+            >
+                {visible.timeSpan ? this.renderTimeSpan() : null}
+                {visible.aggregate ? this.renderAggregate() : null}
+                {visible.autoRefresh && this.props.presetData.timeType === 'relative' ? (
                     <RefreshSelect
                         sx={styles.refreshSelect}
                         formData={this.props.presetData as unknown as Record<string, string>}
@@ -461,15 +505,23 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                     />
                 ) : null}
                 <div style={styles.grow1} />
-                <Button
-                    variant="contained"
-                    color="primary"
-                    style={styles.hintButton}
-                    onClick={() => this.props.onCreatePreset(true)}
-                >
-                    <IconPlus style={styles.buttonIcon} />
-                    {I18n.t('Create preset')}
-                </Button>
+                {!visible.bigButton ? (
+                    <IconButton
+                        color="primary"
+                        onClick={() => this.props.onCreatePreset(true)}
+                    >
+                        <IconPlus />
+                    </IconButton>
+                ) : (
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.props.onCreatePreset(true)}
+                        startIcon={<IconPlus />}
+                    >
+                        {I18n.t('Create preset')}
+                    </Button>
+                )}
             </Toolbar>
         );
     }

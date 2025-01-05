@@ -1,17 +1,6 @@
 import React, { Component } from 'react';
 
-import {
-    IconButton,
-    TextField,
-    Toolbar,
-    FormGroup,
-    FormControlLabel,
-    Switch,
-    InputLabel,
-    Select,
-    MenuItem,
-    FormControl,
-} from '@mui/material';
+import { IconButton, TextField, Toolbar, InputLabel, Select, MenuItem, FormControl } from '@mui/material';
 
 // icons
 import {
@@ -22,10 +11,11 @@ import {
 } from 'react-icons/md';
 import { Search as SearchIcon, Close as ClearIcon, Preview as PreviewIcon } from '@mui/icons-material';
 
-import { type AdminConnection, I18n, type IobTheme, withWidth } from '@iobroker/adapter-react-v5';
+import { type AdminConnection, I18n, type IobTheme, withWidth, type ThemeType } from '@iobroker/adapter-react-v5';
 
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from './Components/ChartsTree';
+import Switch from './Components/Switch';
 import type { ChartConfigMore } from '../../src/types';
 
 const TOOLBAR_HEIGHT = 48;
@@ -54,6 +44,9 @@ const styles: Record<string, any> = {
         height: `calc(100% - ${TOOLBAR_HEIGHT}px)`,
         overflow: 'auto',
     },
+    textColor: (theme: IobTheme): React.CSSProperties => ({
+        color: theme.palette.mode === 'dark' ? '#000 !important' : '#FFF !important',
+    }),
 };
 
 interface MenuListProps {
@@ -200,66 +193,90 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                 key="toolbarBottom"
                 variant="dense"
                 sx={styles.secondaryColors}
+                style={{ gap: 8 }}
             >
-                <FormGroup row>
-                    {!this.props.selectedPresetChanged ? (
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={this.state.multiple}
-                                    onChange={e => {
-                                        window.localStorage.setItem(
-                                            'App.echarts.multiple',
-                                            e.target.checked ? 'true' : 'false',
-                                        );
-                                        if (e.target.checked) {
-                                            const selectedId = this.props.selectedId;
-                                            if (selectedId && typeof selectedId === 'object') {
-                                                this.setState({ multiple: true }, () =>
-                                                    this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]),
-                                                );
-                                            } else {
-                                                this.setState({ multiple: true }, () => this.props.onChangeList([]));
-                                            }
-                                        } else {
-                                            this.setState({ multiple: false }, () => this.props.onChangeList(null));
-                                        }
-                                    }}
-                                />
+                {!this.props.selectedPresetChanged ? (
+                    <Switch
+                        style={{ width: 58 }}
+                        checked={this.state.multiple}
+                        theme={this.props.theme}
+                        onChange={(checked: boolean): void => {
+                            window.localStorage.setItem('App.echarts.multiple', checked ? 'true' : 'false');
+                            if (checked) {
+                                const selectedId = this.props.selectedId;
+                                if (selectedId && typeof selectedId === 'object') {
+                                    this.setState({ multiple: true }, () =>
+                                        this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]),
+                                    );
+                                } else {
+                                    this.setState({ multiple: true }, () => this.props.onChangeList([]));
+                                }
+                            } else {
+                                this.setState({ multiple: false }, () => this.props.onChangeList(null));
                             }
-                            label={I18n.t('Multiple')}
-                        />
-                    ) : null}
-                    <FormControl
-                        variant="standard"
-                        style={{ minWidth: 100 }}
+                        }}
+                        labelOn={I18n.t('Multiple')}
+                    />
+                ) : /*<FormControlLabel
+                        control={
+                            <Switch
+                                checked={this.state.multiple}
+                                onChange={e => {
+                                    window.localStorage.setItem(
+                                        'App.echarts.multiple',
+                                        e.target.checked ? 'true' : 'false',
+                                    );
+                                    if (e.target.checked) {
+                                        const selectedId = this.props.selectedId;
+                                        if (selectedId && typeof selectedId === 'object') {
+                                            this.setState({ multiple: true }, () =>
+                                                this.props.onChangeList([JSON.parse(JSON.stringify(selectedId))]),
+                                            );
+                                        } else {
+                                            this.setState({ multiple: true }, () => this.props.onChangeList([]));
+                                        }
+                                    } else {
+                                        this.setState({ multiple: false }, () => this.props.onChangeList(null));
+                                    }
+                                }}
+                            />
+                        }
+                        label={I18n.t('Multiple')}
+                    />*/
+                null}
+                <FormControl
+                    variant="standard"
+                    style={{ minWidth: 100 }}
+                    sx={styles.textColor}
+                >
+                    <InputLabel
+                        shrink
+                        sx={styles.textColor}
+                        style={{ whiteSpace: 'nowrap', top: 5 }}
                     >
-                        <InputLabel
-                            shrink
-                            style={{ whiteSpace: 'nowrap', top: 5 }}
-                        >
-                            {I18n.t('Group by')}
-                        </InputLabel>
-                        <Select
-                            variant="standard"
-                            label={I18n.t('Group by')}
-                            onChange={e => {
-                                window.localStorage.setItem('App.echarts.groupBy', e.target.value);
-                                this.setState({ groupBy: e.target.value as '' | 'rooms' | 'functions' });
-                            }}
-                            value={this.state.groupBy || ''}
-                            style={styles.smallMargin}
-                            displayEmpty
-                        >
-                            <MenuItem value="">{I18n.t('None')}</MenuItem>
-                            <MenuItem value="rooms">{I18n.t('Rooms')}</MenuItem>
-                            <MenuItem value="functions">{I18n.t('Functions')}</MenuItem>
-                        </Select>
-                    </FormControl>
-                </FormGroup>
+                        {I18n.t('Group by')}
+                    </InputLabel>
+                    <Select
+                        variant="standard"
+                        label={I18n.t('Group by')}
+                        sx={styles.textColor}
+                        onChange={e => {
+                            window.localStorage.setItem('App.echarts.groupBy', e.target.value);
+                            this.setState({ groupBy: e.target.value as '' | 'rooms' | 'functions' });
+                        }}
+                        value={this.state.groupBy || ''}
+                        style={styles.smallMargin}
+                        displayEmpty
+                    >
+                        <MenuItem value="">{I18n.t('None')}</MenuItem>
+                        <MenuItem value="rooms">{I18n.t('Rooms')}</MenuItem>
+                        <MenuItem value="functions">{I18n.t('Functions')}</MenuItem>
+                    </Select>
+                </FormControl>
                 <div style={{ flex: 1 }} />
                 <IconButton
                     size="small"
+                    sx={styles.textColor}
                     title={I18n.t('Charts preview')}
                     onClick={() => {
                         const parts = window.location.pathname.split('/');

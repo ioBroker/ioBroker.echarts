@@ -2,18 +2,10 @@ import React, { Component } from 'react';
 
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
-import {
-    IconButton,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    ListItemButton,
-    Switch,
-} from '@mui/material';
+import { IconButton, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
 
 // icons
-import { MdExpandLess as IconCollapse, MdExpandMore as IconExpand, MdAdd as IconAdd } from 'react-icons/md';
+import { MdExpandMore as IconExpand, MdAdd as IconAdd } from 'react-icons/md';
 import {
     FaFolder as IconFolderClosed,
     FaFolderOpen as IconFolderOpened,
@@ -30,6 +22,7 @@ import {
     type IobTheme,
     type AdminConnection,
 } from '@iobroker/adapter-react-v5';
+import Switch from './Switch';
 
 function sortObj(a: CustomInstance | string, b: CustomInstance | string): 1 | -1 | 0 {
     const aid = typeof a === 'object' ? a._id.replace('system.adapter.', '') : a.replace('system.adapter.', '');
@@ -79,8 +72,7 @@ const styles: Record<string, any> = {
         minWidth: 24,
     },
     itemNameDiv: {
-        lineHeight: '22px',
-        height: 22,
+        marginTop: 5,
     },
     itemName: {
         verticalAlign: 'top',
@@ -123,12 +115,15 @@ const styles: Record<string, any> = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         width: '100%',
+        fontSize: 'smaller',
+        opacity: 0.6,
+        fontStyle: 'italic',
         whiteSpace: 'nowrap',
         display: 'inline-block',
     },
     listItemSubTitle: {
         fontSize: 'smaller',
-        opacity: 0.7,
+        opacity: 0.6,
         fontStyle: 'italic',
     },
     adapterIcon: {
@@ -141,7 +136,7 @@ const styles: Record<string, any> = {
         width: '100%',
     },
     listItemSecondaryAction: {
-        right: 7,
+        marginRight: 4,
     },
     folderItem: (theme: IobTheme): any => ({
         backgroundColor: theme.palette.secondary.main,
@@ -592,7 +587,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                         const inst = instances.find(item => item._id === `system.adapter.${instance}`);
                                         inst.enabledDP = inst.enabledDP || {};
                                         inst.enabledDP[obj._id] = obj;
-                                        this.setState({ instances });
+                                        this.setState({ instances }, () => this.getAllCharts());
                                     })
                                     .catch(e => this.onError(e, `Cannot read object ${id}`));
                             })
@@ -633,7 +628,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                 </span>
             );
         } else {
-            const name: string = group.names[id].toString();
+            const name: string = (group.names[id] || '').toString();
             rxName = (
                 <span
                     style={styles.itemName}
@@ -649,7 +644,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                 key={`${instance}_${id}`}
                 ref={selected ? this.refSelected : null}
                 sx={{ '&.MuiListItemButton-gutters': styles.noGutters }}
-                style={{ paddingLeft: LEVEL_PADDING * level }}
+                style={{ paddingLeft: LEVEL_PADDING * level, height: 48, position: 'relative' }}
                 selected={selected}
                 onClick={dragging ? undefined : () => this.props.onSelectedChanged({ id, instance })}
             >
@@ -660,45 +655,37 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                         <IconChart style={styles.itemIcon} />
                     )}
                 </ListItemIcon>
-                <ListItemText
-                    sx={{
-                        '& .MuiListItemText-primary': styles.listItemTitle,
-                        '& .MuiListItemText-secondary': styles.listItemSubTitle,
-                    }}
-                    primary={
-                        <span style={styles.itemNameDiv}>
-                            {Utils.getIcon(
-                                { icon: group.icons[id], prefix: '../../' },
-                                {
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: 2,
-                                    marginRight: 4,
-                                },
-                            )}
-                            {rxName}
-                        </span>
-                    }
-                    secondary={
-                        <span
-                            style={styles.itemSecondaryName}
-                            title={id}
-                        >
-                            {id.replace('system.adapter.', '')}
-                        </span>
-                    }
-                />
+                <div style={{ flexGrow: 1, overflow: 'hidden' }}>
+                    <div style={styles.itemNameDiv}>
+                        {Utils.getIcon(
+                            { icon: group.icons[id], prefix: '../../' },
+                            {
+                                width: 20,
+                                height: 20,
+                                borderRadius: 2,
+                                marginRight: 4,
+                            },
+                        )}
+                        {rxName}
+                    </div>
+                    <div
+                        style={styles.itemSecondaryName}
+                        title={id}
+                    >
+                        {id.replace('system.adapter.', '')}
+                    </div>
+                </div>
                 {!dragging && this.props.multiple && this.props.chartsList ? (
                     <div style={styles.listItemSecondaryAction}>
                         <Switch
                             size="small"
-                            edge="end"
-                            onChange={e => {
+                            theme={this.props.theme}
+                            onChange={(checked: boolean): void => {
                                 const chartsList: { id: string; instance: string }[] = JSON.parse(
                                     JSON.stringify(this.props.chartsList),
                                 );
                                 const item = chartsList.find(_item => _item.id === id && _item.instance === instance);
-                                if (e.target.checked && !item) {
+                                if (checked && !item) {
                                     chartsList.push({ id, instance });
                                     chartsList.sort((a, b) => {
                                         if (a.instance > b.instance) {
@@ -723,7 +710,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                     } else {
                                         this.props.onChangeList(chartsList);
                                     }
-                                } else if (!e.target.checked && item) {
+                                } else if (!checked && item) {
                                     chartsList.splice(chartsList.indexOf(item), 1);
                                     this.props.onChangeList(chartsList);
                                 }
@@ -795,14 +782,12 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
 
         return [
             <ListItem
-                className="denis1"
                 key={key}
-                style={{ ...styles.width100, paddingLeft: LEVEL_PADDING * level }}
+                style={{ ...styles.width100, paddingLeft: LEVEL_PADDING * level, height: 48 }}
                 sx={Utils.getStyle(this.props.theme, styles.folderItem, { '&.MuiListItem-gutters': styles.noGutters })}
                 secondaryAction={
                     <IconButton
                         size="small"
-                        className="denis"
                         onClick={() => this.toggleChartFolder(key)}
                         title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
                     >
@@ -919,6 +904,13 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                     styles.width100,
                                                     styles.folderItem,
                                                     {
+                                                        height: 48,
+                                                        color:
+                                                            this.props.theme.palette.mode === 'dark'
+                                                                ? undefined
+                                                                : '#FFF',
+                                                    },
+                                                    {
                                                         '&.MuiListItem-gutters': styles.noGutters,
                                                     },
                                                 )}
@@ -930,6 +922,12 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                                 onClick={() =>
                                                                     this.setState({ showAddStateDialog: group._id })
                                                                 }
+                                                                style={{
+                                                                    color:
+                                                                        this.props.theme.palette.mode === 'dark'
+                                                                            ? undefined
+                                                                            : '#FFF',
+                                                                }}
                                                                 title={I18n.t('Enable logging for new state')}
                                                             >
                                                                 <IconAdd />
@@ -939,10 +937,18 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                             size="small"
                                                             onClick={() => this.toggleChartFolder(group._id)}
                                                             title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
+                                                            style={{
+                                                                color:
+                                                                    this.props.theme.palette.mode === 'dark'
+                                                                        ? undefined
+                                                                        : '#FFF',
+                                                            }}
                                                         >
                                                             <IconExpand
                                                                 style={{
-                                                                    transform: opened ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                                    transform: opened
+                                                                        ? 'rotate(180deg)'
+                                                                        : 'rotate(0deg)',
                                                                     transition: 'transform 0.2s ease-in-out',
                                                                 }}
                                                             />
@@ -952,6 +958,12 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                             >
                                                 <ListItemIcon
                                                     style={styles.itemIconRoot}
+                                                    sx={{
+                                                        color:
+                                                            this.props.theme.palette.mode === 'dark'
+                                                                ? undefined
+                                                                : '#FFF',
+                                                    }}
                                                     onClick={() => this.toggleChartFolder(group._id)}
                                                 >
                                                     {opened ? (
