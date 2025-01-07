@@ -106,7 +106,8 @@ function normalizeConfig(config) {
         delete newConfig.m;
     }
     newConfig.marks = newConfig.marks || [];
-    if (!newConfig.l.length) {
+    if (!newConfig.l?.length) {
+        config.l = config.l || [];
         config.l.push({ id: '', unit: '' });
     }
     // Set default values
@@ -603,7 +604,9 @@ class ChartModel {
                 }
             }
         }
-        else if (typeof this.config.range === 'string' && this.config.range.includes('y') && this.config.l.length > 1) {
+        else if (typeof this.config.range === 'string' &&
+            this.config.range.includes('y') &&
+            this.config.l.length > 1) {
             const yearRange = parseInt(this.config.range, 10) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
                 if (this.config.l[a].offset) {
