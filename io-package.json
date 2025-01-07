@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "echarts",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "news": {
-      "2.0.1": {
+      "2.0.2": {
         "en": "Project was completely rewritten with TypeScript\nBetter mobile layouts added",
         "de": "Projekt wurde komplett mit TypeScript neu geschrieben\nBessere mobile Layouts hinzugefügt",
         "ru": "Проект был полностью переписан с TypeScript\nДобавлены лучшие мобильные макеты",
