@@ -29,7 +29,7 @@ function copyAllFiles() {
     copyFiles('src-editor/build/static/js/main.*.chunk.js', 'admin/static/js/');
 }
 
-deleteFoldersRecursive(`${__dirname}/admin`, ['chart']);
+deleteFoldersRecursive(`${__dirname}/admin`, ['chart', 'preview']);
 deleteFoldersRecursive(`${__dirname}/src-editor/build`);
 
 let installPromise;
