@@ -330,7 +330,8 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
 
     newConfig.marks = newConfig.marks || [];
 
-    if (!newConfig.l.length) {
+    if (!newConfig.l?.length) {
+        config.l = config.l || [];
         config.l.push({ id: '', unit: '' });
     }
 
@@ -880,7 +881,11 @@ class ChartModel {
                     break;
                 }
             }
-        } else if (typeof this.config.range === 'string' && this.config.range.includes('y') && this.config.l.length > 1) {
+        } else if (
+            typeof this.config.range === 'string' &&
+            this.config.range.includes('y') &&
+            this.config.l.length > 1
+        ) {
             const yearRange = parseInt(this.config.range as string, 10) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
                 if (this.config.l[a].offset) {
@@ -1873,11 +1878,7 @@ class ChartModel {
         changed && this.onUpdateFunc(null, this.actualValues);
     };
 
-    static addTime(
-        time: number | Date,
-        offset: string | number,
-        isOffsetInMinutes?: boolean,
-    ): number {
+    static addTime(time: number | Date, offset: string | number, isOffsetInMinutes?: boolean): number {
         const date: Date = new Date(time);
 
         if (typeof offset === 'string') {
@@ -1893,7 +1894,7 @@ class ChartModel {
                 time = date.getTime();
                 if (isOffsetInMinutes) {
                     time -= (parseInt(offset, 10) || 0) * 60000;
-                }else {
+                } else {
                     time -= (parseInt(offset, 10) || 0) * 1000;
                 }
             }

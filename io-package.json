@@ -98,15 +98,15 @@
     "titleLang": {
       "en": "E-Charts",
       "de": "E-Charts",
-      "ru": "E-диаграмма",
+      "ru": "E-Charts",
       "pt": "E-Charts",
-      "nl": "E-Grafieken",
+      "nl": "E-Charts",
       "fr": "E-Charts",
       "it": "E-Charts",
       "es": "E-Charts",
-      "pl": "Wykresy elektroniczne",
-      "uk": "E-діаграма",
-      "zh-cn": "电子图"
+      "pl": "E-Charts",
+      "uk": "E-Charts",
+      "zh-cn": "E-Charts"
     },
     "desc": {
       "en": "Build useful charts in ioBroker",

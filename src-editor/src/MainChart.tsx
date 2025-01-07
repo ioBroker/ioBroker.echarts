@@ -63,11 +63,13 @@ class MainChart extends React.Component<MainChartProps> {
                     display: this.props.visible ? 'block' : 'none',
                 }}
             >
-                <ChartFrame
-                    src={`${URL}index.html?edit=1`}
-                    presetData={data}
-                    theme={this.props.theme}
-                />
+                {this.props.visible ? (
+                    <ChartFrame
+                        src={`${URL}index.html?edit=1`}
+                        presetData={data}
+                        theme={this.props.theme}
+                    />
+                ) : null}
             </div>
         );
     }

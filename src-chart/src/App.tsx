@@ -164,6 +164,8 @@ class App extends Component<AppProps, AppState> {
 
         I18n.setTranslations(translations);
 
+        // window.socketUrl = 'http://192.168.1.67:8081/';
+
         if (window.socketUrl && window.socketUrl.startsWith(':')) {
             window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
         }
@@ -350,9 +352,7 @@ class App extends Component<AppProps, AppState> {
 
         const config: ChartConfigMore = this.chartData.getConfig() as ChartConfigMore;
         // get IDs hash
-        const hash = MD5(
-            JSON.stringify(((config && config.l && config.l.map(item => item.id)) || []).sort()),
-        ).toString();
+        const hash = MD5(JSON.stringify((config?.l?.map(item => item.id) || []).sort())).toString();
 
         if (this.state.seriesData && config.debug) {
             console.log(`seriesData: ${JSON.stringify(this.state.seriesData)}`);

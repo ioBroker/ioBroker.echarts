@@ -133,23 +133,23 @@ function parseHash(): Record<string, any> | null {
 }
 
 interface AppState extends GenericAppState {
-    selectedId: SelectedChart;
-    scrollToSelect: boolean;
-    instances: ioBroker.InstanceObject[];
-    ready: boolean;
-    splitSizes: [number, number];
-    menuSizes: [number, number];
-    selectedPresetChanged: boolean;
-    presetData: null | ChartConfigMore;
-    originalPresetData: null | string;
-    chartsList: { id: string; instance: string }[] | null;
-    systemConfig: ioBroker.SystemConfigObject;
-    menuOpened: boolean;
-    progress: 0 | 1 | 2 | 3;
     autoSave: boolean;
+    chartsList: { id: string; instance: string }[] | null;
     discardChangesConfirmDialog: false | 'chart' | 'preset' | 'folder';
-    resizing: boolean;
+    instances: ioBroker.InstanceObject[];
     logHorzLayout: boolean;
+    menuOpened: boolean;
+    menuSizes: [number, number];
+    originalPresetData: null | string;
+    presetData: null | ChartConfigMore;
+    progress: 0 | 1 | 2 | 3;
+    ready: boolean;
+    resizing: boolean;
+    scrollToSelect: boolean;
+    selectedId: SelectedChart;
+    selectedPresetChanged: boolean;
+    splitSizes: [number, number];
+    systemConfig: ioBroker.SystemConfigObject;
 }
 
 class App extends GenericApp<GenericAppProps, AppState> {
