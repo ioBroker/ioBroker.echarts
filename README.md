@@ -115,7 +115,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### 2.0.1 (2025-01-07)
+### 2.0.2 (2025-01-07)
 
 - (@GermanBluefox) Project was completely rewritten with TypeScript
 - (@GermanBluefox) Better mobile layouts added
