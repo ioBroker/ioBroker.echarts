@@ -3,19 +3,6 @@
     "name": "echarts",
     "version": "2.0.0",
     "news": {
-      "2.0.0": {
-        "en": "Project was completely rewritten with TypeScript\nBetter mobile layouts added",
-        "de": "Projekt wurde komplett mit TypeScript neu geschrieben\nBessere mobile Layouts hinzugefügt",
-        "ru": "Проект был полностью переписан с TypeScript\nДобавлены лучшие мобильные макеты",
-        "pt": "O projeto foi completamente reescrito com TypeScript\nMelhores layouts móveis adicionados",
-        "nl": "Project werd volledig herschreven met TypeScript\nBetere mobiele lay-outs toegevoegd",
-        "fr": "Projet entièrement réécrit avec TypeScript\nMeilleures mises en page mobiles ajoutées",
-        "it": "Il progetto è stato completamente riscritto con TypeScript\nMigliori layout mobili aggiunti",
-        "es": "El proyecto fue completamente reescrito con TipoScript\nMejores diseños móviles añadidos",
-        "pl": "Projekt został całkowicie przeredagowany przez TypeScript\nDodano lepsze układy mobilne",
-        "uk": "Проект повністю переписався з TypeScript\nДодані кращі мобільні макети",
-        "zh-cn": "工程被完全重写为 TypeScript\n增加了更好的移动布局"
-      },
       "1.9.5": {
         "en": "Convert actual values with provided \"convert\" function too",
         "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
