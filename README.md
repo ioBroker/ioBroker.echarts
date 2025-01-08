@@ -115,6 +115,10 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) Corrected the convert functionality
+
 ### 2.0.2 (2025-01-07)
 
 - (@GermanBluefox) Project was completely rewritten with TypeScript
