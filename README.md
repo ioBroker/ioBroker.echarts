@@ -115,7 +115,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.3 (2025-01-08)
 
 - (@GermanBluefox) Corrected the convert functionality
 

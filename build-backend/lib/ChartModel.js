@@ -914,7 +914,7 @@ class ChartModel {
                     convert = `return ${convert}`;
                 }
                 try {
-                    convertFunc = new Function('val', convert);
+                    this.convertFunctions[line.convert.trim()] = new Function('val', convert);
                 }
                 catch (e) {
                     console.error(`[ChartModel] Cannot parse convert function: ${e}`);

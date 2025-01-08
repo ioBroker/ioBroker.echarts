@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "news": {
+      "2.0.3": {
+        "en": "Corrected the convert functionality",
+        "de": "Korrektur der Konvertierungsfunktionalität",
+        "ru": "Исправлена функция конвертации",
+        "pt": "Corrigido a funcionalidade de conversão",
+        "nl": "Gecorrigeerd de convert functionaliteit",
+        "fr": "Correction de la fonctionnalité de conversion",
+        "it": "Corretto la funzionalità di conversione",
+        "es": "Corregido la funcionalidad de conversión",
+        "pl": "Korekta funkcji konwersji",
+        "uk": "Виправлено функціонал перетворення",
+        "zh-cn": "纠正了转换功能"
+      },
       "2.0.2": {
         "en": "Project was completely rewritten with TypeScript\nBetter mobile layouts added",
         "de": "Projekt wurde komplett mit TypeScript neu geschrieben\nBessere mobile Layouts hinzugefügt",
@@ -80,19 +93,6 @@
         "pl": "Wstępna możliwość ukrywania wartości w przyszłości",
         "uk": "Додана можливість приховати значення в майбутньому",
         "zh-cn": "增加今后隐藏价值的选择"
-      },
-      "1.7.1": {
-        "en": "Added X-Label offset\nCorrected icons in the object selection dialog",
-        "de": "X-Label Offset hinzugefügt\nKorrigierte Icons im Objektauswahldialog",
-        "ru": "Добавлена компенсация X-Label\nИсправлены иконки в диалоге выбора объекта",
-        "pt": "Adicionado X-Label offset\nÍcones corrigidos na caixa de diálogo seleção de objetos",
-        "nl": "Vertaling:\nVertaling:",
-        "fr": "Ajout de X-Label\nLes icônes corrigées dans le dialogue de sélection d'objets",
-        "it": "Aggiunto X-Label offset\nLe icone corrette nella finestra di dialogo selezione oggetto",
-        "es": "Offset X-Label\nIconos corregidos en el diálogo de selección de objetos",
-        "pl": "Added X-Label offset\nKwalifikowane ikony w dialogach do wyboru obiektów",
-        "uk": "Доданий X-Label зсув\nВиправлені іконки в діалоговому вікні вибору об'єкта",
-        "zh-cn": "增加X-Label抵消\n目标选择口号中的对应线"
       }
     },
     "titleLang": {
