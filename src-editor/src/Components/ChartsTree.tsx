@@ -142,6 +142,12 @@ const styles: Record<string, any> = {
         backgroundColor: theme.palette.secondary.main,
         pl: '8px',
     }),
+    selected: (theme: IobTheme): any => ({
+        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.16)' : theme.palette.primary.light,
+        '&:hover': {
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.10)' : '#76d0fd80',
+        },
+    }),
 };
 
 interface ChartsTreeProps {
@@ -643,7 +649,10 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
             <ListItemButton
                 key={`${instance}_${id}`}
                 ref={selected ? this.refSelected : null}
-                sx={{ '&.MuiListItemButton-gutters': styles.noGutters }}
+                sx={{
+                    '&.MuiListItemButton-gutters': styles.noGutters,
+                    '&.Mui-selected': styles.selected,
+                }}
                 style={{ paddingLeft: LEVEL_PADDING * level, height: 48, position: 'relative' }}
                 selected={selected}
                 onClick={dragging ? undefined : () => this.props.onSelectedChanged({ id, instance })}

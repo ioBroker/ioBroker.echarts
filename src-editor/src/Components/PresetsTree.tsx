@@ -80,7 +80,7 @@ export const Droppable: React.FC<DroppableProps> = (props: DroppableProps): Reac
             ref={drop}
             style={{
                 background: isOver ? '#40adff' : undefined,
-                opacity: isOverAny ? 0.3: undefined,
+                opacity: isOverAny ? 0.3 : undefined,
             }}
         >
             {props.children}
@@ -213,6 +213,12 @@ const styles: Record<string, any> = {
     }),
     textColor: (theme: IobTheme): React.CSSProperties => ({
         color: theme.palette.mode === 'dark' ? '#FFF !important' : '#000 !important',
+    }),
+    selected: (theme: IobTheme): any => ({
+        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.16)' : theme.palette.primary.light,
+        '&:hover': {
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.10)' : '#76d0fd80',
+        },
     }),
 };
 
@@ -409,8 +415,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
 
         let iconNumber: React.JSX.Element | null = null;
         if ((item.native.data.l || item.native.data.lines)?.length > 1) {
-            iconNumber =
-                <Box sx={styles.itemIconNumber}>{(item.native.data.l || item.native.data.lines)?.length}</Box>;
+            iconNumber = <Box sx={styles.itemIconNumber}>{(item.native.data.l || item.native.data.lines)?.length}</Box>;
         }
 
         const listItem = (
@@ -421,6 +426,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                         styles.noGutters,
                         this.props.selectedId === item._id && this.props.selectedPresetChanged && styles.changed,
                     ),
+                    '&.Mui-selected': styles.selected,
                     height: 48,
                 }}
                 selected={this.props.selectedId === item._id}
