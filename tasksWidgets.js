@@ -1,5 +1,5 @@
 /**
- * Copyright 2023-2024 bluefox <dogafox@gmail.com>
+ * Copyright 2023-2025 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *

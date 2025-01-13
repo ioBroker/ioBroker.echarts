@@ -949,8 +949,16 @@ class ChartModel {
         }
         // add start and end
         if (line.chartType !== 'bar' && line.chartType !== 'polar') {
-            let end = typeof option.end === 'number' ? option.end : option.end.getTime();
-            const start = typeof option.start === 'number' ? option.start : option.start.getTime();
+            let end = typeof option.end === 'number'
+                ? option.end
+                : typeof option.end === 'string'
+                    ? new Date(option.end).getTime()
+                    : option.end.getTime();
+            const start = typeof option.start === 'number'
+                ? option.start
+                : typeof option.start === 'string'
+                    ? new Date(option.start).getTime()
+                    : option.start.getTime();
             // End cannot be in the future
             if (end > this.now) {
                 end = this.now;

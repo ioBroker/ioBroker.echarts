@@ -26,6 +26,7 @@ require("moment/locale/zh-cn");
 require("moment/locale/de");
 const socketSimulator_1 = require("./lib/socketSimulator");
 const echarts_1 = require("echarts");
+const canvas_1 = require("canvas");
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
 //     | undefined;
@@ -105,7 +106,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                         data = `data:image/png;base64,${canvas
                             .toBuffer('image/png', {
                             compressionLevel: options.compressionLevel || 3,
-                            filters: options.filters || canvas.PNG_FILTER_NONE,
+                            filters: options.filters || canvas_1.Canvas.PNG_FILTER_NONE,
                         })
                             .toString('base64')}`;
                         break;

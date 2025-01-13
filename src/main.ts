@@ -2,7 +2,7 @@
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020-2024 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2025 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *
@@ -25,7 +25,7 @@ import 'moment/locale/de';
 import type { EchartsOptions, Connection, ChartConfigMore } from './types';
 import { getSocket } from './lib/socketSimulator';
 import { type EChartsType, init as echartsInit } from 'echarts';
-import type { Canvas, JpegConfig, PdfConfig, PngConfig } from 'canvas';
+import { Canvas, type JpegConfig, type PdfConfig, type PngConfig } from 'canvas';
 import { type JSDOM } from 'jsdom';
 
 // let echartsInit:
@@ -132,7 +132,7 @@ class EchartsAdapter extends Adapter {
                             data = `data:image/png;base64,${canvas
                                 .toBuffer('image/png', {
                                     compressionLevel: options.compressionLevel || 3,
-                                    filters: options.filters || canvas.PNG_FILTER_NONE,
+                                    filters: options.filters || Canvas.PNG_FILTER_NONE,
                                 } as PngConfig)
                                 .toString('base64')}`;
                             break;
