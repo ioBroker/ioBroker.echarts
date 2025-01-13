@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020-2024 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2025 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *

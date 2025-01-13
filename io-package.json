@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "news": {
+      "2.0.4": {
+        "en": "Correcting locale for x-axis\nCorrecting widget",
+        "de": "Ortskorrektur für x-Achse\nKorrektur Widget",
+        "ru": "Корректировка лока для x-оси\nИсправление виджета",
+        "pt": "Correção local para eixo x\nWidget de correção",
+        "nl": "Lokale corrigeren voor x-as\nWidget wordt gecorrigeerd",
+        "fr": "Corriger le local pour l'axe des x\nCorrection du widget",
+        "it": "Correggere locale per x-assi\nCorreggere widget",
+        "es": "Corrección local para eje x\nWidget corrector",
+        "pl": "Korekcja lokalizacji osi x\nKorekcja widżetu",
+        "uk": "Виправлення локалізації для осі x\nВиправлення віджету",
+        "zh-cn": "纠正 x 轴的定位\n校正部件"
+      },
       "2.0.3": {
         "en": "Corrected the convert functionality",
         "de": "Korrektur der Konvertierungsfunktionalität",
@@ -80,19 +93,6 @@
         "pl": "zmodernizowane zależności",
         "uk": "покращені залежності",
         "zh-cn": "升级的依赖关系"
-      },
-      "1.7.2": {
-        "en": "Added option to hide the value in the future",
-        "de": "Option hinzugefügt, um den Wert in der Zukunft zu verbergen",
-        "ru": "Добавлена возможность скрыть значение в будущем",
-        "pt": "Opção adicionada para esconder o valor no futuro",
-        "nl": "Optie om de waarde in de toekomst te verbergen",
-        "fr": "Option supplémentaire pour cacher la valeur dans le futur",
-        "it": "Aggiunta opzione per nascondere il valore in futuro",
-        "es": "Opción agregada para ocultar el valor en el futuro",
-        "pl": "Wstępna możliwość ukrywania wartości w przyszłości",
-        "uk": "Додана можливість приховати значення в майбутньому",
-        "zh-cn": "增加今后隐藏价值的选择"
       }
     },
     "titleLang": {
