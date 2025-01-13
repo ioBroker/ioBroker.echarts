@@ -115,6 +115,11 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) Correcting locale for x-axis
+- (@GermanBluefox) Correcting widget
+
 ### 2.0.3 (2025-01-08)
 
 - (@GermanBluefox) Corrected the convert functionality

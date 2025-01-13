@@ -28,17 +28,17 @@ import {
 } from 'react-icons/fa';
 
 import moment from 'moment';
-import 'moment/locale/en-gb';
-import 'moment/locale/es';
-import 'moment/locale/fr';
-import 'moment/locale/pl';
-import 'moment/locale/pt';
-import 'moment/locale/it';
-import 'moment/locale/nl';
-import 'moment/locale/ru';
-import 'moment/locale/zh-cn';
-import 'moment/locale/de';
-import 'moment/locale/uk';
+import 'moment/dist/locale/en-gb';
+import 'moment/dist/locale/es';
+import 'moment/dist/locale/fr';
+import 'moment/dist/locale/pl';
+import 'moment/dist/locale/pt';
+import 'moment/dist/locale/it';
+import 'moment/dist/locale/nl';
+import 'moment/dist/locale/ru';
+import 'moment/dist/locale/zh-cn';
+import 'moment/dist/locale/de';
+import 'moment/dist/locale/uk';
 
 import { I18n, Utils, withWidth, type ThemeType } from '@iobroker/adapter-react-v5';
 import type { BarAndLineSeries, SeriesData } from './ChartModel';
@@ -81,7 +81,7 @@ import 'echarts/theme/green';
 import 'echarts/theme/gray';
 import 'echarts/theme/dark-bold';
 import type { GridOption, RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
-import type {ChartConfigMore, ChartLineConfigMore} from '../../../src/types';
+import type { ChartConfigMore, ChartLineConfigMore } from '../../../src/types';
 
 echarts.use([
     GridComponent,

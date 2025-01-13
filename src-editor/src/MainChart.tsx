@@ -5,6 +5,7 @@ import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
 import type { ChartConfigMore, SelectedChart } from '../../src/types';
 import type { IobTheme } from '@iobroker/adapter-react-v5';
+import {Timeline} from "@mui/icons-material";
 
 const styles: Record<'container' | 'heightWithoutToolbar' | 'height100', React.CSSProperties> = {
     container: {
@@ -57,19 +58,16 @@ class MainChart extends React.Component<MainChartProps> {
         }
 
         return (
-            <div
-                style={{
-                    ...(typeof this.props.selectedId !== 'string' ? styles.heightWithoutToolbar : styles.height100),
-                    display: this.props.visible ? 'block' : 'none',
-                }}
-            >
+            <div style={typeof this.props.selectedId !== 'string' ? styles.heightWithoutToolbar : styles.height100}>
                 {this.props.visible ? (
                     <ChartFrame
                         src={`${URL}index.html?edit=1`}
                         presetData={data}
                         theme={this.props.theme}
                     />
-                ) : null}
+                ) : (
+                    <Timeline style={{ height: '100%', width: '100%' }} />
+                )}
             </div>
         );
     }

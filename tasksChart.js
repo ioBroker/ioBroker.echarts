@@ -52,7 +52,7 @@ function copyFilesToWWW() {
                     if (existsSync(`${__dirname}/www/index.html`)) {
                         let code = readFileSync(`${__dirname}/www/index.html`).toString('utf8');
                         code = code.replace(
-                            /<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                            /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/,
                             `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`,
                         );
                         code = code.replace(
@@ -114,7 +114,7 @@ installPromise
         if (existsSync(`${__dirname}/admin/chart/index.html`)) {
             let code = readFileSync(`${__dirname}/admin/chart/index.html`).toString('utf8');
             code = code.replace(
-                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
             );
 
@@ -123,7 +123,7 @@ installPromise
         if (existsSync(`${__dirname}/src-chart/build/index.html`)) {
             let code = readFileSync(`${__dirname}/src-chart/build/index.html`).toString('utf8');
             code = code.replace(
-                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/,
                 `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
             );
 

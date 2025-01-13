@@ -312,6 +312,7 @@ interface IOObjectFieldProps extends IOProps {
     width?: number | string;
     theme: IobTheme;
     minWidth?: string | number;
+    ref?: React.RefObject<HTMLInputElement>;
 }
 export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
     const [showDialog, setShowDialog] = useState(false);
@@ -337,6 +338,7 @@ export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
                     style={props.styles?.objectField}
                     label={I18n.t(props.label)}
                     fullWidth
+                    ref={props.ref}
                     slotProps={{
                         inputLabel: {
                             shrink: true,

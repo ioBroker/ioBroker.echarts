@@ -564,7 +564,7 @@ class ChartOption {
             }
             let color = oneLine.yaxe === 'off' ? 'rgba(0,0,0,0)' : this.config.grid_color || undefined;
             if (oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor') {
-                color = series[chartIndex].itemStyle.color;
+                color = series[chartIndex]?.itemStyle?.color;
             }
             return {
                 type: 'value',
@@ -623,9 +623,6 @@ class ChartOption {
                 return;
             }
             if (isLowerNumber && isUpperNumber) {
-                series.markLine = series.markLine || {
-                    symbol: ['none', 'none'],
-                };
                 // area
                 series.markArea = series.markArea || {
                     data: [],
@@ -633,7 +630,7 @@ class ChartOption {
                 series.markArea.data.push([
                     {
                         yAxis: lowerLimitFloat,
-                        name: oneMark.text || '',
+                        //  name: oneMark.text || '',
                         itemStyle: {
                             color: oneMark.color || series.itemStyle.color,
                             borderWidth: 0,
@@ -693,7 +690,7 @@ class ChartOption {
                         },
                     });
                     if (this.config.l[oneMark.lineId]) {
-                        // if minimum not set
+                        // if the minimum isn't set
                         const yMin = parseFloat(this.config.l[oneMark.lineId].min);
                         if (Number.isNaN(yMin) && this.chart.yAxis[oneMark.lineId]) {
                             if (this.chart.yAxis[oneMark.lineId].min > limitFloat && limitFloat < 0) {

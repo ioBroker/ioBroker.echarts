@@ -5,21 +5,35 @@
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@craco/craco": "^7.1.0",
+        "@iobroker/adapter-react-v5": "^7.1.4",
         "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
+        "@mui/icons-material": "^6.1.8",
+        "@mui/material": "^6.1.8",
+        "@sentry/browser": "^8.40.0",
         "craco-esbuild": "^0.6.1",
         "craco-module-federation": "^1.1.0",
         "node-sass": "^9.0.0",
         "prop-types": "^15.8.1",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
         "react-scripts": "^5.0.1",
-        "sass": "^1.83.0"
+        "eslint": "^8.57.0",
+        "eslint-config-airbnb": "^19.0.4",
+        "eslint-plugin-import": "^2.30.0",
+        "eslint-plugin-jsx-a11y": "^6.10.0",
+        "eslint-plugin-react": "^7.36.1",
+        "eslint-plugin-react-hooks": "^4.6.2",
+        "eslint-plugin-eqeqeq-fix": "^1.0.3",
+        "eslint-plugin-only-warn": "^1.1.0",
+        "sass": "^1.83.1"
     },
     "scripts": {
         "start": "set PORT=4173 && craco start",
-        "old-start": "set PORT=4173 && react-scripts start",
         "lint": "eslint --fix --ext .js,.jsx src",
         "build": "craco build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
+        "npm": "npm i -f",
         "i18n": "node node_modules/@iobroker/vis-2-widgets-react-dev/searchI18n vis_2_widgets_gauges"
     },
     "eslintConfig": {

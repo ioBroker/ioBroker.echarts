@@ -5,6 +5,9 @@ export default defineConfig(() => {
     return {
         build: {
             outDir: 'build',
+            commonjsOptions: {
+                requireReturnsDefault: 'auto',
+            },
         },
         plugins: [react()],
         base: './',

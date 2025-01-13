@@ -283,14 +283,12 @@ class Line extends React.Component<LineProps, LineState> {
 
     onIdChanged = async (value: string): Promise<void> => {
         const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-        line.id = value;
-        this.props.updateLine(this.props.index, line);
 
         // If ID changed => read unit and name
-        if (this.props.line.id !== value) {
+        if (line.id !== value) {
+            line.id = value;
             try {
-                const obj: ioBroker.Object | null | undefined = await this.props.socket.getObject(value);
-                const _line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                const obj: ioBroker.Object | null | undefined = value ? await this.props.socket.getObject(value) : null;
                 let name: string;
                 if (obj?.common?.name) {
                     name = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
@@ -299,11 +297,11 @@ class Line extends React.Component<LineProps, LineState> {
                     name = _name.length ? _name[_name.length - 1] : '';
                 }
                 if (obj?.common?.unit) {
-                    _line.unit = obj.common.unit;
+                    line.unit = obj.common.unit;
                 }
                 if (obj?.common && (obj.common.type === 'boolean' || obj.common.type === 'number')) {
-                    _line.chartType = 'auto';
-                    delete _line.aggregate;
+                    line.chartType = 'auto';
+                    delete line.aggregate;
                 }
 
                 const newState: Partial<LineState> = { isBoolean: obj?.common?.type === 'boolean' };
@@ -317,14 +315,14 @@ class Line extends React.Component<LineProps, LineState> {
                     newState.withStates = obj.common.states as Record<string, string>;
                     newState.originalStates = JSON.stringify(obj.common.states);
                     // merge with existing states
-                    if (_line.states) {
-                        Object.assign(newState.withStates, _line.states);
-                    } else if (_line.states === false) {
+                    if (line.states) {
+                        Object.assign(newState.withStates, line.states);
+                    } else if (line.states === false) {
                         newState.withStates = false;
                     }
                 } else {
                     newState.withStates = null;
-                    delete _line.states;
+                    delete line.states;
                 }
 
                 if (
@@ -334,16 +332,15 @@ class Line extends React.Component<LineProps, LineState> {
                 ) {
                     setTimeout(_newState => this.setState(_newState as LineState), 50, newState);
                 }
-                _line.name = name;
-                this.props.updateLine(this.props.index, _line);
+                line.name = name;
+                this.props.updateLine(this.props.index, line);
                 return;
             } catch (e: unknown) {
                 console.error(e);
             }
-            const _line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
             const _name = value.split('.');
-            _line.name = _name.length ? _name[_name.length - 1] : '';
-            this.props.updateLine(this.props.index, _line);
+            line.name = _name.length ? _name[_name.length - 1] : '';
+            this.props.updateLine(this.props.index, line);
         }
     };
 
@@ -498,7 +495,11 @@ class Line extends React.Component<LineProps, LineState> {
                             : null
                     }
                     styles={{
-                        fieldContainer: { ...styles.shortIdField, ...(this.props.onPaste ? styles.paste : undefined), flexGrow: 1 },
+                        fieldContainer: {
+                            ...styles.shortIdField,
+                            ...(this.props.onPaste ? styles.paste : undefined),
+                            flexGrow: 1,
+                        },
                     }}
                     socket={this.props.socket}
                 />

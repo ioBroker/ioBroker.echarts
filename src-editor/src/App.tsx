@@ -793,6 +793,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                     direction={this.state.logHorzLayout ? SplitDirection.Horizontal : SplitDirection.Vertical}
                     initialSizes={this.state.splitSizes}
                     minWidths={[100, 450]}
+                    onResizeStarted={() => this.setState({ resizing: true })}
                     onResizeFinished={(_gutterIdx: number, splitSizes: [number, number]): void => {
                         this.setState({ resizing: false, splitSizes });
                         window.localStorage.setItem('App.echarts.settingsSizes', JSON.stringify(splitSizes));
@@ -1002,13 +1003,12 @@ class App extends GenericApp<GenericAppProps, AppState> {
         if (this.state.menuOpened) {
             splitter = (
                 // @ts-expect-error idk
-                <DragDropContext
-                    onDragEnd={this.onDragEnd}
-                >
+                <DragDropContext onDragEnd={this.onDragEnd}>
                     <ReactSplit
                         direction={SplitDirection.Horizontal}
                         initialSizes={this.state.menuSizes}
                         minWidths={[307, 300]}
+                        onResizeStarted={() => this.setState({ resizing: true })}
                         onResizeFinished={(_gutterIdx: number, menuSizes: [number, number]): void => {
                             this.setState({ resizing: false, menuSizes: [menuSizes[0], 100 - menuSizes[0]] });
                             window.localStorage.setItem('App.echarts.menuSizes', JSON.stringify(menuSizes));
@@ -1023,21 +1023,14 @@ class App extends GenericApp<GenericAppProps, AppState> {
         } else {
             splitter = splitter = (
                 // @ts-expect-error idk
-                <DragDropContext
-                    onDragEnd={this.onDragEnd}
-                >
-                    {this.renderMain()}
-                </DragDropContext>);
+                <DragDropContext onDragEnd={this.onDragEnd}>{this.renderMain()}</DragDropContext>
+            );
         }
 
         return (
             <StyledEngineProvider injectFirst>
                 <ThemeProvider theme={this.state.theme}>
-                    <Box
-                        sx={styles.root}
-                    >
-                        {splitter}
-                    </Box>
+                    <Box sx={styles.root}>{splitter}</Box>
                     {this.discardChangesConfirmDialog()}
                     {this.renderError()}
                     {this.renderToast()}

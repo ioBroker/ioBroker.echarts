@@ -1213,7 +1213,9 @@ class ChartModel {
                     convert = `return ${convert}`;
                 }
                 try {
-                    this.convertFunctions[line.convert.trim()] = new Function('val', convert) as (val: number) => number;
+                    this.convertFunctions[line.convert.trim()] = new Function('val', convert) as (
+                        val: number,
+                    ) => number;
                 } catch (e) {
                     console.error(`[ChartModel] Cannot parse convert function: ${e}`);
                 }
@@ -1253,8 +1255,18 @@ class ChartModel {
 
         // add start and end
         if (line.chartType !== 'bar' && line.chartType !== 'polar') {
-            let end: number = typeof option.end === 'number' ? option.end : (option.end as Date).getTime();
-            const start: number = typeof option.start === 'number' ? option.start : (option.start as Date).getTime();
+            let end: number =
+                typeof option.end === 'number'
+                    ? option.end
+                    : typeof option.end === 'string'
+                      ? new Date(option.end).getTime()
+                      : (option.end as Date).getTime();
+            const start: number =
+                typeof option.start === 'number'
+                    ? option.start
+                    : typeof option.start === 'string'
+                      ? new Date(option.start).getTime()
+                      : (option.start as Date).getTime();
             // End cannot be in the future
             if (end > this.now) {
                 end = this.now;
