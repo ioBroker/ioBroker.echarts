@@ -11,7 +11,7 @@ import {
 } from 'react-icons/md';
 import { Search as SearchIcon, Close as ClearIcon, Preview as PreviewIcon } from '@mui/icons-material';
 
-import { type AdminConnection, I18n, type IobTheme, withWidth, type ThemeType } from '@iobroker/adapter-react-v5';
+import { type AdminConnection, I18n, type IobTheme, withWidth } from '@iobroker/adapter-react-v5';
 
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from './Components/ChartsTree';
