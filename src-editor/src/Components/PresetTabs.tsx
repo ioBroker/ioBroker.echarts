@@ -314,11 +314,11 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
         this.colorPickerCb = null;
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         window.addEventListener('resize', this.handleResize);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         window.removeEventListener('resize', this.handleResize);
     }
 

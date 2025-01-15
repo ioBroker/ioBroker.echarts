@@ -237,11 +237,11 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
         this.toolbarRef = React.createRef();
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         window.addEventListener('resize', this.handleResize);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         window.removeEventListener('resize', this.handleResize);
     }
 
@@ -527,7 +527,7 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
         );
     }
 
-    renderAutoRefresh() {
+    renderAutoRefresh(): React.JSX.Element | null {
         if (this.props.presetData.timeType !== 'relative') {
             return null;
         }

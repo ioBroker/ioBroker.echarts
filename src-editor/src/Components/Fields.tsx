@@ -16,7 +16,7 @@ import {
 
 import { Subject as IconSelectID, Close as ClearIcon, Help as HelpIcon } from '@mui/icons-material';
 
-import { I18n, DialogSelectID, ColorPicker, type AdminConnection, type IobTheme } from '@iobroker/adapter-react-v5';
+import { I18n, DialogSelectID, type AdminConnection, type IobTheme } from '@iobroker/adapter-react-v5';
 
 const styles: Record<string, React.CSSProperties> = {
     fieldContainer: {

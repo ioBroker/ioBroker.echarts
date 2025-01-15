@@ -2,7 +2,7 @@ import React from 'react';
 import ReactSplit, { SplitDirection } from '@devbookhq/splitter';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
-import { DragDropContext, type DropResult, type DragUpdate, DragStart } from 'react-beautiful-dnd';
+import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 
 import { Dialog, DialogTitle, Button, DialogActions, Box } from '@mui/material';
 

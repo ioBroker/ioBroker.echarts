@@ -1,11 +1,12 @@
 import React from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { Timeline } from '@mui/icons-material';
+
+import type { IobTheme } from '@iobroker/adapter-react-v5';
 
 import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
 import type { ChartConfigMore, SelectedChart } from '../../src/types';
-import type { IobTheme } from '@iobroker/adapter-react-v5';
-import {Timeline} from "@mui/icons-material";
 
 const styles: Record<'container' | 'heightWithoutToolbar' | 'height100', React.CSSProperties> = {
     container: {
