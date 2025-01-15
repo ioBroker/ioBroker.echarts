@@ -423,6 +423,8 @@ class ChartOption {
                 return cfg;
             }
             let cfg: RegisteredSeriesOption['scatter'] | RegisteredSeriesOption['line'];
+            oneLine.symbolSize = parseInt(oneLine.symbolSize as unknown as string, 10) || 3;
+
             if (oneLine.chartType === 'scatterplot') {
                 const _cfg: RegisteredSeriesOption['scatter'] = {
                     name: oneLine.name,
@@ -436,7 +438,7 @@ class ChartOption {
                     animation: false,
                     data: this.convertData(data as LineSeries[], i, yAxisIndex),
                     itemStyle: { color },
-                    symbolSize: oneLine.points ? oneLine.symbolSize || 3 : undefined,
+                    symbolSize: oneLine.points ? oneLine.symbolSize : undefined,
                     symbol: oneLine.points ? 'circle' : 'none',
                     emphasis: {
                         scale: false,
@@ -465,17 +467,14 @@ class ChartOption {
                     smooth: oneLine.chartType === 'spline',
                     data: this.convertData(data as LineSeries[], i, yAxisIndex),
                     itemStyle: { color },
-                    symbolSize: oneLine.points ? oneLine.symbolSize || 3 : undefined,
+                    symbolSize: oneLine.points ? oneLine.symbolSize : undefined,
                     symbol: oneLine.points ? 'circle' : 'none',
                     emphasis: {
                         scale: false,
                         focus: 'none',
                         disabled: true, // what is that?
                         lineStyle: {
-                            width:
-                                oneLine.thickness !== undefined
-                                    ? parseFloat(oneLine.thickness as unknown as string)
-                                    : 1,
+                            width: oneLine.thickness,
                             shadowBlur: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                             shadowOffsetY: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                             shadowColor: color,
@@ -483,7 +482,7 @@ class ChartOption {
                         },
                     },
                     lineStyle: {
-                        width: oneLine.thickness !== undefined ? parseFloat(oneLine.thickness as unknown as string) : 1,
+                        width: oneLine.thickness,
                         shadowBlur: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowOffsetY: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowColor: color,
