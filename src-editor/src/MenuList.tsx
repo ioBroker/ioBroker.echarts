@@ -151,12 +151,14 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                         value={this.state.search}
                         style={styles.textInput}
                         onChange={e => this.setState({ search: e.target.value })}
-                        InputProps={{
-                            endAdornment: this.state.search ? (
-                                <IconButton onClick={() => this.setState({ search: '' })}>
-                                    <ClearIcon />
-                                </IconButton>
-                            ) : undefined,
+                        slotProps={{
+                            input: {
+                                endAdornment: this.state.search ? (
+                                    <IconButton onClick={() => this.setState({ search: '' })}>
+                                        <ClearIcon />
+                                    </IconButton>
+                                ) : undefined,
+                            },
                         }}
                     />
                 ) : null}

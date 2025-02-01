@@ -373,7 +373,7 @@ class ChartModel {
     constructor(
         socket: Connection,
         /** Config or preset ID */
-        config: ChartConfigOld | string,
+        config: ChartConfig | ChartConfigOld | string,
         options?: { updateTimeout?: number; serverSide?: boolean; compact?: boolean },
     ) {
         options = { updateTimeout: 300, ...(options || {}) };
@@ -407,12 +407,12 @@ class ChartModel {
             });
     }
 
-    async analyseAndLoadConfig(config?: string | ChartConfigOld): Promise<void> {
+    async analyseAndLoadConfig(config?: string | ChartConfigOld | ChartConfig): Promise<void> {
         if (config) {
             if (typeof config === 'string') {
                 this.preset = config;
             } else {
-                this.config = normalizeConfig(config);
+                this.config = normalizeConfig(config as ChartConfigOld);
             }
         } else if (!this.serverSide) {
             const query: Record<string, number | string | boolean> = parseQuery(window.location.search); // Utils.parseQuery

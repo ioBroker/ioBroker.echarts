@@ -45,9 +45,9 @@ import plLang from './i18n/pl.json';
 import ukLang from './i18n/uk.json';
 import zhLang from './i18n/zh-cn.json';
 
-import ChartModel, { type SeriesData, type BarAndLineSeries } from './Components/ChartModel';
+import ChartModel, {type SeriesData, type BarAndLineSeries, ChartConfigOld} from './Components/ChartModel';
 import ChartView from './Components/ChartView';
-import type { ChartConfigMore } from '../../src/types';
+import type {ChartConfig, ChartConfigMore} from '../../src/types';
 
 const styles: Record<string, React.CSSProperties> = {
     root: {
@@ -249,7 +249,7 @@ class App extends Component<AppProps, AppState> {
         }
     }
 
-    createChartData(config?: any): void {
+    createChartData(config?: ChartConfig | ChartConfigOld | string): void {
         this.chartData = new ChartModel(this.socket, config, { compact: this.state.compact });
         this.chartData.onError(err => {
             if (err.toString().includes(ERRORS.NOT_CONNECTED)) {
@@ -294,7 +294,7 @@ class App extends Component<AppProps, AppState> {
     onReceiveMessage = (message?: { data: string }): void => {
         if (message && message.data !== 'chartReady') {
             try {
-                const config = JSON.parse(message.data);
+                const config: ChartConfig | ChartConfigOld = JSON.parse(message.data);
                 if (!this.chartData) {
                     this.createChartData(config);
                 } else {

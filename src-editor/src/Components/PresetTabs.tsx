@@ -2159,7 +2159,10 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         <IconButton
                             style={{ ...styles.button, ...styles.noPaddingOnSide }}
                             onClick={() =>
-                                window.open(`chart/index.html?preset=${this.props.selectedId}`, 'own-preset-echarts')
+                                window.open(
+                                    `chart/index.html?preset=${encodeURIComponent(this.props.selectedId)}`,
+                                    'own-preset-echarts',
+                                )
                             }
                             title={I18n.t('Open chart in own window')}
                         >
