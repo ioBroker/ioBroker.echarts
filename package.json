@@ -36,7 +36,7 @@
     "@iobroker/adapter-react-v5": "^7.4.19",
     "@iobroker/build-tools": "^2.0.14",
     "@iobroker/eslint-config": "^1.0.0",
-    "@iobroker/legacy-testing": "^2.0.1",
+    "@iobroker/legacy-testing": "^2.0.2",
     "@iobroker/testing": "^5.0.0",
     "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
     "@mui/icons-material": "^6.4.2",
