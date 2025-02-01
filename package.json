@@ -34,20 +34,20 @@
     "@alcalzone/release-script-plugin-iobroker": "^3.7.2",
     "@alcalzone/release-script-plugin-license": "^3.7.0",
     "@iobroker/adapter-react-v5": "^7.4.19",
-    "@iobroker/build-tools": "^2.0.14",
+    "@iobroker/build-tools": "^2.0.15",
     "@iobroker/eslint-config": "^1.0.0",
     "@iobroker/legacy-testing": "^2.0.2",
-    "@iobroker/testing": "^5.0.0",
+    "@iobroker/testing": "^5.0.3",
     "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
     "@mui/icons-material": "^6.4.2",
-    "@mui/material": "^6.3.1",
+    "@mui/material": "^6.4.2",
     "@types/jsdom": "^21.1.7",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "axios": "^1.7.9",
     "chai": "^4.5.0",
     "colorette": "^2.0.20",
-    "mocha": "^11.0.1",
+    "mocha": "^11.1.0",
     "puppeteer": "^24.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -77,8 +77,8 @@
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",
     "release-major": "release-script major --yes",
-    "update-packages": "npx -y npm-check-updates --upgrade && cd src && npx -y npm-check-updates --upgrade && cd ../src-chart && npx -y npm-check-updates --upgrade && cd ../src-preview && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade",
-    "npm": "npm i && cd src && npm i -f && cd ../src-chart && npm i -f && cd ../src-preview && npm i -f && cd ../src-widgets && npm i -f"
+    "update-packages": "npx -y npm-check-updates --upgrade && cd src-editor && npx -y npm-check-updates --upgrade && cd ../src-chart && npx -y npm-check-updates --upgrade && cd ../src-preview && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade",
+    "npm": "npm i && cd src-editor && npm i -f && cd ../src-chart && npm i -f && cd ../src-preview && npm i -f && cd ../src-widgets && npm i -f"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.echarts/issues"

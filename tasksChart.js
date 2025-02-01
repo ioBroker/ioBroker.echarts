@@ -83,18 +83,9 @@ function copyReactFilesToBackEnd() {
     let chartModel = readFileSync(`${__dirname}/src-chart/src/Components/ChartModel.ts`).toString('utf8');
 
     chartModel = chartModel
-        .replace(
-            "'@iobroker/adapter-react-v5';",
-            "'../types';",
-        )
-        .replace(
-            "'../../../src/types';",
-            "'../types';",
-        );
-    chartOptions = chartOptions.replace(
-        "'../../../src/types';",
-        "'../types';",
-    );
+        .replace("'@iobroker/adapter-react-v5';", "'../types';")
+        .replace("'../../../src/types';", "'../types';");
+    chartOptions = chartOptions.replace("'../../../src/types';", "'../types';");
 
     writeFileSync(`${__dirname}/src/lib/ChartOption.ts`, chartOptions);
     writeFileSync(`${__dirname}/src/lib/ChartModel.ts`, chartModel);

@@ -12,16 +12,19 @@ const { deleteFoldersRecursive, npmInstall, buildReact, copyFiles } = require('@
 function copyAllFiles() {
     deleteFoldersRecursive(`${__dirname}/admin`, ['chart', 'preview']);
 
-    copyFiles([
-        'src-editor/build/**/*',
-        '!src-editor/build/vendor/*',
-        '!src-editor/build/index.html',
-        '!src-editor/build/static/js/main.*.chunk.js',
-        '!src-editor/build/static/media/*.svg',
-        '!src-editor/build/static/media/*.txt',
-        '!src-editor/build/i18n/**/*',
-        '!src-editor/build/i18n',
-    ],'admin/');
+    copyFiles(
+        [
+            'src-editor/build/**/*',
+            '!src-editor/build/vendor/*',
+            '!src-editor/build/index.html',
+            '!src-editor/build/static/js/main.*.chunk.js',
+            '!src-editor/build/static/media/*.svg',
+            '!src-editor/build/static/media/*.txt',
+            '!src-editor/build/i18n/**/*',
+            '!src-editor/build/i18n',
+        ],
+        'admin/',
+    );
 
     copyFiles('admin-config/*', 'admin/');
 
@@ -44,15 +47,19 @@ installPromise
     .then(() => {
         if (fs.existsSync(`${__dirname}/admin/tab.html`)) {
             let code = fs.readFileSync(`${__dirname}/admin/tab.html`).toString('utf8');
-            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
+            code = code.replace(
+                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
+            );
 
             fs.writeFileSync(`${__dirname}/admin/tab.html`, code);
         }
         if (fs.existsSync(`${__dirname}/src-editor/build/index.html`)) {
             let code = fs.readFileSync(`${__dirname}/src-editor/build/index.html`).toString('utf8');
-            code = code.replace(/<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`);
+            code = code.replace(
+                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
+                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
+            );
 
             fs.writeFileSync(`${__dirname}/src-editor/build/index.html`, code);
         }

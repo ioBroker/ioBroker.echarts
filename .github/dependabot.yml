@@ -1,44 +1,62 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: "/"
-    schedule:
-      interval: monthly
-      time: "04:00"
-      timezone: Europe/Berlin
+    - package-ecosystem: github-actions
+      directory: '/'
+      schedule:
+          interval: monthly
+          time: '04:00'
+          timezone: Europe/Berlin
 
-  - package-ecosystem: npm
-    directory: "/"
-    schedule:
-      interval: monthly
-      time: "04:00"
-      timezone: Europe/Berlin
-    open-pull-requests-limit: 7
-    versioning-strategy: increase
+    - package-ecosystem: npm
+      directory: '/'
+      schedule:
+          interval: monthly
+          time: '04:00'
+          timezone: Europe/Berlin
+      open-pull-requests-limit: 7
+      versioning-strategy: increase
 
-  - package-ecosystem: npm
-    directory: "/src"
-    schedule:
-      interval: monthly
-      time: "04:00"
-      timezone: Europe/Berlin
-    open-pull-requests-limit: 20
-    versioning-strategy: increase
+    - package-ecosystem: npm
+      directory: '/src'
+      schedule:
+          interval: monthly
+          time: '04:00'
+          timezone: Europe/Berlin
+      open-pull-requests-limit: 20
+      versioning-strategy: increase
 
-  - package-ecosystem: npm
-    directory: "/src-chart"
-    schedule:
-      interval: monthly
-      time: "04:00"
-      timezone: Europe/Berlin
-    open-pull-requests-limit: 20
-    versioning-strategy: increase
+    - package-ecosystem: npm
+      directory: '/src-chart'
+      schedule:
+          interval: monthly
+          time: '04:00'
+          timezone: Europe/Berlin
+      open-pull-requests-limit: 20
+      versioning-strategy: increase
 
-  - package-ecosystem: npm
-    directory: "/src-preview."
-    schedule:
-      interval: monthly
-      time: "04:00"
-      timezone: Europe/Berlin
-    open-pull-requests-limit: 20
-    versioning-strategy: increase
+    - package-ecosystem: npm
+      directory: '/src-editor'
+      schedule:
+          interval: monthly
+          time: '04:00'
+          timezone: Europe/Berlin
+      open-pull-requests-limit: 20
+      versioning-strategy: increase
+
+    - package-ecosystem: npm
+      directory: '/src-preview'
+      schedule:
+          interval: monthly
+          time: '04:00'
+          timezone: Europe/Berlin
+      open-pull-requests-limit: 20
+      versioning-strategy: increase
+
+    - package-ecosystem: npm
+      directory: '/src-widgets'
+      schedule:
+        interval: monthly
+        time: '04:00'
+        timezone: Europe/Berlin
+      open-pull-requests-limit: 20
+      versioning-strategy: increase
