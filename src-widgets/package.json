@@ -15,7 +15,7 @@
         "node-sass": "^9.0.0",
         "prop-types": "^15.8.1",
         "react": "^18.3.1",
-        "react-dom": "^18.3.1",
+        "react-dom": "^19.0.0",
         "react-scripts": "^5.0.1",
         "eslint": "^8.57.0",
         "eslint-config-airbnb": "^19.0.4",
