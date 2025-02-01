@@ -83,8 +83,6 @@ class EchartsAdapter extends Adapter {
                     _actualValues?: (number | null | boolean | string)[],
                     barCategories?: number[],
                 ) => {
-                    const systemConfig = chartData.getSystemConfig();
-                    moment.locale(systemConfig?.language || 'en');
                     const theme = options.theme || options.themeType || 'light';
 
                     const chartOption = new ChartOption(moment, theme, calcTextWidth);
@@ -302,6 +300,12 @@ class EchartsAdapter extends Adapter {
         const _obj: any = JSON.parse(readFileSync(`${__dirname}/../io-package.json`).toString('utf8')).objects.find(
             (ob: ioBroker.Object) => ob._id === '_design/chart',
         );
+
+        // Set the system language for moment
+        const systemConfig = await this.getForeignObjectAsync('system.config');
+        if (systemConfig?.common?.language) {
+            moment.locale(systemConfig.common.language);
+        }
 
         if (!designObject || (_obj && JSON.stringify(designObject.views) !== JSON.stringify(_obj.views))) {
             designObject = { language: 'javascript' } as ioBroker.DesignObject;
