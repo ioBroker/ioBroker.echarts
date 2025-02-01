@@ -132,6 +132,10 @@ function parseHash(): Record<string, any> | null {
     return null;
 }
 
+interface AppProps extends GenericAppProps {
+    version: string;
+}
+
 interface AppState extends GenericAppState {
     autoSave: boolean;
     chartsList: { id: string; instance: string }[] | null;
@@ -152,14 +156,14 @@ interface AppState extends GenericAppState {
     systemConfig: ioBroker.SystemConfigObject;
 }
 
-class App extends GenericApp<GenericAppProps, AppState> {
+class App extends GenericApp<AppProps, AppState> {
     private config: { preset: string } | { id: string; instance: string; menuOpened: boolean } | null;
 
     private objects: Record<string, ioBroker.StateObject | null> = {};
 
     private confirmCB: ((confirmed: boolean) => void) | null = null;
 
-    constructor(props: GenericAppProps) {
+    constructor(props: AppProps) {
         const settings: GenericAppSettings = { socket: {} };
         const query = getUrlQuery();
         settings.socket.port =
@@ -1004,6 +1008,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                         void this.loadChartOrPreset(selectedId);
                     }
                 }}
+                version={this.props.version}
             />
         );
     }

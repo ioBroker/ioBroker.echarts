@@ -65,6 +65,7 @@ interface MenuListProps {
     selectedId: string | ChartConfigMore;
     selectedPresetChanged: boolean;
     showReorder: boolean;
+    version: string;
 }
 
 interface MenuListState {
@@ -160,6 +161,7 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                     />
                 ) : null}
                 <div style={{ flexGrow: 1 }} />
+                <div style={{ opacity: 0.7, fontSize: 12 }}>v{this.props.version}</div>
 
                 {(!this.state.showSearch && this.state.showReorder) || this.state.reorder ? (
                     <IconButton
