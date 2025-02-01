@@ -370,6 +370,12 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 obj._id = id;
                 obj.common.name = name;
                 try {
+                    // for backwards compatibility rename l to lines
+                    if (obj.native.data.lines) {
+                        obj.native.data.lines = obj.native.data.l;
+                        delete obj.native.data.l;
+                    }
+
                     await this.socket.setObject(obj._id, obj);
                     void this.loadChartOrPreset(id);
                 } catch (e) {
@@ -445,7 +451,13 @@ class App extends GenericApp<GenericAppProps, AppState> {
         }
 
         try {
-            await this.socket.setObject(id, template);
+            // for backwards compatibility rename l to lines
+            if (template.native.data.lines) {
+                template.native.data.lines = template.native.data.l;
+                delete template.native.data.l;
+            }
+
+            await this.socket.setObject(template._id, template);
             void this.loadChartOrPreset(id);
         } catch (e) {
             this.onError(e, 'Cannot save object');
@@ -470,7 +482,14 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 this.showError(I18n.t('Invalid object'));
                 return;
             }
-            obj.native.data = this.state.presetData;
+            obj.native.data = JSON.parse(JSON.stringify(this.state.presetData));
+
+            // for backwards compatibility rename l to lines
+            if (obj.native.data.lines) {
+                obj.native.data.lines = obj.native.data.l;
+                delete obj.native.data.l;
+            }
+
             try {
                 await this.socket.setObject(obj._id, obj);
             } catch (e) {
@@ -593,7 +612,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 l: lines,
                 zoom: true,
                 hoverDetail: true,
-                hoverBackground: loadChartParamS<string>('aggregate', undefined),
+                hoverBackground: loadChartParamS('hoverBackground', undefined),
                 aggregate: loadChartParam<ChartAggregateType>('aggregate', 'minmax'),
                 chartType: loadChartParam<ChartType>('chartType', 'auto'),
                 live: loadChartParamN('live', 30),
