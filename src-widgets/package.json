@@ -5,11 +5,11 @@
     "dependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@craco/craco": "^7.1.0",
-        "@iobroker/adapter-react-v5": "^7.4.12",
+        "@iobroker/adapter-react-v5": "^7.4.14",
         "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
-        "@mui/icons-material": "^6.3.1",
-        "@mui/material": "^6.3.1",
-        "@sentry/browser": "^8.48.0",
+        "@mui/icons-material": "^6.4.0",
+        "@mui/material": "^6.4.0",
+        "@sentry/browser": "^8.50.0",
         "craco-esbuild": "^0.6.1",
         "craco-module-federation": "^1.1.0",
         "node-sass": "^9.0.0",
@@ -25,7 +25,7 @@
         "eslint-plugin-react-hooks": "^5.1.0",
         "eslint-plugin-eqeqeq-fix": "^1.0.3",
         "eslint-plugin-only-warn": "^1.1.0",
-        "sass": "^1.83.1"
+        "sass": "^1.83.4"
     },
     "scripts": {
         "start": "set PORT=4173 && craco start",

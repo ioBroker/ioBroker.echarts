@@ -1111,7 +1111,7 @@ class ChartOption {
                 );
             }
 
-            // It is line and not bar or polar
+            // It is a line and not a bar or polar
             let interpolated: { exact?: boolean; val: number };
             if (p) {
                 // @ts-expect-error fix later
@@ -1268,6 +1268,18 @@ class ChartOption {
         const yAxis = this.getYAxis(series);
         const xAxis = this.getXAxis(categories);
 
+        const tooltip =
+            !this.compact && this.config.hoverDetail
+                ? {
+                      trigger: 'axis',
+                      formatter: (params: CallbackDataParams[]) => this.renderTooltip(params),
+                  }
+                : undefined;
+
+        if (tooltip && this.config.hoverBackground) {
+            tooltip.backgroundColor = this.config.hoverBackground;
+        }
+
         const option: EChartsOption = {
             theme,
             backgroundColor: 'transparent',
@@ -1281,13 +1293,7 @@ class ChartOption {
                 bottom: this.compact ? 4 : this.isXLabelHasBreak() ? 40 : 24,
                 containLabel: this.config.autoGridPadding,
             },
-            tooltip:
-                !this.compact && this.config.hoverDetail
-                    ? {
-                          trigger: 'axis',
-                          formatter: (params: CallbackDataParams[]) => this.renderTooltip(params),
-                      }
-                    : undefined,
+            tooltip,
             axisPointer:
                 this.compact && this.config.hoverDetail
                     ? {

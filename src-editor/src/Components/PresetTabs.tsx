@@ -1386,7 +1386,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         }}
                         label="Hover details"
                     />
-                    <IOCheckbox
+                    {this.props.presetData.hoverDetail ? <IOCheckbox
                         value={this.props.presetData.hoverNoInterpolate}
                         updateValue={(value: boolean): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
@@ -1394,7 +1394,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                             this.props.onChange(presetData);
                         }}
                         label="No interpolate in hover"
-                    />
+                    /> : null}
                     {this.props.presetData.hoverDetail ? (
                         <IOCheckbox
                             value={this.props.presetData.hoverNoNulls}
@@ -1406,6 +1406,13 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                             label="Hide nulls in tooltip"
                         />
                     ) : null}
+                    {this.props.presetData.hoverDetail
+                        ? this.renderColorField(
+                            this.props.presetData.hoverBackground,
+                            'Tooltip background',
+                            'hoverBackground',
+                        )
+                        : null}
                     <IOCheckbox
                         value={this.props.presetData.useComma}
                         updateValue={(value: boolean): void => {

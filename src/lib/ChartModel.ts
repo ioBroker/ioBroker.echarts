@@ -9,97 +9,6 @@ import type {
     ChartRangeOptions,
 } from '../types';
 
-/*
-function deParam(params, coerce) {
-    const obj = {};
-    const coerceTypes = {'true': true, 'false': false, 'null': null};
-
-    // Iterate over all name=value pairs.
-    params.replace(/\+/g, ' ').split('&').forEach(v => {
-        const param = v.split('=');
-        let key = decodeURIComponent(param[0]);
-        let val;
-        let i = 0;
-
-        // If key is more complex than 'foo', like 'a[]' or 'a[b][c]', split it
-        // into its component parts.
-        let keys = key.split('][');
-        let keysLast = keys.length - 1;
-
-        // If the first keys part contains [ and the last ends with ], then []
-        // are correctly balanced.
-        if (/\[/.test(keys[0]) && /]$/.test(keys[keysLast])) {
-            // Remove the trailing ] from the last keys part.
-            keys[keysLast] = keys[keysLast].replace(/]$/, '');
-
-            // Split first keys part into two parts on the [ and add them back onto
-            // the beginning of the keys array.
-            keys = keys.shift().split('[').concat(keys);
-
-            keysLast = keys.length - 1;
-        } else {
-            // Basic 'foo' style key.
-            keysLast = 0;
-        }
-
-        // Are we dealing with a name=value pair, or just a name?
-        if (param.length === 2) {
-            val = decodeURIComponent(param[1]);
-
-            // Coerce values.
-            if (coerce) {
-                val = val && !isNaN(val) && ((+val + '') === val) ? +val        // number
-                    : val === 'undefined' ? undefined         // undefined
-                        : coerceTypes[val] !== undefined ? coerceTypes[val] // true, false, null
-                            : val;                                                          // string
-            }
-
-            if (keysLast) {
-                let cur = obj;
-                // Complex key, build deep object structure based on a few rules:
-                // * The 'cur' pointer starts at the object top-level.
-                // * [] = array push (n is set to array length), [n] = array if n is
-                //   numeric, otherwise object.
-                // * If at the last keys part, set the value.
-                // * For each keys part, if the current level is undefined create an
-                //   object or array based on the type of the next keys part.
-                // * Move the 'cur' pointer to the next level.
-                // * Rinse & repeat.
-                for (; i <= keysLast; i++) {
-                    key = keys[i] === '' ? cur.length : keys[i];
-                    cur = cur[key] = i < keysLast
-                        ? cur[key] || (keys[i + 1] && isNaN(keys[i + 1]) ? {} : [])
-                        : val;
-                }
-
-            } else {
-                // Simple key, even simpler rules, since only scalars and shallow
-                // arrays are allowed.
-
-                if (Object.prototype.toString.call(obj[key]) === '[object Array]') {
-                    // val is already an array, so push on the next value.
-                    obj[key].push(val);
-                } else if ({}.hasOwnProperty.call(obj, key)) {
-                    // val isn't an array, but since a second value has been specified,
-                    // convert val into an array.
-                    obj[key] = [obj[key], val];
-                } else {
-                    // val is a scalar.
-                    obj[key] = val;
-                }
-            }
-        } else if (key) {
-            // No value was defined, so set something meaningful.
-            obj[key] = coerce
-                ? undefined
-                : '';
-        }
-    });
-
-    return obj;
-}
-*/
-
 export type EchartsOneValue = { value: [number, number]; exact?: false };
 type EchartsAnyValue = { value: [number, number | string | boolean]; exact?: false };
 
@@ -251,6 +160,41 @@ function parseQuery(query: string): Record<string, number | boolean | string> {
     return result;
 }
 
+function getFloat(value: string | number | boolean): number {
+    if (typeof value === 'number') {
+        return value;
+    }
+    if (value === true) {
+        return 1;
+    }
+    if (value === false || value === 'null' || value === '') {
+        return 0;
+    }
+    const f = parseFloat(value);
+    if (isNaN(f)) {
+        return 0;
+    }
+    return f;
+}
+
+function getInt(value: string | number): number {
+    if (typeof value === 'number') {
+        return value;
+    }
+    if (value === 'null') {
+        return 0;
+    }
+    const f = parseInt(value, 10);
+    if (isNaN(f)) {
+        return 0;
+    }
+    return f;
+}
+
+function getBoolean(value: boolean | string): boolean {
+    return value === true || value === 'true';
+}
+
 // Do not forget to change normalizeConfig in src/utils/flotConverter.js too
 function normalizeConfig(config: ChartConfigOld): ChartConfig {
     const newConfig: ChartConfig = JSON.parse(JSON.stringify(config));
@@ -276,8 +220,8 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
                 color: colors[i] || 'blue',
                 thickness: config.strokeWidth || 1,
                 shadowsize: config.strokeWidth || 1,
-                min: config.min || undefined,
-                max: config.max || undefined,
+                min: config.min === 0 || config.min ? config.min : undefined,
+                max: config.max === 0 || config.max ? config.max : undefined,
                 unit: units[i] || undefined,
             });
         }
@@ -286,9 +230,9 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
         newConfig.relativeEnd = 'now';
     }
 
-    // convert art to aggregate (from flot)
     if (config.l) {
         for (let j = 0; j < config.l.length; j++) {
+            // convert art to aggregate (from flot)
             if (config.l[j].art) {
                 config.l[j].aggregate = config.l[j].art;
                 delete config.l[j].art;
@@ -296,14 +240,16 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
             if (config.instance && !config.l[j].instance) {
                 config.l[j].instance = config.instance;
             }
-            config.l[j].yOffset = parseFloat(config.l[j].yOffset as unknown as string) || 0;
-            config.l[j].offset = parseFloat(config.l[j].offset as unknown as string) || 0;
-            config.l[j].validTime = parseFloat(config.l[j].validTime as unknown as string) || 0;
+            config.l[j].yOffset = getFloat(config.l[j].yOffset);
+            config.l[j].offset = getFloat(config.l[j].offset);
+            config.l[j].validTime = getFloat(config.l[j].validTime);
             config.l[j].chartType = config.l[j].chartType || config.chartType || 'auto';
+            config.l[j].thickness = config.l[j].thickness === undefined ? 1 : getFloat(config.l[j].thickness);
+            config.l[j].shadowsize = getFloat(config.l[j].shadowsize);
         }
+    } else {
+        config.l = [];
     }
-
-    config.l = config.l || [];
 
     // convert marks
     if (config.m) {
@@ -314,7 +260,7 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
                 upperValueOrId: config.m[j].v,
                 lowerValueOrId: config.m[j].vl,
                 color: config.m[j].c,
-                fill: parseFloat(config.m[j].f as string),
+                fill: getFloat(config.m[j].f),
                 ol: config.m[j].t,
                 os: config.m[j].s,
                 text: config.m[j].d,
@@ -339,34 +285,35 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
     newConfig.width = config.width || '100%';
     newConfig.height = config.height || '100%';
     // if width or height does not have any units, add px to it
-    if (parseFloat(newConfig.width as string).toString() === newConfig.width.toString().trim()) {
+    if (getFloat(newConfig.width).toString() === newConfig.width.toString().trim()) {
         newConfig.width += 'px';
     }
-    if (parseFloat(newConfig.height as string).toString() === newConfig.height.toString().trim()) {
+    if (getFloat(newConfig.height).toString() === newConfig.height.toString().trim()) {
         newConfig.height += 'px';
     }
 
     newConfig.timeFormat = config.timeFormat || '';
-    newConfig.useComma = config.useComma === 'true' || config.useComma === true;
-    newConfig.zoom = config.zoom === 'true' || config.zoom === true;
-    newConfig.export = config.export === 'true' || config.export === true;
-    newConfig.grid_hideX = config.grid_hideX === 'true' || config.grid_hideX === true;
-    newConfig.grid_hideY = config.grid_hideY === 'true' || config.grid_hideY === true;
-    newConfig.hoverDetail = config.hoverDetail === 'true' || config.hoverDetail === true;
-    newConfig.noLoader = config.noLoader === 'true' || config.noLoader === true;
-    newConfig.noedit = config.noedit === 'true' || config.noedit === true;
-    newConfig.animation = parseInt(config.animation as string, 10) || 0;
-    newConfig.afterComma = config.afterComma === undefined ? 2 : parseInt(config.afterComma as string, 10);
+    newConfig.useComma = getBoolean(config.useComma);
+    newConfig.zoom = getBoolean(config.zoom);
+    newConfig.export = getBoolean(config.export);
+    newConfig.grid_hideX = getBoolean(config.grid_hideX);
+    newConfig.grid_hideY = getBoolean(config.grid_hideY);
+    newConfig.hoverDetail = getBoolean(config.hoverDetail);
+    newConfig.noLoader = getBoolean(config.noLoader);
+    newConfig.noedit = getBoolean(config.noedit);
+    newConfig.animation = getInt(config.animation);
+    newConfig.afterComma =
+        config.afterComma === undefined || config.afterComma === null ? 2 : getInt(config.afterComma);
     newConfig.timeType = config.timeType || 'relative';
     if (config.xLabelShift) {
         if (typeof config.xLabelShift === 'string' && config.xLabelShift.endsWith('m')) {
-            newConfig.xLabelShift = parseInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1), 10) || 0;
+            newConfig.xLabelShift = getInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1));
             newConfig.xLabelShiftMonth = true;
         } else if (typeof config.xLabelShift === 'string' && config.xLabelShift.endsWith('y')) {
-            newConfig.xLabelShift = parseInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1), 10) || 0;
+            newConfig.xLabelShift = getInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1));
             newConfig.xLabelShiftYear = true;
         } else {
-            newConfig.xLabelShift = parseInt(config.xLabelShift as string, 10) || 0;
+            newConfig.xLabelShift = getInt(config.xLabelShift);
         }
     }
 
@@ -554,7 +501,7 @@ class ChartModel {
                 this.config.useComma =
                     this.config.useComma === undefined ? this.systemConfig.isFloatComma : this.config.useComma;
                 this.config.lang = this.systemConfig.language;
-                this.config.live = parseInt(this.config.live as unknown as string, 10) || 0;
+                this.config.live = getInt(this.config.live);
                 this.config.debug = this.debug;
                 this.config.presetId = this.preset;
 
@@ -564,7 +511,7 @@ class ChartModel {
                         !this.hash.range.includes('y') &&
                         !this.hash.range.includes('m')
                     ) {
-                        this.config.range = parseInt(this.hash.range, 10);
+                        this.config.range = getInt(this.hash.range) || 1;
                     } else {
                         this.config.range = this.hash.range;
                     }
@@ -595,7 +542,7 @@ class ChartModel {
                     ? this.systemConfig.isFloatComma === true
                     : this.config.useComma === true;
             this.config.lang = this.systemConfig.language;
-            this.config.live = parseInt(this.config.live as unknown as string, 10) || 0;
+            this.config.live = getInt(this.config.live);
             this.config.debug = this.debug;
             await this.readData();
             if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
@@ -756,7 +703,7 @@ class ChartModel {
     }
 
     increaseRegionForBar(start: number | Date, end: number | Date, option: ioBroker.GetHistoryOptions): void {
-        this.config.aggregateBar = parseInt(this.config.aggregateBar as unknown as string, 10) || 0;
+        this.config.aggregateBar = getInt(this.config.aggregateBar);
         let endTs = typeof end === 'number' ? end : end.getTime();
         let startTs = typeof start === 'number' ? start : start.getTime();
 
@@ -870,7 +817,7 @@ class ChartModel {
 
         // check config range
         if (typeof this.config.range === 'string' && this.config.range.includes('m') && this.config.l.length > 1) {
-            const monthRange = parseInt(this.config.range as string, 10) || 1;
+            const monthRange = getInt(this.config.range) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
                 if (this.config.l[a].offset) {
                     // Check what the month has first index
@@ -886,7 +833,7 @@ class ChartModel {
             this.config.range.includes('y') &&
             this.config.l.length > 1
         ) {
-            const yearRange = parseInt(this.config.range as string, 10) || 1;
+            const yearRange = getInt(this.config.range) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
                 if (this.config.l[a].offset) {
                     // Check what the month has first index
@@ -933,13 +880,13 @@ class ChartModel {
                 if (this.config.relativeEnd === 'now') {
                     _nowDate = new Date(this.now);
                 } else if (this.config.relativeEnd.includes('minute')) {
-                    const minutes = parseInt(this.config.relativeEnd, 10) || 1;
+                    const minutes = getInt(this.config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setMinutes(Math.floor(_nowDate.getMinutes() / minutes) * minutes + minutes);
                     _nowDate.setSeconds(0);
                     _nowDate.setMilliseconds(0);
                 } else if (this.config.relativeEnd.includes('hour')) {
-                    const hours = parseInt(this.config.relativeEnd, 10) || 1;
+                    const hours = getInt(this.config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setHours(Math.floor(_nowDate.getHours() / hours) * hours + hours);
                     _nowDate.setMinutes(0);
@@ -953,7 +900,7 @@ class ChartModel {
                     _nowDate.setSeconds(0);
                     _nowDate.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'weekUsa') {
-                    // const week = parseInt(config.relativeEnd, 10) || 1;
+                    // const week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setDate(_nowDate.getDate() - _nowDate.getDay() + 7);
                     _nowDate.setHours(0);
@@ -961,7 +908,7 @@ class ChartModel {
                     _nowDate.setSeconds(0);
                     _nowDate.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'weekEurope') {
-                    // const _week = parseInt(config.relativeEnd, 10) || 1;
+                    // const _week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     // If
                     if (_nowDate.getDay() === 0) {
@@ -974,7 +921,7 @@ class ChartModel {
                     _nowDate.setSeconds(0);
                     _nowDate.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'week2Usa') {
-                    // const week = parseInt(config.relativeEnd, 10) || 1;
+                    // const week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setDate(_nowDate.getDate() - _nowDate.getDay() + 7);
                     _nowDate.setDate(_nowDate.getDate() - 7);
@@ -983,7 +930,7 @@ class ChartModel {
                     _nowDate.setSeconds(0);
                     _nowDate.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'week2Europe') {
-                    // const _week = parseInt(config.relativeEnd, 10) || 1;
+                    // const _week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     // If
                     if (_nowDate.getDay() === 0) {
@@ -1154,15 +1101,17 @@ class ChartModel {
             value = 1;
         } else if (value === 'false' || value === false) {
             value = 0;
+        } else if (value === 'null') {
+            value = null;
         } else if (typeof value === 'string') {
-            value = parseFloat(value as unknown as string);
+            value = getFloat(value);
         }
 
         if (convertFunc) {
-            return value !== null ? convertFunc(value + yOffset) : null;
+            return value !== null ? convertFunc((value as number) + yOffset) : null;
         }
 
-        return value !== null ? value + yOffset : null;
+        return value !== null ? (value as number) + yOffset : null;
     }
 
     processRawData(
@@ -1355,7 +1304,7 @@ class ChartModel {
                     // convert ts to number
                     if (values[0].ts) {
                         if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
-                            values.forEach(v => (v.ts = parseInt(v.ts as unknown as string, 10)));
+                            values.forEach(v => (v.ts = getInt(v.ts)));
                         } else if (
                             typeof values[0].ts === 'string' &&
                             new Date(values[0].ts).toString() !== 'Invalid Date'
@@ -1496,7 +1445,7 @@ class ChartModel {
                     // convert ts to number
                     if (values[0].ts) {
                         if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
-                            values.forEach(v => (v.ts = parseInt(v.ts as unknown as string, 10)));
+                            values.forEach(v => (v.ts = getInt(v.ts)));
                         } else if (
                             typeof values[0].ts === 'string' &&
                             new Date(values[0].ts).toString() !== 'Invalid Date'
@@ -1773,7 +1722,7 @@ class ChartModel {
                 }
             }
 
-            // process lower ID
+            // process the lower ID
             if (
                 mark.lowerValueOrId &&
                 typeof mark.lowerValueOrId === 'string' &&
@@ -1786,7 +1735,7 @@ class ChartModel {
                 try {
                     const state = await this.socket.getState(mark.lowerValueOrId);
                     if (state && state.val !== undefined && state.val !== null) {
-                        mark.lowerValue = parseFloat(state.val as string) || 0;
+                        mark.lowerValue = getFloat(state.val as string | number);
                     } else {
                         mark.lowerValue = null;
                     }
@@ -1895,19 +1844,19 @@ class ChartModel {
 
         if (typeof offset === 'string') {
             if (offset[1] === 'm' || offset[2] === 'm') {
-                offset = parseInt(offset, 10);
+                offset = getInt(offset);
                 date.setMonth(date.getMonth() - offset);
                 time = date.getTime();
             } else if (offset[1] === 'y' || offset[2] === 'y') {
-                offset = parseInt(offset, 10);
+                offset = getInt(offset);
                 date.setFullYear(date.getFullYear() - offset);
                 time = date.getTime();
             } else {
                 time = date.getTime();
                 if (isOffsetInMinutes) {
-                    time -= (parseInt(offset, 10) || 0) * 60000;
+                    time -= getInt(offset) * 60000;
                 } else {
-                    time -= (parseInt(offset, 10) || 0) * 1000;
+                    time -= getInt(offset) * 1000;
                 }
             }
         } else {

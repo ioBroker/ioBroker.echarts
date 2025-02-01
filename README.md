@@ -117,7 +117,7 @@ You can debug view charts locally with:
 ## Changelog
 ### **WORK IN PROGRESS**
 
-- (@GermanBluefox) Validate configuration at start
+
 
 ### 2.0.4 (2025-01-13)
 

@@ -593,6 +593,7 @@ class App extends GenericApp<GenericAppProps, AppState> {
                 l: lines,
                 zoom: true,
                 hoverDetail: true,
+                hoverBackground: loadChartParamS<string>('aggregate', undefined),
                 aggregate: loadChartParam<ChartAggregateType>('aggregate', 'minmax'),
                 chartType: loadChartParam<ChartType>('chartType', 'auto'),
                 live: loadChartParamN('live', 30),

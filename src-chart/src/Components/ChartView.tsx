@@ -81,6 +81,8 @@ import 'echarts/theme/green';
 import 'echarts/theme/gray';
 import 'echarts/theme/dark-bold';
 import type { GridOption, RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
+import type { EChartsInstance } from 'echarts-for-react/src/types';
+
 import type { ChartConfigMore, ChartLineConfigMore } from '../../../src/types';
 
 echarts.use([
@@ -106,6 +108,28 @@ echarts.use([
 
     CanvasRenderer,
 ]);
+
+function LineSvg(props: { style?: React.CSSProperties }): React.JSX.Element {
+    return (
+        <svg
+            width="24"
+            height="24"
+            style={props.style}
+        >
+            <path
+                fill="currentColor"
+                d="m12.17582,5.73626c-3.39092,0 -6.13187,2.79989 -6.13187,6.26374s2.74095,6.26374 6.13187,6.26374s6.13187,-2.79989 6.13187,-6.26374s-2.74095,-6.26374 -6.13187,-6.26374"
+            />
+            <rect
+                fill="currentColor"
+                height="1.93407"
+                width="21.97802"
+                y="11.16483"
+                x="1.05494"
+            />
+        </svg>
+    );
+}
 
 const styles: Record<string, React.CSSProperties> = {
     chart: {
@@ -165,7 +189,7 @@ const styles: Record<string, React.CSSProperties> = {
         opacity: 0.7,
     },
     resetButtonIcon: {
-        paddingTop: 6,
+        paddingTop: 8,
     },
 };
 
@@ -515,13 +539,15 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         }
     };
 
-    onMouseWheel = (e: WheelEvent): void => {
+    onMouseWheel = (e: WheelEvent | { event: WheelEvent }): void => {
         const chart = this.chartOption.getHelperChartData();
-        if (e.shiftKey) {
+        const wheelEvent: WheelEvent = e.deltaY === undefined && e.deltaX === undefined ? e.event : e;
+
+        if (wheelEvent.shiftKey) {
             const height = this.state.chartHeight - chart.padBottom - chart.padTop;
-            const y = e.offsetY - chart.padTop;
+            const y = wheelEvent.offsetY - chart.padTop;
             const pos = y / height;
-            const amount = e.deltaY > 0 || e.deltaX > 0 ? 1.1 : 0.9;
+            const amount = wheelEvent.deltaY > 0 || wheelEvent.deltaX > 0 ? 1.1 : 0.9;
             const yAxis = JSON.parse(JSON.stringify(chart.yAxis));
 
             chart.yAxis.forEach(axis => {
@@ -538,18 +564,21 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         } else {
             let diff = chart.xMax - chart.xMin;
             const width = this.state.chartWidth - chart.padRight - chart.padLeft;
-            const x = e.offsetX - chart.padLeft;
+            const x = wheelEvent.offsetX - chart.padLeft;
             const pos = x / width;
 
             const oldDiff = diff;
-            const amount = e.deltaY > 0 || e.deltaX > 0 ? 1.1 : 0.9;
+
+            const amount = wheelEvent.deltaY > 0 || wheelEvent.deltaX > 0 ? 1.1 : 0.9;
             diff *= amount;
             const move = oldDiff - diff;
             chart.xMax += move * (1 - pos);
             chart.xMin -= move * pos;
 
             this.setNewRange();
-            this.updateDataTimer && clearTimeout(this.updateDataTimer);
+            if (this.updateDataTimer) {
+                clearTimeout(this.updateDataTimer);
+            }
             this.updateDataTimer = setTimeout(() => this.setNewRange(true), 1000);
         }
     };
@@ -653,15 +682,28 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         chart.lastX = pageX;
     };
 
-    installEventHandlers(): void {
-        this.zr = this.echartsReact?.getEchartsInstance ? this.echartsReact.getEchartsInstance().getZr() : null;
-        const items = this.divRef.current && this.divRef.current.getElementsByClassName('echarts-for-react');
+    installEventHandlers(instance?: EChartsInstance): void {
+        const hasAnyBarOrPolar = !!this.props.config.l.find(
+            item => item.chartType === 'bar' || item.chartType === 'polar',
+        );
+
+        if (this.props.compact || !this.props.config.zoom || hasAnyBarOrPolar) {
+            return;
+        }
+        const eChartInstance =
+            instance || (this.echartsReact?.getEchartsInstance ? this.echartsReact.getEchartsInstance() : null);
+        this.zr = eChartInstance?.getZr();
+        const items = this.divRef.current?.getElementsByClassName('echarts-for-react');
         const div = items?.[0];
 
-        if (this.zr && this.props.config.zoom && !this.zrIobInstalled) {
+        if (this.zr && this.props.config.zoom /* && !this.zrIobInstalled*/) {
             this.zrIobInstalled = true;
 
-            if (!this.option || !this.option.useCanvas) {
+            if (!this.option?.useCanvas) {
+                this.zr.off('mousedown', this.onMouseDown);
+                this.zr.off('mouseup', this.onMouseUp);
+                this.zr.off('mousewheel', this.onMouseWheel);
+
                 this.zr.on('mousedown', this.onMouseDown);
                 this.zr.on('mouseup', this.onMouseUp);
                 this.zr.on('mousewheel', this.onMouseWheel);
@@ -720,9 +762,6 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     this.props.actualValues,
                     this.props.categories,
                 );
-            const hasAnyBarOrPolar = !!this.props.config.l.find(
-                item => item.chartType === 'bar' || item.chartType === 'polar',
-            );
 
             if (this.props.config.title) {
                 window.document.title = this.props.config.title;
@@ -730,16 +769,20 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 window.document.title = this.props.config.presetId;
             }
 
-            // console.log(JSON.stringify(this.option, null, 2));
-
-            this.debug && console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
+            if (this.debug) {
+                console.log(`[ChartView ] [${new Date().toISOString()}] render chart`);
+            }
 
             this.applySelected();
 
             return (
                 <ReactEchartsCore
+                    key="chart"
                     ref={(e: EChartsReactCore): void => {
                         this.echartsReact = e;
+                    }}
+                    onChartReady={(instance: EChartsInstance): void => {
+                        this.installEventHandlers(instance);
                     }}
                     echarts={echarts}
                     option={this.option}
@@ -762,15 +805,13 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                         }) => {
                             this.selected = JSON.parse(JSON.stringify(params.selected));
                         },
-                        rendered: () =>
-                            !this.props.compact &&
-                            this.props.config.zoom &&
-                            !hasAnyBarOrPolar &&
-                            this.installEventHandlers(),
+                        //rendered: () => this.installEventHandlers(),
                     }}
                 />
             );
         }
+        console.log('No chart 111!!!');
+
         return <LinearProgress />;
     }
 
@@ -911,7 +952,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 Object.keys(data).forEach((id, i) => {
                     header.push(id);
                     data[id].forEach(value => {
-                        // First element is always timestamp
+                        // The first element is always timestamp
                         const line: number[] = [value.ts];
                         line[i + 1] = value.val as number;
                         table.push(line);
@@ -997,6 +1038,27 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         if (this.props.config.legend !== 'dialog') {
             return null;
         }
+        const colors: string[] = [];
+        if (
+            this.state.showLegendDialog &&
+            this.echartsReact &&
+            typeof this.echartsReact.getEchartsInstance === 'function'
+        ) {
+            const chartInstance = this.echartsReact.getEchartsInstance();
+            chartInstance
+                // @ts-expect-error we need this data
+                .getModel()
+                .getSeries()
+                .forEach((s: any): void => {
+                    colors[s.seriesIndex as number] = chartInstance.getVisual(
+                        { seriesIndex: s.seriesIndex },
+                        'color',
+                    ) as string;
+                });
+
+            console.log(colors);
+        }
+
         return (
             <>
                 <Fab
@@ -1006,7 +1068,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     title={I18n.t('Select lines')}
                     onClick={() => this.setState({ showLegendDialog: true })}
                 >
-                    <IconMenu style={styles.resetButtonIcon} />
+                    <IconMenu />
                 </Fab>
                 {this.state.showLegendDialog ? (
                     <Dialog
@@ -1053,10 +1115,15 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                     }}
                                 >
                                     <Checkbox checked={!this.state.excluded.includes(line?.id)} />
-                                    <div>
-                                        <div>{line?.name || line?.id}</div>
-                                        <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: 'smaller' }}>
-                                            {line?.name ? line?.id : null}
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <LineSvg style={{ color: line?.color || colors[i], marginRight: 8 }} />
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            {line?.name || line?.id}
+                                            {line?.name && line?.id ? (
+                                                <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: 'smaller' }}>
+                                                    {line?.id}
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </div>
                                 </MenuItem>
@@ -1206,6 +1273,12 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 : 0;
         const borderPadding = parseFloat(this.props.config.border_padding as unknown as string) || 0;
 
+        const chart = this.state.chartHeight !== null ? this.renderChart() : null;
+
+        if (!chart) {
+            this.zrIobInstalled = false;
+        }
+
         return (
             <div
                 ref={this.divRef}
@@ -1230,12 +1303,12 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     padding: borderPadding || 0,
                 }}
             >
+                {chart}
                 {this.renderSaveImageButton()}
                 {this.renderExportDataDialog()}
                 {this.renderExportDataButton()}
                 {this.renderResetButton()}
                 {this.renderDevCopyButton()}
-                {this.state.chartHeight !== null ? this.renderChart() : null}
                 {this.option ? this.renderLegendDialog() : null}
             </div>
         );

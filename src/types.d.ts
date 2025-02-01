@@ -179,7 +179,11 @@ export interface ChartConfig {
     export?: boolean;
     grid_hideX?: boolean;
     grid_hideY?: boolean;
+    /** If tooltip should be shown on mouse over */
     hoverDetail?: boolean;
+    /** Color of tooltip background */
+    hoverBackground?: string;
+    /** Do not show loader animation at start */
     noLoader?: boolean;
     noedit?: boolean;
     animation: number;
