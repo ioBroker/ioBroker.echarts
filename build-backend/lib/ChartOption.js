@@ -342,6 +342,7 @@ class ChartOption {
                 return cfg;
             }
             let cfg;
+            oneLine.symbolSize = parseInt(oneLine.symbolSize, 10) || 3;
             if (oneLine.chartType === 'scatterplot') {
                 const _cfg = {
                     name: oneLine.name,
@@ -354,7 +355,7 @@ class ChartOption {
                     animation: false,
                     data: this.convertData(data, i, yAxisIndex),
                     itemStyle: { color },
-                    symbolSize: oneLine.points ? oneLine.symbolSize || 3 : undefined,
+                    symbolSize: oneLine.points ? oneLine.symbolSize : undefined,
                     symbol: oneLine.points ? 'circle' : 'none',
                     emphasis: {
                         scale: false,
@@ -382,16 +383,14 @@ class ChartOption {
                     smooth: oneLine.chartType === 'spline',
                     data: this.convertData(data, i, yAxisIndex),
                     itemStyle: { color },
-                    symbolSize: oneLine.points ? oneLine.symbolSize || 3 : undefined,
+                    symbolSize: oneLine.points ? oneLine.symbolSize : undefined,
                     symbol: oneLine.points ? 'circle' : 'none',
                     emphasis: {
                         scale: false,
                         focus: 'none',
                         disabled: true, // what is that?
                         lineStyle: {
-                            width: oneLine.thickness !== undefined
-                                ? parseFloat(oneLine.thickness)
-                                : 1,
+                            width: oneLine.thickness,
                             shadowBlur: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                             shadowOffsetY: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                             shadowColor: color,
@@ -399,7 +398,7 @@ class ChartOption {
                         },
                     },
                     lineStyle: {
-                        width: oneLine.thickness !== undefined ? parseFloat(oneLine.thickness) : 1,
+                        width: oneLine.thickness,
                         shadowBlur: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowOffsetY: oneLine.shadowsize ? oneLine.shadowsize + 1 : 0,
                         shadowColor: color,
@@ -960,7 +959,7 @@ class ChartOption {
                     `<div style="display: flex;"><b>${val}</b>${lineConfig.unit || ''}</div>` +
                     '</div>');
             }
-            // It is line and not bar or polar
+            // It is a line and not a bar or polar
             let interpolated;
             if (p) {
                 // @ts-expect-error fix later
@@ -1085,6 +1084,15 @@ class ChartOption {
         this.config.legFontSize = parseInt(this.config.legFontSize, 10) || 12;
         const yAxis = this.getYAxis(series);
         const xAxis = this.getXAxis(categories);
+        const tooltip = !this.compact && this.config.hoverDetail
+            ? {
+                trigger: 'axis',
+                formatter: (params) => this.renderTooltip(params),
+            }
+            : undefined;
+        if (tooltip && this.config.hoverBackground) {
+            tooltip.backgroundColor = this.config.hoverBackground;
+        }
         const option = {
             theme,
             backgroundColor: 'transparent',
@@ -1098,12 +1106,7 @@ class ChartOption {
                 bottom: this.compact ? 4 : this.isXLabelHasBreak() ? 40 : 24,
                 containLabel: this.config.autoGridPadding,
             },
-            tooltip: !this.compact && this.config.hoverDetail
-                ? {
-                    trigger: 'axis',
-                    formatter: (params) => this.renderTooltip(params),
-                }
-                : undefined,
+            tooltip,
             axisPointer: this.compact && this.config.hoverDetail
                 ? {
                     animation: true,

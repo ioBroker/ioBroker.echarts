@@ -541,7 +541,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
 
     onMouseWheel = (e: WheelEvent | { event: WheelEvent }): void => {
         const chart = this.chartOption.getHelperChartData();
-        const wheelEvent: WheelEvent = e.deltaY === undefined && e.deltaX === undefined ? e.event : e;
+        const wheelEvent: WheelEvent =
+            (e as WheelEvent).deltaY === undefined && (e as WheelEvent).deltaX === undefined
+                ? (e as { event: WheelEvent }).event
+                : (e as WheelEvent);
 
         if (wheelEvent.shiftKey) {
             const height = this.state.chartHeight - chart.padBottom - chart.padTop;

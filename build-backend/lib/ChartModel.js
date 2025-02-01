@@ -34,6 +34,38 @@ function parseQuery(query) {
     });
     return result;
 }
+function getFloat(value) {
+    if (typeof value === 'number') {
+        return value;
+    }
+    if (value === true) {
+        return 1;
+    }
+    if (value === false || value === 'null' || value === '') {
+        return 0;
+    }
+    const f = parseFloat(value);
+    if (isNaN(f)) {
+        return 0;
+    }
+    return f;
+}
+function getInt(value) {
+    if (typeof value === 'number') {
+        return value;
+    }
+    if (value === 'null') {
+        return 0;
+    }
+    const f = parseInt(value, 10);
+    if (isNaN(f)) {
+        return 0;
+    }
+    return f;
+}
+function getBoolean(value) {
+    return value === true || value === 'true';
+}
 // Do not forget to change normalizeConfig in src/utils/flotConverter.js too
 function normalizeConfig(config) {
     const newConfig = JSON.parse(JSON.stringify(config));
@@ -57,8 +89,8 @@ function normalizeConfig(config) {
                 color: colors[i] || 'blue',
                 thickness: config.strokeWidth || 1,
                 shadowsize: config.strokeWidth || 1,
-                min: config.min || undefined,
-                max: config.max || undefined,
+                min: config.min === 0 || config.min ? config.min : undefined,
+                max: config.max === 0 || config.max ? config.max : undefined,
                 unit: units[i] || undefined,
             });
         }
@@ -66,9 +98,9 @@ function normalizeConfig(config) {
         newConfig.aggregateSpan = 300;
         newConfig.relativeEnd = 'now';
     }
-    // convert art to aggregate (from flot)
     if (config.l) {
         for (let j = 0; j < config.l.length; j++) {
+            // convert art to aggregate (from flot)
             if (config.l[j].art) {
                 config.l[j].aggregate = config.l[j].art;
                 delete config.l[j].art;
@@ -76,13 +108,17 @@ function normalizeConfig(config) {
             if (config.instance && !config.l[j].instance) {
                 config.l[j].instance = config.instance;
             }
-            config.l[j].yOffset = parseFloat(config.l[j].yOffset) || 0;
-            config.l[j].offset = parseFloat(config.l[j].offset) || 0;
-            config.l[j].validTime = parseFloat(config.l[j].validTime) || 0;
+            config.l[j].yOffset = getFloat(config.l[j].yOffset);
+            config.l[j].offset = getFloat(config.l[j].offset);
+            config.l[j].validTime = getFloat(config.l[j].validTime);
             config.l[j].chartType = config.l[j].chartType || config.chartType || 'auto';
+            config.l[j].thickness = config.l[j].thickness === undefined ? 1 : getFloat(config.l[j].thickness);
+            config.l[j].shadowsize = getFloat(config.l[j].shadowsize);
         }
     }
-    config.l = config.l || [];
+    else {
+        config.l = [];
+    }
     // convert marks
     if (config.m) {
         newConfig.marks = [];
@@ -92,7 +128,7 @@ function normalizeConfig(config) {
                 upperValueOrId: config.m[j].v,
                 lowerValueOrId: config.m[j].vl,
                 color: config.m[j].c,
-                fill: parseFloat(config.m[j].f),
+                fill: getFloat(config.m[j].f),
                 ol: config.m[j].t,
                 os: config.m[j].s,
                 text: config.m[j].d,
@@ -114,35 +150,36 @@ function normalizeConfig(config) {
     newConfig.width = config.width || '100%';
     newConfig.height = config.height || '100%';
     // if width or height does not have any units, add px to it
-    if (parseFloat(newConfig.width).toString() === newConfig.width.toString().trim()) {
+    if (getFloat(newConfig.width).toString() === newConfig.width.toString().trim()) {
         newConfig.width += 'px';
     }
-    if (parseFloat(newConfig.height).toString() === newConfig.height.toString().trim()) {
+    if (getFloat(newConfig.height).toString() === newConfig.height.toString().trim()) {
         newConfig.height += 'px';
     }
     newConfig.timeFormat = config.timeFormat || '';
-    newConfig.useComma = config.useComma === 'true' || config.useComma === true;
-    newConfig.zoom = config.zoom === 'true' || config.zoom === true;
-    newConfig.export = config.export === 'true' || config.export === true;
-    newConfig.grid_hideX = config.grid_hideX === 'true' || config.grid_hideX === true;
-    newConfig.grid_hideY = config.grid_hideY === 'true' || config.grid_hideY === true;
-    newConfig.hoverDetail = config.hoverDetail === 'true' || config.hoverDetail === true;
-    newConfig.noLoader = config.noLoader === 'true' || config.noLoader === true;
-    newConfig.noedit = config.noedit === 'true' || config.noedit === true;
-    newConfig.animation = parseInt(config.animation, 10) || 0;
-    newConfig.afterComma = config.afterComma === undefined ? 2 : parseInt(config.afterComma, 10);
+    newConfig.useComma = getBoolean(config.useComma);
+    newConfig.zoom = getBoolean(config.zoom);
+    newConfig.export = getBoolean(config.export);
+    newConfig.grid_hideX = getBoolean(config.grid_hideX);
+    newConfig.grid_hideY = getBoolean(config.grid_hideY);
+    newConfig.hoverDetail = getBoolean(config.hoverDetail);
+    newConfig.noLoader = getBoolean(config.noLoader);
+    newConfig.noedit = getBoolean(config.noedit);
+    newConfig.animation = getInt(config.animation);
+    newConfig.afterComma =
+        config.afterComma === undefined || config.afterComma === null ? 2 : getInt(config.afterComma);
     newConfig.timeType = config.timeType || 'relative';
     if (config.xLabelShift) {
         if (typeof config.xLabelShift === 'string' && config.xLabelShift.endsWith('m')) {
-            newConfig.xLabelShift = parseInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1), 10) || 0;
+            newConfig.xLabelShift = getInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1));
             newConfig.xLabelShiftMonth = true;
         }
         else if (typeof config.xLabelShift === 'string' && config.xLabelShift.endsWith('y')) {
-            newConfig.xLabelShift = parseInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1), 10) || 0;
+            newConfig.xLabelShift = getInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1));
             newConfig.xLabelShiftYear = true;
         }
         else {
-            newConfig.xLabelShift = parseInt(config.xLabelShift, 10) || 0;
+            newConfig.xLabelShift = getInt(config.xLabelShift);
         }
     }
     return newConfig;
@@ -300,14 +337,14 @@ class ChartModel {
                 this.config.useComma =
                     this.config.useComma === undefined ? this.systemConfig.isFloatComma : this.config.useComma;
                 this.config.lang = this.systemConfig.language;
-                this.config.live = parseInt(this.config.live, 10) || 0;
+                this.config.live = getInt(this.config.live);
                 this.config.debug = this.debug;
                 this.config.presetId = this.preset;
                 if (this.hash?.range) {
                     if (typeof this.hash.range === 'string' &&
                         !this.hash.range.includes('y') &&
                         !this.hash.range.includes('m')) {
-                        this.config.range = parseInt(this.hash.range, 10);
+                        this.config.range = getInt(this.hash.range) || 1;
                     }
                     else {
                         this.config.range = this.hash.range;
@@ -339,7 +376,7 @@ class ChartModel {
                     ? this.systemConfig.isFloatComma === true
                     : this.config.useComma === true;
             this.config.lang = this.systemConfig.language;
-            this.config.live = parseInt(this.config.live, 10) || 0;
+            this.config.live = getInt(this.config.live);
             this.config.debug = this.debug;
             await this.readData();
             if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
@@ -482,7 +519,7 @@ class ChartModel {
         void this.analyseAndLoadConfig(config);
     }
     increaseRegionForBar(start, end, option) {
-        this.config.aggregateBar = parseInt(this.config.aggregateBar, 10) || 0;
+        this.config.aggregateBar = getInt(this.config.aggregateBar);
         let endTs = typeof end === 'number' ? end : end.getTime();
         let startTs = typeof start === 'number' ? start : start.getTime();
         // calculate count of intervals
@@ -592,7 +629,7 @@ class ChartModel {
         this.config.l[index].offset = this.config.l[index].offset || 0;
         // check config range
         if (typeof this.config.range === 'string' && this.config.range.includes('m') && this.config.l.length > 1) {
-            const monthRange = parseInt(this.config.range, 10) || 1;
+            const monthRange = getInt(this.config.range) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
                 if (this.config.l[a].offset) {
                     // Check what the month has first index
@@ -607,7 +644,7 @@ class ChartModel {
         else if (typeof this.config.range === 'string' &&
             this.config.range.includes('y') &&
             this.config.l.length > 1) {
-            const yearRange = parseInt(this.config.range, 10) || 1;
+            const yearRange = getInt(this.config.range) || 1;
             for (let a = 0; a < this.config.l.length; a++) {
                 if (this.config.l[a].offset) {
                     // Check what the month has first index
@@ -653,14 +690,14 @@ class ChartModel {
                     _nowDate = new Date(this.now);
                 }
                 else if (this.config.relativeEnd.includes('minute')) {
-                    const minutes = parseInt(this.config.relativeEnd, 10) || 1;
+                    const minutes = getInt(this.config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setMinutes(Math.floor(_nowDate.getMinutes() / minutes) * minutes + minutes);
                     _nowDate.setSeconds(0);
                     _nowDate.setMilliseconds(0);
                 }
                 else if (this.config.relativeEnd.includes('hour')) {
-                    const hours = parseInt(this.config.relativeEnd, 10) || 1;
+                    const hours = getInt(this.config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setHours(Math.floor(_nowDate.getHours() / hours) * hours + hours);
                     _nowDate.setMinutes(0);
@@ -676,7 +713,7 @@ class ChartModel {
                     _nowDate.setMilliseconds(0);
                 }
                 else if (this.config.relativeEnd === 'weekUsa') {
-                    // const week = parseInt(config.relativeEnd, 10) || 1;
+                    // const week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setDate(_nowDate.getDate() - _nowDate.getDay() + 7);
                     _nowDate.setHours(0);
@@ -685,7 +722,7 @@ class ChartModel {
                     _nowDate.setMilliseconds(0);
                 }
                 else if (this.config.relativeEnd === 'weekEurope') {
-                    // const _week = parseInt(config.relativeEnd, 10) || 1;
+                    // const _week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     // If
                     if (_nowDate.getDay() === 0) {
@@ -700,7 +737,7 @@ class ChartModel {
                     _nowDate.setMilliseconds(0);
                 }
                 else if (this.config.relativeEnd === 'week2Usa') {
-                    // const week = parseInt(config.relativeEnd, 10) || 1;
+                    // const week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     _nowDate.setDate(_nowDate.getDate() - _nowDate.getDay() + 7);
                     _nowDate.setDate(_nowDate.getDate() - 7);
@@ -710,7 +747,7 @@ class ChartModel {
                     _nowDate.setMilliseconds(0);
                 }
                 else if (this.config.relativeEnd === 'week2Europe') {
-                    // const _week = parseInt(config.relativeEnd, 10) || 1;
+                    // const _week = getInt(config.relativeEnd) || 1;
                     _nowDate = new Date(this.now);
                     // If
                     if (_nowDate.getDay() === 0) {
@@ -869,8 +906,11 @@ class ChartModel {
         else if (value === 'false' || value === false) {
             value = 0;
         }
+        else if (value === 'null') {
+            value = null;
+        }
         else if (typeof value === 'string') {
-            value = parseFloat(value);
+            value = getFloat(value);
         }
         if (convertFunc) {
             return value !== null ? convertFunc(value + yOffset) : null;
@@ -1049,7 +1089,7 @@ class ChartModel {
                     // convert ts to number
                     if (values[0].ts) {
                         if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
-                            values.forEach(v => (v.ts = parseInt(v.ts, 10)));
+                            values.forEach(v => (v.ts = getInt(v.ts)));
                         }
                         else if (typeof values[0].ts === 'string' &&
                             new Date(values[0].ts).toString() !== 'Invalid Date') {
@@ -1181,7 +1221,7 @@ class ChartModel {
                     // convert ts to number
                     if (values[0].ts) {
                         if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
-                            values.forEach(v => (v.ts = parseInt(v.ts, 10)));
+                            values.forEach(v => (v.ts = getInt(v.ts)));
                         }
                         else if (typeof values[0].ts === 'string' &&
                             new Date(values[0].ts).toString() !== 'Invalid Date') {
@@ -1418,7 +1458,7 @@ class ChartModel {
                     console.error(`Cannot read marking ${mark.upperValueOrId}: ${e}`);
                 }
             }
-            // process lower ID
+            // process the lower ID
             if (mark.lowerValueOrId &&
                 typeof mark.lowerValueOrId === 'string' &&
                 mark.lowerValueOrId.includes('.') &&
@@ -1429,7 +1469,7 @@ class ChartModel {
                 try {
                     const state = await this.socket.getState(mark.lowerValueOrId);
                     if (state && state.val !== undefined && state.val !== null) {
-                        mark.lowerValue = parseFloat(state.val) || 0;
+                        mark.lowerValue = getFloat(state.val);
                     }
                     else {
                         mark.lowerValue = null;
@@ -1526,22 +1566,22 @@ class ChartModel {
         const date = new Date(time);
         if (typeof offset === 'string') {
             if (offset[1] === 'm' || offset[2] === 'm') {
-                offset = parseInt(offset, 10);
+                offset = getInt(offset);
                 date.setMonth(date.getMonth() - offset);
                 time = date.getTime();
             }
             else if (offset[1] === 'y' || offset[2] === 'y') {
-                offset = parseInt(offset, 10);
+                offset = getInt(offset);
                 date.setFullYear(date.getFullYear() - offset);
                 time = date.getTime();
             }
             else {
                 time = date.getTime();
                 if (isOffsetInMinutes) {
-                    time -= (parseInt(offset, 10) || 0) * 60000;
+                    time -= getInt(offset) * 60000;
                 }
                 else {
-                    time -= (parseInt(offset, 10) || 0) * 1000;
+                    time -= getInt(offset) * 1000;
                 }
             }
         }

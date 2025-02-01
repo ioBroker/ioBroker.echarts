@@ -1268,7 +1268,7 @@ class ChartOption {
         const yAxis = this.getYAxis(series);
         const xAxis = this.getXAxis(categories);
 
-        const tooltip =
+        const tooltip: echarts.TooltipComponentOption =
             !this.compact && this.config.hoverDetail
                 ? {
                       trigger: 'axis',

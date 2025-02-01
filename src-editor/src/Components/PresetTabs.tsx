@@ -214,6 +214,7 @@ interface PresetTabsState {
     barFontColor: string;
     x_ticks_color: string;
     grid_color: string;
+    hoverBackground: string;
 }
 
 class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
@@ -297,6 +298,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
             barFontColor: '',
             x_ticks_color: '',
             grid_color: '',
+            hoverBackground: '',
         };
 
         void this.props.socket.getAdapterInstances('web').then(instances => {
@@ -1386,15 +1388,17 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         }}
                         label="Hover details"
                     />
-                    {this.props.presetData.hoverDetail ? <IOCheckbox
-                        value={this.props.presetData.hoverNoInterpolate}
-                        updateValue={(value: boolean): void => {
-                            const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                            presetData.hoverNoInterpolate = value;
-                            this.props.onChange(presetData);
-                        }}
-                        label="No interpolate in hover"
-                    /> : null}
+                    {this.props.presetData.hoverDetail ? (
+                        <IOCheckbox
+                            value={this.props.presetData.hoverNoInterpolate}
+                            updateValue={(value: boolean): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.hoverNoInterpolate = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="No interpolate in hover"
+                        />
+                    ) : null}
                     {this.props.presetData.hoverDetail ? (
                         <IOCheckbox
                             value={this.props.presetData.hoverNoNulls}
@@ -1408,10 +1412,10 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                     ) : null}
                     {this.props.presetData.hoverDetail
                         ? this.renderColorField(
-                            this.props.presetData.hoverBackground,
-                            'Tooltip background',
-                            'hoverBackground',
-                        )
+                              this.props.presetData.hoverBackground,
+                              'Tooltip background',
+                              'hoverBackground',
+                          )
                         : null}
                     <IOCheckbox
                         value={this.props.presetData.useComma}
@@ -2067,6 +2071,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
             | 'border_color'
             | 'barFontColor'
             | 'x_ticks_color'
+            | 'hoverBackground'
             | 'grid_color',
         minWidth?: string | number,
         styles?: React.CSSProperties,

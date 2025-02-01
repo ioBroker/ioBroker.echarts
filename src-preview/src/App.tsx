@@ -45,7 +45,7 @@ import {
 } from '@iobroker/adapter-react-v5';
 
 import '@iobroker/adapter-react-v5/build/index.css';
-import logo from './assets/echarts.png';
+import logo from './assets/echarts.svg';
 
 import enGlobLang from '@iobroker/adapter-react-v5/i18n/en.json';
 import deGlobLang from '@iobroker/adapter-react-v5/i18n/de.json';

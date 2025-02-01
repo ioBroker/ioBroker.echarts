@@ -110,7 +110,7 @@
         },
         "desc": {
             "en": "Build useful charts in ioBroker",
-            "de": "Erstellen Sie nützliche Diagramme in ioBroker",
+            "de": "Nützliche Diagramme in ioBroker erstellen",
             "ru": "Создавайте полезные графики в ioBroker",
             "pt": "Crie gráficos úteis no ioBroker",
             "nl": "Bouw handige grafieken in ioBroker",
@@ -141,6 +141,19 @@
                 "pl": "Wykresy",
                 "uk": "Графіки",
                 "zh-cn": "图表"
+            }
+        },
+        "localLinks": {
+            "_default": {
+                "link": "/adapter/echarts/preview/index.html",
+                "name": {
+                    "en": "Echarts",
+                    "ru": "Echarts"
+                },
+                "icon": "admin/echarts.svg",
+                "color": "AA314D",
+                "order": 6,
+                "intro": true
             }
         },
         "platform": "Javascript/Node.js",

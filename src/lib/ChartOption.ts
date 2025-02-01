@@ -1268,6 +1268,18 @@ class ChartOption {
         const yAxis = this.getYAxis(series);
         const xAxis = this.getXAxis(categories);
 
+        const tooltip: echarts.TooltipComponentOption =
+            !this.compact && this.config.hoverDetail
+                ? {
+                      trigger: 'axis',
+                      formatter: (params: CallbackDataParams[]) => this.renderTooltip(params),
+                  }
+                : undefined;
+
+        if (tooltip && this.config.hoverBackground) {
+            tooltip.backgroundColor = this.config.hoverBackground;
+        }
+
         const option: EChartsOption = {
             theme,
             backgroundColor: 'transparent',
@@ -1281,14 +1293,7 @@ class ChartOption {
                 bottom: this.compact ? 4 : this.isXLabelHasBreak() ? 40 : 24,
                 containLabel: this.config.autoGridPadding,
             },
-            tooltip:
-                !this.compact && this.config.hoverDetail
-                    ? {
-                          trigger: 'axis',
-                          backgroundColor: this.config.hoverBackground || undefined,
-                          formatter: (params: CallbackDataParams[]) => this.renderTooltip(params),
-                      }
-                    : undefined,
+            tooltip,
             axisPointer:
                 this.compact && this.config.hoverDetail
                     ? {
