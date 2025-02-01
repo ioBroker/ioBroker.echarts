@@ -1,218 +1,227 @@
 {
-    "common": {
-        "name": "echarts",
-        "version": "2.0.4",
-        "news": {
-            "2.0.4": {
-                "en": "Correcting locale for x-axis\nCorrecting widget",
-                "de": "Ortskorrektur für x-Achse\nKorrektur Widget",
-                "ru": "Корректировка лока для x-оси\nИсправление виджета",
-                "pt": "Correção local para eixo x\nWidget de correção",
-                "nl": "Lokale corrigeren voor x-as\nWidget wordt gecorrigeerd",
-                "fr": "Corriger le local pour l'axe des x\nCorrection du widget",
-                "it": "Correggere locale per x-assi\nCorreggere widget",
-                "es": "Corrección local para eje x\nWidget corrector",
-                "pl": "Korekcja lokalizacji osi x\nKorekcja widżetu",
-                "uk": "Виправлення локалізації для осі x\nВиправлення віджету",
-                "zh-cn": "纠正 x 轴的定位\n校正部件"
-            },
-            "2.0.3": {
-                "en": "Corrected the convert functionality",
-                "de": "Korrektur der Konvertierungsfunktionalität",
-                "ru": "Исправлена функция конвертации",
-                "pt": "Corrigido a funcionalidade de conversão",
-                "nl": "Gecorrigeerd de convert functionaliteit",
-                "fr": "Correction de la fonctionnalité de conversion",
-                "it": "Corretto la funzionalità di conversione",
-                "es": "Corregido la funcionalidad de conversión",
-                "pl": "Korekta funkcji konwersji",
-                "uk": "Виправлено функціонал перетворення",
-                "zh-cn": "纠正了转换功能"
-            },
-            "2.0.2": {
-                "en": "Project was completely rewritten with TypeScript\nBetter mobile layouts added",
-                "de": "Projekt wurde komplett mit TypeScript neu geschrieben\nBessere mobile Layouts hinzugefügt",
-                "ru": "Проект был полностью переписан с TypeScript\nДобавлены лучшие мобильные макеты",
-                "pt": "O projeto foi completamente reescrito com TypeScript\nMelhores layouts móveis adicionados",
-                "nl": "Project werd volledig herschreven met TypeScript\nBetere mobiele lay-outs toegevoegd",
-                "fr": "Projet entièrement réécrit avec TypeScript\nMeilleures mises en page mobiles ajoutées",
-                "it": "Il progetto è stato completamente riscritto con TypeScript\nMigliori layout mobili aggiunti",
-                "es": "El proyecto fue completamente reescrito con TipoScript\nMejores diseños móviles añadidos",
-                "pl": "Projekt został całkowicie przeredagowany przez TypeScript\nDodano lepsze układy mobilne",
-                "uk": "Проект повністю переписався з TypeScript\nДодані кращі мобільні макети",
-                "zh-cn": "工程被完全重写为 TypeScript\n增加了更好的移动布局"
-            },
-            "1.9.5": {
-                "en": "Convert actual values with provided \"convert\" function too",
-                "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
-                "ru": "Конвертировать фактические значения с предоставленной функцией «конверт»",
-                "pt": "Converta valores reais com função \"converter\" fornecida também",
-                "nl": "Converteer werkelijke waarden met de opgegeven \"convert\" functie ook",
-                "fr": "Convertir les valeurs réelles avec la fonction \"convert\" fournie aussi",
-                "it": "Converti valori effettivi con funzione \"convert\" fornita",
-                "es": "Convertir valores reales con función \"convert\" proporcionada también",
-                "pl": "Przelicz wartości rzeczywiste z zapewnioną funkcją \"convert\"",
-                "uk": "Перетворення фактичних значень за допомогою функції \"convert\" занадто",
-                "zh-cn": "将实际值转换为“ 转换” 函数"
-            },
-            "1.9.2": {
-                "en": "Fixed polar and bar charts",
-                "de": "Feste Polar- und Balkendiagramme",
-                "ru": "Фиксированные полярные и барные графики",
-                "pt": "Gráficos polares e de barras fixos",
-                "nl": "Vaste pool- en staafdiagrammen",
-                "fr": "Cartes polaires et à barres fixes",
-                "it": "Carte polari e a barre fissate",
-                "es": "Gráficos polares y bar fijos",
-                "pl": "Stałe wykresy polarne i barowe",
-                "uk": "Фіксовані полярні та барні діаграми",
-                "zh-cn": "固定极地图和条形图"
-            },
-            "1.9.0": {
-                "en": "upgraded packages\nremoved `withStyles`",
-                "de": "erweiterte pakete\nentfernen `withStyles`",
-                "ru": "модернизированные пакеты\nудалены `withStyles'",
-                "pt": "pacotes atualizados\nremovido `comestilos`",
-                "nl": "verbeterde pakketten\nverwijderd metStyles",
-                "fr": "paquets mis à jour\nenlevé `avecStyles`",
-                "it": "pacchetti aggiornati\nrimosso `withStyles`",
-                "es": "paquetes actualizados\nremovido `con los estilos`",
-                "pl": "zmodernizowane pakiety\nusunięte \"ze stylami\"",
-                "uk": "пакети оновлені\nвидалено `withStyle`",
-                "zh-cn": "升级软件包\n以“ Styles”删除"
-            },
-            "1.8.4": {
-                "en": "upgraded dependencies",
-                "de": "verbesserte abhängigkeiten",
-                "ru": "повышенная зависимость",
-                "pt": "dependências atualizadas",
-                "nl": "verbeterde afhankelijkheden",
-                "fr": "dépendances améliorées",
-                "it": "dipendenze aggiornate",
-                "es": "actualización de las dependencias",
-                "pl": "zmodernizowane zależności",
-                "uk": "покращені залежності",
-                "zh-cn": "升级的依赖关系"
-            }
-        },
-        "titleLang": {
-            "en": "E-Charts",
-            "de": "E-Charts",
-            "ru": "E-Charts",
-            "pt": "E-Charts",
-            "nl": "E-Charts",
-            "fr": "E-Charts",
-            "it": "E-Charts",
-            "es": "E-Charts",
-            "pl": "E-Charts",
-            "uk": "E-Charts",
-            "zh-cn": "E-Charts"
-        },
-        "desc": {
-            "en": "Build useful charts in ioBroker",
-            "de": "Nützliche Diagramme in ioBroker erstellen",
-            "ru": "Создавайте полезные графики в ioBroker",
-            "pt": "Crie gráficos úteis no ioBroker",
-            "nl": "Bouw handige grafieken in ioBroker",
-            "fr": "Construire des graphiques utiles dans ioBroker",
-            "it": "Crea grafici utili in ioBroker",
-            "es": "Cree gráficos útiles en ioBroker",
-            "pl": "Twórz przydatne wykresy w ioBroker",
-            "uk": "Створюйте корисні діаграми в ioBroker",
-            "zh-cn": "在ioBroker中建立有用的图表"
-        },
-        "authors": ["bluefox <dogafox@gmail.com>"],
-        "keywords": ["charts", "diagram"],
-        "adminUI": {
-            "config": "none",
-            "tab": "html"
-        },
-        "adminTab": {
-            "singleton": true,
-            "name": {
-                "ru": "Графики",
-                "en": "Charts",
-                "de": "Diagramme",
-                "pt": "Gráficos",
-                "nl": "Grafieken",
-                "fr": "Graphiques",
-                "it": "Grafici",
-                "es": "Gráficos",
-                "pl": "Wykresy",
-                "uk": "Графіки",
-                "zh-cn": "图表"
-            }
-        },
-        "localLinks": {
-            "_default": {
-                "link": "/adapter/echarts/preview/index.html",
-                "name": {
-                    "en": "Echarts",
-                    "ru": "Echarts"
-                },
-                "icon": "admin/echarts.svg",
-                "color": "#AA314D",
-                "order": 6,
-                "intro": true
-            }
-        },
-        "platform": "Javascript/Node.js",
-        "connectionType": "local",
-        "dataSource": "push",
-        "icon": "echarts.png",
-        "messagebox": true,
-        "eraseOnUpload": true,
-        "nogit": true,
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
-        "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
-        "loglevel": "info",
-        "singleton": true,
-        "type": "visualization",
-        "mode": "daemon",
-        "compact": true,
-        "visWidgets": {
-            "echarts": {
-                "i18n": "component",
-                "name": "echarts",
-                "url": "echarts/customWidgets.js",
-                "components": ["Echarts"]
-            }
-        },
-        "restartAdapters": ["vis-2"],
-        "tier": 3,
-        "licenseInformation": {
-            "license": "Apache-2.0",
-            "type": "free"
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=5.0.19"
-            }
-        ]
+  "common": {
+    "name": "echarts",
+    "version": "2.0.5",
+    "news": {
+      "2.0.5": {
+        "en": "Validate configuration at start\nCorrected zoom&pan of charts with mouse\nAdded the possibility to change a legend background\nShow color of lines in legend if it is a dialog\nShow echarts card in on the admin intro page",
+        "de": "Gültige Konfiguration zu Beginn\nKorrigierte Zoom&pan von Diagrammen mit Maus\nHinzufügen der Möglichkeit, einen Legenden-Hintergrund zu ändern\nZeige die Farbe der Zeilen in der Legende, wenn es ein Dialog ist\nEcharts Karte auf der Admin-Seite anzeigen",
+        "ru": "Проверка конфигурации на старте\nИсправленный зум&панль диаграмм с мышью\nДобавила возможность изменить легендарный фон\nПоказать цвет линий в легенде, если это диалог\nПоказать карту echarts на странице admin intro",
+        "pt": "Validar a configuração no início\nZoom &amp; amp; de gráficos com mouse\nAdicionado a possibilidade de mudar um fundo lenda\nMostrar a cor das linhas na lenda se for uma caixa de diálogo\nMostrar echarts card na página de introdução de admin",
+        "nl": "Configuratie valideren bij starten\nGecorrigeerde zoom&pan van grafieken met muis\nToegevoegd de mogelijkheid om een legende achtergrond te veranderen\nKleur van regels in legende tonen als het een dialoogvenster is\nEcharts-kaart tonen op de admin-intropagina",
+        "fr": "Valider la configuration au début\nZoom & pan corrigé des graphiques avec la souris\nAjout de la possibilité de changer un fond de légende\nAfficher la couleur des lignes dans la légende si c'est une boîte de dialogue\nAfficher la carte echarts sur la page d'introduction de l'administration",
+        "it": "Convalida configurazione all'inizio\nCorretto zoom&pan di grafici con il mouse\nAggiunto la possibilità di cambiare uno sfondo leggenda\nMostra il colore delle linee nella leggenda se è un dialogo\nMostra carta echarts nella pagina intro di admin",
+        "es": "Configuración validada al inicio\nAmpliación corregida de gráficos con ratón\nAgregó la posibilidad de cambiar un fondo de leyenda\nMostrar color de líneas en la leyenda si es un diálogo\nMostrar tarjeta de echarts en la página de entrada de admin",
+        "pl": "Potwierdź konfigurację przy starcie\nPoprawiony zoom & Pan wykresów z myszką\nDodano możliwość zmiany tła legendy\nPokaż kolor linii w legendzie, jeśli jest to okno dialogowe\nPokaż kartę echartów na stronie admin intro",
+        "uk": "Почати налаштування\nВиправлено масштабування та панель діаграм з мишкою\nДодана можливість змінити легендний фон\nПоказати колір ліній в легенді, якщо це діалогове вікно\nПоказати картку echarts на сторінці адміністратора",
+        "zh-cn": "启动时验证配置\n用鼠标修正了图表的缩放( P)\n添加更改传奇背景的可能性\n显示图例中的行色, 如果它是对话框\n在管理内页显示 echarts 牌"
+      },
+      "2.0.4": {
+        "en": "Correcting locale for x-axis\nCorrecting widget",
+        "de": "Ortskorrektur für x-Achse\nKorrektur Widget",
+        "ru": "Корректировка лока для x-оси\nИсправление виджета",
+        "pt": "Correção local para eixo x\nWidget de correção",
+        "nl": "Lokale corrigeren voor x-as\nWidget wordt gecorrigeerd",
+        "fr": "Corriger le local pour l'axe des x\nCorrection du widget",
+        "it": "Correggere locale per x-assi\nCorreggere widget",
+        "es": "Corrección local para eje x\nWidget corrector",
+        "pl": "Korekcja lokalizacji osi x\nKorekcja widżetu",
+        "uk": "Виправлення локалізації для осі x\nВиправлення віджету",
+        "zh-cn": "纠正 x 轴的定位\n校正部件"
+      },
+      "2.0.3": {
+        "en": "Corrected the convert functionality",
+        "de": "Korrektur der Konvertierungsfunktionalität",
+        "ru": "Исправлена функция конвертации",
+        "pt": "Corrigido a funcionalidade de conversão",
+        "nl": "Gecorrigeerd de convert functionaliteit",
+        "fr": "Correction de la fonctionnalité de conversion",
+        "it": "Corretto la funzionalità di conversione",
+        "es": "Corregido la funcionalidad de conversión",
+        "pl": "Korekta funkcji konwersji",
+        "uk": "Виправлено функціонал перетворення",
+        "zh-cn": "纠正了转换功能"
+      },
+      "2.0.2": {
+        "en": "Project was completely rewritten with TypeScript\nBetter mobile layouts added",
+        "de": "Projekt wurde komplett mit TypeScript neu geschrieben\nBessere mobile Layouts hinzugefügt",
+        "ru": "Проект был полностью переписан с TypeScript\nДобавлены лучшие мобильные макеты",
+        "pt": "O projeto foi completamente reescrito com TypeScript\nMelhores layouts móveis adicionados",
+        "nl": "Project werd volledig herschreven met TypeScript\nBetere mobiele lay-outs toegevoegd",
+        "fr": "Projet entièrement réécrit avec TypeScript\nMeilleures mises en page mobiles ajoutées",
+        "it": "Il progetto è stato completamente riscritto con TypeScript\nMigliori layout mobili aggiunti",
+        "es": "El proyecto fue completamente reescrito con TipoScript\nMejores diseños móviles añadidos",
+        "pl": "Projekt został całkowicie przeredagowany przez TypeScript\nDodano lepsze układy mobilne",
+        "uk": "Проект повністю переписався з TypeScript\nДодані кращі мобільні макети",
+        "zh-cn": "工程被完全重写为 TypeScript\n增加了更好的移动布局"
+      },
+      "1.9.5": {
+        "en": "Convert actual values with provided \"convert\" function too",
+        "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
+        "ru": "Конвертировать фактические значения с предоставленной функцией «конверт»",
+        "pt": "Converta valores reais com função \"converter\" fornecida também",
+        "nl": "Converteer werkelijke waarden met de opgegeven \"convert\" functie ook",
+        "fr": "Convertir les valeurs réelles avec la fonction \"convert\" fournie aussi",
+        "it": "Converti valori effettivi con funzione \"convert\" fornita",
+        "es": "Convertir valores reales con función \"convert\" proporcionada también",
+        "pl": "Przelicz wartości rzeczywiste z zapewnioną funkcją \"convert\"",
+        "uk": "Перетворення фактичних значень за допомогою функції \"convert\" занадто",
+        "zh-cn": "将实际值转换为“ 转换” 函数"
+      },
+      "1.9.2": {
+        "en": "Fixed polar and bar charts",
+        "de": "Feste Polar- und Balkendiagramme",
+        "ru": "Фиксированные полярные и барные графики",
+        "pt": "Gráficos polares e de barras fixos",
+        "nl": "Vaste pool- en staafdiagrammen",
+        "fr": "Cartes polaires et à barres fixes",
+        "it": "Carte polari e a barre fissate",
+        "es": "Gráficos polares y bar fijos",
+        "pl": "Stałe wykresy polarne i barowe",
+        "uk": "Фіксовані полярні та барні діаграми",
+        "zh-cn": "固定极地图和条形图"
+      },
+      "1.9.0": {
+        "en": "upgraded packages\nremoved `withStyles`",
+        "de": "erweiterte pakete\nentfernen `withStyles`",
+        "ru": "модернизированные пакеты\nудалены `withStyles'",
+        "pt": "pacotes atualizados\nremovido `comestilos`",
+        "nl": "verbeterde pakketten\nverwijderd metStyles",
+        "fr": "paquets mis à jour\nenlevé `avecStyles`",
+        "it": "pacchetti aggiornati\nrimosso `withStyles`",
+        "es": "paquetes actualizados\nremovido `con los estilos`",
+        "pl": "zmodernizowane pakiety\nusunięte \"ze stylami\"",
+        "uk": "пакети оновлені\nвидалено `withStyle`",
+        "zh-cn": "升级软件包\n以“ Styles”删除"
+      }
     },
-    "native": {},
-    "objects": [
-        {
-            "_id": "_design/chart",
-            "type": "design",
-            "language": "javascript",
-            "views": {
-                "chart": {
-                    "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
-                }
-            }
-        }
+    "titleLang": {
+      "en": "E-Charts",
+      "de": "E-Charts",
+      "ru": "E-Charts",
+      "pt": "E-Charts",
+      "nl": "E-Charts",
+      "fr": "E-Charts",
+      "it": "E-Charts",
+      "es": "E-Charts",
+      "pl": "E-Charts",
+      "uk": "E-Charts",
+      "zh-cn": "E-Charts"
+    },
+    "desc": {
+      "en": "Build useful charts in ioBroker",
+      "de": "Nützliche Diagramme in ioBroker erstellen",
+      "ru": "Создавайте полезные графики в ioBroker",
+      "pt": "Crie gráficos úteis no ioBroker",
+      "nl": "Bouw handige grafieken in ioBroker",
+      "fr": "Construire des graphiques utiles dans ioBroker",
+      "it": "Crea grafici utili in ioBroker",
+      "es": "Cree gráficos útiles en ioBroker",
+      "pl": "Twórz przydatne wykresy w ioBroker",
+      "uk": "Створюйте корисні діаграми в ioBroker",
+      "zh-cn": "在ioBroker中建立有用的图表"
+    },
+    "authors": [
+      "bluefox <dogafox@gmail.com>"
     ],
-    "instanceObjects": [
-        {
-            "_id": "",
-            "type": "meta",
-            "common": {
-                "name": "user files and images for echarts",
-                "type": "meta.user"
-            },
-            "native": {}
-        }
+    "keywords": [
+      "charts",
+      "diagram"
+    ],
+    "adminUI": {
+      "config": "none",
+      "tab": "html"
+    },
+    "adminTab": {
+      "singleton": true,
+      "name": {
+        "ru": "Графики",
+        "en": "Charts",
+        "de": "Diagramme",
+        "pt": "Gráficos",
+        "nl": "Grafieken",
+        "fr": "Graphiques",
+        "it": "Grafici",
+        "es": "Gráficos",
+        "pl": "Wykresy",
+        "uk": "Графіки",
+        "zh-cn": "图表"
+      }
+    },
+    "localLinks": {
+      "_default": {
+        "link": "/adapter/echarts/preview/index.html",
+        "name": {
+          "en": "Echarts",
+          "ru": "Echarts"
+        },
+        "icon": "admin/echarts.svg",
+        "color": "#AA314D",
+        "order": 6,
+        "intro": true
+      }
+    },
+    "platform": "Javascript/Node.js",
+    "connectionType": "local",
+    "dataSource": "push",
+    "icon": "echarts.png",
+    "messagebox": true,
+    "eraseOnUpload": true,
+    "nogit": true,
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
+    "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
+    "loglevel": "info",
+    "singleton": true,
+    "type": "visualization",
+    "mode": "daemon",
+    "compact": true,
+    "visWidgets": {
+      "echarts": {
+        "i18n": "component",
+        "name": "echarts",
+        "url": "echarts/customWidgets.js",
+        "components": [
+          "Echarts"
+        ]
+      }
+    },
+    "restartAdapters": [
+      "vis-2"
+    ],
+    "tier": 3,
+    "licenseInformation": {
+      "license": "Apache-2.0",
+      "type": "free"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=5.0.19"
+      }
     ]
+  },
+  "native": {},
+  "objects": [
+    {
+      "_id": "_design/chart",
+      "type": "design",
+      "language": "javascript",
+      "views": {
+        "chart": {
+          "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
+        }
+      }
+    }
+  ],
+  "instanceObjects": [
+    {
+      "_id": "",
+      "type": "meta",
+      "common": {
+        "name": "user files and images for echarts",
+        "type": "meta.user"
+      },
+      "native": {}
+    }
+  ]
 }

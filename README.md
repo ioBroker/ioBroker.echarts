@@ -115,7 +115,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.5 (2025-02-01)
 
 - (@GermanBluefox) Validate configuration at start
 - (@GermanBluefox) Corrected zoom&pan of charts with mouse
