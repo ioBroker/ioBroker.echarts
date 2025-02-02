@@ -11,12 +11,8 @@ Thumbs.db
 # i18n intermediate files
 admin/i18n/flat.txt
 admin/i18n/*/flat.txt
-/src/package-lock.json
-/package-lock.json
 /iob_npm.done
-/src-chart/package-lock.json
 /src-chart/old
 /_helpers
 tmp
 /image.png
-/src-preview/package-lock.json

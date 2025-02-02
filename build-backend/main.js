@@ -68,8 +68,6 @@ class EchartsAdapter extends adapter_core_1.Adapter {
             const chartData = new ChartModel_1.default(this.socketSimulator, options.preset, { serverSide: true });
             chartData.onError(err => this.log.error(err.toString()));
             chartData.onUpdate((seriesData, _actualValues, barCategories) => {
-                const systemConfig = chartData.getSystemConfig();
-                moment.locale(systemConfig?.language || 'en');
                 const theme = options.theme || options.themeType || 'light';
                 const chartOption = new ChartOption_1.default(moment, theme, calcTextWidth);
                 const option = chartOption.getOption(seriesData, chartData.getConfig(), null, barCategories);
@@ -247,6 +245,11 @@ class EchartsAdapter extends adapter_core_1.Adapter {
         // fix _design/chart
         let designObject = await this.getForeignObjectAsync('_design/chart');
         const _obj = JSON.parse((0, node_fs_1.readFileSync)(`${__dirname}/../io-package.json`).toString('utf8')).objects.find((ob) => ob._id === '_design/chart');
+        // Set the system language for moment
+        const systemConfig = await this.getForeignObjectAsync('system.config');
+        if (systemConfig?.common?.language) {
+            moment.locale(systemConfig.common.language);
+        }
         if (!designObject || (_obj && JSON.stringify(designObject.views) !== JSON.stringify(_obj.views))) {
             designObject = { language: 'javascript' };
             designObject.views = _obj?.views
