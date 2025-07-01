@@ -21,7 +21,7 @@
     "url": "https://github.com/ioBroker/ioBroker.echarts"
   },
   "optionalDependencies": {
-    "canvas": "^3.1.0",
+    "canvas": "^3.1.2",
     "echarts": "^5.6.0",
     "jsdom": "^26.0.0"
   },
