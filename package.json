@@ -43,14 +43,14 @@
     "@mui/material": "^6.4.6",
     "@types/jsdom": "^21.1.7",
     "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
+    "@types/react-dom": "^19.1.7",
     "axios": "^1.10.0",
     "chai": "^4.5.0",
     "colorette": "^2.0.20",
     "mocha": "^11.7.1",
     "puppeteer": "^24.15.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^19.1.1"
   },
   "main": "build-backend/main.js",
   "files": [
