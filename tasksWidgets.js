@@ -6,8 +6,7 @@
  **/
 'use strict';
 
-const { existsSync, rmdirSync, readdirSync } = require('node:fs');
-const gulpHelper = require('@iobroker/vis-2-widgets-react-dev/gulpHelper');
+const { existsSync, unlinkSync, rmdirSync } = require('node:fs');
 const { deleteFoldersRecursive, npmInstall, copyFiles, buildReact } = require('@iobroker/build-tools');
 const adapterName = require('./package.json').name.split('.').pop();
 
@@ -15,30 +14,22 @@ deleteFoldersRecursive(`${__dirname}/widgets`, ['echarts.html', 'Prev_tplEcharts
 deleteFoldersRecursive(`${__dirname}/src-widgets/build`);
 
 npmInstall(`${__dirname}/src-widgets/`)
-    .then(() => buildReact(`${__dirname}/src-widgets/`, { craco: true }))
+    .then(() => buildReact(`${__dirname}/src-widgets/`, { vite: true }))
     .then(() => {
-        copyFiles([`src-widgets/build/*.js`], `widgets/${adapterName}`);
-        copyFiles([`src-widgets/build/img/**/*`], `widgets/${adapterName}/img`);
-        copyFiles([`src-widgets/build/*.map`], `widgets/${adapterName}`);
-
         copyFiles(
-            [`src-widgets/build/static/**/*`, ...gulpHelper.ignoreFiles(`${__dirname}/src-widgets/`)],
-            `widgets/${adapterName}/static`,
+            [
+                `src-widgets/build/**/*`,
+                '!src-widgets/build/_socket/info.js',
+                '!src-widgets/build/index.html',
+                '!src-widgets/build/.vite/**/*',
+                '!src-widgets/build/mf-manifest.json',
+            ],
+            `widgets/${adapterName}/`,
         );
-
-        copyFiles([...gulpHelper.copyFiles(`${__dirname}/src-widgets/`)], `widgets/${adapterName}/static/js`);
-
-        copyFiles([`src-widgets/src/i18n/*.json`], `widgets/${adapterName}/i18n`);
-
-        return new Promise(resolve =>
-            setTimeout(() => {
-                if (
-                    existsSync(`widgets/${adapterName}/static/media`) &&
-                    !readdirSync(`widgets/${adapterName}/static/media`).length
-                ) {
-                    rmdirSync(`widgets/${adapterName}/static/media`);
-                }
-                resolve(null);
-            }, 500),
-        );
+        if (existsSync(`${__dirname}/widgets${adapterName}/_socket/info.js`)) {
+            unlinkSync(`${__dirname}/widgets/${adapterName}/_socket/info.js`);
+        }
+        if (existsSync(`${__dirname}/widgets/${adapterName}/_socket`)) {
+            rmdirSync(`${__dirname}/widgets/${adapterName}/_socket`, { recursive: true, force: true });
+        }
     });
