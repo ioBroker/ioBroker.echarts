@@ -74,7 +74,12 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                 const { window } = new JsDomClass();
                 // @ts-expect-error must be so
                 global.window = window;
-                global.navigator = window.navigator;
+                try {
+                    global.navigator = window.navigator;
+                }
+                catch {
+                    // ignore
+                }
                 global.document = window.document;
                 let chart;
                 let canvas;

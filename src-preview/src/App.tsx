@@ -33,7 +33,6 @@ import {
     Loader,
     I18n,
     Utils,
-    withWidth,
     Error as DialogError,
     Theme,
     ToggleThemeMenu,
@@ -683,7 +682,6 @@ class App extends Component<object, AppState> {
                     <Box
                         component="div"
                         style={styles.button}
-                        // style={{ width: this.state.iconSize }}
                         key={name}
                         onClick={() => {
                             const location = [...this.state.location];
@@ -1046,4 +1044,4 @@ class App extends Component<object, AppState> {
     }
 }
 
-export default withWidth()(App);
+export default App;

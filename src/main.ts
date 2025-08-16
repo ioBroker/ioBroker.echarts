@@ -96,7 +96,11 @@ class EchartsAdapter extends Adapter {
 
                     // @ts-expect-error must be so
                     global.window = window;
-                    global.navigator = window.navigator;
+                    try {
+                        global.navigator = window.navigator;
+                    } catch {
+                        // ignore
+                    }
                     global.document = window.document;
 
                     let chart: EChartsType;
