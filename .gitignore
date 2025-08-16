@@ -10,6 +10,7 @@ Thumbs.db
 
 # i18n intermediate files
 admin/i18n/flat.txt
+src-widgets/.__mf__temp
 admin/i18n/*/flat.txt
 /iob_npm.done
 /src-chart/old
