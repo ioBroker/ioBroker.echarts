@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "2.0.7",
+    "version": "2.0.8",
     "news": {
+      "2.0.8": {
+        "en": "Corrected icon for admin tab",
+        "de": "Korrigiertes Symbol für Admin-Tab",
+        "ru": "Исправленный значок для admin tab",
+        "pt": "Ícone corrigido para a página de administração",
+        "nl": "Gecorrigeerd pictogram voor admin-tabblad",
+        "fr": "Icône corrigée pour l'onglet admin",
+        "it": "Icona corretta per scheda admin",
+        "es": "Icono corregido para la pestaña admin",
+        "pl": "Skorygowana ikona zakładki admin",
+        "uk": "Виправлена ікона для вкладення адмін",
+        "zh-cn": "管理员标签的校正图标"
+      },
       "2.0.7": {
         "en": "Vis-2 widgets were migrated to vite\nCorrected the service side rendering of echarts in node 22",
         "de": "Vis-2 Widgets wurden zu Vite migriert\nKorrigierte die serviceseitige Renderung von echarts im Knoten 22",
@@ -80,19 +93,6 @@
         "pl": "Przelicz wartości rzeczywiste z zapewnioną funkcją \"convert\"",
         "uk": "Перетворення фактичних значень за допомогою функції \"convert\" занадто",
         "zh-cn": "将实际值转换为“ 转换” 函数"
-      },
-      "1.9.2": {
-        "en": "Fixed polar and bar charts",
-        "de": "Feste Polar- und Balkendiagramme",
-        "ru": "Фиксированные полярные и барные графики",
-        "pt": "Gráficos polares e de barras fixos",
-        "nl": "Vaste pool- en staafdiagrammen",
-        "fr": "Cartes polaires et à barres fixes",
-        "it": "Carte polari e a barre fissate",
-        "es": "Gráficos polares y bar fijos",
-        "pl": "Stałe wykresy polarne i barowe",
-        "uk": "Фіксовані полярні та барні діаграми",
-        "zh-cn": "固定极地图和条形图"
       }
     },
     "titleLang": {
