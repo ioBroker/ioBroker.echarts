@@ -115,6 +115,10 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) Corrected icon for admin tab
+
 ### 2.0.7 (2025-08-16)
 
 - (@GermanBluefox) Vis-2 widgets were migrated to vite

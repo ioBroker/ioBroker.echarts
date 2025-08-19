@@ -155,7 +155,7 @@
           "en": "Echarts",
           "ru": "Echarts"
         },
-        "icon": "admin/echarts.svg",
+        "icon": "echarts.admin/echarts.svg",
         "color": "#AA314D",
         "order": 6,
         "intro": true
