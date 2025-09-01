@@ -45,9 +45,15 @@ import plLang from './i18n/pl.json';
 import ukLang from './i18n/uk.json';
 import zhLang from './i18n/zh-cn.json';
 
-import ChartModel, {type SeriesData, type BarAndLineSeries, ChartConfigOld} from './Components/ChartModel';
+import ChartModel, { type SeriesData, type BarAndLineSeries, type ChartConfigOld } from './Components/ChartModel';
 import ChartView from './Components/ChartView';
-import type {ChartConfig, ChartConfigMore} from '../../src/types';
+import type { ChartConfig, ChartConfigMore } from '../../src/types';
+
+declare module '@mui/material/Button' {
+    interface ButtonPropsColorOverrides {
+        grey: true;
+    }
+}
 
 const styles: Record<string, React.CSSProperties> = {
     root: {

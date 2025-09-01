@@ -33,7 +33,7 @@
                 typeof window.socketLoadedHandler === 'function' && window.socketLoadedHandler();
             };
             script.src =
-                parseInt(window.location.port) >= 3000 && parseInt(window.location.port) <= 3020
+                parseInt(window.location.port) >= 3000 && -parseInt(window.location.port) >= -3020
                     ? window.location.protocol +
                       '//' +
                       (query.host || window.location.hostname) +
@@ -45,7 +45,7 @@
             document.head.appendChild(script);
         </script>
         <title>Echarts [ioBroker]</title>
-      <script type="module" crossorigin src="./assets/index-Cfv_sima.js"></script>
+      <script type="module" crossorigin src="./assets/index-44ExEUtQ.js"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-D5BB0j0i.css">
     </head>
     <body>

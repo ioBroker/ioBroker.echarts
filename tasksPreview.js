@@ -13,12 +13,15 @@ const {
     buildReact,
     copyFolderRecursiveSync,
     copyFiles,
+    patchHtmlFile,
 } = require('@iobroker/build-tools');
 
-function copyAllFiles() {
+async function copyAllFiles() {
     deleteFoldersRecursive(`${__dirname}/admin/preview`);
 
     copyFiles(['src-preview/build/**/*'], 'admin/preview/');
+
+    await patchHtmlFile('admin/preview/index.html');
 }
 
 function checkChart(resolve, reject, start) {

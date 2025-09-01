@@ -5,7 +5,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconButton, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
 
 // icons
-import { MdExpandMore as IconExpand, MdAdd as IconAdd } from 'react-icons/md';
+import { ExpandMore as IconExpand, Add as IconAdd } from '@mui/icons-material';
 import {
     FaFolder as IconFolderClosed,
     FaFolderOpen as IconFolderOpened,
@@ -22,6 +22,7 @@ import {
     type IobTheme,
     type AdminConnection,
 } from '@iobroker/adapter-react-v5';
+
 import Switch from './Switch';
 
 function sortObj(a: CustomInstance | string, b: CustomInstance | string): 1 | -1 | 0 {

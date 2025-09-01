@@ -8,11 +8,11 @@ import { Dialog, DialogTitle, Button, DialogActions, Box } from '@mui/material';
 
 // icons
 import {
-    MdClose as IconCancel,
-    MdSave as IconSave,
-    MdMenu as IconMenuClosed,
-    MdArrowBack as IconMenuOpened,
-} from 'react-icons/md';
+    Close as IconCancel,
+    Save as IconSave,
+    Menu as IconMenuClosed,
+    ArrowBack as IconMenuOpened,
+} from '@mui/icons-material';
 
 import { I18n, Loader, withWidth, GenericApp, type IobTheme } from '@iobroker/adapter-react-v5';
 
@@ -46,6 +46,12 @@ import type {
     ChartType,
     SelectedChart,
 } from '../../src/types';
+
+declare module '@mui/material/Button' {
+    interface ButtonPropsColorOverrides {
+        grey: true;
+    }
+}
 
 const styles: Record<string, any> = {
     root: (theme: IobTheme): React.CSSProperties => ({

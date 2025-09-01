@@ -10,7 +10,8 @@ import {
     CgBorderStyleDotted as IconDotted,
 } from 'react-icons/cg';
 
-import { MdClose as IconClose } from 'react-icons/md';
+import { Close as IconClose } from '@mui/icons-material';
+
 import { IOSelect, IOSlider } from './Fields';
 import type { ChartLineConfigMore } from '../../../src/types';
 

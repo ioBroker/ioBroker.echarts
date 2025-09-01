@@ -33,7 +33,7 @@
                 typeof window.socketLoadedHandler === 'function' && window.socketLoadedHandler();
             };
             script.src =
-                parseInt(window.location.port) >= 3000 && parseInt(window.location.port) <= 3020
+                parseInt(window.location.port) >= 3000 && -parseInt(window.location.port) >= -3020
                     ? window.location.protocol +
                       '//' +
                       (query.host || window.location.hostname) +

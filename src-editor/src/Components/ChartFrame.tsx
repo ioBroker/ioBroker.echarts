@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Paper } from '@mui/material';
+import { Paper, type Theme } from '@mui/material';
 import { type IobTheme, Utils } from '@iobroker/adapter-react-v5';
 import type { ChartConfigMore } from '../../../src/types';
 
@@ -9,7 +9,7 @@ const styles = {
         stroke: '#3a3a3a !important',
         fill: '#515151 !important',
     },
-    iframe: (theme: IobTheme): React.CSSProperties => ({
+    iframe: (theme: Theme): React.CSSProperties => ({
         width: '100%',
         height: '100%',
         overflow: 'auto',
