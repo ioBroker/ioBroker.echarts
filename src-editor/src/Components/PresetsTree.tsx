@@ -26,13 +26,13 @@ import {
 
 // icons
 import {
-    MdExpandMore as IconExpand,
-    MdAdd as IconAdd,
-    MdModeEdit as IconEdit,
-    MdClose as IconCancel,
-    MdCheck as IconCheck,
-    MdDelete as IconDelete,
-} from 'react-icons/md';
+    ExpandMore as IconExpand,
+    Add as IconAdd,
+    ModeEdit as IconEdit,
+    Close as IconCancel,
+    Check as IconCheck,
+    Delete as IconDelete,
+} from '@mui/icons-material';
 import { FaScroll as IconScript, FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
 import {

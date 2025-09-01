@@ -4,12 +4,14 @@ import { IconButton, TextField, Toolbar, InputLabel, Select, MenuItem, FormContr
 
 // icons
 import {
-    MdAdd as IconAdd,
-    MdCreateNewFolder as IconFolderAdd,
-    MdFullscreen as IconNewWindow,
-    MdSwapVert as IconReorder,
-} from 'react-icons/md';
-import { Search as SearchIcon, Close as ClearIcon, Preview as PreviewIcon } from '@mui/icons-material';
+    Add as IconAdd,
+    CreateNewFolder as IconFolderAdd,
+    Fullscreen as IconNewWindow,
+    SwapVert as IconReorder,
+    Search as SearchIcon,
+    Close as ClearIcon,
+    Preview as PreviewIcon,
+} from '@mui/icons-material';
 
 import { type AdminConnection, I18n, type IobTheme, withWidth } from '@iobroker/adapter-react-v5';
 

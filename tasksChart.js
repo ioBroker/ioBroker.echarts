@@ -52,18 +52,14 @@ function copyFilesToWWW() {
                     if (existsSync(`${__dirname}/www/index.html`)) {
                         let code = readFileSync(`${__dirname}/www/index.html`).toString('utf8');
                         code = code.replace(
-                            /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/,
-                            `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`,
-                        );
-                        code = code.replace(
-                            '<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>',
-                            `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`,
+                            '<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="../../../lib/js/socket.io.js"></script>',
+                            '<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="../../lib/js/socket.io.js"></script>',
                         );
 
                         if (!code.includes('_socket/info.js')) {
                             code = code.replace(
-                                '<script type="text/javascript" src="./../lib/js/socket.io.js"></script>',
-                                '<script type="text/javascript" src="./../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>',
+                                '<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="../../lib/js/socket.io.js"></script>',
+                                '<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="../../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>',
                             );
                         }
 
@@ -106,19 +102,10 @@ installPromise
             let code = readFileSync(`${__dirname}/admin/chart/index.html`).toString('utf8');
             code = code.replace(
                 /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="../../../lib/js/socket.io.js"></script>`,
             );
 
             writeFileSync(`${__dirname}/admin/chart/index.html`, code);
-        }
-        if (existsSync(`${__dirname}/src-chart/build/index.html`)) {
-            let code = readFileSync(`${__dirname}/src-chart/build/index.html`).toString('utf8');
-            code = code.replace(
-                /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
-            );
-
-            writeFileSync(`${__dirname}/src-chart/build/index.html`, code);
         }
     })
     .then(() => copyFilesToWWW());

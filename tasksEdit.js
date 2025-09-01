@@ -9,7 +9,7 @@
 const fs = require('node:fs');
 const { deleteFoldersRecursive, npmInstall, buildReact, copyFiles } = require('@iobroker/build-tools');
 
-function copyAllFiles() {
+async function copyAllFiles() {
     deleteFoldersRecursive(`${__dirname}/admin`, ['chart', 'preview']);
 
     copyFiles(
@@ -48,19 +48,10 @@ installPromise
         if (fs.existsSync(`${__dirname}/admin/tab.html`)) {
             let code = fs.readFileSync(`${__dirname}/admin/tab.html`).toString('utf8');
             code = code.replace(
-                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
+                /<script>\n?\s*var script\s?=\s?document\.createElement\('script'\)[^<]+?<\/script>/,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="../../lib/js/socket.io.js"></script>`,
             );
 
             fs.writeFileSync(`${__dirname}/admin/tab.html`, code);
-        }
-        if (fs.existsSync(`${__dirname}/src-editor/build/index.html`)) {
-            let code = fs.readFileSync(`${__dirname}/src-editor/build/index.html`).toString('utf8');
-            code = code.replace(
-                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
-            );
-
-            fs.writeFileSync(`${__dirname}/src-editor/build/index.html`, code);
         }
     });

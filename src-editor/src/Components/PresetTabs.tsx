@@ -7,7 +7,7 @@ import {
     IconButton,
     Tab,
     AppBar,
-    Grid,
+    Grid2 as Grid,
     Dialog,
     DialogTitle,
     DialogActions,
@@ -22,14 +22,14 @@ import {
 } from '@mui/material';
 
 import {
-    MdAdd as IconAdd,
-    MdClose as IconCancel,
-    MdSave as IconSave,
-    MdExpandLess as IconCollapse,
-    MdExpandMore as IconExpand,
-    MdFullscreen as IconNewWindow,
-} from 'react-icons/md';
-import { Close as IconClose, Delete as IconDelete } from '@mui/icons-material';
+    Add as IconAdd,
+    Close as IconClose,
+    Save as IconSave,
+    ExpandLess as IconCollapse,
+    ExpandMore as IconExpand,
+    Fullscreen as IconNewWindow,
+    Delete as IconDelete,
+} from '@mui/icons-material';
 
 import { I18n, Utils, IconCopy, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/adapter-react-v5';
 
@@ -217,7 +217,7 @@ interface PresetTabsState {
     hoverBackground: string;
 }
 
-class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
+export default class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
     private colorPickerCb: null | ((color: string) => void);
 
     private readonly paperLineRef: React.RefObject<HTMLDivElement>;
@@ -518,7 +518,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         color="grey"
                         variant="contained"
                         onClick={() => this.setState({ deleteLineDialog: null })}
-                        startIcon={<IconCancel />}
+                        startIcon={<IconClose />}
                     >
                         {I18n.t('Cancel')}
                     </Button>
@@ -551,7 +551,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                         color="grey"
                         variant="contained"
                         onClick={() => this.setState({ deleteMarkDialog: null })}
-                        startIcon={<IconCancel />}
+                        startIcon={<IconClose />}
                     >
                         {I18n.t('Cancel')}
                     </Button>
@@ -2005,11 +2005,7 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
                     ) : null}
                 </Box>
                 {this.props.presetData.l.find(line => line.chartType === 'bar') ? (
-                    <Grid
-                        item
-                        sm={6}
-                        xs={12}
-                    >
+                    <Grid size={{ sm: 6, xs: 12 }}>
                         <p style={styles.title}>{I18n.t('Bar settings')}</p>
                         <IOSelect
                             value={this.props.presetData.barLabels}
@@ -2246,5 +2242,3 @@ class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
         );
     }
 }
-
-export default PresetTabs;

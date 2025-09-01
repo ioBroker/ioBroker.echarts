@@ -14,15 +14,14 @@ import {
 } from '@mui/material';
 
 import {
-    MdDelete as IconDelete,
-    MdEdit as IconEdit,
-    MdContentCopy as IconCopy,
-    MdMenu as IconDrag,
-    MdContentPaste as IconPaste,
-    MdClose as IconClose,
-} from 'react-icons/md';
+    Delete as IconDelete,
+    Edit as IconEdit,
+    ContentCopy as IconCopy,
+    Menu as IconDrag,
+    ContentPaste as IconPaste,
+    Close as IconClose,
+} from '@mui/icons-material';
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
-import { Close as ClearIcon } from '@mui/icons-material';
 
 import { I18n, Utils, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/adapter-react-v5';
 
@@ -226,7 +225,7 @@ interface LineState {
     color: string;
 }
 
-class Line extends React.Component<LineProps, LineState> {
+export default class Line extends React.Component<LineProps, LineState> {
     constructor(props: LineProps) {
         super(props);
         this.state = {
@@ -667,7 +666,7 @@ class Line extends React.Component<LineProps, LineState> {
                                         });
                                     }}
                                 >
-                                    <ClearIcon />
+                                    <IconClose />
                                 </IconButton>
                             ) : undefined,
                         },
@@ -1485,5 +1484,3 @@ class Line extends React.Component<LineProps, LineState> {
         );
     }
 }
-
-export default Line;

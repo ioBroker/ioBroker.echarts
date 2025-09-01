@@ -355,7 +355,6 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
                             name: 'history_oid',
                             type: 'id',
                             hidden: '!!data.echart_oid || !data.history_instance',
-                            // @ts-expect-error fixed in next vis-2/types
                             filter: data => ({ common: { custom: data.history_instance } }),
                         },
                         {

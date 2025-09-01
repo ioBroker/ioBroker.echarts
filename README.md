@@ -115,6 +115,10 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) Just improvement of the build system
+
 ### 2.0.8 (2025-08-19)
 
 - (@GermanBluefox) Corrected icon for admin tab

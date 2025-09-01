@@ -2,10 +2,13 @@ import React from 'react';
 
 import { IconButton, Card, CardContent, TextField, Box } from '@mui/material';
 
-import { MdContentCopy as IconCopy, MdContentPaste as IconPaste, MdDelete as IconDelete } from 'react-icons/md';
+import {
+    ContentCopy as IconCopy,
+    ContentPaste as IconPaste,
+    Delete as IconDelete,
+    Close as ClearIcon,
+} from '@mui/icons-material';
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
-
-import ClearIcon from '@mui/icons-material/Close';
 
 import { I18n, Utils, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/adapter-react-v5';
 

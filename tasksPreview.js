@@ -15,7 +15,7 @@ const {
     copyFiles,
 } = require('@iobroker/build-tools');
 
-function copyAllFiles() {
+async function copyAllFiles() {
     deleteFoldersRecursive(`${__dirname}/admin/preview`);
 
     copyFiles(['src-preview/build/**/*'], 'admin/preview/');
@@ -46,33 +46,6 @@ function copyFilesToWWW() {
         .then(
             () => copyFolderRecursiveSync(`${__dirname}/admin/preview/`, `${__dirname}/www/preview`),
             ['.svg', '.txt'],
-        )
-        .then(
-            () =>
-                new Promise(resolve => {
-                    if (fs.existsSync(`${__dirname}/www/preview/index.html`)) {
-                        let code = fs.readFileSync(`${__dirname}/www/preview/index.html`).toString('utf8');
-                        code = code.replace(
-                            /<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                            `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`,
-                        );
-                        code = code.replace(
-                            '<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>',
-                            `<script type="text/javascript" src="./../lib/js/socket.io.js"></script>`,
-                        );
-
-                        if (!code.includes('_socket/info.js')) {
-                            code = code.replace(
-                                '<script type="text/javascript" src="./../lib/js/socket.io.js"></script>',
-                                '<script type="text/javascript" src="./../lib/js/socket.io.js"></script><script type="text/javascript" src="_socket/info.js"></script>',
-                            );
-                        }
-
-                        fs.writeFileSync(`${__dirname}/www/preview/index.html`, code);
-                    }
-
-                    resolve();
-                }),
         );
 }
 
@@ -91,23 +64,15 @@ installPromise
     )
     .then(() => copyAllFiles())
     .then(() => {
+        // we cannot use patchHtml because we need ../.. in path
         if (fs.existsSync(`${__dirname}/admin/preview/index.html`)) {
             let code = fs.readFileSync(`${__dirname}/admin/preview/index.html`).toString('utf8');
             code = code.replace(
-                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
+                /<script>\n?\s*var script\s?=\s?document\.createElement\('script'\)[^<]+?<\/script>/,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="../../../lib/js/socket.io.js"></script>`,
             );
 
             fs.writeFileSync(`${__dirname}/admin/preview/index.html`, code);
-        }
-        if (fs.existsSync(`${__dirname}/src-preview/build/index.html`)) {
-            let code = fs.readFileSync(`${__dirname}/src-preview/build/index.html`).toString('utf8');
-            code = code.replace(
-                /<script>var script=document\.createElement\("script"\).+?<\/script>/,
-                `<script type="text/javascript" src="./../../lib/js/socket.io.js"></script>`,
-            );
-
-            fs.writeFileSync(`${__dirname}/src-preview/build/index.html`, code);
         }
     })
     .then(() => copyFilesToWWW());

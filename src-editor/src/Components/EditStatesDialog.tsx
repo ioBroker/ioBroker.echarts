@@ -14,7 +14,7 @@ import {
 
 import { I18n } from '@iobroker/adapter-react-v5';
 
-import { MdAdd as IconAdd, MdCheck as IconCheck, MdClose as IconClose, MdDelete as IconDelete } from 'react-icons/md';
+import { Add as IconAdd, Check as IconCheck, Close as IconClose, Delete as IconDelete } from '@mui/icons-material';
 
 const styles: Record<string, React.CSSProperties> = {
     stateValueEdit: {
