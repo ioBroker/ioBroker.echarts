@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "2.0.8",
+    "version": "2.0.9",
     "news": {
+      "2.0.9": {
+        "en": "Just improvement of the build system",
+        "de": "Einfache Verbesserung des Bausystems",
+        "ru": "Просто совершенствование системы сборки",
+        "pt": "Apenas melhoria do sistema de construção",
+        "nl": "Verbetering van het bouwsysteem",
+        "fr": "Juste amélioration du système de construction",
+        "it": "Solo il miglioramento del sistema di costruzione",
+        "es": "Sólo mejora del sistema de construcción",
+        "pl": "Tylko poprawa systemu budowy",
+        "uk": "Просто вдосконалення системи будівництва",
+        "zh-cn": "只是改进建设系统"
+      },
       "2.0.8": {
         "en": "Corrected icon for admin tab",
         "de": "Korrigiertes Symbol für Admin-Tab",
@@ -80,19 +93,6 @@
         "pl": "Projekt został całkowicie przeredagowany przez TypeScript\nDodano lepsze układy mobilne",
         "uk": "Проект повністю переписався з TypeScript\nДодані кращі мобільні макети",
         "zh-cn": "工程被完全重写为 TypeScript\n增加了更好的移动布局"
-      },
-      "1.9.5": {
-        "en": "Convert actual values with provided \"convert\" function too",
-        "de": "Istwerte mit bereitgestellter \"Konvert\"-Funktion umrechnen",
-        "ru": "Конвертировать фактические значения с предоставленной функцией «конверт»",
-        "pt": "Converta valores reais com função \"converter\" fornecida também",
-        "nl": "Converteer werkelijke waarden met de opgegeven \"convert\" functie ook",
-        "fr": "Convertir les valeurs réelles avec la fonction \"convert\" fournie aussi",
-        "it": "Converti valori effettivi con funzione \"convert\" fornita",
-        "es": "Convertir valores reales con función \"convert\" proporcionada también",
-        "pl": "Przelicz wartości rzeczywiste z zapewnioną funkcją \"convert\"",
-        "uk": "Перетворення фактичних значень за допомогою функції \"convert\" занадто",
-        "zh-cn": "将实际值转换为“ 转换” 函数"
       }
     },
     "titleLang": {

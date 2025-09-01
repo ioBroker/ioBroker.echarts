@@ -115,7 +115,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.9 (2025-09-01)
 
 - (@GermanBluefox) Just improvement of the build system
 
