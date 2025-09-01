@@ -115,9 +115,10 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### 2.0.9 (2025-09-01)
+### **WORK IN PROGRESS**
 
 - (@GermanBluefox) Just improvement of the build system
+- (@GermanBluefox) Optimizing read of objects
 
 ### 2.0.8 (2025-08-19)
 

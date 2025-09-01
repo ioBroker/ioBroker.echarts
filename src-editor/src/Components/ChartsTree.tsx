@@ -267,7 +267,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
     async getAdapterIcon(id: string): Promise<string | null> {
         const p = id.split('.');
 
-        if (p.length < 2 || p[0] === '0_userdata') {
+        if (p.length < 2 || p[0] === '0_userdata' || p[0] === 'alias') {
             return null;
         }
         let instanceId;

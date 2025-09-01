@@ -3,19 +3,6 @@
     "name": "echarts",
     "version": "2.0.9",
     "news": {
-      "2.0.9": {
-        "en": "Just improvement of the build system",
-        "de": "Einfache Verbesserung des Bausystems",
-        "ru": "Просто совершенствование системы сборки",
-        "pt": "Apenas melhoria do sistema de construção",
-        "nl": "Verbetering van het bouwsysteem",
-        "fr": "Juste amélioration du système de construction",
-        "it": "Solo il miglioramento del sistema di costruzione",
-        "es": "Sólo mejora del sistema de construcción",
-        "pl": "Tylko poprawa systemu budowy",
-        "uk": "Просто вдосконалення системи будівництва",
-        "zh-cn": "只是改进建设系统"
-      },
       "2.0.8": {
         "en": "Corrected icon for admin tab",
         "de": "Korrigiertes Symbol für Admin-Tab",
