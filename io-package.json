@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "2.0.9",
+    "version": "2.0.10",
     "news": {
+      "2.0.10": {
+        "en": "Just improvement of the build system\nOptimizing read of objects",
+        "de": "Einfache Verbesserung des Bausystems\nOptimierung des Lesens von Objekten",
+        "ru": "Просто совершенствование системы сборки\nОптимизация чтения объектов",
+        "pt": "Apenas melhoria do sistema de construção\nOtimização da leitura dos objectos",
+        "nl": "Verbetering van het bouwsysteem\nLezen van objecten optimaliseren",
+        "fr": "Juste amélioration du système de construction\nOptimisation de la lecture des objets",
+        "it": "Solo il miglioramento del sistema di costruzione\nOttimizzazione della lettura degli oggetti",
+        "es": "Sólo mejora del sistema de construcción\nOptimizar la lectura de objetos",
+        "pl": "Tylko poprawa systemu budowy\nOptymalizacja odczytu obiektów",
+        "uk": "Просто вдосконалення системи будівництва\nОптимальне читання об'єктів",
+        "zh-cn": "只是改进建设系统\n优化对象读取"
+      },
       "2.0.8": {
         "en": "Corrected icon for admin tab",
         "de": "Korrigiertes Symbol für Admin-Tab",
