@@ -237,7 +237,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
     }
 
     async getAllEnums(newState?: Partial<ChartsTreeState>): Promise<Partial<ChartsTreeState>> {
-        newState = newState || ({} as Partial<ChartsTreeState>);
+        newState ||= {} as Partial<ChartsTreeState>;
         try {
             const enums = await this.props.socket.getEnums();
             newState.enums = {};
@@ -304,6 +304,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
     async getChartIconAndName(
         groupId: string,
         obj: ioBroker.StateObject,
+        cache: { [id: string]: Promise<ioBroker.Object> },
     ): Promise<{ groupId: string; id: string; img: string; name: string[] }> {
         let icon;
         const name = [];
@@ -323,7 +324,10 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         const channelID = Utils.getParentId(obj._id);
         if (channelID?.split('.').length > 2) {
             try {
-                const channelObj = await this.props.socket.getObject(channelID);
+                if (!(cache[channelID] instanceof Promise)) {
+                    cache[channelID] = this.props.socket.getObject(channelID);
+                }
+                const channelObj = await cache[channelID];
                 if (
                     channelObj &&
                     (channelObj.type === 'channel' || channelObj.type === 'device') &&
@@ -335,7 +339,10 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                     name.push(Utils.getObjectNameFromObj(channelObj, null, { language }));
                     const deviceID = Utils.getParentId(channelID);
                     if (deviceID?.split('.').length > 2) {
-                        const deviceObj = await this.props.socket.getObject(deviceID);
+                        if (!(cache[deviceID] instanceof Promise)) {
+                            cache[deviceID] = this.props.socket.getObject(deviceID);
+                        }
+                        const deviceObj = await cache[deviceID];
                         if (
                             deviceObj &&
                             (deviceObj.type === 'channel' || deviceObj.type === 'device') &&
@@ -348,7 +355,10 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
 
                             const adapterID = Utils.getParentId(deviceID);
                             if (adapterID?.split('.').length > 2) {
-                                const adapterObj = await this.props.socket.getObject(adapterID);
+                                if (!(cache[adapterID] instanceof Promise)) {
+                                    cache[adapterID] = this.props.socket.getObject(adapterID);
+                                }
+                                const adapterObj = await cache[adapterID];
                                 if (
                                     adapterObj &&
                                     (adapterObj.type === 'channel' || adapterObj.type === 'device') &&
@@ -370,7 +380,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
 
         // name.reverse();
 
-        icon = icon || (await this.getAdapterIcon(id));
+        icon ||= await this.getAdapterIcon(id);
         return {
             groupId,
             id,
@@ -380,7 +390,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
     }
 
     async getAllCharts(newState?: Partial<ChartsTreeState>): Promise<Partial<ChartsTreeState>> {
-        newState = newState || ({} as Partial<ChartsTreeState>);
+        newState ||= {} as Partial<ChartsTreeState>;
         const instancesIds = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
         const objs: Record<string, ioBroker.Object> = (await this.props.socket.getObjectViewSystem(
             // @ts-expect-error custom is not implemented in AdminConnection
@@ -390,14 +400,16 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         )) as Record<string, ioBroker.Object>;
 
         const _instances: Record<string, CustomInstance> = {};
-        newState.enums = newState.enums || this.state.enums;
+        newState.enums ||= this.state.enums;
         const iconPromises: Promise<{ groupId: string; id: string; img: string; name: string[] }>[] = [];
+        const cache: { [id: string]: Promise<ioBroker.Object> } = {};
+        // find all objects with history
         Object.values(objs).forEach((obj: ioBroker.StateObject): void => {
             // find first instance with history
             const id = instancesIds.find(_id => Object.keys(obj.common.custom).includes(_id));
             if (id) {
                 const instanceObj = this.props.instances.find(iObj => iObj._id.endsWith(id));
-                _instances[id] = _instances[id] || {
+                _instances[id] ||= {
                     _id: `system.adapter.${id}`,
                     enabledDP: {},
                     names: {},
@@ -411,7 +423,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                 _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
                 _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
                 _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
-                iconPromises.push(this.getChartIconAndName(id, obj));
+                iconPromises.push(this.getChartIconAndName(id, obj, cache));
             }
         });
 
@@ -432,7 +444,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
             // Build for every instance the list of enums
             Object.keys(newState.enums).forEach(eID => {
                 if (Object.keys(enabledDP).find(id => newState.enums[eID].common.members.includes(id))) {
-                    obj.enums = obj.enums || [];
+                    obj.enums ||= [];
                     if (!obj.enums.includes(eID)) {
                         obj.enums.push(eID);
                     }
@@ -461,12 +473,12 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                 }
             });
             if (otherFuncs.common.members.length) {
-                obj.enums = obj.enums || [];
+                obj.enums ||= [];
                 obj.enums.push(`enum.functions.${obj._id}`);
                 newState.enums[`enum.functions.${obj._id}`] = otherFuncs;
             }
             if (otherRooms.common.members.length) {
-                obj.enums = obj.enums || [];
+                obj.enums ||= [];
                 obj.enums.push(`enum.rooms.${obj._id}`);
                 newState.enums[`enum.rooms.${obj._id}`] = otherRooms;
             }
@@ -581,7 +593,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                     this.props.onShowToast(I18n.t('Already enabled'));
                                     return;
                                 }
-                                obj.common.custom = obj.common.custom || {};
+                                obj.common.custom ||= {};
                                 obj.common.custom[instance] = {
                                     enabled: true,
                                 };
@@ -592,7 +604,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                             JSON.stringify(this.state.instances),
                                         );
                                         const inst = instances.find(item => item._id === `system.adapter.${instance}`);
-                                        inst.enabledDP = inst.enabledDP || {};
+                                        inst.enabledDP ||= {};
                                         inst.enabledDP[obj._id] = obj;
                                         this.setState({ instances }, () => this.getAllCharts());
                                     })
@@ -608,7 +620,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
     }
 
     renderListItem(group: CustomInstance, id: string, dragging?: boolean, level?: number): React.JSX.Element {
-        level = level || 0;
+        level ||= 0;
         const instance = group._id;
         const selected =
             this.props.selectedId &&
@@ -739,7 +751,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         enumId: string | null,
         renderContext?: { gIndex: number },
     ): React.ReactNode[] {
-        renderContext.gIndex = renderContext.gIndex || 0;
+        renderContext.gIndex ||= 0;
 
         if (!ids?.length) {
             return null;
