@@ -39,7 +39,7 @@
     "@iobroker/legacy-testing": "^2.0.2",
     "@iobroker/testing": "^5.1.1",
     "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
-    "@mui/icons-material": "^6.5.0",
+    "@mui/icons-material": "^7.3.2",
     "@mui/material": "^6.5.0",
     "@types/jsdom": "^21.1.7",
     "@types/react": "^18.3.24",
