@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@vitejs/plugin-react": "^4.7.0",
-        "react": "^18.3.1",
+        "react": "^19.2.0",
         "react-dom": "^18.3.1",
         "react-icons": "^5.4.0",
         "typescript": "^5.8.3"
