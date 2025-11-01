@@ -5,7 +5,7 @@
     "type": "module",
     "dependencies": {
         "@iobroker/adapter-react-v5": "^7.7.2",
-        "@iobroker/types-vis-2": "^2.12.12",
+        "@iobroker/types-vis-2": "^2.13.6",
         "@module-federation/runtime": "^0.18.3",
         "@module-federation/vite": "^1.7.2",
         "@mui/icons-material": "^6.5.0",
