@@ -1,62 +1,58 @@
+# Dependabot will run on day 25 of each month at 03:34 (Europe/Berlin timezone)
 version: 2
 updates:
-    - package-ecosystem: github-actions
-      directory: '/'
-      schedule:
-          interval: monthly
-          time: '04:00'
-          timezone: Europe/Berlin
-
-    - package-ecosystem: npm
-      directory: '/'
-      schedule:
-          interval: monthly
-          time: '04:00'
-          timezone: Europe/Berlin
-      open-pull-requests-limit: 7
-      versioning-strategy: increase
-
-    - package-ecosystem: npm
-      directory: '/src'
-      schedule:
-          interval: monthly
-          time: '04:00'
-          timezone: Europe/Berlin
-      open-pull-requests-limit: 20
-      versioning-strategy: increase
-
-    - package-ecosystem: npm
-      directory: '/src-chart'
-      schedule:
-          interval: monthly
-          time: '04:00'
-          timezone: Europe/Berlin
-      open-pull-requests-limit: 20
-      versioning-strategy: increase
-
-    - package-ecosystem: npm
-      directory: '/src-editor'
-      schedule:
-          interval: monthly
-          time: '04:00'
-          timezone: Europe/Berlin
-      open-pull-requests-limit: 20
-      versioning-strategy: increase
-
-    - package-ecosystem: npm
-      directory: '/src-preview'
-      schedule:
-          interval: monthly
-          time: '04:00'
-          timezone: Europe/Berlin
-      open-pull-requests-limit: 20
-      versioning-strategy: increase
-
-    - package-ecosystem: npm
-      directory: '/src-widgets'
-      schedule:
-        interval: monthly
-        time: '04:00'
-        timezone: Europe/Berlin
-      open-pull-requests-limit: 20
-      versioning-strategy: increase
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "cron"
+      timezone: "Europe/Berlin"
+      cronjob: "34 3 25 * *"
+    open-pull-requests-limit: 15
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "cron"
+      timezone: "Europe/Berlin"
+      cronjob: "34 3 25 * *"
+    open-pull-requests-limit: 15
+    versioning-strategy: "increase"
+  - package-ecosystem: "npm"
+    directory: "/src"
+    schedule:
+      interval: "cron"
+      timezone: "Europe/Berlin"
+      cronjob: "34 3 25 * *"
+    open-pull-requests-limit: 20
+    versioning-strategy: "increase"
+  - package-ecosystem: "npm"
+    directory: "/src-chart"
+    schedule:
+      interval: "cron"
+      timezone: "Europe/Berlin"
+      cronjob: "34 3 25 * *"
+    open-pull-requests-limit: 20
+    versioning-strategy: "increase"
+  - package-ecosystem: "npm"
+    directory: "/src-editor"
+    schedule:
+      interval: "cron"
+      timezone: "Europe/Berlin"
+      cronjob: "34 3 25 * *"
+    open-pull-requests-limit: 20
+    versioning-strategy: "increase"
+  - package-ecosystem: "npm"
+    directory: "/src-preview"
+    schedule:
+      interval: "cron"
+      timezone: "Europe/Berlin"
+      cronjob: "34 3 25 * *"
+    open-pull-requests-limit: 20
+    versioning-strategy: "increase"
+  - package-ecosystem: "npm"
+    directory: "/src-widgets"
+    schedule:
+      interval: "cron"
+      timezone: "Europe/Berlin"
+      cronjob: "34 3 25 * *"
+    open-pull-requests-limit: 20
+    versioning-strategy: "increase"
