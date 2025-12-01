@@ -11,7 +11,7 @@
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
         "@originjs/vite-plugin-federation": "^1.4.1",
-        "@types/react": "^18.3.23",
+        "@types/react": "^19.2.7",
         "@types/react-beautiful-dnd": "^13.1.8",
         "@types/react-dom": "^18.3.7",
         "@vitejs/plugin-react": "^4.7.0",
