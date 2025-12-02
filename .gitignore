@@ -17,3 +17,6 @@ admin/i18n/*/flat.txt
 /_helpers
 tmp
 /image.png
+
+#ignore .commitinfo created by ioBroker release script
+.commitinfo
