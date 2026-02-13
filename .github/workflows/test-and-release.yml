@@ -31,7 +31,7 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-check@v1
               with:
-                  install-command: 'npm i'
+                  install-command: 'npm i -f'
                   node-version: '22.x'
                   lint: true
 
@@ -49,7 +49,7 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-adapter@v1
               with:
-                  install-command: 'npm i'
+                  install-command: 'npm i -f'
                   build: true
                   os: 'ubuntu-latest'
                   node-version: ${{ matrix.node-version }}
@@ -75,7 +75,7 @@ jobs:
             - uses: ioBroker/testing-action-deploy@v1
               with:
                   node-version: '22.x'
-                  install-command: 'npm i'
+                  install-command: 'npm i -f'
                   build: true
                   github-token: ${{ secrets.GITHUB_TOKEN }}
 

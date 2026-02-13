@@ -1,5 +1,5 @@
+import type { Connection } from '../types';
 import type {
-    Connection,
     ChartAggregateType,
     ChartMarkConfig,
     ChartType,
