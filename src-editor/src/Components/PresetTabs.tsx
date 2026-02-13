@@ -610,9 +610,9 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
 
     renderTabLines(): React.ReactNode {
         const anyClosed =
-            this.props.presetData.l.length > 1 && this.props.presetData.l.find((l, i) => !this.state.linesOpened[i]);
+            this.props.presetData.l.length > 1 && this.props.presetData.l.find((_l, i) => !this.state.linesOpened[i]);
         const anyOpened =
-            this.props.presetData.l.length > 1 && this.props.presetData.l.find((l, i) => this.state.linesOpened[i]);
+            this.props.presetData.l.length > 1 && this.props.presetData.l.find((_l, i) => this.state.linesOpened[i]);
 
         return (
             // @ts-expect-error idk
@@ -765,10 +765,10 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
     renderTabMarkings(): React.JSX.Element {
         const anyClosed =
             this.props.presetData.marks.length > 1 &&
-            this.props.presetData.marks.find((l, i) => !this.state.marksOpened[i]);
+            this.props.presetData.marks.find((_l, i) => !this.state.marksOpened[i]);
         const anyOpened =
             this.props.presetData.marks.length > 1 &&
-            this.props.presetData.marks.find((l, i) => this.state.marksOpened[i]);
+            this.props.presetData.marks.find((_l, i) => this.state.marksOpened[i]);
 
         return (
             <Paper
@@ -1261,7 +1261,9 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                 open={!0}
                 autoHideDuration={2000}
                 onClose={() => this.setState({ toast: '' })}
-                ContentProps={{ 'aria-describedby': 'message-id' }}
+                slotProps={{
+                    content: { 'aria-describedby': 'message-id' },
+                }}
                 message={<span id="message-id">{this.state.toast}</span>}
                 action={[
                     <IconButton

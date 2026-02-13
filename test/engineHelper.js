@@ -1,4 +1,3 @@
-const fs = require('node:fs');
 const path = require('node:path');
 const setup = require('@iobroker/legacy-testing');
 const { deleteFoldersRecursive } = require('@iobroker/build-tools');
@@ -9,7 +8,7 @@ let states = null;
 let onStateChanged = null;
 
 function startIoBroker(options) {
-    options = options || {};
+    options ||= {};
     if (options.rootDir) {
         rootDir = options.rootDir;
     }
@@ -43,7 +42,7 @@ function startIoBroker(options) {
 
                 setup.startController(
                     false, // do not start widgets
-                    (id, obj) => {},
+                    (_id, _obj) => {},
                     (id, state) => onStateChanged && onStateChanged(id, state),
                     async (_objects, _states) => {
                         objects = _objects;
@@ -51,10 +50,10 @@ function startIoBroker(options) {
                         setup.startCustomAdapter('admin', 0);
                         await checkIsAdminStartedAsync(states);
                         resolve({ objects, states });
-                    }
+                    },
                 );
             },
-            options
+            options,
         );
     });
 }
@@ -66,21 +65,23 @@ async function stopIoBroker() {
         setup.stopController(normalTerminated => {
             console.log(`Adapter normal terminated: ${normalTerminated}`);
             resolve();
-        })
+        }),
     );
 }
 
 function checkIsAdminStarted(states, cb, counter) {
-    counter = counter === undefined ? 20 : counter;
+    counter ??= 20;
     if (counter === 0) {
-        return cb && cb(`Cannot check value of State system.adapter.admin.0.alive`);
+        return cb?.(`Cannot check value of State system.adapter.admin.0.alive`);
     }
 
     states.getState('system.adapter.admin.0.alive', (err, state) => {
         console.log(`[${counter}]Check if admin is started "system.adapter.admin.0.alive" = ${JSON.stringify(state)}`);
-        err && console.error(err);
+        if (err) {
+            console.error(err);
+        }
         if (state?.val) {
-            cb && cb();
+            cb?.();
         } else {
             setTimeout(() => checkIsAdminStarted(states, cb, counter - 1), 500);
         }

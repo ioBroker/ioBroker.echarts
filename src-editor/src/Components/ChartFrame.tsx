@@ -1,15 +1,15 @@
 import React from 'react';
 
-import { Paper, type Theme } from '@mui/material';
+import { Paper } from '@mui/material';
 import { type IobTheme, Utils } from '@iobroker/adapter-react-v5';
 import type { ChartConfigMore } from '../../../src/types';
 
-const styles = {
+const styles: Record<string, any> = {
     darkBackground: {
         stroke: '#3a3a3a !important',
         fill: '#515151 !important',
     },
-    iframe: (theme: Theme): React.CSSProperties => ({
+    iframe: (theme: IobTheme): React.CSSProperties => ({
         width: '100%',
         height: '100%',
         overflow: 'auto',
@@ -34,13 +34,13 @@ const styles = {
         let keys = key.split('][');
         let keysLast = keys.length - 1;
 
-        // If the first keys part contains [ and the last ends with ], then []
+        // If the first keys part contains "[" and the last ends with "]", then "[]"
         // are correctly balanced.
         if (/\[/.test(keys[0]) && /]$/.test(keys[keysLast])) {
-            // Remove the trailing ] from the last keys part.
+            // Remove the trailing "]" from the last keys part.
             keys[keysLast] = keys[keysLast].replace(/]$/, '');
 
-            // Split first keys part into two parts on the [ and add them back onto
+            // Split first keys part into two parts on the "[" and add them back onto
             // the beginning of the keys array.
             keys = keys.shift().split('[').concat(keys);
 

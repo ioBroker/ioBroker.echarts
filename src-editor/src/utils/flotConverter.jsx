@@ -17,10 +17,10 @@ function deParam(params, coerce) {
         // If the first keys part contains [ and the last ends with ], then []
         // are correctly balanced.
         if (/\[/.test(keys[0]) && /]$/.test(keys[keysLast])) {
-            // Remove the trailing ] from the last keys part.
+            // Remove the trailing "]" from the last keys part.
             keys[keysLast] = keys[keysLast].replace(/]$/, '');
 
-            // Split first keys part into two parts on the [ and add them back onto
+            // Split first keys part into two parts on the "[" and add them back onto
             // the beginning of the keys array.
             keys = keys.shift().split('[').concat(keys);
 

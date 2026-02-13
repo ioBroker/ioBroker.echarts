@@ -1,0 +1,1 @@
+const _="__mf_init____mf__virtual/echarts__mf_v__runtimeInit__mf_v__.js__";if(!globalThis[_]){let i,t;const e=new Promise((s,l)=>{i=s,t=l});globalThis[_]={initPromise:e,initResolve:i,initReject:t}}var n=globalThis[_];export{n as e};

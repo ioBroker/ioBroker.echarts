@@ -11,6 +11,14 @@ Thumbs.db
 # i18n intermediate files
 admin/i18n/flat.txt
 src-widgets/.__mf__temp
+src-widgets/build
+src-widgets/node_modules
+src-preview/build
+src-preview/node_modules
+src-editor/build
+src-editor/node_modules
+src-chart/build
+src-chart/node_modules
 admin/i18n/*/flat.txt
 /iob_npm.done
 /src-chart/old

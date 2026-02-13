@@ -14,7 +14,7 @@ import {
     ArrowBack as IconMenuOpened,
 } from '@mui/icons-material';
 
-import { I18n, Loader, withWidth, GenericApp, type IobTheme } from '@iobroker/adapter-react-v5';
+import { I18n, Loader, GenericApp, type IobTheme } from '@iobroker/adapter-react-v5';
 
 import enLang from './i18n/en.json';
 import deLang from './i18n/de.json';
@@ -162,7 +162,7 @@ interface AppState extends GenericAppState {
     systemConfig: ioBroker.SystemConfigObject;
 }
 
-class App extends GenericApp<AppProps, AppState> {
+export default class App extends GenericApp<AppProps, AppState> {
     private config: { preset: string } | { id: string; instance: string; menuOpened: boolean } | null;
 
     private objects: Record<string, ioBroker.StateObject | null> = {};
@@ -1070,5 +1070,3 @@ class App extends GenericApp<AppProps, AppState> {
         );
     }
 }
-
-export default withWidth()(App);

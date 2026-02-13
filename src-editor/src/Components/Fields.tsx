@@ -91,7 +91,7 @@ export const IOSelect = (props: IOSelectProps): React.JSX.Element => {
         >
             <Tooltip
                 title={props.tooltip ? I18n.t(props.tooltip) : null}
-                slotProps={{ popper: { sx: styles.tooltip } }}
+                slotProps={{ popper: { style: styles.tooltip } }}
             >
                 <FormControl
                     fullWidth={props.fullWidth}

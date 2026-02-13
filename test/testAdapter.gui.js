@@ -7,7 +7,7 @@ const {
 let gPage;
 
 async function screenshot(page, fileName) {
-    page = page || gPage;
+    page ||= gPage;
     await page.screenshot({ path: `${__dirname}/../tmp/screenshots/${fileName}.png` });
 }
 

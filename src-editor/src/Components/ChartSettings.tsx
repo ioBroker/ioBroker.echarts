@@ -1,6 +1,17 @@
 import React from 'react';
 
-import { Box, Toolbar, Button, Select, MenuItem, Popover, Dialog, DialogActions, IconButton } from '@mui/material';
+import {
+    Box,
+    Toolbar,
+    Button,
+    Select,
+    MenuItem,
+    Popover,
+    Dialog,
+    DialogActions,
+    IconButton,
+    DialogContent,
+} from '@mui/material';
 import {
     Close,
     Add as IconPlus,
@@ -21,7 +32,6 @@ import type {
     ChartRelativeEnd,
     ChartType,
 } from '../../../src/types';
-import { DialogContent } from '@material-ui/core';
 
 const WIDTHS = {
     timeSpan: 200,

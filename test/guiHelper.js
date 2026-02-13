@@ -55,7 +55,7 @@ async function stopBrowser(browser) {
 }
 
 async function screenshot(page, fileName) {
-    page = page || gPage;
+    page ||= gPage;
     await page.screenshot({ path: `${rootDir}tmp/screenshots/${fileName}.png` });
 }
 
