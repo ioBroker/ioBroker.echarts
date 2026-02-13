@@ -1,4 +1,3 @@
-import type { Connection } from '../types';
 import type {
     ChartAggregateType,
     ChartMarkConfig,
@@ -7,6 +6,7 @@ import type {
     ChartRelativeEnd,
     ChartLineConfig,
     ChartRangeOptions,
+    Connection,
 } from '../types';
 
 export type EchartsOneValue = { value: [number, number]; exact?: false };
