@@ -750,7 +750,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                         }
                                     />
                                 ) : null}
-                                {provided.placeholder as any}
+                                {provided.placeholder as unknown as React.JSX.Element}
                                 <div style={styles.dragHint}>
                                     {I18n.t('You can drag and drop simple lines from the left list.')}
                                 </div>
