@@ -50,7 +50,7 @@
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
     },
-    "main": "build-backend/main.js",
+    "main": "build/main.js",
     "files": [
         "admin/",
         "img/",
@@ -58,7 +58,7 @@
         "www/",
         "io-package.json",
         "LICENSE",
-        "build-backend/"
+        "build/"
     ],
     "scripts": {
         "test:package": "mocha test/package --exit",
@@ -67,6 +67,7 @@
         "prepublishOnly": "npm run build",
         "tsc": "tsc -p tsconfig.build.json",
         "build": "npm run build:widgets && npm run build:chart && npm run build:preview && npm run build:edit && npm run tsc",
+        "lint": "eslint -c eslint.config.mjs && cd src-editor && npm run lint && cd ../src-chart && npm run lint && cd ../src-preview && npm run lint && cd ../src-widgets && npm run lint",
         "build:widgets": "node tasksWidgets",
         "build:chart": "node tasksChart",
         "build:preview": "node tasksPreview",

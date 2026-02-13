@@ -22,6 +22,20 @@ export default [
         },
     },
     {
-        ignores: ['build-backend/**/*', 'lib/**/*'],
+        ignores: [
+            'build/**/*',
+            'lib/**/*',
+            'admin/**/*',
+            'test/**/*',
+            'src-editor/**/*',
+            'src-chart/**/*',
+            'src-preview/**/*',
+            'src-widgets/**/*',
+            'widgets/**/*',
+            'eslint.config.mjs',
+            'prettier.config.mjs',
+            '*.js',
+            'www/**/*',
+        ],
     },
 ];

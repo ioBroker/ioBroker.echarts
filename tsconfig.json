@@ -19,5 +19,5 @@
         "types": ["node", "@iobroker/types"]
     },
     "include": ["src/**/*.ts"],
-    "exclude": ["node_modules/**", "www/**", "lib/**", "build-backend/**", "tasks.js"]
+    "exclude": ["node_modules/**", "www/**", "lib/**", "build/**", "tasks.js"]
 }
