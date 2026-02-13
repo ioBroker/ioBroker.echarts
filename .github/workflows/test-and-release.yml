@@ -31,9 +31,8 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-check@v1
               with:
+                  install-command: 'npm i'
                   node-version: '22.x'
-                  # Uncomment the following line if your adapter cannot be installed using 'npm ci'
-                  # install-command: 'npm install'
                   lint: true
 
     # Runs adapter tests on all supported node versions and OSes
@@ -50,6 +49,7 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-adapter@v1
               with:
+                  install-command: 'npm i'
                   build: true
                   os: 'ubuntu-latest'
                   node-version: ${{ matrix.node-version }}
@@ -75,6 +75,7 @@ jobs:
             - uses: ioBroker/testing-action-deploy@v1
               with:
                   node-version: '22.x'
+                  install-command: 'npm i'
                   build: true
                   github-token: ${{ secrets.GITHUB_TOKEN }}
 
