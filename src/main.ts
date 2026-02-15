@@ -2,15 +2,13 @@
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020-2025 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2026 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *
  */
-import { Adapter, type AdapterOptions } from '@iobroker/adapter-core';
 import { readFileSync, writeFileSync } from 'node:fs';
-import ChartModel, { type BarAndLineSeries } from './lib/ChartModel';
-import ChartOption from './lib/ChartOption';
+
 import * as moment from 'moment';
 import 'moment/locale/en-gb';
 import 'moment/locale/es';
@@ -22,11 +20,17 @@ import 'moment/locale/nl';
 import 'moment/locale/ru';
 import 'moment/locale/zh-cn';
 import 'moment/locale/de';
-import type { EchartsOptions, Connection, ChartConfigMore } from './types';
-import { getSocket } from './lib/socketSimulator';
+
 import { type EChartsType, init as echartsInit } from 'echarts';
 import { Canvas, type JpegConfig, type PdfConfig, type PngConfig } from 'canvas';
 import { type JSDOM } from 'jsdom';
+
+import { Adapter, type AdapterOptions } from '@iobroker/adapter-core';
+
+import type { EchartsOptions, Connection, ChartConfigMore } from './types';
+import ChartModel, { type BarAndLineSeries } from './lib/ChartModel';
+import ChartOption from './lib/ChartOption';
+import { getSocket } from './lib/socketSimulator';
 
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
