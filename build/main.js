@@ -4,15 +4,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *
  *      ioBroker echarts Adapter
  *
- *      (c) 2020-2025 bluefox <dogafox@gmail.com>
+ *      (c) 2020-2026 bluefox <dogafox@gmail.com>
  *
  *      MIT License
  *
  */
-const adapter_core_1 = require("@iobroker/adapter-core");
 const node_fs_1 = require("node:fs");
-const ChartModel_1 = require("./lib/ChartModel");
-const ChartOption_1 = require("./lib/ChartOption");
 const moment = require("moment");
 require("moment/locale/en-gb");
 require("moment/locale/es");
@@ -24,9 +21,12 @@ require("moment/locale/nl");
 require("moment/locale/ru");
 require("moment/locale/zh-cn");
 require("moment/locale/de");
-const socketSimulator_1 = require("./lib/socketSimulator");
 const echarts_1 = require("echarts");
 const canvas_1 = require("canvas");
+const adapter_core_1 = require("@iobroker/adapter-core");
+const ChartModel_1 = require("./lib/ChartModel");
+const ChartOption_1 = require("./lib/ChartOption");
+const socketSimulator_1 = require("./lib/socketSimulator");
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
 //     | undefined;
