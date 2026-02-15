@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "2.0.10",
+    "version": "3.0.0",
     "news": {
+      "3.0.0": {
+        "en": "Updated packages\nRemoved support for node 18",
+        "de": "Aktualisierte Pakete\nEntfernte Unterstützung für Knoten 18",
+        "ru": "Обновленные пакеты\nСнята поддержка узла 18",
+        "pt": "Pacotes atualizados\nSuporte removido para o nó 18",
+        "nl": "Bijgewerkte pakketten\nOndersteuning voor node 18 verwijderd",
+        "fr": "Paquets mis à jour\nPrise en charge du nœud 18",
+        "it": "Pacchetti aggiornati\nSupporto rimosso per nodo 18",
+        "es": "Paquetes actualizados\nApoyo eliminado para el nodo 18",
+        "pl": "Aktualizacja pakietów\nUsunięto obsługę węzła 18",
+        "uk": "Оновлені пакети\nВидалити підтримку для вузла 18",
+        "zh-cn": "更新软件包\n删除对节点 18 的支持"
+      },
       "2.0.10": {
         "en": "Just improvement of the build system\nOptimizing read of objects",
         "de": "Einfache Verbesserung des Bausystems\nOptimierung des Lesens von Objekten",
@@ -80,19 +93,6 @@
         "pl": "Korekta funkcji konwersji",
         "uk": "Виправлено функціонал перетворення",
         "zh-cn": "纠正了转换功能"
-      },
-      "2.0.2": {
-        "en": "Project was completely rewritten with TypeScript\nBetter mobile layouts added",
-        "de": "Projekt wurde komplett mit TypeScript neu geschrieben\nBessere mobile Layouts hinzugefügt",
-        "ru": "Проект был полностью переписан с TypeScript\nДобавлены лучшие мобильные макеты",
-        "pt": "O projeto foi completamente reescrito com TypeScript\nMelhores layouts móveis adicionados",
-        "nl": "Project werd volledig herschreven met TypeScript\nBetere mobiele lay-outs toegevoegd",
-        "fr": "Projet entièrement réécrit avec TypeScript\nMeilleures mises en page mobiles ajoutées",
-        "it": "Il progetto è stato completamente riscritto con TypeScript\nMigliori layout mobili aggiunti",
-        "es": "El proyecto fue completamente reescrito con TipoScript\nMejores diseños móviles añadidos",
-        "pl": "Projekt został całkowicie przeredagowany przez TypeScript\nDodano lepsze układy mobilne",
-        "uk": "Проект повністю переписався з TypeScript\nДодані кращі мобільні макети",
-        "zh-cn": "工程被完全重写为 TypeScript\n增加了更好的移动布局"
       }
     },
     "titleLang": {
