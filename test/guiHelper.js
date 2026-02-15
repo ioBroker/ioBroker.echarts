@@ -40,7 +40,7 @@ async function startBrowser(headless) {
         })
         .on('pageerror', ({ message }) => console.log(red(`[BROWSER] ${message}`)));
 
-    await gPage.goto(`http://127.0.0.1:18081/adapter/echarts/index.html`, { waitUntil: 'domcontentloaded' });
+    await gPage.goto(`http://127.0.0.1:18081/adapter/echarts/tab.html`, { waitUntil: 'domcontentloaded' });
 
     // Create directory
     !fs.existsSync(`${rootDir}tmp/screenshots`) && fs.mkdirSync(`${rootDir}tmp/screenshots`);
