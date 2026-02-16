@@ -1327,6 +1327,15 @@ class ChartModel {
                 } else {
                     this.seriesData[index] = result.seriesData;
                 }
+
+                // set actual value for legend from last JSON entry
+                if (this.config.legActual && values.length) {
+                    this.actualValues[index] = ChartModel.processOneValue(
+                        values[values.length - 1].val,
+                        this.convertFunctions[lineConfig.convert?.trim()],
+                        lineConfig.yOffset || 0,
+                    );
+                }
             } catch (e) {
                 console.error(`[ChartModel] Cannot parse values in JSON: ${e}`);
             }
@@ -1385,7 +1394,7 @@ class ChartModel {
                     const state = await this.socket.getState(id);
                     this.actualValues[index] = ChartModel.processOneValue(
                         state.val,
-                        this.convertFunctions[lineConfig.convert],
+                        this.convertFunctions[lineConfig.convert?.trim()],
                         lineConfig.yOffset || 0,
                     );
                 } catch (e) {
@@ -1812,7 +1821,11 @@ class ChartModel {
 
                         // take last value as actual value
                         if (this.actualValues) {
-                            this.actualValues[index] = data[data.length - 1].val;
+                            this.actualValues[index] = ChartModel.processOneValue(
+                                data[data.length - 1].val,
+                                this.convertFunctions[this.config.l[index].convert?.trim()],
+                                this.config.l[index].yOffset || 0,
+                            );
                         }
 
                         this.updateData();
@@ -1825,7 +1838,7 @@ class ChartModel {
 
                 const value = ChartModel.processOneValue(
                     state.val,
-                    this.convertFunctions[this.config.l[index].convert],
+                    this.convertFunctions[this.config.l[index].convert?.trim()],
                     this.config.l[index].yOffset || 0,
                 );
 

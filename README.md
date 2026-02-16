@@ -115,6 +115,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@GermanBluefox) Calculate values in the legend
+
 ### 3.0.1 (2026-02-16)
 - (@GermanBluefox) Updated packages
 - (@GermanBluefox) Removed support for node 18

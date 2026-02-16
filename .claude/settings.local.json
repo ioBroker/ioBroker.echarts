@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(npm ls:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(gh issue view:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
