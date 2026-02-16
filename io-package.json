@@ -3,19 +3,6 @@
     "name": "echarts",
     "version": "3.0.0",
     "news": {
-      "3.0.0": {
-        "en": "Updated packages\nRemoved support for node 18",
-        "de": "Aktualisierte Pakete\nEntfernte Unterstützung für Knoten 18",
-        "ru": "Обновленные пакеты\nСнята поддержка узла 18",
-        "pt": "Pacotes atualizados\nSuporte removido para o nó 18",
-        "nl": "Bijgewerkte pakketten\nOndersteuning voor node 18 verwijderd",
-        "fr": "Paquets mis à jour\nPrise en charge du nœud 18",
-        "it": "Pacchetti aggiornati\nSupporto rimosso per nodo 18",
-        "es": "Paquetes actualizados\nApoyo eliminado para el nodo 18",
-        "pl": "Aktualizacja pakietów\nUsunięto obsługę węzła 18",
-        "uk": "Оновлені пакети\nВидалити підтримку для вузла 18",
-        "zh-cn": "更新软件包\n删除对节点 18 的支持"
-      },
       "2.0.10": {
         "en": "Just improvement of the build system\nOptimizing read of objects",
         "de": "Einfache Verbesserung des Bausystems\nOptimierung des Lesens von Objekten",
