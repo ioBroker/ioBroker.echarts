@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "news": {
+      "3.0.2": {
+        "en": "Calculate values in the legend\nAdded noLoader option to the widget",
+        "de": "Werte in der Legende berechnen\nNoLoader Option zum Widget hinzugefügt",
+        "ru": "Расчет ценностей в легенде\nДобавлена опция noLoader в виджет",
+        "pt": "Calcular valores na legenda\nAdicionada opção noLoader ao elemento",
+        "nl": "Bereken waarden in de legende\nNoLoader optie toegevoegd aan het widget",
+        "fr": "Calculer les valeurs dans la légende\nAjout de l'option noLoader au widget",
+        "it": "Calcola i valori nella leggenda\nAggiunto noLoader opzione al widget",
+        "es": "Calcular valores en la leyenda\nAñadido noLoader opción al widget",
+        "pl": "Oblicz wartości w legendzie\nDodano opcję noLoader do widget",
+        "uk": "Розрахунок значень в легенді\nДодано параметр noLoader до віджету",
+        "zh-cn": "在图例中计算值\n向部件添加无Loader 选项"
+      },
       "3.0.1": {
         "en": "Updated packages\nRemoved support for node 18",
         "de": "Aktualisierte Pakete\nEntfernte Unterstützung für Knoten 18",
@@ -80,19 +93,6 @@
         "pl": "Korekcja lokalizacji osi x\nKorekcja widżetu",
         "uk": "Виправлення локалізації для осі x\nВиправлення віджету",
         "zh-cn": "纠正 x 轴的定位\n校正部件"
-      },
-      "2.0.3": {
-        "en": "Corrected the convert functionality",
-        "de": "Korrektur der Konvertierungsfunktionalität",
-        "ru": "Исправлена функция конвертации",
-        "pt": "Corrigido a funcionalidade de conversão",
-        "nl": "Gecorrigeerd de convert functionaliteit",
-        "fr": "Correction de la fonctionnalité de conversion",
-        "it": "Corretto la funzionalità di conversione",
-        "es": "Corregido la funcionalidad de conversión",
-        "pl": "Korekta funkcji konwersji",
-        "uk": "Виправлено функціонал перетворення",
-        "zh-cn": "纠正了转换功能"
       }
     },
     "titleLang": {

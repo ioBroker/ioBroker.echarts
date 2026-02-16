@@ -115,7 +115,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 3.0.2 (2026-02-16)
 - (@GermanBluefox) Calculate values in the legend
 - (@GermanBluefox) Added noLoader option to the widget
 
