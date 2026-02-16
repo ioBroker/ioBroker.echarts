@@ -115,7 +115,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 3.0.1 (2026-02-16)
 - (@GermanBluefox) Updated packages
 - (@GermanBluefox) Removed support for node 18
 
