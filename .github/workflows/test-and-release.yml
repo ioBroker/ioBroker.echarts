@@ -29,9 +29,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: ioBroker/testing-action-check@v1
+            - uses: ioBroker/testing-action-check@v2.0.0
               with:
-                  install-command: 'npm i -f'
+                  install-command: 'npm install -f'
+                  package-cache: 'false'
                   node-version: '22.x'
                   lint: true
 
@@ -49,7 +50,8 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-adapter@v1
               with:
-                  install-command: 'npm i -f'
+                  install-command: 'npm install -f'
+                  package-cache: 'false'
                   build: true
                   os: 'ubuntu-latest'
                   node-version: ${{ matrix.node-version }}
@@ -75,7 +77,8 @@ jobs:
             - uses: ioBroker/testing-action-deploy@v1
               with:
                   node-version: '22.x'
-                  install-command: 'npm i -f'
+                  install-command: 'npm install -f'
+                  package-cache: 'false'
                   build: true
                   github-token: ${{ secrets.GITHUB_TOKEN }}
 
