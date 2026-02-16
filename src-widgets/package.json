@@ -1,7 +1,7 @@
 {
     "name": "iobroker.echarts",
     "private": true,
-    "version": "1.9.5",
+    "version": "3.0.0",
     "type": "module",
     "dependencies": {
         "@iobroker/adapter-react-v5": "^8.0.21",
