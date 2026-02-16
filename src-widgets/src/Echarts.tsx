@@ -92,6 +92,7 @@ interface EchartsRxData {
     start_time?: string;
     end_time?: string;
     ticks?: string;
+    noLoader?: boolean;
 }
 
 function ChartSelector(props: {
@@ -328,6 +329,11 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
                             type: 'checkbox',
                             default: true,
                             hidden: '!data.noCard',
+                        },
+                        {
+                            label: 'noLoader',
+                            name: 'noLoader',
+                            type: 'checkbox',
                         },
                         {
                             label: 'echart_oid',
@@ -714,8 +720,8 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
                     }}
                     src={
                         this.state.rxData.echart_oid
-                            ? `../echarts/index.html?preset=${this.state.rxData.echart_oid}&noBG=${this.state.rxData.noChartBackground || !this.state.rxData.noCard}`
-                            : `../echarts/index.html?noBG=${this.state.rxData.noChartBackground || !this.state.rxData.noCard}&edit=true`
+                            ? `../echarts/index.html?preset=${this.state.rxData.echart_oid}&noBG=${this.state.rxData.noChartBackground || !this.state.rxData.noCard}${this.state.rxData.noLoader ? '&noLoader=true' : ''}`
+                            : `../echarts/index.html?noBG=${this.state.rxData.noChartBackground || !this.state.rxData.noCard}&edit=true${this.state.rxData.noLoader ? '&noLoader=true' : ''}`
                     }
                 />
             );
