@@ -23,7 +23,7 @@
   "optionalDependencies": {
     "canvas": "^3.2.1",
     "echarts": "^6.0.0",
-    "jsdom": "^28.0.0"
+    "jsdom": "^28.1.0"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.3.2",
