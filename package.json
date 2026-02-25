@@ -40,7 +40,7 @@
     "@iobroker/testing": "^5.2.2",
     "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
     "@mui/icons-material": "^6.5.0",
-    "@mui/material": "^6.5.0",
+    "@mui/material": "^7.3.8",
     "@types/jsdom": "^27.0.0",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
