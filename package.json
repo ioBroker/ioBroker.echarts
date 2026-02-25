@@ -43,7 +43,7 @@
     "@mui/material": "^6.5.0",
     "@types/jsdom": "^27.0.0",
     "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7",
+    "@types/react-dom": "^19.2.3",
     "axios": "^1.13.5",
     "colorette": "^2.0.20",
     "puppeteer": "^24.18.0",
