@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@devbookhq/splitter": "^1.4.2",
-        "@vitejs/plugin-react": "^5.1.4",
+        "@vitejs/plugin-react": "^6.0.1",
         "@types/react-color": "^3.0.13",
         "@types/react-beautiful-dnd": "^13.1.8",
         "moment": "^2.30.1",
