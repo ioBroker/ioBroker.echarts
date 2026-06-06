@@ -1,0 +1,16 @@
+{
+    "EchartsViewer": "Echarts Diagramm",
+    "echarts_presetId": "Echarts-Preset",
+    "echarts_presetId_help": "Gespeichertes Diagramm (echarts.<Instanz>.<Name>) zum Anzeigen auswählen.",
+    "echarts_readOnly": "Nur Lesen",
+    "echarts_readOnly_help": "Zoom-/Edit-Bedienelemente im eingebetteten Diagramm ausblenden.",
+    "echarts_noLoader": "Ladeanzeige ausblenden",
+    "echarts_transparentBackground": "Transparenter Hintergrund",
+    "echarts_noPreset": "Kein Preset ausgewählt",
+    "echarts_chartTheme": "Diagramm-Theme",
+    "echarts_chartTheme_help": "Theme des Diagramms überschreiben. „Auto“ übernimmt das Theme des Hosts.",
+    "echarts_chartTheme_auto": "Auto (wie Host)",
+    "echarts_chartTheme_light": "Hell",
+    "echarts_chartTheme_dark": "Dunkel",
+    "echarts_chartTheme_blue": "Blau"
+}

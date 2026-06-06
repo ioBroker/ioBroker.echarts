@@ -260,7 +260,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
             return newState;
         } catch (e) {
             this.onError(e, 'Cannot read enums');
-            return {} as Partial<ChartsTreeState>;
+            return {};
         }
     }
 
@@ -374,7 +374,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                     }
                 }
             } catch (e) {
-                console.error(`Cannot read object: ${e}`);
+                console.error(`Cannot read object: ${e as Error}`);
             }
         }
 

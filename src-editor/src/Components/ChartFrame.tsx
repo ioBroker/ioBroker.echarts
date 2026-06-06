@@ -122,16 +122,35 @@ class ChartFrame extends React.Component<ChartFrameProps> {
         window.addEventListener('message', this.onReceiveMessage, false);
     }
 
+    componentDidUpdate(): void {
+        if (window.location.port === '3000' || !this.ready || !this.refIframe?.contentWindow) {
+            return;
+        }
+        const next = JSON.stringify(this.props.presetData);
+        if (next !== this.lastPresetData) {
+            this.lastPresetData = next;
+            this.refIframe.contentWindow.postMessage(next, this.getIframeOrigin());
+        }
+    }
+
     componentWillUnmount(): void {
         window.removeEventListener('message', this.onReceiveMessage, false);
     }
 
-    onReceiveMessage = (message: { data: string }): void => {
-        if (message?.data === 'chartReady') {
+    private getIframeOrigin(): string {
+        try {
+            return new URL(this.props.src, window.location.href).origin;
+        } catch {
+            return window.location.origin;
+        }
+    }
+
+    onReceiveMessage = (message: MessageEvent): void => {
+        // Only accept the ready handshake from the iframe we host
+        if (message?.data === 'chartReady' && message.source === this.refIframe?.contentWindow) {
             this.ready = true;
             this.lastPresetData = JSON.stringify(this.props.presetData);
-            this.refIframe.contentWindow?.postMessage(this.lastPresetData, '*');
-            console.log('Received ready from iframe');
+            this.refIframe?.contentWindow?.postMessage(this.lastPresetData, this.getIframeOrigin());
         }
     };
 
@@ -145,10 +164,6 @@ class ChartFrame extends React.Component<ChartFrameProps> {
                     <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
                 </Paper>
             );
-        }
-        if (this.lastPresetData !== JSON.stringify(this.props.presetData) && this.ready) {
-            this.lastPresetData = JSON.stringify(this.props.presetData);
-            this.refIframe.contentWindow?.postMessage(this.lastPresetData, '*');
         }
 
         return (

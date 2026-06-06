@@ -30,7 +30,7 @@ import { type JSDOM } from 'jsdom';
 
 import { Adapter, type AdapterOptions } from '@iobroker/adapter-core';
 
-import type { EchartsOptions, Connection, ChartConfigMore } from './types';
+import type { EchartsOptions, Connection } from './types';
 import ChartModel, { type BarAndLineSeries } from './lib/ChartModel';
 import ChartOption from './lib/ChartOption';
 import { getSocket } from './lib/socketSimulator';
@@ -51,8 +51,8 @@ function calcTextWidth(text: string, fontSize?: number | string): number {
 class EchartsAdapter extends Adapter {
     public __lastMessageTime = 0;
     public __lastMessageText = '';
-    private cachedSnapshots: Record<string, { ts: number; data: string | null; error: string }> = {};
-    private socketSimulator: Connection = null;
+    private cachedSnapshots: Record<string, { ts: number; data: string | null; error: string | null }> = {};
+    private socketSimulator: Connection | null = null;
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
@@ -116,12 +116,7 @@ class EchartsAdapter extends Adapter {
                     const theme = options.theme || options.themeType || 'light';
 
                     const chartOption = new ChartOption(moment, theme, calcTextWidth);
-                    const option = chartOption.getOption(
-                        seriesData,
-                        chartData.getConfig() as ChartConfigMore,
-                        null,
-                        barCategories,
-                    );
+                    const option = chartOption.getOption(seriesData, chartData.getConfig(), null, barCategories);
                     const { window } = new JsDomClass();
 
                     // @ts-expect-error must be so
@@ -138,8 +133,8 @@ class EchartsAdapter extends Adapter {
                     let root: HTMLDivElement | undefined;
                     if (options.renderer && options.renderer !== 'svg') {
                         canvas = createCanvas(options.width, options.height);
-                        canvas.width = options.width;
-                        canvas.height = options.height;
+                        canvas.width = options.width!;
+                        canvas.height = options.height!;
                         chart = echartsInit(canvas as unknown as HTMLElement);
                         if (options.background) {
                             option.backgroundColor = options.background;
@@ -154,6 +149,9 @@ class EchartsAdapter extends Adapter {
                                   : ''
                         }`;
                         chart = echartsInit(root, undefined, { renderer: 'svg' });
+                    }
+                    if (!root || !canvas || !CanvasClass) {
+                        throw new Error('No root');
                     }
 
                     chart.setOption(option);

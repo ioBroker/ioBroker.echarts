@@ -12,6 +12,8 @@
         "sourceMap": true,
         "sourceRoot": "./src",
         "noImplicitAny": true,
+        // align with backend root tsconfig so shared ChartModel/ChartOption lint identically
+        "useUnknownInCatchVariables": false,
         "lib": ["es2018", "DOM"],
         "jsx": "react",
         "types": ["@iobroker/types"]

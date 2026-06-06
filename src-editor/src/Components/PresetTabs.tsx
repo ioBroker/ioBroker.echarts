@@ -414,7 +414,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
 
     expandAllMarks = (): void => {
         const marksOpened = this.props.presetData.marks.map(() => true);
-        window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify([]));
+        window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify(marksOpened));
         this.setState({ marksOpened });
     };
 

@@ -109,7 +109,7 @@ class EditStatesDialog extends React.Component<EditStatesDialogProps, EditStates
                                     JSON.stringify(this.state.withStates),
                                 );
                                 withStates[this.state.newValue] = this.state.newTextValue;
-                                this.setState({ showAddStateDialog: null, withStates });
+                                this.setState({ showAddStateDialog: false, withStates });
                             }
                         }}
                     />
@@ -128,7 +128,7 @@ class EditStatesDialog extends React.Component<EditStatesDialogProps, EditStates
                                 JSON.stringify(this.state.withStates),
                             );
                             withStates[this.state.newValue] = this.state.newTextValue;
-                            this.setState({ showAddStateDialog: null, withStates });
+                            this.setState({ showAddStateDialog: false, withStates });
                         }}
                         startIcon={<IconAdd />}
                     >
