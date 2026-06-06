@@ -1126,7 +1126,12 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                                 this.props.config.l.forEach(l => {
                                                     selected[l.name] = !this.state.excluded.includes(l.id);
                                                 });
-                                                this.echartsReact.getEchartsInstance().setOption({ legend: { selected } });
+                                                try {
+                                                    const chartInstance = this.echartsReact.getEchartsInstance();
+                                                    chartInstance.setOption({ legend: { selected } });
+                                                } catch {
+                                                    console.error('Cannot apply legend selection');
+                                                }
                                             }
                                         });
                                     }}
