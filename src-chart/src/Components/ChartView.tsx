@@ -249,10 +249,15 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     constructor(props: ChartViewProps) {
         super(props);
 
+        // Initialize excluded with lines that have hide=true ("show only in legend")
+        const initialExcluded: string[] = props.config?.l
+            ?.filter((line: ChartLineConfigMore) => line.hide === true)
+            .map((line: ChartLineConfigMore) => line.id) || [];
+
         this.state = {
             chartHeight: null,
             chartWidth: null,
-            excluded: [],
+            excluded: initialExcluded,
             timeFormat: window.localStorage.getItem('Chart.timeFormat') || 'locale',
             data: null,
             exporting: false,
