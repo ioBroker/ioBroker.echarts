@@ -33,7 +33,7 @@ jobs:
               with:
                   install-command: 'npm install -f'
                   package-cache: 'false'
-                  node-version: '22.x'
+                  node-version: '24.x'
                   lint: true
 
     # Runs adapter tests on all supported node versions and OSes
@@ -76,7 +76,7 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-deploy@v1
               with:
-                  node-version: '22.x'
+                  node-version: '24.x'
                   install-command: 'npm install -f'
                   package-cache: 'false'
                   build: true

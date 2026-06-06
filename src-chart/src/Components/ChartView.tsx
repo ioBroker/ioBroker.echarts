@@ -718,7 +718,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         } else if (this.zr && !this.props.config.zoom && this.zrIobInstalled) {
             this.zrIobInstalled = false;
 
-            if (!!this.option || !this.option.useCanvas) {
+            if (!this.option?.useCanvas) {
                 this.zr.off('mousedown', this.onMouseDown);
                 this.zr.off('mouseup', this.onMouseUp);
                 this.zr.off('mousewheel', this.onMouseWheel);

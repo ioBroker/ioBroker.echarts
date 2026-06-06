@@ -32,23 +32,18 @@ if (window.location.host !== 'localhost:3000') {
             if (event.exception && event.exception.values && event.exception.values[0]) {
                 if (event.exception.values[0].type === 'NS_ERROR_FAILURE') {
                     ignore = true;
-                } else if (event.exception.values[0].value) {
-                    if (event.exception.values[0].value.includes('Microsoft YaHei')) {
-                        ignore = true;
-                    } else if (
-                        event.exception.values[0].value ===
-                        'ResizeObserver loop completed with undelivered notifications.'
+                } else {
+                    const value = event.exception.values[0].value;
+                    if (
+                        value &&
+                        (value.includes('Microsoft YaHei') ||
+                            value.includes('ResizeObserver loop') ||
+                            value.includes("evaluating 't.get'") ||
+                            value.includes("'get' of undefined") ||
+                            value.includes('this.painter is null') ||
+                            value.includes('ioBroker is not connected') ||
+                            value.includes("'getDisplayList' of null"))
                     ) {
-                        ignore = true;
-                    } else if (event.exception.values[0].value === "undefined is not an object (evaluating 't.get')") {
-                        ignore = true;
-                    } else if (event.exception.values[0].value === "Cannot read property 'get' of undefined") {
-                        ignore = true;
-                    } else if (event.exception.values[0].value === 'this.painter is null') {
-                        ignore = true;
-                    } else if (event.exception.values[0].value.includes('ioBroker is not connected')) {
-                        ignore = true;
-                    } else if (event.exception.values[0].value === "Cannot read property 'getDisplayList' of null") {
                         ignore = true;
                     }
                 }

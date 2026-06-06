@@ -59,7 +59,7 @@ interface MenuListProps {
     onSelectedChanged: (selectedId: string | null, cb?: (presetId: false | string) => void) => void;
     onShowToast: (text: string) => void;
     systemConfig: ioBroker.SystemConfigObject;
-    onChangeList: (changedIds: { id: string; instance: string }[]) => void;
+    onChangeList: (changedIds: { id: string; instance: string }[] | null) => void;
     chartsList: { id: string; instance: string }[];
     onCreatePreset: (isFromCurrentSelection: boolean, parent?: string) => void;
     onCopyPreset: (copyId: string) => void;
@@ -347,7 +347,7 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                             theme={this.props.theme}
                             groupBy={this.state.groupBy}
                             selectedId={this.props.selectedId}
-                            onChangeList={(chartList: { id: string; instance: string }[]): void => {
+                            onChangeList={(chartList: { id: string; instance: string }[] | null): void => {
                                 window.localStorage.setItem('App.echarts.chartList', JSON.stringify(chartList));
                                 this.props.onChangeList(chartList);
                             }}

@@ -267,8 +267,9 @@ export default class Line extends React.Component<LineProps, LineState> {
                         this.setState(newState as LineState);
                     }
                 })
-                .catch(() => {
-                    // ignore
+                .catch((e: unknown) => {
+                    const msg = e instanceof Error ? e.message : JSON.stringify(e);
+                    console.warn(`Cannot read object for line ${this.props.line?.id}: ${msg}`);
                 });
         }
     }
@@ -882,7 +883,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         value={this.props.line.instance}
                         updateValue={(value: string): void => {
                             const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                            line.instance = value as ChartType;
+                            line.instance = value;
                             this.props.updateLine(this.props.index, line);
                         }}
                         label="Source"
@@ -1345,7 +1346,14 @@ export default class Line extends React.Component<LineProps, LineState> {
                             value={this.props.line.min === undefined ? '' : this.props.line.min.toString()}
                             updateValue={(value: string): void => {
                                 const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.min = value;
+                                const trimmed = (value ?? '').toString().trim();
+                                if (trimmed === '') {
+                                    line.min = undefined;
+                                } else if (Number.isFinite(parseFloat(trimmed))) {
+                                    line.min = trimmed;
+                                } else {
+                                    return; // reject non-numeric input
+                                }
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Min"
@@ -1356,7 +1364,14 @@ export default class Line extends React.Component<LineProps, LineState> {
                             value={this.props.line.max === undefined ? '' : this.props.line.max.toString()}
                             updateValue={(value: string): void => {
                                 const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.max = value;
+                                const trimmed = (value ?? '').toString().trim();
+                                if (trimmed === '') {
+                                    line.max = undefined;
+                                } else if (Number.isFinite(parseFloat(trimmed))) {
+                                    line.max = trimmed;
+                                } else {
+                                    return; // reject non-numeric input
+                                }
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Max"
@@ -1371,6 +1386,19 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Y-Axis ticks"
+                        />
+                    ) : null}
+                    {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                        <IONumberField
+                            value={(this.props.line as ChartLineConfigMore & { yAxisOffset?: number }).yAxisOffset}
+                            updateValue={(value: number): void => {
+                                const line: ChartLineConfigMore & { yAxisOffset?: number } = JSON.parse(
+                                    JSON.stringify(this.props.line),
+                                );
+                                line.yAxisOffset = value || 0;
+                                this.props.updateLine(this.props.index, line);
+                            }}
+                            label="Y-Axis offset (px)"
                         />
                     ) : null}
                 </Box>

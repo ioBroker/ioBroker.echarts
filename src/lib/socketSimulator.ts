@@ -32,7 +32,9 @@ export function getSocket(adapter: ioBroker.Adapter): Connection {
 
         getSystemConfig: function (): Promise<ioBroker.SystemConfigObject> {
             systemConfig =
-                systemConfig instanceof Promise ? systemConfig : adapter.getForeignObjectAsync('system.config');
+                systemConfig instanceof Promise
+                    ? systemConfig
+                    : (adapter.getForeignObjectAsync('system.config') as Promise<ioBroker.SystemConfigObject>);
             return systemConfig;
         },
 

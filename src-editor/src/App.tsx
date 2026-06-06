@@ -109,7 +109,11 @@ const FORBIDDEN_CHARS = /[.\][*,;'"`<>\\?]/g;
 
 function loadChartParamN(name: string, defaultValue: number): number {
     const val: string | null = window.localStorage.getItem(`App.echarts.__${name}`);
-    return val ? parseFloat(val) : defaultValue;
+    if (!val) {
+        return defaultValue;
+    }
+    const parsed = parseFloat(val);
+    return Number.isFinite(parsed) ? parsed : defaultValue;
 }
 function loadChartParamS(name: string, defaultValue: string): string {
     const val: string | null = window.localStorage.getItem(`App.echarts.__${name}`);
@@ -168,6 +172,10 @@ export default class App extends GenericApp<AppProps, AppState> {
     private objects: Record<string, ioBroker.StateObject | null> = {};
 
     private confirmCB: ((confirmed: boolean) => void) | null = null;
+
+    private loadChartOrPresetToken = 0;
+
+    private menuToggleTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor(props: AppProps) {
         const settings: GenericAppSettings = { socket: {} };
@@ -251,23 +259,21 @@ export default class App extends GenericApp<AppProps, AppState> {
         let splitSizes: [number, number] = [25, 75];
         if (splitSizesStr) {
             try {
-                splitSizes = JSON.parse(splitSizesStr);
+                splitSizes = JSON.parse(splitSizesStr) || [25, 75];
             } catch {
                 // ignore
             }
         }
-        splitSizes = splitSizes || [25, 75];
         const menuSizesStr = window.localStorage.getItem('App.echarts.menuSizes');
         let menuSizes: [number, number] = [25, 75];
         if (menuSizesStr) {
             try {
-                menuSizes = JSON.parse(menuSizesStr);
+                menuSizes = JSON.parse(menuSizesStr) || [25, 75];
             } catch {
                 // ignore
             }
         }
 
-        menuSizes = menuSizes || [25, 75];
         const newState: Partial<AppState> = {
             ready: false,
             instances: [],
@@ -486,8 +492,12 @@ export default class App extends GenericApp<AppProps, AppState> {
             this.showError(I18n.t('Empty preset cannot be saved!'));
             throw new Error(I18n.t('Empty preset cannot be saved!'));
         }
+        if (typeof this.state.selectedId !== 'string' || !this.state.selectedId) {
+            this.showError(I18n.t('Invalid object'));
+            return;
+        }
         try {
-            const obj = await this.socket.getObject(this.state.selectedId as string);
+            const obj = await this.socket.getObject(this.state.selectedId);
             if (!obj?.native) {
                 this.showError(I18n.t('Invalid object'));
                 return;
@@ -535,14 +545,14 @@ export default class App extends GenericApp<AppProps, AppState> {
                 if (line.commonYAxis === '') {
                     delete line.commonYAxis;
                 } else {
-                    line.commonYAxis = parseInt(line.commonYAxis as unknown as string, 10);
+                    line.commonYAxis = parseInt(line.commonYAxis || '0', 10);
                 }
             }
             if (typeof line.fill === 'string') {
                 if (line.fill === '') {
                     delete line.fill;
                 } else {
-                    line.fill = parseFloat(line.fill as unknown as string);
+                    line.fill = parseFloat(line.fill || '0');
                 }
             }
         });
@@ -550,6 +560,10 @@ export default class App extends GenericApp<AppProps, AppState> {
 
     async loadChartOrPreset(selectedId: SelectedChart): Promise<void> {
         window.localStorage.setItem('App.echarts.selectedId', JSON.stringify(selectedId));
+        // Race guard: if another loadChartOrPreset starts before this one finishes,
+        // discard the stale result instead of overwriting the newer state.
+        const loadToken = ++this.loadChartOrPresetToken;
+        const isStale = (): boolean => loadToken !== this.loadChartOrPresetToken;
 
         if (selectedId && typeof selectedId === 'object') {
             // load chart
@@ -559,6 +573,9 @@ export default class App extends GenericApp<AppProps, AppState> {
                         this.objects[item.id] =
                             ((await this.socket.getObject(item.id)) as ioBroker.StateObject) || null;
                     }
+                    if (isStale()) {
+                        return;
+                    }
                 }
             } else {
                 this.objects = {};
@@ -567,6 +584,9 @@ export default class App extends GenericApp<AppProps, AppState> {
             if (this.objects[selectedId.id] === undefined) {
                 this.objects[selectedId.id] =
                     ((await this.socket.getObject(selectedId.id)) as ioBroker.StateObject) || null;
+            }
+            if (isStale()) {
+                return;
             }
 
             const lines: ChartLineConfigMore[] = (this.state.chartsList || []).map(item =>
@@ -664,8 +684,13 @@ export default class App extends GenericApp<AppProps, AppState> {
         } else if (selectedId) {
             // load preset
             const obj = await this.socket.getObject(selectedId as string);
+            if (isStale()) {
+                return;
+            }
             if (obj?.native?.data) {
-                const hash = `#preset=${selectedId as string}`;
+                const selectedIdSrc = typeof selectedId === 'string' ? selectedId : JSON.stringify(selectedId);
+
+                const hash = `#preset=${selectedIdSrc}`;
                 if (window.location.hash !== hash) {
                     window.location.hash = hash;
                 }
@@ -853,7 +878,13 @@ export default class App extends GenericApp<AppProps, AppState> {
                     onClick={() => {
                         window.localStorage.setItem('App.echarts.menuOpened', this.state.menuOpened ? 'false' : 'true');
                         this.setState({ menuOpened: !this.state.menuOpened, resizing: true });
-                        setTimeout(() => this.setState({ resizing: false }), 300);
+                        if (this.menuToggleTimeout) {
+                            clearTimeout(this.menuToggleTimeout);
+                        }
+                        this.menuToggleTimeout = setTimeout(() => {
+                            this.menuToggleTimeout = null;
+                            this.setState({ resizing: false });
+                        }, 300);
                     }}
                 >
                     {this.state.menuOpened ? <IconMenuOpened /> : <IconMenuClosed />}
@@ -965,7 +996,7 @@ export default class App extends GenericApp<AppProps, AppState> {
                 selectedId={this.state.selectedId}
                 onCopyPreset={this.onCopyPreset}
                 onCreatePreset={this.onCreatePreset}
-                onChangeList={(chartsList: { id: string; instance: string }[]): void => {
+                onChangeList={(chartsList: { id: string; instance: string }[] | null): void => {
                     // if some deselected
                     let selectedId = this.state.selectedId;
                     if (

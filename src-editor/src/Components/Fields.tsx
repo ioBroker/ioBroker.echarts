@@ -254,7 +254,10 @@ export const IONumberField = (props: IONumberFieldProps): React.JSX.Element => (
                 width: props.width || '100%',
             }}
             label={I18n.t(props.label)}
-            onChange={e => props.updateValue(parseInt(e.target.value))}
+            onChange={e => {
+                const v = parseInt(e.target.value, 10);
+                props.updateValue(Number.isFinite(v) ? v : 0);
+            }}
             value={props.value || ''}
             type="number"
             title={props.tooltip || ''}

@@ -127,6 +127,9 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                             : ''}`;
                     chart = (0, echarts_1.init)(root, undefined, { renderer: 'svg' });
                 }
+                if (!root || !canvas || !CanvasClass) {
+                    throw new Error('No root');
+                }
                 chart.setOption(option);
                 let data;
                 switch (options.renderer || '') {

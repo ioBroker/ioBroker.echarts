@@ -1,0 +1,16 @@
+{
+    "EchartsViewer": "Echarts Chart",
+    "echarts_presetId": "Echarts preset",
+    "echarts_presetId_help": "Pick a saved chart preset (echarts.<instance>.<name>) to display.",
+    "echarts_readOnly": "Read-only",
+    "echarts_readOnly_help": "Hide zoom / edit controls inside the embedded chart.",
+    "echarts_noLoader": "Hide loader",
+    "echarts_transparentBackground": "Transparent background",
+    "echarts_noPreset": "No preset selected",
+    "echarts_chartTheme": "Chart theme",
+    "echarts_chartTheme_help": "Override the chart theme. 'Auto' inherits the host theme.",
+    "echarts_chartTheme_auto": "Auto (follow host)",
+    "echarts_chartTheme_light": "Light",
+    "echarts_chartTheme_dark": "Dark",
+    "echarts_chartTheme_blue": "Blue"
+}

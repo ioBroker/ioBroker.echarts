@@ -120,6 +120,8 @@ export interface ChartLineConfigMore extends ChartLineConfig {
     yticks?: number;
     // splitNumber for X axis
     xticks?: number;
+    // Offset in pixels for the Y-axis label position (to separate multiple Y axes)
+    yAxisOffset?: number;
 
     xaxe?: 'off' | 'top' | '';
 

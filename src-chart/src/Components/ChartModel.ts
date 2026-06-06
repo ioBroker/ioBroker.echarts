@@ -130,7 +130,7 @@ export interface SeriesData extends Omit<ioBroker.State, 'lc' | 'from'> {
 
 /**
  * Parse a query string into its parts.
- * Copied from @iobroker/adapter-react-v5/Components/Utils
+ * Copied from adapter-react-v5/Components/Utils
  */
 function parseQuery(query: string): Record<string, number | boolean | string> {
     query = (query || '').toString().replace(/^\?/, '');
@@ -147,7 +147,7 @@ function parseQuery(query: string): Record<string, number | boolean | string> {
                 } else if (result[attr] === 'false') {
                     result[attr] = false;
                 } else {
-                    const f = parseFloat(result[attr] as unknown as string);
+                    const f = parseFloat(result[attr]);
                     if (f.toString() === result[attr]) {
                         result[attr] = f;
                     }
@@ -160,7 +160,7 @@ function parseQuery(query: string): Record<string, number | boolean | string> {
     return result;
 }
 
-function getFloat(value: string | number | boolean): number {
+function getFloat(value: string | number | boolean | undefined): number {
     if (typeof value === 'number') {
         return value;
     }
@@ -170,21 +170,21 @@ function getFloat(value: string | number | boolean): number {
     if (value === false || value === 'null' || value === '') {
         return 0;
     }
-    const f = parseFloat(value);
+    const f = parseFloat(value || '0');
     if (isNaN(f)) {
         return 0;
     }
     return f;
 }
 
-function getInt(value: string | number): number {
+function getInt(value: string | number | undefined): number {
     if (typeof value === 'number') {
         return value;
     }
     if (value === 'null') {
         return 0;
     }
-    const f = parseInt(value, 10);
+    const f = parseInt(value || '0', 10);
     if (isNaN(f)) {
         return 0;
     }
@@ -200,7 +200,7 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
     const newConfig: ChartConfig = JSON.parse(JSON.stringify(config));
 
     if (config.lines) {
-        newConfig.l = config.lines as ChartLineConfig[];
+        newConfig.l = config.lines;
         // @ts-expect-error delete old structure
         delete newConfig.lines;
     }
@@ -356,7 +356,7 @@ class ChartModel {
     private objectPromises: Record<string, Promise<ioBroker.ChartObject | null | undefined>> = {};
     private debug = false;
     private zoomData: { stopLive?: boolean; start?: number; end?: number } | null = null;
-    private lastHash: string;
+    private lastHash: string | undefined;
     private onHashInstalled: boolean = false;
     private systemConfig: ioBroker.SystemConfigCommon | null = null;
     private preset?: string;
@@ -400,8 +400,8 @@ class ChartModel {
                 console.error(`Cannot read systemConfig: ${(e as Error).toString()}`);
                 return null;
             })
-            .then((systemConfig: ioBroker.SystemConfigObject): Promise<void> => {
-                this.systemConfig = systemConfig?.common ? systemConfig.common : ({} as ioBroker.SystemConfigCommon);
+            .then((systemConfig: ioBroker.SystemConfigObject | null): Promise<void> => {
+                this.systemConfig = systemConfig?.common || ({} as ioBroker.SystemConfigCommon);
                 this.defaultHistory = this.systemConfig.defaultHistory;
                 return this.analyseAndLoadConfig(config);
             });
@@ -473,7 +473,7 @@ class ChartModel {
 
         this.seriesData = [];
         this.barData = [];
-        this.barCategories = null;
+        this.barCategories = undefined;
 
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
@@ -498,9 +498,8 @@ class ChartModel {
                     return;
                 }
                 this.config = normalizeConfig(obj.native.data);
-                this.config.useComma =
-                    this.config.useComma === undefined ? this.systemConfig.isFloatComma : this.config.useComma;
-                this.config.lang = this.systemConfig.language;
+                this.config.useComma = this.config.useComma ?? this.systemConfig?.isFloatComma ?? true;
+                this.config.lang = this.systemConfig?.language || 'en';
                 this.config.live = getInt(this.config.live);
                 this.config.debug = this.debug;
                 this.config.presetId = this.preset;
@@ -537,12 +536,10 @@ class ChartModel {
                 console.error(`Cannot read "${this.preset}": ${e}`);
             }
         } else {
-            this.config.useComma =
-                this.config.useComma === undefined
-                    ? this.systemConfig.isFloatComma === true
-                    : this.config.useComma === true;
-            this.config.lang = this.systemConfig.language;
-            this.config.live = getInt(this.config.live);
+            this.config ||= {} as ChartConfig;
+            this.config.useComma = this.config.useComma ?? this.systemConfig?.isFloatComma === true;
+            this.config.lang = this.systemConfig?.language || 'en';
+            this.config.live = getInt(this.config?.live);
             this.config.debug = this.debug;
             await this.readData();
             if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
@@ -598,10 +595,12 @@ class ChartModel {
                 this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
                 this.readOnZoomTimeout = setTimeout(() => {
                     this.readOnZoomTimeout = null;
-                    if (this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
+                    if (this.config?.live && (!this.zoomData || !this.zoomData.stopLive)) {
                         console.log('Restore update');
-                        this.updateInterval && clearInterval(this.updateInterval);
-                        this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                        if (this.updateInterval) {
+                            clearInterval(this.updateInterval);
+                        }
+                        this.updateInterval = setInterval(() => this.readData(), (this.config?.live || 10) * 1000);
                     }
                     void this.readData();
                 }, this.updateTimeout);
@@ -656,7 +655,7 @@ class ChartModel {
             if (!this.serverSide) {
                 void this.socket.unsubscribeObject(this.presetSubscribed, this.onPresetUpdate);
             }
-            this.presetSubscribed = null;
+            this.presetSubscribed = '';
         }
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
@@ -691,6 +690,9 @@ class ChartModel {
     }
 
     getConfig(): ChartConfig {
+        if (!this.config) {
+            throw new Error('Unexpected null config');
+        }
         return this.config;
     }
 
@@ -699,10 +701,13 @@ class ChartModel {
     }
 
     setConfig(config: ChartConfig | ChartConfigOld): void {
-        void this.analyseAndLoadConfig(config as ChartConfigOld);
+        void this.analyseAndLoadConfig(config);
     }
 
     increaseRegionForBar(start: number | Date, end: number | Date, option: ioBroker.GetHistoryOptions): void {
+        if (!this.config) {
+            throw new Error('Unexpected null config');
+        }
         this.config.aggregateBar = getInt(this.config.aggregateBar);
         let endTs = typeof end === 'number' ? end : end.getTime();
         let startTs = typeof start === 'number' ? start : start.getTime();
@@ -724,7 +729,7 @@ class ChartModel {
             }
         }
 
-        option = option || ({} as ioBroker.GetHistoryOptions);
+        option ||= {} as ioBroker.GetHistoryOptions;
 
         if (this.config.aggregateBar === 15) {
             // align start and stop to 15 minutes
@@ -813,7 +818,10 @@ class ChartModel {
         let endTs: number;
         let startTs: number;
         let _nowTs: number;
-        this.config.l[index].offset = this.config.l[index].offset || 0;
+        if (!this.config) {
+            throw new Error('Unexpected null config');
+        }
+        this.config.l[index].offset ||= 0;
 
         // check config range
         if (typeof this.config.range === 'string' && this.config.range.includes('m') && this.config.l.length > 1) {
@@ -1367,7 +1375,7 @@ class ChartModel {
 
                     if (res?.values) {
                         // option.ignoreNull = (config.l[index].ignoreNull === undefined) ? (config.ignoreNull === 'true' || config.ignoreNull === true) : (config.l[index].ignoreNull === 'true' || config.l[index].ignoreNull === true);
-                        const result = this.processRawData(id, lineConfig, res.values as SeriesData[], option);
+                        const result = this.processRawData(id, lineConfig, res.values, option);
 
                         if (result.barData) {
                             this.barData[index] = result.barData;
@@ -1743,8 +1751,8 @@ class ChartModel {
                     } */
                 try {
                     const state = await this.socket.getState(mark.lowerValueOrId);
-                    if (state && state.val !== undefined && state.val !== null) {
-                        mark.lowerValue = getFloat(state.val as string | number);
+                    if (state?.val != null) {
+                        mark.lowerValue = getFloat(state.val);
                     } else {
                         mark.lowerValue = null;
                     }
@@ -1780,7 +1788,7 @@ class ChartModel {
             }
         });
 
-        this.onUpdateFunc(updateData, this.actualValues, this.barCategories);
+        this.onUpdateFunc?.(updateData, this.actualValues, this.barCategories);
     }
 
     onStateChange = (id: string, state: ioBroker.State | null | undefined): void => {
@@ -1849,7 +1857,9 @@ class ChartModel {
                 break;
             }
         }
-        changed && this.onUpdateFunc(null, this.actualValues);
+        if (changed) {
+            this.onUpdateFunc?.(null, this.actualValues);
+        }
     };
 
     static addTime(time: number | Date, offset: string | number, isOffsetInMinutes?: boolean): number {
@@ -1906,11 +1916,11 @@ class ChartModel {
                     _from,
                     to,
                 );
-                _from = values && values.length ? values[values.length - 1].ts + 1 : 0;
+                _from = values?.length ? values[values.length - 1].ts + 1 : 0;
                 data = data.concat(values);
             }
-            if (values) {
-                result[this.config.l[i].id] = values;
+            if (data) {
+                result[this.config.l[i].id] = data;
             }
         }
 
