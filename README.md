@@ -115,6 +115,13 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
+
+### 3.1.2 (2026-05-28)
+- (@GermanBluefox) Corrected the devices widget
+
 ### 3.1.1 (2026-05-27)
 - (@Brainbug01) Added yAxisOffset to separate multiple Y-axes visually
 - (@GermanBluefox) Added the devices widget
@@ -129,11 +136,6 @@ You can debug view charts locally with:
 ### 3.0.1 (2026-02-16)
 - (@GermanBluefox) Updated packages
 - (@GermanBluefox) Removed support for node 18
-
-### 2.0.10 (2025-09-01)
-
-- (@GermanBluefox) Just improvement of the build system
-- (@GermanBluefox) Optimizing read of objects
 
 ## License
 

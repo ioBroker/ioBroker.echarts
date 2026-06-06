@@ -1,4 +1,9 @@
 # Older changes
+## 2.0.10 (2025-09-01)
+
+- (@GermanBluefox) Just improvement of the build system
+- (@GermanBluefox) Optimizing read of objects
+
 ## 2.0.8 (2025-08-19)
 
 - (@GermanBluefox) Corrected icon for admin tab

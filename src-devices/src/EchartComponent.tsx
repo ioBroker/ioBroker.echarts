@@ -18,7 +18,7 @@ import WidgetGeneric, {
     type WidgetGenericState,
     type CustomWidgetPlugin,
 } from '@iobroker/dm-widgets';
-import type { BoxProps, TypographyProps, DialogProps, IconButtonProps, DialogContentProps, Theme } from '@mui/material';
+import type { BoxProps, TypographyProps, DialogProps, IconButtonProps, DialogContentProps } from '@mui/material';
 import type { ConfigItemPanel, ConfigItemTabs } from '@iobroker/json-config';
 
 const Box: React.ComponentType<BoxProps> = MuiMaterial?.Box;
@@ -27,11 +27,6 @@ const Dialog: React.ComponentType<DialogProps> = MuiMaterial?.Dialog;
 const DialogContent: React.ComponentType<DialogContentProps> = MuiMaterial?.DialogContent;
 const IconButton: React.ComponentType<IconButtonProps> = MuiMaterial?.IconButton;
 const CloseIcon: React.ComponentType<any> = MuiIcons?.Close;
-// `useTheme` lives in `@mui/material/styles` and isn't on the dm-widgets bridge. The federation
-// host shares `@mui/material` as a singleton, so a direct submodule import resolves to the same
-// MUI/React instance the host uses — `useTheme()` therefore subscribes to the host's
-// ThemeProvider context and re-renders this wrapper whenever the host switches theme.
-import { useTheme } from '@mui/material/styles';
 
 export interface EchartsViewerSettings extends CustomWidgetPlugin {
     /** Full ioBroker object ID of the echarts preset (e.g. `echarts.0.MyChart`). */
@@ -102,36 +97,6 @@ function buildChartUrl(
         return `../echarts/chart/index.html?${query}`;
     }
     return `../echarts/index.html?${query}`;
-}
-
-/**
- * Functional wrapper that subscribes to MUI's ThemeProvider via `useTheme()` and rebuilds the
- * iframe URL whenever the host's theme palette mode changes. The iframe's `src` flipping
- * between `?theme=light` and `?theme=dark` causes a natural reload — the chart inside picks
- * up its `?theme=` query param in its constructor.
- */
-function ThemedChartIframe(props: {
-    settings: EchartsViewerSettings;
-    isAdmin: boolean;
-    interactive: boolean;
-}): React.JSX.Element {
-    const theme = useTheme();
-    const mode = (theme as Theme | undefined)?.palette?.mode === 'dark' ? 'dark' : 'light';
-    const url = buildChartUrl(props.settings.presetId || '', props.settings, props.isAdmin, mode);
-    return (
-        <iframe
-            src={url}
-            title={props.settings.presetId}
-            style={{
-                width: '100%',
-                height: '100%',
-                border: 0,
-                background: props.settings.transparentBackground ? 'transparent' : undefined,
-                pointerEvents: props.interactive ? 'auto' : 'none',
-            }}
-            allow="fullscreen"
-        />
-    );
 }
 
 export class EchartComponent extends WidgetGeneric<EchartsViewerState, EchartsViewerSettings> {
@@ -242,11 +207,24 @@ export class EchartComponent extends WidgetGeneric<EchartsViewerState, EchartsVi
                 </Box>
             );
         }
+        const url = buildChartUrl(
+            this.props.settings.presetId || '',
+            this.props.settings,
+            this.props.stateContext.admin,
+            this.props.stateContext.themeType,
+        );
         return (
-            <ThemedChartIframe
-                settings={this.props.settings}
-                isAdmin={this.props.stateContext.admin}
-                interactive={interactive}
+            <iframe
+                src={url}
+                title={this.props.settings.presetId}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 0,
+                    background: this.props.settings.transparentBackground ? 'transparent' : undefined,
+                    pointerEvents: interactive ? 'auto' : 'none',
+                }}
+                allow="fullscreen"
             />
         );
     }

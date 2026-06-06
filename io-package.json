@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "3.1.1",
+    "version": "3.1.2",
     "news": {
+      "3.1.2": {
+        "en": "Corrected the devices widget",
+        "de": "Das Widget der Geräte korrigiert",
+        "ru": "Исправлен виджет устройств",
+        "pt": "Corrigido o widget de dispositivos",
+        "nl": "Het apparaatwidget gecorrigeerd",
+        "fr": "Correction du widget des périphériques",
+        "it": "Corretto il widget dei dispositivi",
+        "es": "Corregido el widget de dispositivos",
+        "pl": "Poprawiono widżet urządzeń",
+        "uk": "Виправлено віджет пристроїв",
+        "zh-cn": "修正了设备部件"
+      },
       "3.1.1": {
         "en": "Added yAxisOffset to separate multiple Y-axes visually\nAdded the devices widget",
         "de": "Hinzugefügt yAxisOffset, mehrere Y-Achsen visuell zu trennen\nHinzugefügt die Geräte Widget",
@@ -80,19 +93,6 @@
         "pl": "Skorygowana ikona zakładki admin",
         "uk": "Виправлена ікона для вкладення адмін",
         "zh-cn": "管理员标签的校正图标"
-      },
-      "2.0.7": {
-        "en": "Vis-2 widgets were migrated to vite\nCorrected the service side rendering of echarts in node 22",
-        "de": "Vis-2 Widgets wurden zu Vite migriert\nKorrigierte die serviceseitige Renderung von echarts im Knoten 22",
-        "ru": "Виджеты Vis-2 были перенесены на vite\nИсправлен сервисный рендеринг echarts в узле 22",
-        "pt": "Os elementos do Vis-2 foram migrados para vite\nCorrigido a renderização lateral do serviço de echarts no nó 22",
-        "nl": "Vis-2 widgets werden gemigreerd naar vite\nDe weergave van echarts aan de dienstzijde gecorrigeerd in knooppunt 22",
-        "fr": "Vis-2 widgets ont été migrés vers vite\nCorrection du rendu côté service des écharts dans le nœud 22",
-        "it": "I widget di Vis-2 sono stati migrati per vite\nCorretto il rendering lato servizio di echarts in nodo 22",
-        "es": "Vis-2 widgets were migrated to vite\nCorregido el servicio lateral rendering de echats en nodo 22",
-        "pl": "Widgety Vis-2 zostały przeniesione do Vite\nKorekta renderowania echartów po stronie usługi w węźle 22",
-        "uk": "Vis-2 віджети були мігровані на vite\nВиправлено помилку служби в вершині 22",
-        "zh-cn": "Vis-2 部件已迁移到 vite\n纠正了节点 22 的切片服务侧渲染"
       }
     },
     "titleLang": {
@@ -219,7 +219,7 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=5.0.19"
+        "js-controller": ">=6.0.11"
       }
     ]
   },

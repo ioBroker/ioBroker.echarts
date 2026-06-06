@@ -1094,11 +1094,24 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                             this.state.excluded.length !== this.props.config.l.length
                                         }
                                         onChange={() => {
-                                            if (!this.state.excluded.length) {
-                                                this.setState({ excluded: this.props.config.l.map(line => line.id) });
-                                            } else {
-                                                this.setState({ excluded: [] });
-                                            }
+                                            const newExcluded = !this.state.excluded.length
+                                                ? this.props.config.l.map(line => line.id)
+                                                : [];
+                                            this.setState({ excluded: newExcluded }, () => {
+                                                // immediately apply visibility to chart
+                                                if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                                                    const selected: Record<string, boolean> = {};
+                                                    this.props.config.l.forEach(l => {
+                                                        selected[l.name] = !newExcluded.includes(l.id);
+                                                    });
+                                                    try {
+                                                        const chartInstance = this.echartsReact.getEchartsInstance();
+                                                        chartInstance.setOption({ legend: { selected } });
+                                                    } catch {
+                                                        console.error('Cannot apply legend selection');
+                                                    }
+                                                }
+                                            });
                                         }}
                                     />
                                 }
@@ -1124,7 +1137,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                             if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
                                                 const selected: Record<string, boolean> = {};
                                                 this.props.config.l.forEach(l => {
-                                                    selected[l.name] = !this.state.excluded.includes(l.id);
+                                                    selected[l.name] = !excluded.includes(l.id);
                                                 });
                                                 try {
                                                     const chartInstance = this.echartsReact.getEchartsInstance();
