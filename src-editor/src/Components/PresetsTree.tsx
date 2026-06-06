@@ -260,6 +260,8 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
     private readonly refSelected: React.RefObject<HTMLDivElement>;
     private scrollToSelect = false;
     private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+    private informTimeout: ReturnType<typeof setTimeout> | null = null;
+    private renameTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor(props: PresetsTreeProps) {
         super(props);
@@ -302,6 +304,14 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
             clearTimeout(this.scrollTimeout);
             this.scrollTimeout = null;
         }
+        if (this.informTimeout) {
+            clearTimeout(this.informTimeout);
+            this.informTimeout = null;
+        }
+        if (this.renameTimeout) {
+            clearTimeout(this.renameTimeout);
+            this.renameTimeout = null;
+        }
         await this.props.socket.unsubscribeObject(`${this.props.adapterName}.0.*`, this.onPresetChange);
     }
 
@@ -312,9 +322,13 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
         let presets: Record<string, ioBroker.ChartObject>;
         let changed = false;
         if (obj) {
-            obj.common = obj.common || ({} as ioBroker.ChartCommon);
-            obj.native = obj.native || {};
-            if (JSON.stringify(obj) !== JSON.stringify(this.state.presets[id])) {
+            obj.common ||= {} as ioBroker.ChartCommon;
+            obj.native ||= {};
+            const prev = this.state.presets[id];
+            // Cheap diff first: timestamp / version markers; fall back to JSON only if those agree
+            const cheapChanged =
+                !prev || prev.ts !== obj.ts || (prev as { _rev?: string })._rev !== (obj as { _rev?: string })._rev;
+            if (cheapChanged && JSON.stringify(obj) !== JSON.stringify(prev)) {
                 presets = JSON.parse(JSON.stringify(this.state.presets));
                 presets[id] = obj;
                 changed = true;
@@ -332,7 +346,13 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                 changingPreset: '',
                 presetFolders: PresetsTree.buildPresetTree(presets, emptyFolders),
             };
-            setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
+            if (this.informTimeout) {
+                clearTimeout(this.informTimeout);
+            }
+            this.informTimeout = setTimeout(() => {
+                this.informTimeout = null;
+                this.informAboutSubFolders(newState.presetFolders);
+            }, 200);
             this.setState(newState as PresetsTreeState);
         }
     };
@@ -394,7 +414,13 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
         // store all empty folders
         emptyFolders = emptyFolders || this.getEmptyFolders();
         newState.presetFolders = PresetsTree.buildPresetTree(presets, emptyFolders);
-        setTimeout(() => this.informAboutSubFolders(newState.presetFolders), 200);
+        if (this.informTimeout) {
+            clearTimeout(this.informTimeout);
+        }
+        this.informTimeout = setTimeout(() => {
+            this.informTimeout = null;
+            this.informAboutSubFolders(newState.presetFolders);
+        }, 200);
         return newState;
     }
 
@@ -692,7 +718,11 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
             }
         }
 
-        setTimeout(async () => {
+        if (this.renameTimeout) {
+            clearTimeout(this.renameTimeout);
+        }
+        this.renameTimeout = setTimeout(async () => {
+            this.renameTimeout = null;
             const newState = await this.getAllPresets(null, emptyFolders);
             this.setState(newState as PresetsTreeState, () => this.props.onSelectedChanged(newSelectedId));
         }, 100);
@@ -703,9 +733,15 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
         if (name === HIDDEN_FOLDER) {
             return false;
         }
-        return !Object.keys(this.state.presets).find(
-            id => len === id.split('.').length && this.state.presets[id].common.name === name,
-        );
+        const lang = I18n.getLanguage();
+        return !Object.keys(this.state.presets).find(id => {
+            if (len !== id.split('.').length) {
+                return false;
+            }
+            const raw = this.state.presets[id].common?.name;
+            const resolved = typeof raw === 'object' && raw ? raw[lang] || raw.en : raw;
+            return resolved === name;
+        });
     }
 
     static buildPresetTree(presets: Record<string, ioBroker.ChartObject>, emptyFolders: string[]): PresetFolder {
@@ -1076,6 +1112,10 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
     }
 
     async onDragFinish(source: string, target: string): Promise<void> {
+        // Disallow dropping a folder/preset onto itself or onto one of its descendants
+        if (source === target || target === source || target.startsWith(`${source}.`)) {
+            return;
+        }
         // new ID
         let newId = `${target}.${source.split('.').pop()}`;
         if (newId !== source) {

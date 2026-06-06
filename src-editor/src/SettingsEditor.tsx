@@ -42,7 +42,7 @@ interface SettingsEditorProps {
     windowWidth: number;
 }
 
-class SettingsEditor extends React.Component<SettingsEditorProps> {
+class SettingsEditor extends React.PureComponent<SettingsEditorProps> {
     render(): React.JSX.Element {
         return (
             <div style={styles.logBox}>
@@ -61,7 +61,7 @@ class SettingsEditor extends React.Component<SettingsEditorProps> {
                         selectedPresetChanged={this.props.selectedPresetChanged}
                         savePreset={this.props.savePreset}
                         theme={this.props.theme}
-                        onAutoSave={autoSave => this.props.onAutoSave(autoSave)}
+                        onAutoSave={this.props.onAutoSave}
                         autoSave={this.props.autoSave}
                         windowWidth={this.props.windowWidth}
                     />

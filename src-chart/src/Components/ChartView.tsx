@@ -249,10 +249,15 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     constructor(props: ChartViewProps) {
         super(props);
 
+        // Initialize excluded with lines that have hide=true ("show only in legend")
+        const initialExcluded: string[] = props.config?.l
+            ?.filter((line: ChartLineConfigMore) => line.hide === true)
+            .map((line: ChartLineConfigMore) => line.id) || [];
+
         this.state = {
             chartHeight: null,
             chartWidth: null,
-            excluded: [],
+            excluded: initialExcluded,
             timeFormat: window.localStorage.getItem('Chart.timeFormat') || 'locale',
             data: null,
             exporting: false,
@@ -718,7 +723,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         } else if (this.zr && !this.props.config.zoom && this.zrIobInstalled) {
             this.zrIobInstalled = false;
 
-            if (!!this.option || !this.option.useCanvas) {
+            if (!this.option?.useCanvas) {
                 this.zr.off('mousedown', this.onMouseDown);
                 this.zr.off('mouseup', this.onMouseUp);
                 this.zr.off('mousewheel', this.onMouseWheel);
@@ -1089,11 +1094,24 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                             this.state.excluded.length !== this.props.config.l.length
                                         }
                                         onChange={() => {
-                                            if (!this.state.excluded.length) {
-                                                this.setState({ excluded: this.props.config.l.map(line => line.id) });
-                                            } else {
-                                                this.setState({ excluded: [] });
-                                            }
+                                            const newExcluded = !this.state.excluded.length
+                                                ? this.props.config.l.map(line => line.id)
+                                                : [];
+                                            this.setState({ excluded: newExcluded }, () => {
+                                                // immediately apply visibility to chart
+                                                if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                                                    const selected: Record<string, boolean> = {};
+                                                    this.props.config.l.forEach(l => {
+                                                        selected[l.name] = !newExcluded.includes(l.id);
+                                                    });
+                                                    try {
+                                                        const chartInstance = this.echartsReact.getEchartsInstance();
+                                                        chartInstance.setOption({ legend: { selected } });
+                                                    } catch {
+                                                        console.error('Cannot apply legend selection');
+                                                    }
+                                                }
+                                            });
                                         }}
                                     />
                                 }
@@ -1114,7 +1132,21 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                         } else {
                                             excluded.splice(pos, 1);
                                         }
-                                        this.setState({ excluded });
+                                        this.setState({ excluded }, () => {
+                                            // immediately apply visibility to chart
+                                            if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                                                const selected: Record<string, boolean> = {};
+                                                this.props.config.l.forEach(l => {
+                                                    selected[l.name] = !excluded.includes(l.id);
+                                                });
+                                                try {
+                                                    const chartInstance = this.echartsReact.getEchartsInstance();
+                                                    chartInstance.setOption({ legend: { selected } });
+                                                } catch {
+                                                    console.error('Cannot apply legend selection');
+                                                }
+                                            }
+                                        });
                                     }}
                                 >
                                     <Checkbox checked={!this.state.excluded.includes(line?.id)} />

@@ -24,6 +24,11 @@ updates:
     cooldown:
       default-days: 7
 
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
+
   - package-ecosystem: 'npm'
     directory: '/src'
     schedule:
@@ -34,6 +39,10 @@ updates:
     versioning-strategy: 'increase'
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
 
   - package-ecosystem: 'npm'
     directory: '/src-chart'
@@ -45,6 +54,10 @@ updates:
     versioning-strategy: 'increase'
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
 
   - package-ecosystem: 'npm'
     directory: '/src-editor'
@@ -56,6 +69,10 @@ updates:
     versioning-strategy: 'increase'
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
 
   - package-ecosystem: 'npm'
     directory: '/src-preview'
@@ -67,6 +84,10 @@ updates:
     versioning-strategy: 'increase'
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
 
   - package-ecosystem: 'npm'
     directory: '/src-widgets'
@@ -78,3 +99,7 @@ updates:
     versioning-strategy: 'increase'
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'

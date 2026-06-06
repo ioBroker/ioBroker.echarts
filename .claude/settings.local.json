@@ -5,7 +5,8 @@
       "Bash(node:*)",
       "Bash(gh issue view:*)",
       "WebFetch(domain:github.com)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint *)"
     ]
   }
 }
