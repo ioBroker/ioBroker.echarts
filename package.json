@@ -22,7 +22,7 @@
   },
   "optionalDependencies": {
     "canvas": "^3.2.1",
-    "echarts": "^6.0.0",
+    "echarts": "^6.1.0",
     "jsdom": "^28.1.0"
   },
   "dependencies": {
