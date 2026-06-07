@@ -250,9 +250,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         super(props);
 
         // Initialize excluded with lines that have hide=true ("show only in legend")
-        const initialExcluded: string[] = props.config?.l
-            ?.filter((line: ChartLineConfigMore) => line.hide === true)
-            .map((line: ChartLineConfigMore) => line.id) || [];
+        const initialExcluded: string[] =
+            props.config?.l
+                ?.filter((line: ChartLineConfigMore) => line.hide === true)
+                .map((line: ChartLineConfigMore) => line.id) || [];
 
         this.state = {
             chartHeight: null,
@@ -1099,7 +1100,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                                 : [];
                                             this.setState({ excluded: newExcluded }, () => {
                                                 // immediately apply visibility to chart
-                                                if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                                                if (
+                                                    this.echartsReact &&
+                                                    typeof this.echartsReact.getEchartsInstance === 'function'
+                                                ) {
                                                     const selected: Record<string, boolean> = {};
                                                     this.props.config.l.forEach(l => {
                                                         selected[l.name] = !newExcluded.includes(l.id);
@@ -1134,7 +1138,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                         }
                                         this.setState({ excluded }, () => {
                                             // immediately apply visibility to chart
-                                            if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
+                                            if (
+                                                this.echartsReact &&
+                                                typeof this.echartsReact.getEchartsInstance === 'function'
+                                            ) {
                                                 const selected: Record<string, boolean> = {};
                                                 this.props.config.l.forEach(l => {
                                                     selected[l.name] = !excluded.includes(l.id);

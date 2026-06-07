@@ -30,6 +30,7 @@ export default [
             'src-preview/**/*',
             'src-widgets/**/*',
             'widgets/**/*',
+            'node_modules/**/*',
             'eslint.config.mjs',
             'prettier.config.mjs',
             '*.js',

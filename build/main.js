@@ -402,7 +402,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
         /*renderImage({preset: 'Test', theme: 'dark', renderer: 'png', background: '#000000'})
             .then(data => {
                 const base64 = Buffer.from(data.split(',')[1], 'base64');
-                require('fs').writeFileSync('image.png', base64);
+                require('node:fs').writeFileSync('image.png', base64);
             });*/
     }
 }
