@@ -1,4 +1,8 @@
 # Older changes
+## 3.0.1 (2026-02-16)
+- (@GermanBluefox) Updated packages
+- (@GermanBluefox) Removed support for node 18
+
 ## 2.0.10 (2025-09-01)
 
 - (@GermanBluefox) Just improvement of the build system

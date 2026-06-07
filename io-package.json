@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "3.1.2",
+    "version": "4.0.0",
     "news": {
+      "4.0.0": {
+        "en": "Adapter requires node.js >= 22 now\nAdapter requires js-controller >= 6.0.11 now.",
+        "de": "Adapter benötigt node.js >= 22 jetzt\nAdapter benötigt js-Controller >= 6.0.11 jetzt.",
+        "ru": "Адаптер требует node.js >= 22 сейчас\nАдаптер требует js-контроллер >= 6.0.11 сейчас.",
+        "pt": "Adaptador requer nod.js >= 22 agora\nO adaptador requer js-controlador >= 6.0.11 agora.",
+        "nl": "Voor de adapter zijn node.js < 22 nu nodig\nVoor de adapter is nu js-controller > 6.0.11 nodig.",
+        "fr": "Adaptateur nécessite node.js >= 22 maintenant\nAdaptateur nécessite js-controller >= 6.0.11 maintenant.",
+        "it": "Adattatore richiede node.js >= 22 ora\nAdattatore richiede js-controller >= 6.0.11 ora.",
+        "es": "Adaptador requiere node.js ю= 22 ahora\nAdaptador requiere js-controller >= 6.0.11 ahora.",
+        "pl": "Adapter wymaga node.js > = 22\nAdapter wymaga sterownika js- > = 6.0.11 teraz.",
+        "uk": "Адаптер вимагає node.js >= 22 тепер\nАдаптер вимагає js-controller >=6.0.11 тепер.",
+        "zh-cn": "适配器需要节点.js 现在22\n适配器需要js控制器 >= 6.0.11 现在."
+      },
       "3.1.2": {
         "en": "Corrected the devices widget",
         "de": "Das Widget der Geräte korrigiert",
@@ -80,19 +93,6 @@
         "pl": "Tylko poprawa systemu budowy\nOptymalizacja odczytu obiektów",
         "uk": "Просто вдосконалення системи будівництва\nОптимальне читання об'єктів",
         "zh-cn": "只是改进建设系统\n优化对象读取"
-      },
-      "2.0.8": {
-        "en": "Corrected icon for admin tab",
-        "de": "Korrigiertes Symbol für Admin-Tab",
-        "ru": "Исправленный значок для admin tab",
-        "pt": "Ícone corrigido para a página de administração",
-        "nl": "Gecorrigeerd pictogram voor admin-tabblad",
-        "fr": "Icône corrigée pour l'onglet admin",
-        "it": "Icona corretta per scheda admin",
-        "es": "Icono corregido para la pestaña admin",
-        "pl": "Skorygowana ikona zakładki admin",
-        "uk": "Виправлена ікона для вкладення адмін",
-        "zh-cn": "管理员标签的校正图标"
       }
     },
     "titleLang": {
