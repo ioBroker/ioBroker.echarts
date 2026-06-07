@@ -47,7 +47,7 @@
     "@types/react-dom": "^18.3.7",
     "axios": "^1.17.0",
     "colorette": "^2.0.20",
-    "puppeteer": "^24.43.1",
+    "puppeteer": "^25.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
