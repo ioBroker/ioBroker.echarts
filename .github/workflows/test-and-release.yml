@@ -31,7 +31,7 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-check@v2.0.0
               with:
-                  install-command: 'npm install -f'
+                  install-command: 'npm run npm'
                   package-cache: 'false'
                   node-version: '24.x'
                   lint: true
