@@ -26,7 +26,7 @@
     "jsdom": "^28.1.0"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.3.2",
+    "@iobroker/adapter-core": "^3.4.1",
     "moment": "^2.30.1"
   },
   "devDependencies": {
