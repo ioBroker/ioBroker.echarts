@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 
 import { IconButton, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
 
@@ -14,14 +14,7 @@ import {
 
 import { AiOutlineAreaChart as IconChart } from 'react-icons/ai';
 
-import {
-    I18n,
-    Utils,
-    withWidth,
-    DialogSelectID,
-    type IobTheme,
-    type AdminConnection,
-} from '@iobroker/adapter-react-v5';
+import { I18n, Utils, withWidth, DialogSelectID, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
 
 import Switch from './Switch';
 
@@ -762,7 +755,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
 
         if (!enumId) {
             return ids.map(id => (
-                // @ts-expect-error no idea how to fix it
                 <Draggable
                     isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
                     key={`${instance}_${id}`}
@@ -837,7 +829,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
             opened ? (
                 <List key={`${key}_LIST`}>
                     {ids.map(id => (
-                        // @ts-expect-error no idea how to fix it
                         <Draggable
                             isDragDisabled={!this.props.selectedId || typeof this.props.selectedId === 'object'}
                             key={`${instance}_${id}`}
@@ -878,7 +869,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         return (
             <>
                 {this.renderSelectIdDialog()}
-                {/* @ts-expect-error no idea how to fix it */}
                 <Droppable
                     droppableId="Lines"
                     isDropDisabled
@@ -1027,5 +1017,4 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
     }
 }
 
-// @ts-expect-error to be fixed
 export default withWidth()(ChartsTree);

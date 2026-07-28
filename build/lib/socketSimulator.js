@@ -15,9 +15,7 @@ function getSocket(adapter) {
         },
         getSystemConfig: function () {
             systemConfig =
-                systemConfig instanceof Promise
-                    ? systemConfig
-                    : adapter.getForeignObjectAsync('system.config');
+                systemConfig instanceof Promise ? systemConfig : adapter.getForeignObjectAsync('system.config');
             return systemConfig;
         },
         unsubscribeState: function (_id, _cb) { },

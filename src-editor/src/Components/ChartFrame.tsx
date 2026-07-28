@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Paper } from '@mui/material';
-import { type IobTheme, Utils } from '@iobroker/adapter-react-v5';
+import { type IobTheme, Utils } from '@iobroker/gui-components';
 import type { ChartConfigMore } from '../../../src/types';
 
 const styles: Record<string, any> = {

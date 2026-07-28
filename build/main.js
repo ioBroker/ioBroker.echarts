@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  *
@@ -13,7 +16,9 @@ const node_fs_1 = require("node:fs");
 const node_child_process_1 = require("node:child_process");
 const node_path_1 = require("node:path");
 const node_module_1 = require("node:module");
-const moment = require("moment");
+// Default import: with esModuleInterop a `* as` namespace is not callable, and ChartOption
+// expects the callable moment factory.
+const moment_1 = __importDefault(require("moment"));
 require("moment/locale/en-gb");
 require("moment/locale/es");
 require("moment/locale/fr");
@@ -26,8 +31,8 @@ require("moment/locale/zh-cn");
 require("moment/locale/de");
 const echarts_1 = require("echarts");
 const adapter_core_1 = require("@iobroker/adapter-core");
-const ChartModel_1 = require("./lib/ChartModel");
-const ChartOption_1 = require("./lib/ChartOption");
+const ChartModel_1 = __importDefault(require("./lib/ChartModel"));
+const ChartOption_1 = __importDefault(require("./lib/ChartOption"));
 const socketSimulator_1 = require("./lib/socketSimulator");
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
@@ -57,7 +62,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
     async renderImage(options) {
         if (JsDomClass === undefined) {
             try {
-                JsDomClass = (await Promise.resolve().then(() => require('jsdom'))).JSDOM;
+                JsDomClass = (await import('jsdom')).JSDOM;
                 this.socketSimulator ||= (0, socketSimulator_1.getSocket)(this);
             }
             catch (e) {
@@ -72,7 +77,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
         if (needsCanvas) {
             if (createCanvas === undefined) {
                 try {
-                    const canvasModule = await Promise.resolve().then(() => require('canvas'));
+                    const canvasModule = await import('canvas');
                     createCanvas = canvasModule.createCanvas;
                     CanvasClass = canvasModule.Canvas;
                 }
@@ -94,7 +99,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
             chartData.onError(err => this.log.error(err.toString()));
             chartData.onUpdate((seriesData, _actualValues, barCategories) => {
                 const theme = options.theme || options.themeType || 'light';
-                const chartOption = new ChartOption_1.default(moment, theme, calcTextWidth);
+                const chartOption = new ChartOption_1.default(moment_1.default, theme, calcTextWidth);
                 const option = chartOption.getOption(seriesData, chartData.getConfig(), null, barCategories);
                 const { window } = new JsDomClass();
                 // @ts-expect-error must be so
@@ -328,7 +333,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
         // Set the system language for moment
         const systemConfig = await this.getForeignObjectAsync('system.config');
         if (systemConfig?.common?.language) {
-            moment.locale(systemConfig.common.language);
+            moment_1.default.locale(systemConfig.common.language);
         }
         if (!designObject || (_obj && JSON.stringify(designObject.views) !== JSON.stringify(_obj.views))) {
             designObject = { language: 'javascript' };
@@ -358,7 +363,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
         }
         // Pre-load rendering modules so issues are visible in the log at startup
         try {
-            JsDomClass = (await Promise.resolve().then(() => require('jsdom'))).JSDOM;
+            JsDomClass = (await import('jsdom')).JSDOM;
             this.socketSimulator = (0, socketSimulator_1.getSocket)(this);
         }
         catch (e) {
@@ -366,7 +371,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
             this.log.error(`Cannot load jsdom module: ${e}. Chart rendering will not be available.`);
         }
         try {
-            const canvasModule = await Promise.resolve().then(() => require('canvas'));
+            const canvasModule = await import('canvas');
             createCanvas = canvasModule.createCanvas;
             CanvasClass = canvasModule.Canvas;
         }
@@ -381,7 +386,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                     }
                 }
                 try {
-                    const canvasModule = await Promise.resolve().then(() => require('canvas'));
+                    const canvasModule = await import('canvas');
                     createCanvas = canvasModule.createCanvas;
                     CanvasClass = canvasModule.Canvas;
                     this.log.info('Canvas loaded successfully after rebuild. PNG/JPG/PDF rendering is available.');

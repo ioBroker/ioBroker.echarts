@@ -2,7 +2,7 @@ import React from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import { Timeline } from '@mui/icons-material';
 
-import type { IobTheme } from '@iobroker/adapter-react-v5';
+import type { IobTheme } from '@iobroker/gui-components';
 
 import ChartSettings from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';

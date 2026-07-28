@@ -12,7 +12,7 @@ import {
     FormControlLabel,
 } from '@mui/material';
 
-import { I18n } from '@iobroker/adapter-react-v5';
+import { I18n } from '@iobroker/gui-components';
 
 import { Add as IconAdd, Check as IconCheck, Close as IconClose, Delete as IconDelete } from '@mui/icons-material';
 

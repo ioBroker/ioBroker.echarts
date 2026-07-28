@@ -3,31 +3,10 @@
 // developed without launching the full Devices admin app.
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Connection } from '@iobroker/adapter-react-v5';
-import type { StateChangeListener, ObjectChangeListener } from '@iobroker/dm-widgets';
-
-// `IStateContext` was renamed to `StateContext` in newer dm-widgets — the installed v0.3.1
-// only exports the latter as a class. We declare the shape locally to keep the dev harness
-// independent of version skew. The fields we use match what the production host provides.
-interface IStateContext {
-    defaultHistory: string | null;
-    instanceId: string;
-    admin: boolean;
-    language: ioBroker.Languages;
-    longitude: number | null;
-    latitude: number | null;
-    isFloatComma: boolean;
-    dateFormat: string;
-    imagePrefix: string;
-    getState(id: string, handler: StateChangeListener): void;
-    removeState(id: string, handler: StateChangeListener): void;
-    getObject<T>(id: string): Promise<T | undefined>;
-    getObjectProperty(id: string, property: string, cb: ObjectChangeListener): void;
-    removeObject(id: string, cb: ObjectChangeListener): Promise<void>;
-    getSocket(): Connection;
-    getImagePath(fileName: string | null | undefined): string | null;
-    destroy(): void;
-}
+import { Connection, type ThemeType } from '@iobroker/gui-components';
+// dm-widgets v2 exports `IStateContext` again, so the dev harness no longer needs a local copy
+// of the shape — implementing the real interface keeps it honest against the production host.
+import type { StateChangeListener, ObjectChangeListener, IStateContext } from '@iobroker/dm-widgets';
 import EchartComponent, { type EchartsViewerSettings } from './EchartComponent';
 
 const IOB_HOST = 'localhost';
@@ -82,6 +61,7 @@ class DevStateContext implements IStateContext {
     isFloatComma = true;
     dateFormat = 'DD.MM.YYYY';
     imagePrefix = '../../files/';
+    themeType: ThemeType = 'light';
 
     constructor(socket: Connection) {
         this.socket = socket;

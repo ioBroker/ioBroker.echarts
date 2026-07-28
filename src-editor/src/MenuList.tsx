@@ -13,7 +13,7 @@ import {
     Preview as PreviewIcon,
 } from '@mui/icons-material';
 
-import { type AdminConnection, I18n, type IobTheme, withWidth } from '@iobroker/adapter-react-v5';
+import { type AdminConnection, I18n, type IobTheme, withWidth } from '@iobroker/gui-components';
 
 import PresetsTree from './Components/PresetsTree';
 import ChartsTree from './Components/ChartsTree';
@@ -364,5 +364,4 @@ class MenuList extends Component<MenuListProps, MenuListState> {
     }
 }
 
-// @ts-expect-error idk
 export default withWidth()(MenuList);

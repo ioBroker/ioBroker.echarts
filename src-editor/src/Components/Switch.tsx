@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { type IobTheme } from '@iobroker/adapter-react-v5';
+import { type IobTheme } from '@iobroker/gui-components';
 
 interface SwitchProps {
     checked: boolean;

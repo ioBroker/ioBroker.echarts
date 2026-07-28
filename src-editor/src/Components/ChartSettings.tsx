@@ -21,7 +21,7 @@ import {
     MoreVert,
 } from '@mui/icons-material';
 
-import { I18n, type IobTheme } from '@iobroker/adapter-react-v5';
+import { I18n, type IobTheme } from '@iobroker/gui-components';
 
 import { IOSelect, IODateTimeField, IONumberField } from './Fields';
 import IconAggregate from './IconAggregate';

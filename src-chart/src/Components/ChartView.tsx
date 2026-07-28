@@ -1,6 +1,13 @@
 import React from 'react';
-import type { EChartsOption, LegendComponentOption, zrender } from 'echarts/types/dist/echarts';
+import type { EChartsOption, LegendComponentOption } from 'echarts/types/dist/echarts';
+import type { ECharts } from 'echarts';
 import type EChartsReactCore from 'echarts-for-react';
+
+// echarts ships two rolled-up declaration bundles — `types/dist/echarts.d.ts` and the
+// `.d.cts` its package `types` field points at — and each declares its own `ZRenderType`.
+// Deriving from `getZr()` keeps us on whichever one `echarts-for-react` resolved, so the
+// instance we store and the instance we assign can never be two unrelated types.
+type ZRenderInstance = ReturnType<ECharts['getZr']>;
 
 import {
     LinearProgress,
@@ -40,7 +47,7 @@ import 'moment/dist/locale/zh-cn';
 import 'moment/dist/locale/de';
 import 'moment/dist/locale/uk';
 
-import { I18n, Utils, withWidth, type ThemeType } from '@iobroker/adapter-react-v5';
+import { I18n, Utils, withWidth, type ThemeType } from '@iobroker/gui-components';
 import type { BarAndLineSeries, SeriesData } from './ChartModel';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
@@ -242,7 +249,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     // If actually mouse pressed down
     private mouseDown = false;
     private option: EChartsOption | null = null;
-    private zr: zrender.ZRenderType | null = null;
+    private zr: ZRenderInstance | null = null;
     private zrMousemove = false;
     private zrIobInstalled = false;
 

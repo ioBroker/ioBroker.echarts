@@ -490,9 +490,7 @@ class ChartModel {
 
             try {
                 const obj: ioBroker.ChartObject | null | undefined = (await this.socket.getObject(this.preset)) as
-                    | ioBroker.ChartObject
-                    | null
-                    | undefined;
+                    ioBroker.ChartObject | null | undefined;
                 if (!obj?.native?.data || obj.type !== 'chart') {
                     console.error(`[ChartModel] Invalid object ${this.preset}: ${JSON.stringify(obj)}`);
                     return;

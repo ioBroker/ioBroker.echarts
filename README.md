@@ -115,6 +115,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@GermanBluefox) Update to ECharts 6.1.0 and React 19
+
 ### 4.0.0 (2026-06-07)
 - (copilot) Adapter requires node.js >= 22 now
 - (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.

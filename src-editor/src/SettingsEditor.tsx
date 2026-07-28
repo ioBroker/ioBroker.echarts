@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Box } from '@mui/material';
 import PresetTabs from './Components/PresetTabs';
-import type { AdminConnection, IobTheme } from '@iobroker/adapter-react-v5';
+import type { AdminConnection, IobTheme } from '@iobroker/gui-components';
 import type { ChartConfigMore } from '../../src/types';
 
 const TOOLBOX_WIDTH = 0; // 34;

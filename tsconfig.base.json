@@ -1,10 +1,9 @@
 {
     "compilerOptions": {
-        "module": "esnext",
+        "module": "Node16",
         "target": "esnext",
-        "baseUrl": ".",
         "jsx": "preserve",
-        "moduleResolution": "node"
+        "moduleResolution": "Node16"
     },
     "include": ["packages/"],
     "exclude": ["**/node_modules", "**/dist"]

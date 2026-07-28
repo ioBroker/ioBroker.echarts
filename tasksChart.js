@@ -1,5 +1,5 @@
 /**
- * Copyright 2018-2025 bluefox <dogafox@gmail.com>
+ * Copyright 2018-2026 bluefox <dogafox@gmail.com>
  *
  * MIT License
  *
@@ -79,7 +79,7 @@ function copyReactFilesToBackEnd() {
     let chartModel = readFileSync(`${__dirname}/src-chart/src/Components/ChartModel.ts`).toString('utf8');
 
     chartModel = chartModel
-        .replace("import type { Connection } from '@iobroker/adapter-react-v5';\n", '')
+        .replace("import type { Connection } from '@iobroker/gui-components';\n", '')
         .replace("'../../../src/types';", "'../types';")
         .replace('ChartRangeOptions,', 'ChartRangeOptions,\n    Connection,');
     chartOptions = chartOptions.replace("'../../../src/types';", "'../types';");

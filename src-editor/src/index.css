@@ -23,6 +23,7 @@ html {
 .react-beautiful-dnd-copy ~ .drag-items {
     transform: none !important;
 }
-.react-beautiful-dnd-copy ~ [data-rbd-placeholder-context-id] {
+/* @hello-pangea/dnd emits data-rfd-* attributes (react-beautiful-dnd used data-rbd-*). */
+.react-beautiful-dnd-copy ~ [data-rfd-placeholder-context-id] {
     display: none !important;
 }

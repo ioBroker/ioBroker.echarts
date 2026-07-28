@@ -10,7 +10,7 @@ import {
 } from '@mui/icons-material';
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
-import { I18n, Utils, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/adapter-react-v5';
+import { I18n, Utils, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
 
 import { IOTextField, IOSelect, IOObjectField, IOSlider, IONumberField } from './Fields';
 import type { ChartConfigMore, ChartMarkConfig } from '../../../src/types';

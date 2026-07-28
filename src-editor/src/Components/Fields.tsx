@@ -16,7 +16,7 @@ import {
 
 import { Subject as IconSelectID, Close as ClearIcon, Help as HelpIcon } from '@mui/icons-material';
 
-import { I18n, DialogSelectID, type AdminConnection, type IobTheme } from '@iobroker/adapter-react-v5';
+import { I18n, DialogSelectID, type AdminConnection, type IobTheme } from '@iobroker/gui-components';
 
 const styles: Record<string, React.CSSProperties> = {
     fieldContainer: {
@@ -422,7 +422,7 @@ export const IOSlider = (props: IOSliderProps): React.JSX.Element => (
                 0.1
             }
             marks
-            onChange={(_e, value) => props.updateValue(value as number)}
+            onChange={(_e, value) => props.updateValue(value)}
             min={parseFloat(props.min as unknown as string) || 0}
             max={parseFloat(props.max as unknown as string) || 1}
             valueLabelDisplay="auto"

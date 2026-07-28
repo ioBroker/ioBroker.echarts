@@ -2,7 +2,7 @@ import React from 'react';
 import ReactSplit, { SplitDirection } from '@devbookhq/splitter';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
-import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, type DropResult } from '@hello-pangea/dnd';
 
 import { Dialog, DialogTitle, Button, DialogActions, Box } from '@mui/material';
 
@@ -14,7 +14,7 @@ import {
     ArrowBack as IconMenuOpened,
 } from '@mui/icons-material';
 
-import { I18n, Loader, GenericApp, type IobTheme } from '@iobroker/adapter-react-v5';
+import { I18n, Loader, GenericApp, type IobTheme } from '@iobroker/gui-components';
 
 import enLang from './i18n/en.json';
 import deLang from './i18n/de.json';
@@ -28,7 +28,7 @@ import plLang from './i18n/pl.json';
 import ukLang from './i18n/uk.json';
 import zhLang from './i18n/zh-cn.json';
 
-import '@iobroker/adapter-react-v5/build/index.css';
+import '@iobroker/gui-components/build/index.css';
 
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
@@ -36,7 +36,7 @@ import getUrlQuery from './utils/getUrlQuery';
 import { getDefaultPreset, getDefaultLine } from './Components/DefaultPreset';
 import MenuList from './MenuList';
 import flotConverter from './utils/flotConverter';
-import type { GenericAppProps, GenericAppSettings, GenericAppState } from '@iobroker/adapter-react-v5/build/types';
+import type { GenericAppProps, GenericAppSettings, GenericAppState } from '@iobroker/gui-components/build/types';
 import type {
     ChartAggregateType,
     ChartConfigMore,
@@ -216,8 +216,7 @@ export default class App extends GenericApp<AppProps, AppState> {
     onHashChanged(): void {
         super.onHashChanged();
         const config: { preset: string } | { id: string; instance: string } = parseHash() as
-            | { preset: string }
-            | { id: string; instance: string };
+            { preset: string } | { id: string; instance: string };
 
         if (
             ((config as { preset: string }).preset &&
@@ -902,9 +901,7 @@ export default class App extends GenericApp<AppProps, AppState> {
             const [instance, stateId] = draggableId.split('***');
             try {
                 const obj: ioBroker.StateObject | null | undefined = (await this.socket.getObject(stateId)) as
-                    | ioBroker.StateObject
-                    | null
-                    | undefined;
+                    ioBroker.StateObject | null | undefined;
                 // const len = this.state.presetData.lines.length;
                 // const color = (obj && obj.common && obj.common.color) || PREDEFINED_COLORS[len % PREDEFINED_COLORS.length];
                 const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.state.presetData));
@@ -1064,7 +1061,6 @@ export default class App extends GenericApp<AppProps, AppState> {
         let splitter: React.JSX.Element | React.JSX.Element[];
         if (this.state.menuOpened) {
             splitter = (
-                // @ts-expect-error idk
                 <DragDropContext onDragEnd={this.onDragEnd}>
                     <ReactSplit
                         direction={SplitDirection.Horizontal}
@@ -1083,10 +1079,7 @@ export default class App extends GenericApp<AppProps, AppState> {
                 </DragDropContext>
             );
         } else {
-            splitter = splitter = (
-                // @ts-expect-error idk
-                <DragDropContext onDragEnd={this.onDragEnd}>{this.renderMain()}</DragDropContext>
-            );
+            splitter = splitter = <DragDropContext onDragEnd={this.onDragEnd}>{this.renderMain()}</DragDropContext>;
         }
 
         return (

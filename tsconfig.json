@@ -8,11 +8,16 @@
         "allowJs": true,
         "checkJs": true,
         "outDir": "./build/",
+        "rootDir": "./src",
         "sourceMap": true,
         "inlineSources": true,
 
         // This is necessary for the automatic typing of the adapter config
         "resolveJsonModule": true,
+        // TypeScript 6 turns `strict` on by default. This project was written against the
+        // pre-6 defaults (noImplicitAny only), so pin it — switching strict on is a separate
+        // refactor worth ~200 errors in src/lib alone.
+        "strict": false,
         "noImplicitAny": true,
         "useUnknownInCatchVariables": false,
         "target": "ES2022",

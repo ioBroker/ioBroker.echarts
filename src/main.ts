@@ -12,7 +12,9 @@ import { spawn } from 'node:child_process';
 import { dirname } from 'node:path';
 import { createRequire } from 'node:module';
 
-import * as moment from 'moment';
+// Default import: with esModuleInterop a `* as` namespace is not callable, and ChartOption
+// expects the callable moment factory.
+import moment from 'moment';
 import 'moment/locale/en-gb';
 import 'moment/locale/es';
 import 'moment/locale/fr';

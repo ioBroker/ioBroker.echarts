@@ -17,21 +17,21 @@ import {
     type IobTheme,
     type ThemeName,
     type ThemeType,
-} from '@iobroker/adapter-react-v5';
+} from '@iobroker/gui-components';
 
-import '@iobroker/adapter-react-v5/build/index.css';
+import '@iobroker/gui-components/build/index.css';
 
-import enGlobLang from '@iobroker/adapter-react-v5/i18n/en.json';
-import deGlobLang from '@iobroker/adapter-react-v5/i18n/de.json';
-import ruGlobLang from '@iobroker/adapter-react-v5/i18n/ru.json';
-import ptGlobLang from '@iobroker/adapter-react-v5/i18n/pt.json';
-import nlGlobLang from '@iobroker/adapter-react-v5/i18n/nl.json';
-import frGlobLang from '@iobroker/adapter-react-v5/i18n/fr.json';
-import itGlobLang from '@iobroker/adapter-react-v5/i18n/it.json';
-import esGlobLang from '@iobroker/adapter-react-v5/i18n/es.json';
-import plGlobLang from '@iobroker/adapter-react-v5/i18n/pl.json';
-import ukGlobLang from '@iobroker/adapter-react-v5/i18n/uk.json';
-import zhGlobLang from '@iobroker/adapter-react-v5/i18n/zh-cn.json';
+import enGlobLang from '@iobroker/gui-components/i18n/en.json';
+import deGlobLang from '@iobroker/gui-components/i18n/de.json';
+import ruGlobLang from '@iobroker/gui-components/i18n/ru.json';
+import ptGlobLang from '@iobroker/gui-components/i18n/pt.json';
+import nlGlobLang from '@iobroker/gui-components/i18n/nl.json';
+import frGlobLang from '@iobroker/gui-components/i18n/fr.json';
+import itGlobLang from '@iobroker/gui-components/i18n/it.json';
+import esGlobLang from '@iobroker/gui-components/i18n/es.json';
+import plGlobLang from '@iobroker/gui-components/i18n/pl.json';
+import ukGlobLang from '@iobroker/gui-components/i18n/uk.json';
+import zhGlobLang from '@iobroker/gui-components/i18n/zh-cn.json';
 
 import enLang from './i18n/en.json';
 import deLang from './i18n/de.json';

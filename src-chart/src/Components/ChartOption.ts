@@ -1,7 +1,16 @@
-import type * as moment from 'moment';
+// Default import (not `* as moment`): with esModuleInterop the namespace object is not callable,
+// and `MomentType` below has to stay callable — ChartView passes its own default import in.
+import type moment from 'moment';
 import type { ChartConfigMore, ThemeChartType } from '../../../src/types';
 import type { BarAndLineSeries, BarSeries, EchartsOneValue, LineSeries } from './ChartModel';
-import type { EChartsOption, LegendComponentOption } from 'echarts/types/dist/echarts';
+// `resolution-mode: import` on the echarts type imports: tasksChart.js copies this file into
+// src/lib/ for the CommonJS backend, which resolves modules as Node16. Without the attribute
+// echarts resolves to its .d.cts bundle there — a second, unrelated set of declarations — while
+// this app (Bundler resolution) uses the .d.ts one. Pinning both to the ESM bundle keeps a single
+// type identity in both builds.
+import type { EChartsOption, LegendComponentOption, TooltipComponentOption } from 'echarts/types/dist/echarts' with {
+    'resolution-mode': 'import',
+};
 import type {
     CallbackDataParams,
     GridOption,
@@ -10,7 +19,7 @@ import type {
     TitleOption,
     XAXisOption,
     YAXisOption,
-} from 'echarts/types/dist/shared';
+} from 'echarts/types/dist/shared' with { 'resolution-mode': 'import' };
 
 type ThemeType = 'light' | 'dark';
 
@@ -297,7 +306,7 @@ class ChartOption {
             return [];
         }
 
-        const yAxis: YAXisOption = this.chart.yAxis[yAxisIndex] || ({ max: null, min: null } as YAXisOption);
+        const yAxis: YAXisOption = this.chart.yAxis[yAxisIndex] || { max: null, min: null };
         this.chart.yAxis[yAxisIndex] = yAxis;
 
         for (let ii = 0; ii < values.length; ii++) {
@@ -1275,7 +1284,7 @@ class ChartOption {
         const yAxis = this.getYAxis(series);
         const xAxis = this.getXAxis(categories);
 
-        const tooltip: echarts.TooltipComponentOption =
+        const tooltip: TooltipComponentOption =
             !this.compact && this.config.hoverDetail
                 ? {
                       trigger: 'axis',
@@ -1380,13 +1389,9 @@ class ChartOption {
 
             if (!this.compact && !this.config.autoGridPadding) {
                 const lineSeries: (
-                    | RegisteredSeriesOption['line']
-                    | RegisteredSeriesOption['scatter']
-                    | RegisteredSeriesOption['bar']
+                    RegisteredSeriesOption['line'] | RegisteredSeriesOption['scatter'] | RegisteredSeriesOption['bar']
                 )[] = series as (
-                    | RegisteredSeriesOption['line']
-                    | RegisteredSeriesOption['scatter']
-                    | RegisteredSeriesOption['bar']
+                    RegisteredSeriesOption['line'] | RegisteredSeriesOption['scatter'] | RegisteredSeriesOption['bar']
                 )[];
                 // calculate padding: left and right
                 let padLeft = 0;

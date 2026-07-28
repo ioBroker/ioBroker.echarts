@@ -43,7 +43,7 @@ import {
     IconCopy,
     type IobTheme,
     type AdminConnection,
-} from '@iobroker/adapter-react-v5';
+} from '@iobroker/gui-components';
 
 const HIDDEN_FOLDER = '_consumption_';
 
@@ -77,7 +77,11 @@ export const Droppable: React.FC<DroppableProps> = (props: DroppableProps): Reac
 
     return (
         <div
-            ref={drop}
+            // Block body on purpose: React 19 reads a ref callback's return value as a cleanup
+            // function, and react-dnd's connectors return an element. Discard it.
+            ref={node => {
+                drop(node);
+            }}
             style={{
                 background: isOver ? '#40adff' : undefined,
                 opacity: isOverAny ? 0.3 : undefined,
@@ -112,7 +116,11 @@ export const Draggable = (props: DraggableProps): React.JSX.Element => {
     // About transform: https://github.com/react-dnd/react-dnd/issues/832#issuecomment-442071628
     return (
         <div
-            ref={drag}
+            // Block body on purpose: see the Droppable above — React 19 would otherwise treat
+            // the connector's return value as a cleanup function.
+            ref={node => {
+                drag(node);
+            }}
             style={{ opacity, transform: 'translate3d(0, 0, 0)' }}
         >
             {props.children}
@@ -1334,5 +1342,4 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
     }
 }
 
-// @ts-expect-error idk
 export default withWidth()(PresetsTree);

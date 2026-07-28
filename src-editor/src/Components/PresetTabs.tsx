@@ -1,13 +1,15 @@
 import React from 'react';
 
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { ChromePicker, type ColorResult } from 'react-color';
 
 import {
     IconButton,
     Tab,
     AppBar,
-    Grid2 as Grid,
+    // MUI 9 completed the Grid v2 migration: `Grid2` is now just `Grid`
+    // (the old implementation lives on as `GridLegacy`).
+    Grid,
     Dialog,
     DialogTitle,
     DialogActions,
@@ -31,7 +33,7 @@ import {
     Delete as IconDelete,
 } from '@mui/icons-material';
 
-import { I18n, Utils, IconCopy, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/adapter-react-v5';
+import { I18n, Utils, IconCopy, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
 
 import { IOTextField, IOCheckbox, IOSelect, IODateTimeField, IONumberField } from './Fields';
 
@@ -232,9 +234,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
 
         const copiedObjectStr = window.sessionStorage.getItem('echarts.copiedObject');
         let copiedObject:
-            | { type: 'line'; line: ChartLineConfigMore }
-            | { type: 'marking'; mark: ChartMarkConfig }
-            | null = null;
+            { type: 'line'; line: ChartLineConfigMore } | { type: 'marking'; mark: ChartMarkConfig } | null = null;
         if (copiedObjectStr) {
             try {
                 copiedObject = JSON.parse(copiedObjectStr);
@@ -260,12 +260,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
             selectedTab:
                 window.localStorage.getItem('App.echarts.presetTabs.selectedTab') !== null
                     ? (window.localStorage.getItem('App.echarts.presetTabs.selectedTab') as
-                          | 'data'
-                          | 'markings'
-                          | 'time'
-                          | 'options'
-                          | 'title'
-                          | 'appearance')
+                          'data' | 'markings' | 'time' | 'options' | 'title' | 'appearance')
                     : 'data',
             linesOpened:
                 window.localStorage.getItem('App.echarts.Lines.opened') !== null
@@ -574,7 +569,6 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                 }}
                 open={this.state.showColorDialog}
             >
-                {/* @ts-expect-error because too old. Must be replaced */}
                 <ChromePicker
                     color={this.state.colorDialogValue}
                     onChange={(value: ColorResult) => {
@@ -615,7 +609,6 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
             this.props.presetData.l.length > 1 && this.props.presetData.l.find((_l, i) => this.state.linesOpened[i]);
 
         return (
-            // @ts-expect-error idk
             <Droppable droppableId="tabs">
                 {(provided, snapshot) => {
                     return (
@@ -667,7 +660,6 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                 ) : null}
                                 {this.props.presetData.l.length ? (
                                     this.props.presetData.l.map((line, index) => (
-                                        // @ts-expect-error idk
                                         <Draggable
                                             key={`${line.id}_${index}`}
                                             draggableId={`${line.id}_${index}`}
@@ -750,7 +742,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                         }
                                     />
                                 ) : null}
-                                {provided.placeholder as unknown as React.JSX.Element}
+                                {provided.placeholder}
                                 <div style={styles.dragHint}>
                                     {I18n.t('You can drag and drop simple lines from the left list.')}
                                 </div>

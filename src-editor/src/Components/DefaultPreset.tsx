@@ -1,4 +1,4 @@
-import { I18n, Utils } from '@iobroker/adapter-react-v5';
+import { I18n, Utils } from '@iobroker/gui-components';
 import type { ChartConfigMore, ChartLineConfigMore } from '../../../src/types';
 
 const DEFAULT_PRESET: ChartConfigMore = {
