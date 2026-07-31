@@ -10,7 +10,7 @@
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
         "react-icons": "^5.7.0",
-        "typescript": "~6.0.3"
+        "typescript": "~7.0.2"
     },
     "homepage": ".",
     "proxy": "http://localhost:8081",
