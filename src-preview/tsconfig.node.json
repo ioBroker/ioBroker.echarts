@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "skipLibCheck": true,
+        // TypeScript 6 turns `strict` on by default; keep it aligned with ./tsconfig.json.
+        "strict": false,
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "allowSyntheticDefaultImports": true
+    },
+    // vite.config.ts lives outside ./src (the app tsconfig's rootDir), so it needs its own
+    // project - otherwise typed ESLint cannot resolve it.
+    "include": ["vite.config.ts"]
+}

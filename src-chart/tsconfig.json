@@ -21,5 +21,10 @@
         "jsx": "react",
         "types": ["@iobroker/types"]
     },
-    "include": ["./src/**/*"]
+    "include": ["./src/**/*"],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ]
 }

@@ -6,7 +6,7 @@
         "@emotion/cache": "^11.14.0",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
-        "@vitejs/plugin-react": "^6.0.4",
+        "@vitejs/plugin-react": "^6.0.5",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
         "react-icons": "^5.7.0",
@@ -15,8 +15,8 @@
     "homepage": ".",
     "proxy": "http://localhost:8081",
     "scripts": {
-        "start": "vite dev --config vite.config.mjs --host",
-        "build": "vite build --config vite.config.mjs",
+        "start": "vite dev --config vite.config.ts --host",
+        "build": "vite build --config vite.config.ts",
         "lint": "eslint -c eslint.config.mjs"
     },
     "eslintConfig": {

@@ -23,5 +23,10 @@
             "@iobroker/types-vis-2": ["./packages/types-vis-2"]
         }
     },
-    "include": ["./src/**/*"]
+    "include": ["./src/**/*"],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ]
 }
