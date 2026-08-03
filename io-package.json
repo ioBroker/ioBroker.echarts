@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "4.0.0",
+    "version": "5.0.0",
     "news": {
+      "5.0.0": {
+        "en": "Update to ECharts 6.1.0 and React 19",
+        "de": "Aktualisierung auf ECharts 6.1.0 und React 19",
+        "ru": "Обновите ECharts до версии 6.1.0 и React 19.",
+        "pt": "Atualização para ECharts 6.1.0 e React 19",
+        "nl": "Update naar ECharts 6.1.0 en React 19",
+        "fr": "Mise à jour vers ECharts 6.1.0 et React 19",
+        "it": "Aggiornamento a ECharts 6.1.0 e React 19",
+        "es": "Actualizar a ECharts 6.1.0 y React 19",
+        "pl": "Aktualizacja do ECharts 6.1.0 i React 19",
+        "uk": "Оновлення до ECharts 6.1.0 та React 19",
+        "zh-cn": "更新至 ECharts 6.1.0 和 React 19"
+      },
       "4.0.0": {
         "en": "Adapter requires node.js >= 22 now\nAdapter requires js-controller >= 6.0.11 now.",
         "de": "Adapter benötigt node.js >= 22 jetzt\nAdapter benötigt js-Controller >= 6.0.11 jetzt.",
@@ -80,19 +93,6 @@
         "pl": "Aktualizacja pakietów\nUsunięto obsługę węzła 18",
         "uk": "Оновлені пакети\nВидалити підтримку для вузла 18",
         "zh-cn": "更新软件包\n删除对节点 18 的支持"
-      },
-      "2.0.10": {
-        "en": "Just improvement of the build system\nOptimizing read of objects",
-        "de": "Einfache Verbesserung des Bausystems\nOptimierung des Lesens von Objekten",
-        "ru": "Просто совершенствование системы сборки\nОптимизация чтения объектов",
-        "pt": "Apenas melhoria do sistema de construção\nOtimização da leitura dos objectos",
-        "nl": "Verbetering van het bouwsysteem\nLezen van objecten optimaliseren",
-        "fr": "Juste amélioration du système de construction\nOptimisation de la lecture des objets",
-        "it": "Solo il miglioramento del sistema di costruzione\nOttimizzazione della lettura degli oggetti",
-        "es": "Sólo mejora del sistema de construcción\nOptimizar la lectura de objetos",
-        "pl": "Tylko poprawa systemu budowy\nOptymalizacja odczytu obiektów",
-        "uk": "Просто вдосконалення системи будівництва\nОптимальне читання об'єктів",
-        "zh-cn": "只是改进建设系统\n优化对象读取"
       }
     },
     "titleLang": {

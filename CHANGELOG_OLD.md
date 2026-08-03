@@ -1,4 +1,8 @@
 # Older changes
+## 3.0.2 (2026-02-16)
+- (@GermanBluefox) Calculate values in the legend
+- (@GermanBluefox) Added noLoader option to the widget
+
 ## 3.0.1 (2026-02-16)
 - (@GermanBluefox) Updated packages
 - (@GermanBluefox) Removed support for node 18
