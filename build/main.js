@@ -132,8 +132,19 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                             : ''}`;
                     chart = (0, echarts_1.init)(root, undefined, { renderer: 'svg' });
                 }
-                if (!root || !canvas || !CanvasClass) {
-                    throw new Error('No root');
+                // For SVG rendering there is no canvas at all, so only require what the
+                // selected renderer actually needs. A `throw` here would escape the promise
+                // executor (this callback runs asynchronously), leaving the caller hanging
+                // until its own timeout - therefore reject explicitly.
+                if (needsCanvas) {
+                    if (!canvas || !CanvasClass) {
+                        reject(new Error('Cannot create canvas'));
+                        return;
+                    }
+                }
+                else if (!root) {
+                    reject(new Error('No root'));
+                    return;
                 }
                 chart.setOption(option);
                 let data;
