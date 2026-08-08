@@ -115,6 +115,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@Brainbug01) Fixed server-side rendering hanging until the caller timed out (preview showed "timeout" for every preset)
+
 ### 5.0.0 (2026-08-03)
 - (@GermanBluefox) Update to ECharts 6.1.0 and React 19
 
