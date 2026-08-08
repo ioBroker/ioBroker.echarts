@@ -233,7 +233,7 @@ const styles: Record<string, any> = {
 interface PresetsTreeProps {
     socket: AdminConnection;
     onClosePresetFolderDialog: (cb?: () => void) => void;
-    onCreatePreset: (parentId: string) => void;
+    onCreatePreset: (isFromCurrentSelection: boolean, parentId?: string) => void;
     onCopyPreset: (presetId: string) => void;
     onShowReorder: (reorder: boolean) => void;
     search: string;
@@ -613,7 +613,7 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                                 <IconButton
                                     size="small"
                                     sx={styles.textColor}
-                                    onClick={() => this.props.onCreatePreset(parent.id)}
+                                    onClick={() => this.props.onCreatePreset(false, parent.id)}
                                     title={I18n.t('Create new preset')}
                                 >
                                     <IconAdd />
