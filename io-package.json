@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "5.0.0",
+    "version": "5.0.1",
     "news": {
+      "5.0.1": {
+        "en": "Fixed server-side rendering hanging until the caller timed out (preview showed \"timeout\" for every preset)\nAligned the GUI of the editor, the preview and the chart with the admin 8 design\nFixed creating a preset in a folder",
+        "de": "Feste serverseitige Wiedergabe hängt, bis der Anrufer ausgezeitet ist (Vorschau zeigt \"Timeout\" für jede Voreinstellung)\nAusrichtung der GUI des Editors, der Vorschau und des Diagramms mit dem Admin 8 Design\nFestlegen einer Voreinstellung in einem Ordner",
+        "ru": "Фиксированный рендеринг на стороне сервера, висящий до истечения времени вызова (предварительный просмотр показал «тайм-аут» для каждого набора)\nВыровняли графический интерфейс редактора, предварительный просмотр и график с дизайном admin 8\nФиксированное создание предустановки в папке",
+        "pt": "A renderização fixa do lado do servidor pendurada até o tempo limite da chamada (a pré- visualização mostrou \"tempo limite\" para cada predefinição)\nAlinhada a GUI do editor, a visualização e o gráfico com o design do administrador 8\nCorrigido a criar uma predefinição numa pasta",
+        "nl": "Vaste server-kant rendering opknoping tot de beller timed out (preview toonde \"timeout\" voor elke preset)\nDe GUI van de editor, de preview en de grafiek met de admin 8 ontwerp uitlijnen\nVastmaken van een preset in een map",
+        "fr": "Correction du rendu côté serveur pendant jusqu'à ce que l'appelant s'annule (la prévisualisation a montré \"timeout\" pour chaque préréglage)\nAlignez le GUI de l'éditeur, l'aperçu et le graphique avec le design admin 8\nCorrection de la création d'un préréglage dans un dossier",
+        "it": "Risolto il rendering del lato server sospeso fino al momento in cui il chiamante non è stato aggiornato (l'anteprima ha mostrato \"timeout\" per ogni preset)\nAllineato la GUI dell'editor, l'anteprima e il grafico con il design admin 8\nRisolto creando una preimpostazione in una cartella",
+        "es": "Corregido servidor-side rendering colgando hasta que la llamada se fijó (preview mostró \"timeout\" por cada preset)\nAlinea el GUI del editor, la vista previa y el gráfico con el diseño admin 8\nArreglado creando un preset en una carpeta",
+        "pl": "Naprawiono renderowanie po stronie serwera wiszące do czasu, gdy rozmówca się wyłączył (podgląd pokazał \"timeout\" dla każdego ustawionego czasu)\nDopasowanie GUI edytora, podglądu i wykresu z wzornictwem admin 8\nNaprawiono tworzenie ustawień w folderze",
+        "uk": "Фіксований сервер-посередній рендеринг висить до часу відправника (огляд показало \"timeout\" для кожного зада)\nВирівнюється графічний інтерфейс редактора, попередній перегляд та графік з дизайном admin 8\nВиправлено створення пресету в папці",
+        "zh-cn": "固定服务器侧渲染悬挂直到呼叫者超时( 预览显示每个预设“ 超时 ” )\n将编辑器的图形界面、预览和图表与管理员 8 设计对齐\n固定在文件夹中创建预设"
+      },
       "5.0.0": {
         "en": "Update to ECharts 6.1.0 and React 19",
         "de": "Aktualisierung auf ECharts 6.1.0 und React 19",
@@ -80,19 +93,6 @@
         "pl": "Oblicz wartości w legendzie\nDodano opcję noLoader do widget",
         "uk": "Розрахунок значень в легенді\nДодано параметр noLoader до віджету",
         "zh-cn": "在图例中计算值\n向部件添加无Loader 选项"
-      },
-      "3.0.1": {
-        "en": "Updated packages\nRemoved support for node 18",
-        "de": "Aktualisierte Pakete\nEntfernte Unterstützung für Knoten 18",
-        "ru": "Обновленные пакеты\nСнята поддержка узла 18",
-        "pt": "Pacotes atualizados\nSuporte removido para o nó 18",
-        "nl": "Bijgewerkte pakketten\nOndersteuning voor node 18 verwijderd",
-        "fr": "Paquets mis à jour\nPrise en charge du nœud 18",
-        "it": "Pacchetti aggiornati\nSupporto rimosso per nodo 18",
-        "es": "Paquetes actualizados\nApoyo eliminado para el nodo 18",
-        "pl": "Aktualizacja pakietów\nUsunięto obsługę węzła 18",
-        "uk": "Оновлені пакети\nВидалити підтримку для вузла 18",
-        "zh-cn": "更新软件包\n删除对节点 18 的支持"
       }
     },
     "titleLang": {
