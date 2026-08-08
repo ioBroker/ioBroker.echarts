@@ -33,6 +33,7 @@ import {
     FaBars as IconMenu,
     FaCheck as IconCheck,
 } from 'react-icons/fa';
+import { Close as IconClose } from '@mui/icons-material';
 
 import moment from 'moment';
 import 'moment/dist/locale/en-gb';
@@ -185,7 +186,6 @@ const styles: Record<string, React.CSSProperties> = {
         top: 10,
         right: 25,
         zIndex: 2,
-        opacity: 0.7,
         // background: '#00000000',
     },
     legendButton: {
@@ -193,10 +193,23 @@ const styles: Record<string, React.CSSProperties> = {
         top: 10,
         left: 30,
         zIndex: 2,
-        opacity: 0.7,
     },
-    resetButtonIcon: {
-        paddingTop: 8,
+};
+
+/**
+ * The buttons floating above the chart. They used to be round, elevated FABs at 70% opacity;
+ * the admin 8 draws such overlays as flat, outlined surfaces on `paper` instead.
+ */
+const overlayButtonSx: Record<string, any> = {
+    backgroundColor: 'background.paper',
+    color: 'text.secondary',
+    border: '1px solid',
+    borderColor: 'divider',
+    borderRadius: '8px',
+    boxShadow: 1,
+    '&:hover': {
+        backgroundColor: 'action.hover',
+        color: 'primary.main',
     },
 };
 
@@ -852,6 +865,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 ref={this.divResetButton}
                 size="small"
                 color="default"
+                sx={overlayButtonSx}
                 style={{ ...styles.resetButton, display: 'none' }}
                 title={I18n.t('Reset pan and zoom')}
                 onClick={() => {
@@ -861,7 +875,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     this.props.onRangeChange && this.props.onRangeChange();
                 }}
             >
-                <IconReset style={styles.resetButtonIcon} />
+                <IconReset />
             </Fab>
         );
     }
@@ -1080,6 +1094,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 <Fab
                     size="small"
                     color="default"
+                    sx={overlayButtonSx}
                     style={{ ...styles.legendButton, left: (this.option?.grid as GridOption)?.left || 0 }}
                     title={I18n.t('Select lines')}
                     onClick={() => this.setState({ showLegendDialog: true })}
@@ -1183,7 +1198,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                 variant="contained"
                                 color="grey"
                                 onClick={() => this.setState({ showLegendDialog: false })}
-                                startIcon={<span style={{ fontSize: 14 }}>X</span>}
+                                startIcon={<IconClose />}
                             >
                                 {I18n.t('Close')}
                             </Button>
@@ -1284,7 +1299,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                             variant="contained"
                             color="grey"
                             onClick={() => this.setState({ showExportDataDialog: false })}
-                            startIcon={<span style={{ fontSize: 14 }}>X</span>}
+                            startIcon={<IconClose />}
                         >
                             {I18n.t('Cancel')}
                         </Button>

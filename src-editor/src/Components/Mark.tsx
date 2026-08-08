@@ -27,15 +27,18 @@ const WIDTHS = {
 
 const styles: Record<string, any> = {
     card: (theme: IobTheme): any => ({
-        borderStyle: 'dashed',
+        borderStyle: 'solid',
         borderWidth: 1,
+        borderColor: theme.palette.divider,
+        borderRadius: '12px',
         mb: '8px',
-        p: '8px',
-        borderColor: theme.palette.grey['600'],
+        p: '12px',
         overflow: 'initial',
     }),
+    // The "paste here" placeholder stays dashed - it is not a real card yet
     cardPaste: (theme: IobTheme): any => ({
-        borderColor: theme.palette.mode === 'dark' ? theme.palette.grey['400'] : theme.palette.grey['800'],
+        borderStyle: 'dashed',
+        borderColor: theme.palette.text.disabled,
         backgroundColor: 'rgba(0,0,0,0)',
         opacity: 0.8,
     }),
@@ -46,6 +49,7 @@ const styles: Record<string, any> = {
             p: 0,
         },
     },
+    // see the comment on `styles.shortFields` in Line.tsx
     shortFields: (theme: IobTheme): any => ({
         display: 'block',
         '& > div': {
@@ -53,12 +57,13 @@ const styles: Record<string, any> = {
             pr: '20px',
             width: 200,
         },
-        pb: '16px',
-        borderBottom: `1px dotted ${theme.palette.grey[400]}`,
+        p: '12px',
+        mb: '8px',
+        borderRadius: '8px',
+        border: `1px solid ${theme.palette.divider}`,
     }),
     shortFieldsLast: {
-        borderBottom: 0,
-        paddingBottom: 0,
+        mb: 0,
         position: 'relative',
     },
     shortLineIdField: {
@@ -114,28 +119,35 @@ const styles: Record<string, any> = {
         flexDirection: 'row',
         flex: 1,
     },
+    // see the comment on `styles.lineClosed` in Line.tsx - the row is aligned at its bottom so
+    // that all input underlines end up on one level
     lineClosedContainer: {
         display: 'flex',
-        alignItems: 'center',
-        gap: 4,
+        alignItems: 'flex-end',
+        gap: '4px',
+        '& .MuiInputAdornment-root .MuiIconButton-root': {
+            p: '2px',
+        },
+        '& > .MuiIconButton-root, & > span': {
+            alignSelf: 'center',
+        },
     },
     deleteButton: {},
     deleteButtonFull: {},
     copyButtonFull: {},
+    // Section caption above the fields - see the comment on `styles.title` in PresetTabs.tsx
     title: {
-        width: 'inherit',
-        position: 'absolute',
+        display: 'block',
+        width: '100%',
         whiteSpace: 'nowrap',
-        right: 0,
-        fontSize: 48,
-        opacity: 0.1,
-        lineHeight: '48px',
+        fontSize: 12,
+        fontWeight: 600,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+        opacity: 0.6,
+        lineHeight: '16px',
         padding: 0,
-        marginTop: 20,
-        marginLeft: 0,
-        marginRight: 0,
-        marginBottom: 0,
-        paddingRight: 40,
+        margin: '0 0 12px 0',
     },
 };
 
@@ -374,7 +386,10 @@ class Mark extends React.Component<MarkProps, MarkState> {
         }
 
         return (
-            <div style={styles.lineClosedContainer}>
+            <Box
+                component="div"
+                sx={styles.lineClosedContainer}
+            >
                 {this.props.onPaste ? (
                     <IconButton
                         title={I18n.t('Paste')}
@@ -487,7 +502,7 @@ class Mark extends React.Component<MarkProps, MarkState> {
                     <IconDelete />
                 </IconButton>
                 <div style={{ width: 30 }} />
-            </div>
+            </Box>
         );
     }
 

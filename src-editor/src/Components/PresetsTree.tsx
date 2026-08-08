@@ -22,6 +22,7 @@ import {
     Select,
     MenuItem,
     Box,
+    useTheme,
 } from '@mui/material';
 
 // icons
@@ -65,6 +66,7 @@ interface DroppableProps {
 
 export const Droppable: React.FC<DroppableProps> = (props: DroppableProps): React.JSX.Element => {
     const { onDrop } = props;
+    const theme = useTheme();
 
     const [{ isOver, isOverAny }, drop] = useDrop({
         accept: 'item',
@@ -83,7 +85,8 @@ export const Droppable: React.FC<DroppableProps> = (props: DroppableProps): Reac
                 drop(node);
             }}
             style={{
-                background: isOver ? '#40adff' : undefined,
+                background: isOver ? theme.palette.action.selected : undefined,
+                borderRadius: isOver ? 8 : undefined,
                 opacity: isOverAny ? 0.3 : undefined,
             }}
         >
@@ -144,10 +147,10 @@ const styles: Record<string, any> = {
             position: 'absolute',
             top: 2,
             right: 2,
-            width: 5,
-            height: 5,
-            borderRadius: 5,
-            background: theme.palette.mode === 'dark' ? '#CC0000' : '#CC0000',
+            width: 6,
+            height: 6,
+            borderRadius: 6,
+            background: theme.palette.error.main,
         },
     }),
     itemIcon: {
@@ -168,7 +171,7 @@ const styles: Record<string, any> = {
         position: 'relative',
     }),
     folderIconPreset: (theme: IobTheme): React.CSSProperties => ({
-        color: theme.palette.mode === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary.light,
+        color: theme.palette.secondary.main,
     }),
     width100: {
         width: '100%',
@@ -210,6 +213,7 @@ const styles: Record<string, any> = {
         textOverflow: 'ellipsis',
         width: '100%',
     },
+    // The number sits on top of the (primary colored) preset icon
     itemIconNumber: (theme: IobTheme): React.CSSProperties => ({
         position: 'absolute',
         fontSize: 12,
@@ -217,15 +221,22 @@ const styles: Record<string, any> = {
         left: -1,
         width: '100%',
         textAlign: 'center',
-        color: theme.palette.mode === 'dark' ? '#000' : '#FFF',
+        color: theme.palette.primary.contrastText,
     }),
-    textColor: (theme: IobTheme): React.CSSProperties => ({
-        color: theme.palette.mode === 'dark' ? '#FFF !important' : '#000 !important',
-    }),
+    // The admin 8 marks a selected row with a primary tint and an accent bar, not with a filled
+    // background. `Mui-selected` of the "modern" themes would fill the row with a gradient, which
+    // is meant for the navigation and swallows the colored icons of the tree.
     selected: (theme: IobTheme): any => ({
-        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.16)' : theme.palette.primary.light,
+        background: theme.palette.action.selected,
+        color: theme.palette.text.primary,
+        // an inset shadow instead of a real border: a border would widen the row and let the
+        // content jump by 2px as soon as it gets selected
+        boxShadow: `inset 2px 0 0 ${theme.palette.primary.main}`,
+        '& .MuiListItemIcon-root': {
+            color: theme.palette.primary.main,
+        },
         '&:hover': {
-            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.10)' : '#76d0fd80',
+            background: theme.palette.action.selected,
         },
     }),
 };
@@ -495,7 +506,6 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                                 size="small"
                                 aria-label="Rename"
                                 title={I18n.t('Rename')}
-                                sx={styles.textColor}
                                 onClick={e => {
                                     e.stopPropagation();
                                     this.setState({
@@ -519,14 +529,12 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                             size="small"
                             aria-label="Copy"
                             title={I18n.t('Copy')}
-                            sx={styles.textColor}
                             onClick={() => this.props.onCopyPreset(preset._id)}
                         >
                             <IconCopy style={styles.iconCopy} />
                         </IconButton>
                         <IconButton
                             size="small"
-                            sx={styles.textColor}
                             aria-label="Delete"
                             title={I18n.t('Delete')}
                             onClick={() => this.setState({ deletePresetDialog: preset._id })}
@@ -612,7 +620,6 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                             {!this.props.reorder && parent && parent.id && presetsOpened ? (
                                 <IconButton
                                     size="small"
-                                    sx={styles.textColor}
                                     onClick={() => this.props.onCreatePreset(false, parent.id)}
                                     title={I18n.t('Create new preset')}
                                 >
@@ -622,7 +629,6 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                             {!this.props.reorder ? (
                                 <IconButton
                                     size="small"
-                                    sx={styles.textColor}
                                     onClick={() =>
                                         this.setState({
                                             editPresetFolderDialog: parent,
@@ -639,7 +645,6 @@ class PresetsTree extends Component<PresetsTreeProps, PresetsTreeState> {
                                 <IconButton
                                     size="small"
                                     onClick={() => this.togglePresetsFolder(parent)}
-                                    sx={styles.textColor}
                                     title={presetsOpened ? I18n.t('Collapse') : I18n.t('Expand')}
                                 >
                                     <IconExpand

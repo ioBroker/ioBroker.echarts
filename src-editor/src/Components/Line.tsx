@@ -11,6 +11,7 @@ import {
     Button,
     TextField,
     Box,
+    alpha,
 } from '@mui/material';
 
 import {
@@ -43,15 +44,18 @@ const WIDTHS = {
 
 const styles: Record<string, any> = {
     card: (theme: IobTheme): any => ({
-        borderStyle: 'dashed',
+        borderStyle: 'solid',
         borderWidth: 1,
+        borderColor: theme.palette.divider,
+        borderRadius: '12px',
         mb: '8px',
-        p: '8px',
-        borderColor: theme.palette.grey['600'],
+        p: '12px',
         overflow: 'initial',
     }),
+    // The "paste here" placeholder stays dashed - it is not a real card yet
     cardPaste: (theme: IobTheme): React.CSSProperties => ({
-        borderColor: theme.palette.mode === 'dark' ? theme.palette.grey['400'] : theme.palette.grey['800'],
+        borderStyle: 'dashed',
+        borderColor: theme.palette.text.disabled,
         backgroundColor: 'rgba(0,0,0,0)',
         opacity: 0.8,
     }),
@@ -62,6 +66,8 @@ const styles: Record<string, any> = {
             p: 0,
         },
     },
+    // Every chapter of an opened line is a small block of its own: rounded, outlined and tinted -
+    // the admin 8 groups settings in blocks instead of separating them by a dotted rule
     shortFields: (theme: IobTheme): any => ({
         display: 'flex',
         '& > div': {
@@ -72,28 +78,42 @@ const styles: Record<string, any> = {
         flexWrap: 'wrap',
         alignItems: 'center',
         position: 'relative',
-        pb: '16px',
-        borderBottom: `1px dotted ${theme.palette.grey[400]}`,
+        p: '12px',
+        mb: '8px',
+        borderRadius: '8px',
+        border: `1px solid ${theme.palette.divider}`,
     }),
+    // The fields of a line row do not have the same intrinsic height: an end adornment (the clear
+    // button) makes an input taller than a plain one, so centering them staggers the underlines.
+    // Aligning the row at its bottom puts every underline on one level, and shrinking the
+    // adornment buttons keeps the inputs - and with them the labels - at the same height.
+    // The leading and trailing icon buttons stay vertically centered.
     lineClosed: {
         display: 'flex',
-        gap: 4,
-        alignItems: 'center',
+        gap: '4px',
+        alignItems: 'flex-end',
+        // The clear buttons are handed to `slotProps.input` without an `InputAdornment` wrapper,
+        // so they sit directly inside `.MuiInput-root` and would otherwise stretch it.
+        '& .MuiInput-root .MuiIconButton-root': {
+            p: '1px',
+        },
+        '& > .MuiIconButton-root, & > span': {
+            alignSelf: 'center',
+        },
     },
+    // Section caption above the fields - see the comment on `styles.title` in PresetTabs.tsx
     title: {
-        width: 'inherit',
-        position: 'absolute',
+        display: 'block',
+        width: '100%',
         whiteSpace: 'nowrap',
-        right: 0,
-        fontSize: 48,
-        opacity: 0.1,
-        lineHeight: '48px',
+        fontSize: 12,
+        fontWeight: 600,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+        opacity: 0.6,
+        lineHeight: '16px',
         padding: 0,
-        marginTop: 20,
-        marginLeft: 0,
-        marginRight: 0,
-        marginBottom: 0,
-        paddingRight: 10,
+        margin: '0 0 12px 0',
     },
     shortFieldsLast: {
         borderBottom: '0px',
@@ -159,21 +179,23 @@ const styles: Record<string, any> = {
         width: 16,
     },
 
-    chapterMain: {
-        backgroundColor: 'rgba(3,104,255,0.1)',
-    },
-    chapterTexts: {
-        backgroundColor: 'rgba(101,253,0,0.1)',
-    },
-    chapterLine: {
-        backgroundColor: 'rgba(255,20,0,0.1)',
-    },
-    chapterAxis: {
-        backgroundColor: 'rgba(179,2,255,0.1)',
-    },
-    chapterOther: {
-        backgroundColor: 'rgba(255,146,0,0.1)',
-    },
+    // The chapters used to be tinted with fixed, fully saturated colors. They keep their color
+    // coding, but take it from the palette now and stay far quieter than before.
+    chapterMain: (theme: IobTheme): any => ({
+        backgroundColor: alpha(theme.palette.primary.main, 0.06),
+    }),
+    chapterTexts: (theme: IobTheme): any => ({
+        backgroundColor: alpha(theme.palette.success.main, 0.06),
+    }),
+    chapterLine: (theme: IobTheme): any => ({
+        backgroundColor: alpha(theme.palette.error.main, 0.06),
+    }),
+    chapterAxis: (theme: IobTheme): any => ({
+        backgroundColor: alpha(theme.palette.info.main, 0.06),
+    }),
+    chapterOther: (theme: IobTheme): any => ({
+        backgroundColor: alpha(theme.palette.warning.main, 0.06),
+    }),
     states: {
         verticalAlign: 'top',
         marginTop: 12,
@@ -419,11 +441,13 @@ export default class Line extends React.Component<LineProps, LineState> {
         }
 
         return (
-            <div style={styles.lineClosed}>
+            <Box
+                component="div"
+                sx={styles.lineClosed}
+            >
                 {this.props.provided ? (
                     <span
                         title={I18n.t('Drag me')}
-                        style={{ marginTop: 4 }}
                         {...this.props.provided.dragHandleProps}
                     >
                         <IconDrag />
@@ -610,7 +634,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                     <IconDelete />
                 </IconButton>
                 <div style={{ width: 30 }} />
-            </div>
+            </Box>
         );
     }
 
@@ -825,7 +849,10 @@ export default class Line extends React.Component<LineProps, LineState> {
         return (
             <>
                 {/* Folder line */}
-                <div style={styles.lineClosed}>
+                <Box
+                    component="div"
+                    sx={styles.lineClosed}
+                >
                     {this.props.provided ? (
                         <span
                             title={I18n.t('Drag me')}
@@ -872,7 +899,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         <IconDelete />
                     </IconButton>
                     <div style={{ width: 30 }} />
-                </div>
+                </Box>
                 {/* Source and OID */}
                 <Box
                     component="div"
@@ -1492,7 +1519,7 @@ export default class Line extends React.Component<LineProps, LineState> {
             <Card
                 sx={Utils.getStyle(this.props.theme, styles.card, this.props.onPaste && styles.cardPaste)}
                 style={{
-                    background: this.props.snapshot?.isDragging ? this.props.theme.palette.secondary.light : undefined,
+                    background: this.props.snapshot?.isDragging ? this.props.theme.palette.action.selected : undefined,
                 }}
             >
                 <CardContent sx={styles.cardContent}>

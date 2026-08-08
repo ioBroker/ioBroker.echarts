@@ -15,7 +15,7 @@ const styles: Record<'logBox' | 'logBoxInner', any> = {
         overflow: 'hidden',
     },
     logBoxInner: (theme: IobTheme): React.CSSProperties => ({
-        color: theme.palette.mode === 'dark' ? 'white' : 'black',
+        color: theme.palette.text.primary,
         width: `calc(100% - ${TOOLBOX_WIDTH}px)`,
         height: '100%',
         marginLeft: TOOLBOX_WIDTH,

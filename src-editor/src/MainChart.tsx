@@ -4,7 +4,7 @@ import { Timeline } from '@mui/icons-material';
 
 import type { IobTheme } from '@iobroker/gui-components';
 
-import ChartSettings from './Components/ChartSettings';
+import ChartSettings, { TOOLBAR_HEIGHT } from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
 import type { ChartConfigMore, SelectedChart } from '../../src/types';
 
@@ -15,7 +15,7 @@ const styles: Record<'container' | 'heightWithoutToolbar' | 'height100', React.C
         overflow: 'hidden',
     },
     heightWithoutToolbar: {
-        height: 'calc(100% - 48px)',
+        height: `calc(100% - ${TOOLBAR_HEIGHT}px)`,
     },
     height100: {
         height: '100%',

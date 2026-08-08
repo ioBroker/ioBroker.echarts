@@ -77,33 +77,60 @@ interface Folder {
     prefix: string;
 }
 
+/** Height of the app bar. Same value as `mixins.toolbar` of the admin 8 themes */
+const TOOLBAR_HEIGHT = 52;
+
 const styles: Record<string, any> = {
-    root: (theme: IobTheme): React.CSSProperties => ({
+    root: (theme: IobTheme): any => ({
+        // `boxSizing` explicitly: without a `CssBaseline` the border box is not the default, and
+        // the padding would be added to the height calculated here
+        boxSizing: 'border-box',
         width: '100%',
-        height: 'calc(100% - 48px)',
+        height: `calc(100% - ${TOOLBAR_HEIGHT}px)`,
         position: 'relative',
-        color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-        backgroundColor: theme.palette.mode === 'dark' ? '#000' : '#fff',
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.background.default,
         overflowX: 'hidden',
         overflowY: 'auto',
         display: 'flex',
         flexWrap: 'wrap',
         alignContent: 'flex-start',
+        p: '8px',
+        gap: '8px',
     }),
-    slider: {
-        color: '#FFF !important',
+    // Flat app bar on `paper` with a hairline at the bottom - the admin 8 app bar
+    appBar: (theme: IobTheme): any => ({
+        background: theme.palette.background.paper,
+        boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
+        color: theme.palette.text.primary,
+        '& .MuiToolbar-root': {
+            minHeight: TOOLBAR_HEIGHT,
+            height: TOOLBAR_HEIGHT,
+        },
+    }),
+    toolbarTitle: {
+        margin: 0,
+        marginLeft: 8,
+        fontSize: 14,
+        fontWeight: 600,
+        whiteSpace: 'nowrap',
     },
-    toolbarTitle: {},
-    button: {
+    // Preset and folder tiles are cards: outlined, rounded and lifted a bit while hovered
+    button: (theme: IobTheme): any => ({
         width: 128,
-        borderRadius: 10,
-        border: '1px dashed #888',
-        padding: 10,
-        margin: 5,
+        borderRadius: '12px',
+        border: `1px solid ${theme.palette.divider}`,
+        backgroundColor: theme.palette.background.paper,
+        padding: '10px',
         textAlign: 'center',
         cursor: 'pointer',
         position: 'relative',
-    },
+        transition: 'background-color 0.2s ease-in-out, border-color 0.2s ease-in-out',
+        '&:hover': {
+            backgroundColor: theme.palette.action.hover,
+            borderColor: theme.palette.primary.main,
+        },
+    }),
     folderIcon: (theme: IobTheme): any => ({
         '& svg': {
             width: 'calc(100% - 28px)',
@@ -118,25 +145,33 @@ const styles: Record<string, any> = {
     }),
     folderName: {
         display: 'block',
-        fontSize: 16,
+        fontSize: 14,
+        fontWeight: 500,
         width: '100%',
         textAlign: 'center',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     },
     presetIcon: {
         width: 'calc(100% - 6px)',
     },
     presetName: {
         display: 'block',
-        fontSize: 16,
+        fontSize: 14,
+        fontWeight: 500,
         width: '100%',
         textAlign: 'center',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     },
-    presetError: {
-        color: '#FF0000',
+    presetError: (theme: IobTheme): any => ({
+        color: theme.palette.error.main,
         display: 'block',
         fontSize: '0.8em',
         fontStyle: 'italic',
-    },
+    }),
     break: {
         flexBasis: '100%',
         height: 0,
@@ -507,8 +542,14 @@ class App extends Component<object, AppState> {
     toggleTheme(): void {
         const themeName = this.state.themeName;
 
-        // dark => blue => colored => light => dark
-        const newThemeName = themeName === 'dark' ? 'light' : 'dark';
+        // Stay inside the theme family: the admin 8 themes ("modern*") must not fall back to their
+        // legacy predecessors just because the user flipped dark/light here.
+        let newThemeName: ThemeName;
+        if (themeName === 'modernDark' || themeName === 'modernLight') {
+            newThemeName = themeName === 'modernDark' ? 'modernLight' : 'modernDark';
+        } else {
+            newThemeName = themeName === 'dark' ? 'light' : 'dark';
+        }
 
         Utils.setThemeName(newThemeName);
 
@@ -746,14 +787,13 @@ class App extends Component<object, AppState> {
             reactItems.push(
                 <Box
                     component="div"
-                    style={styles.button}
                     key="__back__"
                     onClick={() => {
                         const location = [...this.state.location];
                         location.pop();
                         window.location.hash = `#${location.join('/')}`;
                     }}
-                    sx={styles.folderIcon}
+                    sx={Utils.getStyle(this.state.theme, styles.button, styles.folderIcon)}
                 >
                     <KeyboardReturn />
                     <div style={styles.folderName}>{I18n.t('back')}</div>
@@ -769,14 +809,13 @@ class App extends Component<object, AppState> {
                 reactItems.push(
                     <Box
                         component="div"
-                        style={styles.button}
                         key={name}
                         onClick={() => {
                             const location = [...this.state.location];
                             location.push(name);
                             window.location.hash = `#${location.join('/')}`;
                         }}
-                        sx={styles.folderIcon}
+                        sx={Utils.getStyle(this.state.theme, styles.button, styles.folderIcon)}
                     >
                         <IconFolderClosed />
                         <div style={styles.folderName}>{name}</div>
@@ -828,9 +867,11 @@ class App extends Component<object, AppState> {
                 // Snapshot fetching is triggered in componentDidUpdate, not during render
 
                 reactItems.push(
-                    <div
+                    <Box
+                        component="div"
                         key={name}
-                        style={{ ...styles.button, width: this.state.iconSize }}
+                        sx={styles.button}
+                        style={{ width: this.state.iconSize }}
                         onClick={e => {
                             if (webUrls.length > 1) {
                                 this.setState({
@@ -866,7 +907,12 @@ class App extends Component<object, AppState> {
                                 : preset.common.name}
                         </div>
                         {this.state.icons[preset._id] && this.state.icons[preset._id].startsWith('error:') ? (
-                            <div style={styles.presetError}>{this.state.icons[preset._id].substring(6)}</div>
+                            <Box
+                                component="div"
+                                sx={styles.presetError}
+                            >
+                                {this.state.icons[preset._id].substring(6)}
+                            </Box>
                         ) : null}
                         <IconButton
                             size="small"
@@ -890,7 +936,7 @@ class App extends Component<object, AppState> {
                         >
                             <ContentCopy />
                         </IconButton>
-                    </div>,
+                    </Box>,
                 );
             });
         }
@@ -946,7 +992,6 @@ class App extends Component<object, AppState> {
                     <Slider
                         min={64}
                         max={512}
-                        style={styles.slider}
                         value={this.state.iconSize}
                         onChange={(_e: Event, iconSize: number): void => {
                             window.localStorage.setItem('echarts.iconSize', iconSize.toString());
@@ -1042,9 +1087,9 @@ class App extends Component<object, AppState> {
                 <ThemeProvider theme={this.state.theme}>
                     <AppBar
                         position="static"
-                        style={styles.appBar}
+                        sx={styles.appBar}
                     >
-                        <Toolbar variant="dense">
+                        <Toolbar>
                             {this.isWeb ? null : (
                                 <IconButton
                                     title={I18n.t('Back to editor')}
@@ -1089,7 +1134,7 @@ class App extends Component<object, AppState> {
                                 {this.state.showSlider ? <ImageNotSupported /> : <AddPhotoAlternate />}
                             </IconButton>
                             <IconButton
-                                style={{ color: this.state.alive ? '#0F0' : '#FF0' }}
+                                sx={{ color: this.state.alive ? 'success.main' : 'warning.main' }}
                                 onClick={() => {
                                     Object.keys(this.iconsCache).forEach(key => {
                                         delete this.iconsCache[key];

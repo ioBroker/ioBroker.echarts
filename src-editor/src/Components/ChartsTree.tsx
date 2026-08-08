@@ -132,14 +132,24 @@ const styles: Record<string, any> = {
     listItemSecondaryAction: {
         marginRight: 4,
     },
+    // Group header of an instance: a quiet band with a hairline, like the table headers of admin 8.
+    // It used to be filled with the secondary color and needed white text on top of it.
     folderItem: (theme: IobTheme): any => ({
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.action.hover,
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        color: theme.palette.text.primary,
         pl: '8px',
     }),
+    // see the comment of `styles.selected` in PresetsTree.tsx
     selected: (theme: IobTheme): any => ({
-        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.16)' : theme.palette.primary.light,
+        background: theme.palette.action.selected,
+        color: theme.palette.text.primary,
+        boxShadow: `inset 2px 0 0 ${theme.palette.primary.main}`,
+        '& .MuiListItemIcon-root': {
+            color: theme.palette.primary.main,
+        },
         '&:hover': {
-            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(77, 171, 245, 0.10)' : '#76d0fd80',
+            background: theme.palette.action.selected,
         },
     }),
 };
@@ -915,13 +925,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                     this.props.theme,
                                                     styles.width100,
                                                     styles.folderItem,
-                                                    {
-                                                        height: 48,
-                                                        color:
-                                                            this.props.theme.palette.mode === 'dark'
-                                                                ? undefined
-                                                                : '#FFF',
-                                                    },
+                                                    { height: 48 },
                                                     {
                                                         '&.MuiListItem-gutters': styles.noGutters,
                                                     },
@@ -934,12 +938,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                                 onClick={() =>
                                                                     this.setState({ showAddStateDialog: group._id })
                                                                 }
-                                                                style={{
-                                                                    color:
-                                                                        this.props.theme.palette.mode === 'dark'
-                                                                            ? undefined
-                                                                            : '#FFF',
-                                                                }}
                                                                 title={I18n.t('Enable logging for new state')}
                                                             >
                                                                 <IconAdd />
@@ -949,12 +947,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                             size="small"
                                                             onClick={() => this.toggleChartFolder(group._id)}
                                                             title={opened ? I18n.t('Collapse') : I18n.t('Expand')}
-                                                            style={{
-                                                                color:
-                                                                    this.props.theme.palette.mode === 'dark'
-                                                                        ? undefined
-                                                                        : '#FFF',
-                                                            }}
                                                         >
                                                             <IconExpand
                                                                 style={{
@@ -970,12 +962,6 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                             >
                                                 <ListItemIcon
                                                     style={styles.itemIconRoot}
-                                                    sx={{
-                                                        color:
-                                                            this.props.theme.palette.mode === 'dark'
-                                                                ? undefined
-                                                                : '#FFF',
-                                                    }}
                                                     onClick={() => this.toggleChartFolder(group._id)}
                                                 >
                                                     {opened ? (

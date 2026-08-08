@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { IconButton, TextField, Toolbar, InputLabel, Select, MenuItem, FormControl } from '@mui/material';
+import { Box, IconButton, TextField, Toolbar, InputLabel, Select, MenuItem, FormControl } from '@mui/material';
 
 // icons
 import {
@@ -20,7 +20,8 @@ import ChartsTree from './Components/ChartsTree';
 import Switch from './Components/Switch';
 import type { ChartConfigMore } from '../../src/types';
 
-const TOOLBAR_HEIGHT = 48;
+/** Height of one toolbar. Same value as `mixins.toolbar` of the admin 8 themes */
+const TOOLBAR_HEIGHT = 52;
 
 const styles: Record<string, any> = {
     mainListDiv: {
@@ -28,12 +29,24 @@ const styles: Record<string, any> = {
         height: '100%',
         overflow: 'hidden',
     },
-    mainToolbar: (theme: IobTheme): React.CSSProperties => ({
-        background: theme.palette.primary.main,
+    // Both toolbars are flat surfaces separated by a hairline - the admin 8 app bar look.
+    // The height is set explicitly because `heightMinusToolbar(s)` below does the layout math
+    // with it and must not drift apart from what the theme happens to define.
+    mainToolbar: (theme: IobTheme): any => ({
+        background: theme.palette.background.paper,
+        boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
+        minHeight: TOOLBAR_HEIGHT,
+        height: TOOLBAR_HEIGHT,
+        px: '8px',
+        gap: '4px',
     }),
-    secondaryColors: (theme: IobTheme): React.CSSProperties => ({
-        background: '#888',
-        color: theme.palette.mode === 'dark' ? '#000' : '#FFF',
+    footerToolbar: (theme: IobTheme): any => ({
+        background: theme.palette.background.paper,
+        boxShadow: `inset 0 1px 0 ${theme.palette.divider}`,
+        color: theme.palette.text.primary,
+        minHeight: TOOLBAR_HEIGHT,
+        height: TOOLBAR_HEIGHT,
+        px: '8px',
     }),
     smallMargin: {
         marginTop: '8px !important',
@@ -46,9 +59,6 @@ const styles: Record<string, any> = {
         height: `calc(100% - ${TOOLBAR_HEIGHT}px)`,
         overflow: 'auto',
     },
-    textColor: (theme: IobTheme): React.CSSProperties => ({
-        color: theme.palette.mode === 'dark' ? '#000 !important' : '#FFF !important',
-    }),
 };
 
 interface MenuListProps {
@@ -118,7 +128,6 @@ class MenuList extends Component<MenuListProps, MenuListState> {
         return (
             <Toolbar
                 key="toolbar"
-                variant="dense"
                 sx={styles.mainToolbar}
             >
                 {!this.state.reorder ? (
@@ -165,13 +174,18 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                     />
                 ) : null}
                 <div style={{ flexGrow: 1 }} />
-                <div style={{ opacity: 0.7, fontSize: 12 }}>v{this.props.version}</div>
+                <Box
+                    component="div"
+                    sx={{ color: 'text.secondary', fontSize: 12, whiteSpace: 'nowrap' }}
+                >
+                    v{this.props.version}
+                </Box>
 
                 {(!this.state.showSearch && this.state.showReorder) || this.state.reorder ? (
                     <IconButton
                         key="reorder"
                         title={I18n.t('Reorder presets in folders')}
-                        style={{ color: this.state.reorder ? 'red' : 'inherit', float: 'right' }}
+                        sx={{ color: this.state.reorder ? 'error.main' : undefined, float: 'right' }}
                         onClick={e => {
                             e.stopPropagation();
                             this.setState({ reorder: !this.state.reorder });
@@ -197,8 +211,7 @@ class MenuList extends Component<MenuListProps, MenuListState> {
         return (
             <Toolbar
                 key="toolbarBottom"
-                variant="dense"
-                sx={styles.secondaryColors}
+                sx={styles.footerToolbar}
                 style={{ gap: 8 }}
             >
                 {!this.props.selectedPresetChanged ? (
@@ -253,11 +266,9 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                 <FormControl
                     variant="standard"
                     style={{ minWidth: 100 }}
-                    sx={styles.textColor}
                 >
                     <InputLabel
                         shrink
-                        sx={styles.textColor}
                         style={{ whiteSpace: 'nowrap', top: 5 }}
                     >
                         {I18n.t('Group by')}
@@ -265,7 +276,6 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                     <Select
                         variant="standard"
                         label={I18n.t('Group by')}
-                        sx={styles.textColor}
                         onChange={e => {
                             window.localStorage.setItem('App.echarts.groupBy', e.target.value);
                             this.setState({ groupBy: e.target.value as '' | 'rooms' | 'functions' });
@@ -282,7 +292,6 @@ class MenuList extends Component<MenuListProps, MenuListState> {
                 <div style={{ flex: 1 }} />
                 <IconButton
                     size="small"
-                    sx={styles.textColor}
                     title={I18n.t('Charts preview')}
                     onClick={() => {
                         const parts = window.location.pathname.split('/');

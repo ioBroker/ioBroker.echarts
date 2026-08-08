@@ -70,6 +70,18 @@ const styles: Record<string, React.CSSProperties> = {
     },
 };
 
+/**
+ * The progress line sits directly on the upper edge of the chart. The admin 8 themes give
+ * `MuiLinearProgress` a height of 6px and rounded ends, which would look like a floating pill here.
+ */
+const progressSx: Record<string, any> = {
+    height: 3,
+    borderRadius: 0,
+    '& .MuiLinearProgress-bar': {
+        borderRadius: 0,
+    },
+};
+
 type AppProps = object;
 
 interface AppState {
@@ -392,6 +404,7 @@ class App extends Component<AppProps, AppState> {
                     >
                         <LinearProgress
                             ref={this.progressRef}
+                            sx={progressSx}
                             style={styles.progress}
                         />
                         <ChartView

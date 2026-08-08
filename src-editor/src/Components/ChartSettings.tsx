@@ -40,10 +40,21 @@ const WIDTHS = {
     bigButton: 200,
 };
 
+/**
+ * Height of the settings toolbar. Exported because `MainChart` subtracts it from the available
+ * height - the two must not drift apart.
+ */
+export const TOOLBAR_HEIGHT = 52;
+
 const styles: Record<string, any> = {
-    mainDiv: {
-        gap: 2,
-    },
+    mainToolbar: (theme: IobTheme): any => ({
+        background: theme.palette.background.paper,
+        boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
+        minHeight: TOOLBAR_HEIGHT,
+        height: TOOLBAR_HEIGHT,
+        px: '8px',
+        gap: '8px',
+    }),
     fieldsContainer: {
         '& > div': {
             display: 'flex',
@@ -68,10 +79,15 @@ const styles: Record<string, any> = {
         paddingTop: 6,
     },
     settingsButton: {
-        color: 'currentColor',
-        fontSize: 16,
+        fontSize: 14,
+        fontWeight: 500,
         textTransform: 'inherit',
         flexGrow: 1,
+        justifyContent: 'flex-start',
+        gap: 6,
+        minWidth: 0,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
     },
     grow1: {
         flexGrow: 2,
@@ -80,11 +96,13 @@ const styles: Record<string, any> = {
         marginTop: 4,
     },
     divider: (theme: IobTheme): React.CSSProperties => ({
-        borderLeftColor: theme.palette.mode === 'dark' ? '#CCC' : '#444',
-        borderLeftStyle: 'dotted',
+        borderLeftColor: theme.palette.divider,
+        borderLeftStyle: 'solid',
         borderLeftWidth: '1px',
         width: '1px',
-        height: '80%',
+        height: 24,
+        alignSelf: 'center',
+        flex: '0 0 auto',
     }),
 };
 
@@ -622,8 +640,7 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
         return (
             <Toolbar
                 ref={this.toolbarRef}
-                style={styles.mainDiv}
-                variant="dense"
+                sx={styles.mainToolbar}
             >
                 {this.renderShowMore()}
                 {visible.timeSpan ? this.renderTimeSpan() : null}

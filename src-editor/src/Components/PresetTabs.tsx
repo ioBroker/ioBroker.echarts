@@ -48,20 +48,36 @@ import type {
     ThemeChartType,
 } from '../../../src/types';
 
+/** Height of the tab bar. Same value as `mixins.toolbar` of the admin 8 themes */
+const TAB_BAR_HEIGHT = 52;
+
 const styles: Record<string, any> = {
     tabsBody: {
         overflowY: 'auto',
         flex: 1,
-        height: 'calc(100% - 48px)',
+        height: `calc(100% - ${TAB_BAR_HEIGHT}px)`,
     },
-    tabsContainer: {
+    tabsContainer: (theme: IobTheme): any => ({
         flexDirection: 'row',
-    },
-    tabContent: {
-        padding: 8,
+        alignItems: 'center',
+        minHeight: TAB_BAR_HEIGHT,
+        height: TAB_BAR_HEIGHT,
+        px: '4px',
+        background: theme.palette.background.paper,
+        boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
+    }),
+    // The settings of a preset live on a card, like every content block of the admin 8.
+    // `boxSizing` explicitly, because the admin renders no `CssBaseline` - so the border box is
+    // not the default here and `minHeight` would otherwise exclude padding and border.
+    tabContent: (theme: IobTheme): any => ({
+        boxSizing: 'border-box',
+        p: '16px',
+        m: '8px',
         position: 'relative',
-        minHeight: 'calc(100% - 32px)',
-    },
+        minHeight: 'calc(100% - 16px)',
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: '12px',
+    }),
     buttonAdd: {
         position: 'absolute',
         top: 8,
@@ -83,13 +99,9 @@ const styles: Record<string, any> = {
         zIndex: 3,
     },
     button: {
-        height: 40,
-        width: 40,
-        marginTop: 5,
-        marginLeft: 5,
-    },
-    buttonSave: {
-        color: '#CC0000',
+        height: 36,
+        width: 36,
+        marginLeft: 4,
     },
     noContent: {
         padding: 8,
@@ -107,9 +119,17 @@ const styles: Record<string, any> = {
     marginTop: {
         marginTop: 16,
     },
-    noPaddingOnSide: {
-        // paddingRight: 0,
-        // paddingLeft: 0,
+    // The tab bar is one single surface: the app bar already draws the hairline at its bottom,
+    // so the `borderBottom` that the admin 8 themes give to `MuiTabs` would double it.
+    tabs: {
+        flex: 1,
+        // scrollable tabs must be allowed to shrink, otherwise they push the bar wider
+        minWidth: 0,
+        minHeight: TAB_BAR_HEIGHT,
+        borderBottom: 0,
+        '& .MuiTab-root': {
+            minHeight: TAB_BAR_HEIGHT,
+        },
     },
     group: (theme: IobTheme): any => ({
         display: 'block',
@@ -120,22 +140,23 @@ const styles: Record<string, any> = {
         },
         position: 'relative',
         pb: '16px',
-        borderBottom: `1px dotted ${theme.palette.grey[400]}`,
+        mb: '8px',
+        borderBottom: `1px solid ${theme.palette.divider}`,
     }),
+    // The section headline used to be a 48px watermark in the right upper corner of the group.
+    // The admin 8 labels its sections with a small, quiet caption above the fields instead.
     title: {
-        width: 'inherit',
-        position: 'absolute',
+        display: 'block',
+        width: '100%',
         whiteSpace: 'nowrap',
-        right: 0,
-        fontSize: 48,
-        opacity: 0.1,
-        lineHeight: '48px',
+        fontSize: 12,
+        fontWeight: 600,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+        opacity: 0.6,
+        lineHeight: '16px',
         padding: 0,
-        marginTop: 20,
-        marginLeft: 0,
-        marginRight: 0,
-        marginBottom: 0,
-        paddingRight: 10,
+        margin: '0 0 12px 0',
     },
     buttonCopyLink: {
         minHeight: 30,
@@ -143,12 +164,6 @@ const styles: Record<string, any> = {
         marginBottom: 10,
         marginLeft: 16,
     },
-    selected: (theme: IobTheme): React.CSSProperties => ({
-        color: theme.palette.mode === 'dark' ? undefined : '#FFF !important',
-    }),
-    indicator: (theme: IobTheme): React.CSSProperties => ({
-        backgroundColor: theme.palette.mode === 'dark' ? theme.palette.secondary.main : theme.palette.secondary.main,
-    }),
 };
 
 const PREDEFINED_COLORS_MARKS = [
@@ -162,12 +177,17 @@ const PREDEFINED_COLORS_MARKS = [
     '#ffa600',
 ];
 
-const getItemStyle = (isDragging: boolean, draggableStyle: React.CSSProperties): React.CSSProperties => ({
+const getItemStyle = (
+    theme: IobTheme,
+    isDragging: boolean,
+    draggableStyle: React.CSSProperties,
+): React.CSSProperties => ({
     // some basic styles to make the items look a bit nicer
     userSelect: 'none',
     width: '100%',
-    // change background colour if dragging
-    background: isDragging ? 'lightgreen' : 'grey',
+    // highlight the dragged line with the accent color instead of the old green/grey pair
+    background: isDragging ? theme.palette.action.selected : undefined,
+    borderRadius: isDragging ? 12 : undefined,
     // styles we need to apply on "draggable"s
     ...draggableStyle,
 });
@@ -617,20 +637,20 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                             ref={provided.innerRef}
                             style={{
                                 background: snapshot.isDraggingOver
-                                    ? this.props.theme.palette.secondary.dark
+                                    ? this.props.theme.palette.action.selected
                                     : undefined,
                                 width: '100%',
                                 minHeight: 'calc(100% - 32px)',
                             }}
                         >
                             <Paper
-                                style={styles.tabContent}
+                                sx={styles.tabContent}
                                 ref={this.paperLineRef}
                             >
                                 <Fab
                                     onClick={() => this.addLine()}
                                     size="small"
-                                    color="secondary"
+                                    color="primary"
                                     style={styles.buttonAdd}
                                     title={I18n.t('Add line to chart')}
                                 >
@@ -670,6 +690,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                                     ref={_provided.innerRef}
                                                     {..._provided.draggableProps}
                                                     style={getItemStyle(
+                                                        this.props.theme,
                                                         _snapshot.isDragging,
                                                         _provided.draggableProps.style,
                                                     )}
@@ -764,13 +785,13 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
 
         return (
             <Paper
-                style={styles.tabContent}
+                sx={styles.tabContent}
                 ref={this.paperMarkRef}
             >
                 <Fab
                     onClick={() => this.addMark()}
                     size="small"
-                    color="secondary"
+                    color="primary"
                     style={styles.buttonAdd}
                     title={I18n.t('Add marking line to chart')}
                 >
@@ -903,7 +924,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         }
 
         return (
-            <Paper style={styles.tabContent}>
+            <Paper sx={styles.tabContent}>
                 {anyNotJson ? (
                     <Box
                         component="div"
@@ -1276,7 +1297,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         const anyPolar = this.props.presetData.l.find(item => item.chartType === 'polar');
 
         return (
-            <Paper style={styles.tabContent}>
+            <Paper sx={styles.tabContent}>
                 {/* Legend line */}
                 <Box
                     component="div"
@@ -1570,7 +1591,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
 
     renderTabTitle(): React.JSX.Element {
         return (
-            <Paper style={styles.tabContent}>
+            <Paper sx={styles.tabContent}>
                 <Box
                     component="div"
                     sx={styles.group}
@@ -1635,7 +1656,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
 
     renderTabAppearance(): React.JSX.Element {
         return (
-            <Paper style={styles.tabContent}>
+            <Paper sx={styles.tabContent}>
                 {/* <h4>{I18n.t('Appearance')}</h4> */}
                 <Box
                     component="div"
@@ -2132,14 +2153,11 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
             <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
                 <AppBar
                     position="static"
-                    style={styles.tabsContainer}
+                    sx={styles.tabsContainer}
                 >
                     {this.props.selectedPresetChanged || this.props.autoSave ? (
                         <Checkbox
-                            style={{
-                                ...styles.button,
-                                color: this.props.theme.palette.text.primary,
-                            }}
+                            style={styles.button}
                             checked={!!this.props.autoSave}
                             title={I18n.t('Auto save')}
                             onChange={e => this.props.onAutoSave(e.target.checked)}
@@ -2147,7 +2165,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                     ) : null}
                     {!this.props.selectedPresetChanged ? (
                         <IconButton
-                            style={{ ...styles.button, ...styles.noPaddingOnSide }}
+                            style={styles.button}
                             onClick={() =>
                                 window.open(
                                     `chart/index.html?preset=${encodeURIComponent(this.props.selectedId)}`,
@@ -2161,11 +2179,8 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                     ) : null}
                     {!this.props.autoSave && this.props.selectedPresetChanged ? (
                         <IconButton
-                            style={{
-                                ...styles.noPaddingOnSide,
-                                ...styles.buttonSave,
-                                ...styles.button,
-                            }}
+                            style={styles.button}
+                            sx={{ color: 'error.main' }}
                             onClick={() => this.props.savePreset()}
                         >
                             <IconSave />
@@ -2182,39 +2197,33 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                         value={this.state.selectedTab || 'data'}
                         variant="scrollable"
                         scrollButtons
-                        sx={{ '& .MuiTabs-indicator': styles.indicator }}
+                        sx={styles.tabs}
                     >
                         <Tab
-                            sx={{ '&.Mui-selected': styles.selected }}
                             label={I18n.t('Data')}
                             value="data"
                         />
                         {anyPolar ? null : (
                             <Tab
-                                sx={{ '&.Mui-selected': styles.selected }}
                                 label={I18n.t('Markings')}
                                 value="markings"
                             />
                         )}
                         {!anyNotCurrent ? null : (
                             <Tab
-                                sx={{ '&.Mui-selected': styles.selected }}
                                 label={I18n.t('Time')}
                                 value="time"
                             />
                         )}
                         <Tab
-                            sx={{ '&.Mui-selected': styles.selected }}
                             label={I18n.t('Options')}
                             value="options"
                         />
                         <Tab
-                            sx={{ '&.Mui-selected': styles.selected }}
                             label={I18n.t('Title')}
                             value="title"
                         />
                         <Tab
-                            sx={{ '&.Mui-selected': styles.selected }}
                             label={I18n.t('Appearance')}
                             value="appearance"
                         />

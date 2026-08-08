@@ -5,10 +5,6 @@ import { type IobTheme, Utils } from '@iobroker/gui-components';
 import type { ChartConfigMore } from '../../../src/types';
 
 const styles: Record<string, any> = {
-    darkBackground: {
-        stroke: '#3a3a3a !important',
-        fill: '#515151 !important',
-    },
     iframe: (theme: IobTheme): React.CSSProperties => ({
         width: '100%',
         height: '100%',
@@ -159,7 +155,7 @@ class ChartFrame extends React.Component<ChartFrameProps> {
             return (
                 <Paper
                     sx={styles.iframe}
-                    style={{ background: '#333' }}
+                    style={{ background: this.props.theme.palette.background.paper }}
                 >
                     <pre>{JSON.stringify(this.props.presetData, null, 2)}</pre>
                 </Paper>

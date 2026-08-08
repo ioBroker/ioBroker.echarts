@@ -54,12 +54,22 @@ declare module '@mui/material/Button' {
 }
 
 const styles: Record<string, any> = {
-    root: (theme: IobTheme): React.CSSProperties => ({
+    // No `fontFamily` here on purpose: the theme brings its own (the admin 8 themes use Inter,
+    // the legacy ones Roboto). Hardcoding it would pin the editor to the old typography.
+    root: (theme: IobTheme): any => ({
         width: '100%',
         height: '100%',
         background: theme.palette.background.default,
-        color: theme.palette.mode === 'dark' ? '#FFF' : '#000',
-        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+        color: theme.palette.text.primary,
+        // The splitter gutter is the only "chrome" the layout draws itself - keep it as thin as
+        // an admin 8 divider and let it pick up the primary color while it is grabbed.
+        '& .layout-splitter': {
+            backgroundColor: theme.palette.divider,
+            transition: 'background-color 0.2s ease-in-out',
+        },
+        '& .layout-splitter:hover': {
+            backgroundColor: theme.palette.primary.main,
+        },
     }),
     menuDiv: {
         overflow: 'hidden',
@@ -84,18 +94,26 @@ const styles: Record<string, any> = {
     menuOpenCloseButton: (theme: IobTheme): any => ({
         position: 'absolute',
         left: 0,
-        borderRadius: '0 5px 5px 0',
-        top: 6,
-        pt: '8px',
+        borderRadius: '0 8px 8px 0',
+        top: 8,
         cursor: 'pointer',
         zIndex: 1,
-        height: 25,
-        width: 20,
-        background: theme.palette.secondary.main,
-        color: theme.palette.primary.main,
-        pl: '3px',
+        height: 28,
+        width: 22,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: theme.palette.background.paper,
+        border: `1px solid ${theme.palette.divider}`,
+        borderLeft: 0,
+        color: theme.palette.text.secondary,
+        transition: 'background-color 0.2s ease-in-out, color 0.2s ease-in-out',
+        '& svg': {
+            fontSize: 16,
+        },
         '&:hover': {
-            color: 'white',
+            background: theme.palette.action.hover,
+            color: theme.palette.primary.main,
         },
     }),
     buttonsContainer: {
