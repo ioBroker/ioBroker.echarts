@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "5.0.1",
+    "version": "5.0.2",
     "news": {
+      "5.0.2": {
+        "en": "Show a state under every history instance that logs it and not only under the first one\nFixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`",
+        "de": "Zeigen Sie einen Zustand unter jeder historischen Instanz, die es protokolliert und nicht nur unter dem ersten\nBehebt den Linienumbruch in den X-Achsen-Etiketten für die Zeitformate wie `HH:MM / dd.mm.yy`",
+        "ru": "Покажите государство в каждом историческом случае, которое регистрирует его, а не только в первом\nИсправлен разрыв линии в ярлыках оси X для форматов времени, таких как HH:MM / dd.mm.yy",
+        "pt": "Mostrar um estado sob cada instância de histórico que o regista e não apenas sob o primeiro\nCorrigido a quebra de linha nas etiquetas do eixo X para os formatos de tempo como `HH:MM / dd.mm.yy`",
+        "nl": "Toon een staat onder elke geschiedenis instantie die het logt en niet alleen onder de eerste\nDe regelbreuk in de X-as-labels voor de tijdformaten zoals ",
+        "fr": "Afficher un état sous chaque instance d'historique qui l'enregistre et pas seulement sous la première\nCorrection de la rupture de ligne dans les étiquettes de l'axe X pour les formats de temps comme `HH:MM / dd.mm.yy`",
+        "it": "Mostra uno stato sotto ogni istanza di storia che lo registra e non solo sotto il primo\nRisolto il break linea nelle etichette X-Axis per i formati di tempo come `H:MM / dd.mm.yy`",
+        "es": "Mostrar un estado bajo cada instancia de historia que lo registra y no sólo bajo el primero\nArreglado la rotura de línea en las etiquetas de eje X para los formatos de tiempo como `HH:MM / dd.mm.yy`",
+        "pl": "Pokaż stan pod każdą instancją historii, który loguje go i nie tylko pod pierwszą\nNaprawiono zerwanie linii w etykietach osi Xdla formatów czasowych takich jak 'HH: MM / dd.mm.rrrr'",
+        "uk": "Покажіть стан під кожним історичним екземпляром, який записує його і не тільки під першим\nВиправлено розрив лінії в мітках X для форматів часу, таких як `HH:MM / dd.mm.y`",
+        "zh-cn": "在每一个历史实例下显示一个记录它的状态,而不仅仅是第一个记录的状态\n固定 X 轴标签中的“ HH: MM / dd.mm.y” 等时间格式的换行符"
+      },
       "5.0.1": {
         "en": "Fixed server-side rendering hanging until the caller timed out (preview showed \"timeout\" for every preset)\nAligned the GUI of the editor, the preview and the chart with the admin 8 design\nFixed creating a preset in a folder",
         "de": "Feste serverseitige Wiedergabe hängt, bis der Anrufer ausgezeitet ist (Vorschau zeigt \"Timeout\" für jede Voreinstellung)\nAusrichtung der GUI des Editors, der Vorschau und des Diagramms mit dem Admin 8 Design\nFestlegen einer Voreinstellung in einem Ordner",
@@ -80,19 +93,6 @@
         "pl": "Próbując odbudować płótno na początku",
         "uk": "Спробувати перебудувати полотно стартом",
         "zh-cn": "试图在开始前重建画布"
-      },
-      "3.0.2": {
-        "en": "Calculate values in the legend\nAdded noLoader option to the widget",
-        "de": "Werte in der Legende berechnen\nNoLoader Option zum Widget hinzugefügt",
-        "ru": "Расчет ценностей в легенде\nДобавлена опция noLoader в виджет",
-        "pt": "Calcular valores na legenda\nAdicionada opção noLoader ao elemento",
-        "nl": "Bereken waarden in de legende\nNoLoader optie toegevoegd aan het widget",
-        "fr": "Calculer les valeurs dans la légende\nAjout de l'option noLoader au widget",
-        "it": "Calcola i valori nella leggenda\nAggiunto noLoader opzione al widget",
-        "es": "Calcular valores en la leyenda\nAñadido noLoader opción al widget",
-        "pl": "Oblicz wartości w legendzie\nDodano opcję noLoader do widget",
-        "uk": "Розрахунок значень в легенді\nДодано параметр noLoader до віджету",
-        "zh-cn": "在图例中计算值\n向部件添加无Loader 选项"
       }
     },
     "titleLang": {
