@@ -408,9 +408,9 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         const cache: { [id: string]: Promise<ioBroker.Object> } = {};
         // find all objects with history
         Object.values(objs).forEach((obj: ioBroker.StateObject): void => {
-            // find first instance with history
-            const id = instancesIds.find(_id => Object.keys(obj.common.custom).includes(_id));
-            if (id) {
+            // the state could be logged by more than one instance, so show it under every one of them
+            const ids = instancesIds.filter(_id => Object.keys(obj.common.custom).includes(_id));
+            ids.forEach(id => {
                 const instanceObj = this.props.instances.find(iObj => iObj._id.endsWith(id));
                 _instances[id] ||= {
                     _id: `system.adapter.${id}`,
@@ -422,12 +422,13 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                     types: {},
                     icons: {},
                 };
-                _instances[id].enabledDP[obj._id] = obj;
+                // copy, as the same object could be stored under several instances and every one gets its own group
+                _instances[id].enabledDP[obj._id] = { ...obj };
                 _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
                 _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
                 _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
                 iconPromises.push(this.getChartIconAndName(id, obj, cache));
-            }
+            });
         });
 
         const chartsOpened: Record<string, boolean> = JSON.parse(JSON.stringify(this.state.chartsOpened));

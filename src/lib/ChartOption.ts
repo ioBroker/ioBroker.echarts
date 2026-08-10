@@ -23,6 +23,9 @@ import type {
 
 type ThemeType = 'light' | 'dark';
 
+// The time formats offered in the editor use `<br />` (with spaces) as a line break, custom ones may use `<br/>`
+const BR_TAG = /\s*<\s*br\s*\/?\s*>\s*/gi;
+
 const THEMES: Record<ThemeChartType, string[]> = {
     azul: ['#f2385a', '#f5a503', '#4ad9d9', '#f7879c', '#c1d7a8', '#4dffd2', '#fccfd7', '#d5f6f6'],
     'bee-inspired': ['#001727', '#805500', '#ffff00', '#ffd11a', '#f2d71f', '#f2be19', '#f3a81a', '#fff5cc'],
@@ -926,7 +929,7 @@ class ChartOption {
 
     isXLabelHasBreak(): boolean {
         if (this.config.timeFormat) {
-            return this.config.timeFormat.replace('<br/>', '\n').includes('\n');
+            return this.config.timeFormat.replace(BR_TAG, '\n').includes('\n');
         }
         if (this.chart.withSeconds) {
             return true;
@@ -978,7 +981,9 @@ class ChartOption {
         }
 
         if (this.config.timeFormat) {
-            return this.moment(date).format(this.config.timeFormat).replace('<br/>', '\n');
+            // Replace the tag only after formatting: moment drops a `\n` from the format string,
+            // as its token regex ends with `.`, which does not match a line break
+            return this.moment(date).format(this.config.timeFormat).replace(BR_TAG, '\n');
         }
         let dateTxt = '';
         const dateInMonth = date.getDate();
