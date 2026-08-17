@@ -115,6 +115,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@Brainbug01) Fixed the white screen when opening the legend or export dialog
+
 ### 5.0.2 (2026-08-10)
 - (@GermanBluefox) Show a state under every history instance that logs it and not only under the first one
 - (@GermanBluefox) Fixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`
