@@ -954,7 +954,7 @@ class ChartOption {
             }
 
             if (this.config.aggregateBar === 60) {
-                return `.${_date.getDate()} ${_date.getHours().toString().padStart(2, '0')}:00`;
+                return `${_date.getDate()}. ${_date.getHours().toString().padStart(2, '0')}:00`;
             }
             if (this.config.aggregateBar === 15) {
                 return `${_date.getHours().toString().padStart(2, '0')}:${_date.getMinutes().toString().padStart(2, '0')}`;
@@ -963,9 +963,8 @@ class ChartOption {
                 return `${_date.getDate()}.${_date.getMonth() + 1}`;
             }
             if (this.config.aggregateBar === 43200) {
-                const middle = new Date(_date);
-                middle.setDate(middle.getDate() + 15);
-                return `${middle.getMonth() + 1}.${middle.getFullYear()}`;
+                // The category is the first day of the month, so no correction of the date is required
+                return `${_date.getMonth() + 1}.${_date.getFullYear()}`;
             }
         }
         const date = new Date(value);
