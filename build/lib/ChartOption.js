@@ -1132,7 +1132,9 @@ class ChartOption {
             return undefined;
         }
         const legend = {
-            data: this.config.l.map(oneLine => oneLine.name),
+            // Lines with `hideInLegend` are drawn, but get no entry. echarts shows every series that is
+            // not in `data`, so nothing else has to be done for them
+            data: this.config.l.filter(oneLine => !oneLine.hideInLegend).map(oneLine => oneLine.name),
             show: true,
             left: this.config.legend === 'nw' || this.config.legend === 'sw' ? this.chart.padLeft + 1 : undefined,
             right: this.config.legend === 'ne' || this.config.legend === 'se' ? this.chart.padRight + 1 : undefined,
@@ -1160,7 +1162,11 @@ class ChartOption {
         // if (legend.height) {
         //     legend.height = legend.height + 'px';
         // }
-        this.config.l.forEach(oneLine => (legend.selected[oneLine.name] = oneLine.hide !== true));
+        this.config.l.forEach(oneLine => {
+            if (!oneLine.hideInLegend) {
+                legend.selected[oneLine.name] = oneLine.hide !== true;
+            }
+        });
         return legend;
     }
     getTitle() {
