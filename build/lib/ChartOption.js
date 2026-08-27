@@ -267,6 +267,7 @@ class ChartOption {
     getSeries(data, theme) {
         this.chart.xMin = null;
         this.chart.xMax = null;
+        this.chart.seriesColors = [];
         let colorCount = 0;
         const anyNotOwnAxis = this.config.l.find((oneLine, i) => ChartOption.getCommonAxis(oneLine.commonYAxis, i) !== i);
         return this.config.l.map((oneLine, i) => {
@@ -274,6 +275,8 @@ class ChartOption {
             if (!oneLine.color) {
                 colorCount++;
             }
+            // `getVisualMap` needs the color that was really used, not only the configured one
+            this.chart.seriesColors[i] = color;
             oneLine.shadowsize = parseFloat(oneLine.shadowsize) || 0;
             if (oneLine.dashes === 'false') {
                 oneLine.dashes = false;
@@ -311,7 +314,8 @@ class ChartOption {
                     // step: oneLine.chartType === 'steps' ? 'end' : (oneLine.chartType === 'stepsStart' ? 'start' : undefined) ,
                     // smooth: oneLine.chartType === 'spline',
                     data: data[i],
-                    color,
+                    // With two colors the bars are colored by `visualMap`, an own color would win against it
+                    color: ChartOption.hasTwoColors(oneLine) ? undefined : color,
                 };
                 return cfg;
             }
@@ -408,22 +412,85 @@ class ChartOption {
                     },
                 };
                 if (parseFloat(oneLine.fill)) {
-                    let _color;
-                    if (!this.isTouch) {
-                        _color = getGradient(color);
+                    if (ChartOption.hasTwoColors(oneLine)) {
+                        // `visualMap` colors the line and the area, but only if no own area color is set
+                        _cfg.areaStyle = { opacity: parseFloat(oneLine.fill) || 0 };
                     }
                     else {
-                        _color = color;
+                        let _color;
+                        if (!this.isTouch) {
+                            _color = getGradient(color);
+                        }
+                        else {
+                            _color = color;
+                        }
+                        _cfg.areaStyle = {
+                            color: _color,
+                            opacity: parseFloat(oneLine.fill) || 0,
+                        };
                     }
-                    _cfg.areaStyle = {
-                        color: _color,
-                        opacity: parseFloat(oneLine.fill) || 0,
-                    };
                 }
                 cfg = _cfg;
             }
             return cfg;
         });
+    }
+    /**
+     * Is this line drawn in two colors, depending on the value? Radar has no value axis to compare with.
+     *
+     * @param oneLine configuration of the line
+     */
+    static hasTwoColors(oneLine) {
+        return !!oneLine.colorNegative && oneLine.chartType !== 'polar';
+    }
+    /**
+     * Build one `visualMap` per line that is drawn in two colors, e.g. green while a battery is charging
+     * and red while it is discharging. echarts colors every point by its value, so one single data source
+     * is enough and the chart shows one line and one entry in the legend.
+     */
+    getVisualMap() {
+        const visualMap = [];
+        this.config.l.forEach((oneLine, i) => {
+            if (!ChartOption.hasTwoColors(oneLine)) {
+                return;
+            }
+            const threshold = parseFloat(oneLine.colorThreshold) || 0;
+            // 0 is the time and 1 is the value
+            const common = {
+                type: 'piecewise',
+                show: false,
+                seriesIndex: i,
+                dimension: 1,
+            };
+            const positiveColor = this.chart.seriesColors?.[i] || oneLine.color;
+            if (oneLine.chartType === 'bar') {
+                // Bars stand on a category axis, there echarts can handle open borders
+                visualMap.push({
+                    ...common,
+                    pieces: [
+                        { gt: threshold, color: positiveColor },
+                        { lte: threshold, color: oneLine.colorNegative },
+                    ],
+                });
+                return;
+            }
+            // For lines echarts builds a gradient along the axis out of the pieces, and open borders
+            // (`gt`/`lte`) deliver no color stop for it, which lets `getVisualGradient` throw. So the
+            // pieces get real borders, generously extended so that no value can fall out of them.
+            const yAxis = this.chart.yAxis[ChartOption.getCommonAxis(oneLine.commonYAxis, i)];
+            const min = Math.min(typeof yAxis?.min === 'number' ? yAxis.min : threshold, threshold);
+            const max = Math.max(typeof yAxis?.max === 'number' ? yAxis.max : threshold, threshold);
+            const reserve = (max - min || Math.abs(threshold) || 1) * 10;
+            visualMap.push({
+                ...common,
+                pieces: [
+                    // A value exactly on the threshold belongs to the first piece
+                    { min: threshold, max: max + reserve, color: positiveColor },
+                    { min: min - reserve, max: threshold, color: oneLine.colorNegative },
+                ],
+            });
+        });
+        return visualMap.length ? visualMap : undefined;
     }
     getXAxis(categories) {
         if (this.config.l.find(l => l.chartType === 'bar')) {
@@ -806,6 +873,19 @@ class ChartOption {
         }
         return true;
     }
+    /**
+     * How much place the labels of the X-axis need.
+     *
+     * The labels of a time axis have two lines: time and date, or day and year. Below them, the axis
+     * line and its ticks need some place too. This used to be the constant 40 (two lines) or 24 (one
+     * line), which is only enough for the default font size of 12 pixels and cut the date off for
+     * bigger ones. The factors below deliver exactly those two numbers for 12 pixels.
+     */
+    getXLabelHeight() {
+        const fontSize = parseInt(this.config.x_labels_size, 10) || 12;
+        const lines = this.isXLabelHasBreak() ? 2 : 1;
+        return Math.round((lines * fontSize * 4) / 3) + 8;
+    }
     xFormatter(value, _index, isTop) {
         if (typeof value === 'string' && value.startsWith('b')) {
             const _date = new Date(parseInt(value.substring(1), 10));
@@ -820,8 +900,13 @@ class ChartOption {
                     _date.setSeconds(_date.getSeconds() + this.config.xLabelShift);
                 }
             }
+            if (this.config.timeFormat) {
+                // Replace the tag only after formatting: moment drops a `\n` from the format string,
+                // as its token regex ends with `.`, which does not match a line break
+                return this.moment(_date).format(this.config.timeFormat).replace(BR_TAG, '\n');
+            }
             if (this.config.aggregateBar === 60) {
-                return `.${_date.getDate()} ${_date.getHours().toString().padStart(2, '0')}:00`;
+                return `${_date.getDate()}. ${_date.getHours().toString().padStart(2, '0')}:00`;
             }
             if (this.config.aggregateBar === 15) {
                 return `${_date.getHours().toString().padStart(2, '0')}:${_date.getMinutes().toString().padStart(2, '0')}`;
@@ -830,9 +915,8 @@ class ChartOption {
                 return `${_date.getDate()}.${_date.getMonth() + 1}`;
             }
             if (this.config.aggregateBar === 43200) {
-                const middle = new Date(_date);
-                middle.setDate(middle.getDate() + 15);
-                return `${middle.getMonth() + 1}.${middle.getFullYear()}`;
+                // The category is the first day of the month, so no correction of the date is required
+                return `${_date.getMonth() + 1}.${_date.getFullYear()}`;
             }
         }
         const date = new Date(value);
@@ -945,9 +1029,12 @@ class ChartOption {
             }
         }
         const hoverNoNulls = this.config.hoverNoNulls === true || this.config.hoverNoNulls === 'true';
+        // Lines with `offsetOverlay` are drawn on the main time range, so their real time is shown per line
+        const shiftFormat = this.config.timeFormat ||
+            (this.chart.withSeconds ? 'DD.MM.YY HH:mm:ss' : this.chart.withTime ? 'DD.MM.YY HH:mm' : 'DD.MM.YY');
         const anyBarOrPolar = this.config.l.find(l => l.chartType === 'bar' || l.chartType === 'polar');
         let barPolarName;
-        const values = series.map((line, seriesIndex) => {
+        const rows = series.map((line, seriesIndex) => {
             const lineConfig = this.config.l[seriesIndex];
             const p = params.find(param => param.seriesIndex === seriesIndex);
             if (anyBarOrPolar) {
@@ -963,11 +1050,16 @@ class ChartOption {
                     val = p.value;
                 }
                 barPolarName = p.name;
-                return (`<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${p.color}">` +
-                    `<div style="display: flex;margin-right: 4px">${lineConfig.name}:</div>` +
-                    '<div style="display: flex; flex-grow: 1"></div>' +
-                    `<div style="display: flex;"><b>${val}</b>${lineConfig.unit || ''}</div>` +
-                    '</div>');
+                return {
+                    name: lineConfig.name,
+                    seriesIndex,
+                    hasValue: val !== null && val !== undefined,
+                    html: `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${p.color}">` +
+                        `<div style="display: flex;margin-right: 4px">${lineConfig.name}:</div>` +
+                        '<div style="display: flex; flex-grow: 1"></div>' +
+                        `<div style="display: flex;"><b>${val}</b>${lineConfig.unit || ''}</div>` +
+                        '</div>',
+                };
             }
             // It is a line and not a bar or polar
             let interpolated;
@@ -977,27 +1069,63 @@ class ChartOption {
             }
             interpolated = interpolated || this.getInterpolatedValue(seriesIndex, ts, lineConfig.type, hoverNoNulls);
             if (!interpolated) {
-                return '';
+                return null;
             }
             if (!interpolated.exact && this.config.hoverNoInterpolate) {
-                return '';
+                return null;
             }
             const val = interpolated.val === null
                 ? 'null'
                 : this.yFormatter(interpolated.val, seriesIndex, false, !interpolated.exact, true);
-            return (`<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color}">` +
-                `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
-                '<div style="display: flex; flex-grow: 1"></div>' +
-                `<div style="display: flex;">${interpolated.exact ? '' : 'i '}<b>${val}</b>${interpolated.val !== null ? lineConfig.unit : ''}</div>` +
-                '</div>');
+            // Show the real time of the values, if the line was moved onto the main time range
+            const realTime = lineConfig.offsetShift
+                ? `<div style="display: flex; margin-right: 4px; opacity: 0.7; font-style: italic">${this.moment(new Date(ts - lineConfig.offsetShift)).format(shiftFormat)}</div>`
+                : '';
+            return {
+                name: line.name,
+                seriesIndex,
+                hasValue: interpolated.val !== null,
+                html: `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color}">` +
+                    `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
+                    `<div style="display: flex; flex-grow: 1"></div>${realTime}` +
+                    `<div style="display: flex;">${interpolated.exact ? '' : 'i '}<b>${val}</b>${interpolated.val !== null ? lineConfig.unit : ''}</div>` +
+                    '</div>',
+            };
         });
+        const values = ChartOption.mergeTooltipRowsByName(rows);
         if (anyBarOrPolar) {
             const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm';
             const _date = new Date(parseInt(barPolarName.substring(1), 10));
-            return `<b>${this.moment(_date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
+            return `<b>${this.moment(_date).format(format)}</b><br/>${values.join('<br/>')}`;
         }
         const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm:ss.SSS';
-        return `<b>${this.moment(date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
+        return `<b>${this.moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
+    }
+    /**
+     * Several lines may carry the same name to appear as a single entry in the legend (e.g. charging and
+     * discharging of a battery). Such lines get one row in the tooltip too: the first one that really has
+     * a value at this point, as normally only one of them is defined at a time.
+     *
+     * @param rows one entry per series, `null` if the series has nothing to show
+     */
+    static mergeTooltipRowsByName(rows) {
+        const byName = {};
+        const order = [];
+        for (const row of rows) {
+            if (!row?.html) {
+                continue;
+            }
+            // Lines without a name are never merged
+            const key = row.name ? `n${row.name}` : `i${row.seriesIndex}`;
+            if (!byName[key]) {
+                byName[key] = row;
+                order.push(key);
+            }
+            else if (!byName[key].hasValue && row.hasValue) {
+                byName[key] = row;
+            }
+        }
+        return order.map(key => byName[key].html);
     }
     getLegend(actualValues) {
         if (!this.config.legend || this.config.legend === 'dialog') {
@@ -1113,7 +1241,7 @@ class ChartOption {
                 left: 10,
                 top: 8,
                 right: this.config.export === true || this.config.export === 'true' ? 30 : 0,
-                bottom: this.compact ? 4 : this.isXLabelHasBreak() ? 40 : 24,
+                bottom: this.compact ? 4 : this.getXLabelHeight(),
                 containLabel: this.config.autoGridPadding,
             },
             tooltip,
@@ -1124,6 +1252,7 @@ class ChartOption {
                 : undefined,
             xAxis,
             yAxis,
+            visualMap: this.getVisualMap(),
             // @ts-expect-error it is because of markArea.tooltip.position
             series,
             useCanvas,
@@ -1226,10 +1355,10 @@ class ChartOption {
                     const minTick = this.yFormatter(_yAxis.min, i, true, false, true);
                     const maxTick = this.yFormatter(!_yAxis.min && _yAxis.max === _yAxis.min ? 0.8 : _yAxis.max, i, true, false, true);
                     if (xAxis[0].position === 'top') {
-                        padTop = this.isXLabelHasBreak() ? 40 : 24;
+                        padTop = this.getXLabelHeight();
                     }
                     else if (xAxis[0].position === 'bottom') {
-                        padBottom = this.isXLabelHasBreak() ? 40 : 24;
+                        padBottom = this.getXLabelHeight();
                     }
                     const position = _yAxis.position;
                     if (_yAxis.axisLabel && _yAxis.axisLabel.color === 'rgba(0,0,0,0)') {

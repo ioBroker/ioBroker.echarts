@@ -1027,6 +1027,21 @@ class ChartOption {
         return true;
     }
 
+    /**
+     * How much place the labels of the X-axis need.
+     *
+     * The labels of a time axis have two lines: time and date, or day and year. Below them, the axis
+     * line and its ticks need some place too. This used to be the constant 40 (two lines) or 24 (one
+     * line), which is only enough for the default font size of 12 pixels and cut the date off for
+     * bigger ones. The factors below deliver exactly those two numbers for 12 pixels.
+     */
+    getXLabelHeight(): number {
+        const fontSize = parseInt(this.config.x_labels_size as unknown as string, 10) || 12;
+        const lines = this.isXLabelHasBreak() ? 2 : 1;
+
+        return Math.round((lines * fontSize * 4) / 3) + 8;
+    }
+
     xFormatter(value: string | number | Date, _index: number, isTop?: boolean): string {
         if (typeof value === 'string' && value.startsWith('b')) {
             const _date = new Date(parseInt(value.substring(1), 10));
@@ -1453,7 +1468,7 @@ class ChartOption {
                 left: 10,
                 top: 8,
                 right: this.config.export === true || (this.config.export as unknown as string) === 'true' ? 30 : 0,
-                bottom: this.compact ? 4 : this.isXLabelHasBreak() ? 40 : 24,
+                bottom: this.compact ? 4 : this.getXLabelHeight(),
                 containLabel: this.config.autoGridPadding,
             },
             tooltip,
@@ -1585,9 +1600,9 @@ class ChartOption {
                     );
 
                     if (xAxis[0].position === 'top') {
-                        padTop = this.isXLabelHasBreak() ? 40 : 24;
+                        padTop = this.getXLabelHeight();
                     } else if (xAxis[0].position === 'bottom') {
-                        padBottom = this.isXLabelHasBreak() ? 40 : 24;
+                        padBottom = this.getXLabelHeight();
                     }
 
                     const position = _yAxis.position;

@@ -45,9 +45,64 @@ let createCanvas: ((width: number, height: number, type?: 'pdf' | 'svg') => Canv
 let CanvasClass: typeof Canvas | null | undefined;
 let JsDomClass: typeof JSDOM | null | undefined;
 
+/** Only what is needed to measure a text, so the missing types of the optional `canvas` do not matter */
+type MeasureContext = { font: string; measureText: (text: string) => { width: number } };
+
+// undefined = not yet attempted, null = attempted but failed
+let measureContext: MeasureContext | null | undefined;
+
+/**
+ * A 1x1 canvas that is used only to measure texts. It is created once and kept.
+ *
+ * Returns `null` if the optional `canvas` module is not available on this system. It may be loaded
+ * later, so that case is not remembered.
+ */
+function getMeasureContext(): MeasureContext | null {
+    if (measureContext !== undefined) {
+        return measureContext;
+    }
+    if (!createCanvas) {
+        return null;
+    }
+    try {
+        measureContext = createCanvas(1, 1).getContext('2d');
+    } catch {
+        measureContext = null;
+    }
+
+    return measureContext;
+}
+
+/**
+ * Width of a text in pixels. `ChartOption` needs it to reserve the place for the axis labels.
+ *
+ * In the browser the text is measured with the canvas of the page. Here the optional `canvas` module
+ * can do the same, and it is normally loaded at startup. If it is missing - the adapter then renders
+ * SVG only - the rough estimation below has to do it. That estimation assumes about 1.33 * fontSize
+ * per character, roughly twice the real average, and made the charts too narrow.
+ *
+ * @param text text to measure
+ * @param fontSize font size in pixels, 12 if not given
+ */
 function calcTextWidth(text: string, fontSize?: number | string): number {
+    const size = parseFloat(fontSize as string) || 12;
+    const context = getMeasureContext();
+
+    if (context) {
+        try {
+            // The same family echarts uses by default, so the measured text matches the drawn one
+            context.font = `${size}px sans-serif`;
+            const width = context.measureText(text).width;
+            if (width > 0) {
+                return Math.ceil(width);
+            }
+        } catch {
+            // The canvas cannot measure on this system, use the estimation below
+        }
+    }
+
     // try to simulate
-    return Math.ceil((text.length * (parseFloat(fontSize as string) || 12)) / 0.75);
+    return Math.ceil((text.length * size) / 0.75);
 }
 
 class EchartsAdapter extends Adapter {
@@ -112,13 +167,19 @@ class EchartsAdapter extends Adapter {
             chartData.onUpdate(
                 (
                     seriesData: BarAndLineSeries[],
-                    _actualValues?: (number | null | boolean | string)[],
+                    actualValues?: (number | null | boolean | string)[],
                     barCategories?: number[],
                 ) => {
                     const theme = options.theme || options.themeType || 'light';
 
                     const chartOption = new ChartOption(moment, theme, calcTextWidth);
-                    const option = chartOption.getOption(seriesData, chartData.getConfig(), null, barCategories);
+                    // The actual values must be given to the legend, else `legActual` shows no value
+                    const option = chartOption.getOption(
+                        seriesData,
+                        chartData.getConfig(),
+                        actualValues as number[],
+                        barCategories,
+                    );
                     const { window } = new JsDomClass();
 
                     // @ts-expect-error must be so

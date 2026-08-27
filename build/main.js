@@ -41,9 +41,58 @@ const socketSimulator_1 = require("./lib/socketSimulator");
 let createCanvas;
 let CanvasClass;
 let JsDomClass;
+// undefined = not yet attempted, null = attempted but failed
+let measureContext;
+/**
+ * A 1x1 canvas that is used only to measure texts. It is created once and kept.
+ *
+ * Returns `null` if the optional `canvas` module is not available on this system. It may be loaded
+ * later, so that case is not remembered.
+ */
+function getMeasureContext() {
+    if (measureContext !== undefined) {
+        return measureContext;
+    }
+    if (!createCanvas) {
+        return null;
+    }
+    try {
+        measureContext = createCanvas(1, 1).getContext('2d');
+    }
+    catch {
+        measureContext = null;
+    }
+    return measureContext;
+}
+/**
+ * Width of a text in pixels. `ChartOption` needs it to reserve the place for the axis labels.
+ *
+ * In the browser the text is measured with the canvas of the page. Here the optional `canvas` module
+ * can do the same, and it is normally loaded at startup. If it is missing - the adapter then renders
+ * SVG only - the rough estimation below has to do it. That estimation assumes about 1.33 * fontSize
+ * per character, roughly twice the real average, and made the charts too narrow.
+ *
+ * @param text text to measure
+ * @param fontSize font size in pixels, 12 if not given
+ */
 function calcTextWidth(text, fontSize) {
+    const size = parseFloat(fontSize) || 12;
+    const context = getMeasureContext();
+    if (context) {
+        try {
+            // The same family echarts uses by default, so the measured text matches the drawn one
+            context.font = `${size}px sans-serif`;
+            const width = context.measureText(text).width;
+            if (width > 0) {
+                return Math.ceil(width);
+            }
+        }
+        catch {
+            // The canvas cannot measure on this system, use the estimation below
+        }
+    }
     // try to simulate
-    return Math.ceil((text.length * (parseFloat(fontSize) || 12)) / 0.75);
+    return Math.ceil((text.length * size) / 0.75);
 }
 class EchartsAdapter extends adapter_core_1.Adapter {
     __lastMessageTime = 0;
@@ -97,10 +146,11 @@ class EchartsAdapter extends adapter_core_1.Adapter {
             options.height = parseFloat(options.height) || 300;
             const chartData = new ChartModel_1.default(this.socketSimulator, options.preset, { serverSide: true });
             chartData.onError(err => this.log.error(err.toString()));
-            chartData.onUpdate((seriesData, _actualValues, barCategories) => {
+            chartData.onUpdate((seriesData, actualValues, barCategories) => {
                 const theme = options.theme || options.themeType || 'light';
                 const chartOption = new ChartOption_1.default(moment_1.default, theme, calcTextWidth);
-                const option = chartOption.getOption(seriesData, chartData.getConfig(), null, barCategories);
+                // The actual values must be given to the legend, else `legActual` shows no value
+                const option = chartOption.getOption(seriesData, chartData.getConfig(), actualValues, barCategories);
                 const { window } = new JsDomClass();
                 // @ts-expect-error must be so
                 global.window = window;
