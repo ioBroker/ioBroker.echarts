@@ -1214,8 +1214,7 @@ class ChartOption {
 
         // Lines with `offsetOverlay` are drawn on the main time range, so their real time is shown per line
         const shiftFormat =
-            this.config.timeFormat ||
-            (this.chart.withSeconds ? 'DD.MM.YY HH:mm:ss' : this.chart.withTime ? 'DD.MM.YY HH:mm' : 'DD.MM.YY');
+            this.config.timeFormat || (this.chart.withSeconds ? 'L HH:mm:ss' : this.chart.withTime ? 'L HH:mm' : 'L');
         const anyBarOrPolar = this.config.l.find(l => l.chartType === 'bar' || l.chartType === 'polar');
 
         let barPolarName: string;
@@ -1291,11 +1290,20 @@ class ChartOption {
         const values = ChartOption.mergeTooltipRowsByName(rows);
 
         if (anyBarOrPolar) {
-            const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm';
+            // A bar stands for a whole interval, so the time below a day is always 00:00 and left out
+            const format =
+                this.config.timeFormat ||
+                (this.config.aggregateBar === 43200
+                    ? 'MMMM YYYY'
+                    : this.config.aggregateBar === 1440
+                      ? 'dd, L'
+                      : 'dd, L HH:mm');
             const _date = new Date(parseInt(barPolarName.substring(1), 10));
             return `<b>${this.moment(_date).format(format)}</b><br/>${values.join('<br/>')}`;
         }
-        const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm:ss.SSS';
+        // `L` is the date format of the language of the user. The time stays at 24 hours, as the labels
+        // of the X-axis right below the tooltip are 24 hours too. Milliseconds only if one can see them.
+        const format = this.config.timeFormat || (this.chart.diff < 60000 ? 'dd, L HH:mm:ss.SSS' : 'dd, L HH:mm:ss');
         return `<b>${this.moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
     }
 

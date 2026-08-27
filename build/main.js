@@ -148,6 +148,8 @@ class EchartsAdapter extends adapter_core_1.Adapter {
             chartData.onError(err => this.log.error(err.toString()));
             chartData.onUpdate((seriesData, actualValues, barCategories) => {
                 const theme = options.theme || options.themeType || 'light';
+                // All locales are imported above, but without this the dates stay English
+                moment_1.default.locale(chartData.getConfig().lang || 'en');
                 const chartOption = new ChartOption_1.default(moment_1.default, theme, calcTextWidth);
                 // The actual values must be given to the legend, else `legActual` shows no value
                 const option = chartOption.getOption(seriesData, chartData.getConfig(), actualValues, barCategories);

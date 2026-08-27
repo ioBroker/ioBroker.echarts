@@ -172,6 +172,9 @@ class EchartsAdapter extends Adapter {
                 ) => {
                     const theme = options.theme || options.themeType || 'light';
 
+                    // All locales are imported above, but without this the dates stay English
+                    moment.locale(chartData.getConfig().lang || 'en');
+
                     const chartOption = new ChartOption(moment, theme, calcTextWidth);
                     // The actual values must be given to the legend, else `legActual` shows no value
                     const option = chartOption.getOption(
