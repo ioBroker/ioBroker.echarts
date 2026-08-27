@@ -450,7 +450,28 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         }, 400);
     } */
 
+    /**
+     * Stop the zoom and the pan at the end of the time range, unless the user allowed the future.
+     *
+     * The width of the visible range is kept, so a pan runs against a wall instead of being stretched.
+     * The start is not limited: scrolling back into the history must stay possible.
+     */
+    limitRange(): void {
+        const limit = this.props.config.zoomLimitEnd;
+        if (this.props.config.noZoomLimit || !limit) {
+            return;
+        }
+        const chart = this.chartOption.getHelperChartData();
+        if (chart.xMax > limit) {
+            const diff = chart.xMax - chart.xMin;
+            chart.xMax = limit;
+            chart.xMin = limit - diff;
+        }
+    }
+
     setNewRange(updateChart?: boolean): void {
+        this.limitRange();
+
         const chart = this.chartOption.getHelperChartData();
         chart.diff = chart.xMax - chart.xMin;
         chart.withTime = chart.diff < 3600000 * 24 * 7;

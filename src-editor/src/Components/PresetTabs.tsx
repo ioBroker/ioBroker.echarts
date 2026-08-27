@@ -1529,6 +1529,20 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                             }}
                         />
                     ) : null}
+                    {this.props.presetData.zoom ? (
+                        <IOCheckbox
+                            value={this.props.presetData.noZoomLimit}
+                            updateValue={(value: boolean): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.noZoomLimit = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="Allow scrolling into the future"
+                            tooltip={I18n.t(
+                                'Normally the zoom and the pan stop at the end of the time range. With "today" that is the next midnight, with "this month" the first of the next month',
+                            )}
+                        />
+                    ) : null}
                     {anyPolar ? (
                         <IOSelect
                             value={this.props.presetData.radarCircle || ''}

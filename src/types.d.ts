@@ -201,6 +201,16 @@ export interface ChartConfig {
     timeFormat?: string;
     useComma?: boolean;
     zoom?: boolean;
+    /**
+     * By default, the zoom and the pan stop at the end of the time range. Set this to let the user
+     * scroll into the future, e.g. to look at a forecast that is not in the range.
+     */
+    noZoomLimit?: boolean;
+    /**
+     * Calculated at runtime by `ChartModel`: the end of the time range without any zoom, extended to
+     * the newest value if the data reaches behind it. Not stored in the preset.
+     */
+    zoomLimitEnd?: number;
     export?: boolean;
     grid_hideX?: boolean;
     grid_hideY?: boolean;

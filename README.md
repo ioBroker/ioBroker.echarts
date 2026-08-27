@@ -116,6 +116,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) The zoom and the pan stop at the end of the time range now, so the user cannot scroll into the future by accident. It can be switched off per preset
 - (@GermanBluefox) Added the option to draw a line without an entry in the legend, e.g. for a value that is only a background
 - (@GermanBluefox) Fixed the server-side rendering: the actual value was missing in the legend
 - (@GermanBluefox) The server-side rendering measures the axis labels with the canvas now instead of estimating them, so the charts are no longer too narrow

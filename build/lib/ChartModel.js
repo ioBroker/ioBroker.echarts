@@ -675,6 +675,39 @@ class ChartModel {
         option.end = endTs;
     }
     /**
+     * Data can reach behind the end of the time range: a `json` source is not limited by start and end,
+     * so a forecast is drawn into the future. The user must be able to scroll there, so the limit for
+     * the zoom is moved to the newest value. While the chart is zoomed, the data is cut to the zoomed
+     * range, so the limit must not be touched then.
+     */
+    extendZoomLimitToData() {
+        if (this.zoomData || !this.config.zoomLimitEnd) {
+            return;
+        }
+        let last = this.config.zoomLimitEnd;
+        this.seriesData?.forEach(series => {
+            const newest = series?.[series.length - 1];
+            if (newest && newest.value[0] > last) {
+                last = newest.value[0];
+            }
+        });
+        this.config.zoomLimitEnd = last;
+    }
+    /**
+     * Remember where the chart ends without any zoom, so `ChartView` can stop the zoom and the pan there.
+     *
+     * This is not simply "now": with `relativeEnd: 'today'` the range ends at the next midnight, with
+     * `'month'` at the first of the next month, and a static range ends where the user defined it.
+     * While the chart is zoomed, the value is kept, as `referenceEnd` is then the zoomed end.
+     *
+     * @param referenceEnd end of the time range of the current read
+     */
+    rememberZoomLimit(referenceEnd) {
+        if (!this.zoomData) {
+            this.config.zoomLimitEnd = referenceEnd;
+        }
+    }
+    /**
      * Is the line drawn on the main time range instead of extending the X-axis? Bars and polar charts
      * are excluded, as they share their categories with all other lines.
      *
@@ -896,6 +929,7 @@ class ChartModel {
             else if (this.config.aggregateType === 'count') {
                 option.count = this.config.aggregateSpan || 300;
             }
+            this.rememberZoomLimit(referenceEnd);
             // The X-axis shows the main time range, so a shifted line reports the range it is drawn in
             const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
             this.config.start = startTs + offsetShift;
@@ -929,6 +963,7 @@ class ChartModel {
             q: false,
             addId: false,
         };
+        this.rememberZoomLimit(referenceEnd);
         const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
         this.config.start = ChartModel.addTime(endTs, this.config.range, true) + offsetShift;
         this.config.end = endTs + offsetShift;
@@ -1599,6 +1634,7 @@ class ChartModel {
         }
     }
     updateData() {
+        this.extendZoomLimitToData();
         // combine seriesData and barData
         const updateData = [];
         this.config.l.forEach((line, index) => {
