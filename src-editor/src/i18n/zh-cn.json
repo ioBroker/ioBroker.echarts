@@ -296,6 +296,8 @@
   "Others": "其他",
   "Outside / No lines": "外面/有线",
   "Outside/ With lines": "外面/有线",
+  "Overlay on the main range": "叠加到主时间范围",
+  "Draw the shifted values on the time range of the not shifted lines, so that they can be compared": "将偏移后的数值绘制在未偏移曲线的时间范围内，以便进行比较",
   "Paste": "糊",
   "Percentile": "百分位数",
   "Pie": "馅饼",

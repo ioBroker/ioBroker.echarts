@@ -77,6 +77,16 @@ export type ChartLineConfig = {
     noFuture?: boolean;
     postProcessing?: 'diff' | '';
     offset?: number | '1m' | '2m' | '3m' | '6m' | '1y' | '2y' | '-1m' | '-2m' | '-3m' | '-6m' | '-1y' | '-2y';
+    /**
+     * Draw the shifted data on the main time range instead of extending the X-axis, so the line can be
+     * compared with the not-shifted ones. Has only an effect together with `offset`.
+     */
+    offsetOverlay?: boolean;
+    /**
+     * Calculated at runtime by `ChartModel.getStartStop`: milliseconds by which the values of this line
+     * are moved to the right to place them on the main time range. Not stored in the preset.
+     */
+    offsetShift?: number;
     name?: string;
     aggregate?: ChartAggregateType;
 

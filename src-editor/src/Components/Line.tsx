@@ -1320,6 +1320,22 @@ export default class Line extends React.Component<LineProps, LineState> {
                             }}
                         />
                     ) : null}
+                    {this.props.line.offset &&
+                    this.props.line.chartType !== 'bar' &&
+                    this.props.line.chartType !== 'polar' ? (
+                        <IOCheckbox
+                            value={this.props.line.offsetOverlay}
+                            updateValue={(value: boolean): void => {
+                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                line.offsetOverlay = value;
+                                this.props.updateLine(this.props.index, line);
+                            }}
+                            label="Overlay on the main range"
+                            tooltip={I18n.t(
+                                'Draw the shifted values on the time range of the not shifted lines, so that they can be compared',
+                            )}
+                        />
+                    ) : null}
                     {this.props.line.chartType !== 'polar' ? (
                         <IONumberField
                             value={this.props.line.yOffset}

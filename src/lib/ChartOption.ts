@@ -1109,6 +1109,11 @@ class ChartOption {
 
         const hoverNoNulls =
             this.config.hoverNoNulls === true || (this.config.hoverNoNulls as unknown as string) === 'true';
+
+        // Lines with `offsetOverlay` are drawn on the main time range, so their real time is shown per line
+        const shiftFormat =
+            this.config.timeFormat ||
+            (this.chart.withSeconds ? 'DD.MM.YY HH:mm:ss' : this.chart.withTime ? 'DD.MM.YY HH:mm' : 'DD.MM.YY');
         const anyBarOrPolar = this.config.l.find(l => l.chartType === 'bar' || l.chartType === 'polar');
 
         let barPolarName: string;
@@ -1157,10 +1162,17 @@ class ChartOption {
                     ? 'null'
                     : this.yFormatter(interpolated.val, seriesIndex, false, !interpolated.exact, true);
 
+            // Show the real time of the values, if the line was moved onto the main time range
+            const realTime = lineConfig.offsetShift
+                ? `<div style="display: flex; margin-right: 4px; opacity: 0.7; font-style: italic">${this.moment(
+                      new Date(ts - lineConfig.offsetShift),
+                  ).format(shiftFormat)}</div>`
+                : '';
+
             return (
                 `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color as string}">` +
                 `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
-                '<div style="display: flex; flex-grow: 1"></div>' +
+                `<div style="display: flex; flex-grow: 1"></div>${realTime}` +
                 `<div style="display: flex;">${interpolated.exact ? '' : 'i '}<b>${val}</b>${interpolated.val !== null ? lineConfig.unit : ''}</div>` +
                 '</div>'
             );

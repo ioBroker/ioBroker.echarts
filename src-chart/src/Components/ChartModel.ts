@@ -865,10 +865,36 @@ class ChartModel {
         option.end = endTs;
     }
 
+    /**
+     * Is the line drawn on the main time range instead of extending the X-axis? Bars and polar charts
+     * are excluded, as they share their categories with all other lines.
+     *
+     * @param index index of the line
+     */
+    private isOffsetOverlay(index: number): boolean {
+        const line = this.config.l[index];
+        return !!line.offsetOverlay && line.chartType !== 'bar' && line.chartType !== 'polar';
+    }
+
+    /**
+     * Calculate how far the values of a line must be moved to the right to draw them on the main time
+     * range. The result is stored on the line and used by `processRawData`.
+     *
+     * @param index index of the line
+     * @param referenceEnd end of the time range the line would have without its offset
+     * @param endTs end of the time range of this line
+     */
+    private getOffsetShift(index: number, referenceEnd: number, endTs: number): number {
+        const shift = this.isOffsetOverlay(index) ? referenceEnd - endTs : 0;
+        this.config.l[index].offsetShift = shift;
+        return shift;
+    }
+
     getStartStop(index: number, step?: number): ioBroker.GetHistoryOptions {
         let option: ioBroker.GetHistoryOptions;
         let endTs: number;
         let startTs: number;
+        let referenceEnd: number;
         let _nowTs: number;
         if (!this.config) {
             throw new Error('Unexpected null config');
@@ -910,8 +936,12 @@ class ChartModel {
 
         if (!step) {
             if (this.zoomData) {
-                startTs = this.zoomData.start;
-                endTs = this.zoomData.end;
+                referenceEnd = this.zoomData.end;
+                // Keep the offset while zooming, otherwise an overlaid line would jump to the zoomed range
+                endTs = this.isOffsetOverlay(index)
+                    ? ChartModel.addTime(this.zoomData.end, this.config.l[index].offset)
+                    : this.zoomData.end;
+                startTs = endTs - (this.zoomData.end - this.zoomData.start);
             } else if (this.config.timeType === 'static') {
                 let startTime: [number, number];
                 let endTime: [number, number];
@@ -933,6 +963,7 @@ class ChartModel {
 
                 startTs = ChartModel.addTime(startDate, this.config.l[index].offset);
                 endTs = ChartModel.addTime(endDate, this.config.l[index].offset);
+                referenceEnd = endDate;
             } else {
                 this.config.relativeEnd = this.config.relativeEnd || 'now';
                 let _nowDate: Date;
@@ -1026,6 +1057,7 @@ class ChartModel {
 
                 endTs = ChartModel.addTime(_nowDate, this.config.l[index].offset);
                 startTs = ChartModel.addTime(endTs, this.config.range, true);
+                referenceEnd = _nowDate.getTime();
             }
 
             const aggregate = this.config.l[index].aggregate || this.config.aggregate;
@@ -1055,17 +1087,23 @@ class ChartModel {
                 option.count = this.config.aggregateSpan || 300;
             }
 
-            this.config.start = startTs;
-            this.config.end = endTs;
+            // The X-axis shows the main time range, so a shifted line reports the range it is drawn in
+            const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
+            this.config.start = startTs + offsetShift;
+            this.config.end = endTs + offsetShift;
 
             return option;
         }
         if (this.zoomData) {
-            startTs = this.zoomData.start;
-            endTs = this.zoomData.end;
+            referenceEnd = this.zoomData.end;
+            endTs = this.isOffsetOverlay(index)
+                ? ChartModel.addTime(this.zoomData.end, this.config.l[index].offset)
+                : this.zoomData.end;
+            startTs = endTs - (this.zoomData.end - this.zoomData.start);
         } else {
             endTs = ChartModel.addTime(this.now, this.config.l[index].offset);
             startTs = endTs - step;
+            referenceEnd = this.now;
         }
 
         option = {
@@ -1086,8 +1124,9 @@ class ChartModel {
             addId: false,
         };
 
-        this.config.start = ChartModel.addTime(endTs, this.config.range, true);
-        this.config.end = endTs;
+        const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
+        this.config.start = ChartModel.addTime(endTs, this.config.range, true) + offsetShift;
+        this.config.end = endTs + offsetShift;
 
         return option;
     }
@@ -1192,6 +1231,8 @@ class ChartModel {
         }
 
         const yOffset: number = line.yOffset || 0;
+        // If the line is drawn on the main time range, every value is moved by this amount
+        const xShift: number = line.offsetShift || 0;
 
         const seriesData: LineSeries = [];
         // Collects for every time interval the values. Later it will be combined to number[]
@@ -1252,7 +1293,7 @@ class ChartModel {
                     break;
                 }
 
-                const dp: EchartsOneValue = { value: [values[i].ts, value] };
+                const dp: EchartsOneValue = { value: [values[i].ts + xShift, value] };
 
                 // If value was interpolated by backend
                 if (values[i].i) {
@@ -1270,7 +1311,7 @@ class ChartModel {
                     : typeof option.end === 'string'
                       ? new Date(option.end).getTime()
                       : (option.end as Date).getTime();
-            const start: number =
+            let start: number =
                 typeof option.start === 'number'
                     ? option.start
                     : typeof option.start === 'string'
@@ -1280,6 +1321,9 @@ class ChartModel {
             if (end > this.now) {
                 end = this.now;
             }
+            // The values were moved, so the borders of the series must be moved too
+            start += xShift;
+            end += xShift;
             if (seriesData.length) {
                 if (seriesData[0].value[0] > start) {
                     seriesData.unshift({ value: [start, null], exact: false });

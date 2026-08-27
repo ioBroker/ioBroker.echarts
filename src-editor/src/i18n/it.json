@@ -296,6 +296,8 @@
   "Others": "Altri",
   "Outside / No lines": "Esterno / Senza linea",
   "Outside/ With lines": "Esterno / Con linee",
+  "Overlay on the main range": "Sovrapporre all'intervallo principale",
+  "Draw the shifted values on the time range of the not shifted lines, so that they can be compared": "Disegna i valori spostati nell’intervallo di tempo delle linee non spostate, in modo da poterli confrontare",
   "Paste": "Incolla",
   "Percentile": "percentile",
   "Pie": "Torta",

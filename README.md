@@ -116,6 +116,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) Added the option to draw a line with X-offset on the main time range, so it can be compared with the not shifted lines
 - (@Brainbug01) Fixed the white screen when opening the legend or export dialog
 - (@GermanBluefox) Fixed the bar charts: the values were shown one interval too late
 - (@GermanBluefox) Fixed the bar charts: the months are counted in the calendar now and not as 30 days

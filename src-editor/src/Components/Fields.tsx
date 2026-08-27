@@ -154,17 +154,22 @@ export const IOCheckbox = (props: IOCheckboxProps): React.JSX.Element => (
             ...(props.styles?.fieldContainer || styles.fieldContainer),
         }}
     >
-        <FormControlLabel
-            style={{ paddingTop: 10 }}
-            label={<span style={styles.checkBoxLabel}>{I18n.t(props.label)}</span>}
-            control={
-                <Checkbox
-                    disabled={!!props.disabled}
-                    onChange={e => props.updateValue(e.target.checked)}
-                    checked={props.value || false}
-                />
-            }
-        />
+        <Tooltip
+            title={props.tooltip ? I18n.t(props.tooltip) : null}
+            slotProps={{ popper: { style: styles.tooltip } }}
+        >
+            <FormControlLabel
+                style={{ paddingTop: 10 }}
+                label={<span style={styles.checkBoxLabel}>{I18n.t(props.label)}</span>}
+                control={
+                    <Checkbox
+                        disabled={!!props.disabled}
+                        onChange={e => props.updateValue(e.target.checked)}
+                        checked={props.value || false}
+                    />
+                }
+            />
+        </Tooltip>
     </div>
 );
 

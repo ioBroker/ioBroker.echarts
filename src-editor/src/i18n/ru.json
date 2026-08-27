@@ -296,6 +296,8 @@
   "Others": "Другие",
   "Outside / No lines": "Снаружи / Без линий",
   "Outside/ With lines": "Снаружи/ С линиями",
+  "Overlay on the main range": "Наложить на основной диапазон",
+  "Draw the shifted values on the time range of the not shifted lines, so that they can be compared": "Рисовать смещённые значения во временном диапазоне несмещённых линий, чтобы их можно было сравнить",
   "Paste": "Вставить",
   "Percentile": "Процентиль",
   "Pie": "Круговая диаграмма",

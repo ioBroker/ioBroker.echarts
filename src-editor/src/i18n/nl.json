@@ -296,6 +296,8 @@
   "Others": "Anderen",
   "Outside / No lines": "Buiten / Geen lijnen",
   "Outside/ With lines": "Buiten / met lijnen",
+  "Overlay on the main range": "Over het hoofdbereik leggen",
+  "Draw the shifted values on the time range of the not shifted lines, so that they can be compared": "Teken de verschoven waarden in het tijdbereik van de niet-verschoven lijnen, zodat ze vergeleken kunnen worden",
   "Paste": "Plakken",
   "Percentile": "percentiel",
   "Pie": "Taart",

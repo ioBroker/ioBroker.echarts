@@ -12,7 +12,6 @@ type ZRenderInstance = ReturnType<ECharts['getZr']>;
 import {
     LinearProgress,
     MenuItem,
-    MenuList,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -21,6 +20,11 @@ import {
     Checkbox,
     FormControl,
     InputLabel,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
     Select,
     Fab,
     FormControlLabel,
@@ -194,6 +198,14 @@ const styles: Record<string, React.CSSProperties> = {
         top: 10,
         left: 30,
         zIndex: 2,
+    },
+    lineCheckbox: {
+        minWidth: 0,
+    },
+    lineId: {
+        opacity: 0.7,
+        fontStyle: 'italic',
+        fontSize: 'smaller',
     },
 };
 
@@ -1148,59 +1160,60 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                         : I18n.t('Unselect all')
                                 }
                             />
-                            <MenuList>
+                            <List dense>
                                 {this.props.config.l.map((line, i) => (
-                                    <MenuItem
+                                    <ListItem
                                         key={i}
-                                        onClick={() => {
-                                            const excluded = [...this.state.excluded];
-                                            const pos = excluded.indexOf(line.id);
-                                            if (pos === -1) {
-                                                excluded.push(line.id);
-                                            } else {
-                                                excluded.splice(pos, 1);
-                                            }
-                                            this.setState({ excluded }, () => {
-                                                // immediately apply visibility to chart
-                                                if (
-                                                    this.echartsReact &&
-                                                    typeof this.echartsReact.getEchartsInstance === 'function'
-                                                ) {
-                                                    const selected: Record<string, boolean> = {};
-                                                    this.props.config.l.forEach(l => {
-                                                        selected[l.name] = !excluded.includes(l.id);
-                                                    });
-                                                    try {
-                                                        const chartInstance = this.echartsReact.getEchartsInstance();
-                                                        chartInstance.setOption({ legend: { selected } });
-                                                    } catch {
-                                                        console.error('Cannot apply legend selection');
-                                                    }
-                                                }
-                                            });
-                                        }}
+                                        disablePadding
                                     >
-                                        <Checkbox checked={!this.state.excluded.includes(line?.id)} />
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <ListItemButton
+                                            onClick={() => {
+                                                const excluded = [...this.state.excluded];
+                                                const pos = excluded.indexOf(line.id);
+                                                if (pos === -1) {
+                                                    excluded.push(line.id);
+                                                } else {
+                                                    excluded.splice(pos, 1);
+                                                }
+                                                this.setState({ excluded }, () => {
+                                                    // immediately apply visibility to chart
+                                                    if (
+                                                        this.echartsReact &&
+                                                        typeof this.echartsReact.getEchartsInstance === 'function'
+                                                    ) {
+                                                        const selected: Record<string, boolean> = {};
+                                                        this.props.config.l.forEach(l => {
+                                                            selected[l.name] = !excluded.includes(l.id);
+                                                        });
+                                                        try {
+                                                            const chartInstance =
+                                                                this.echartsReact.getEchartsInstance();
+                                                            chartInstance.setOption({ legend: { selected } });
+                                                        } catch {
+                                                            console.error('Cannot apply legend selection');
+                                                        }
+                                                    }
+                                                });
+                                            }}
+                                        >
+                                            <ListItemIcon style={styles.lineCheckbox}>
+                                                <Checkbox
+                                                    edge="start"
+                                                    tabIndex={-1}
+                                                    disableRipple
+                                                    checked={!this.state.excluded.includes(line?.id)}
+                                                />
+                                            </ListItemIcon>
                                             <LineSvg style={{ color: line?.color || colors[i], marginRight: 8 }} />
-                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                {line?.name || line?.id}
-                                                {line?.name && line?.id ? (
-                                                    <div
-                                                        style={{
-                                                            opacity: 0.7,
-                                                            fontStyle: 'italic',
-                                                            fontSize: 'smaller',
-                                                        }}
-                                                    >
-                                                        {line?.id}
-                                                    </div>
-                                                ) : null}
-                                            </div>
-                                        </div>
-                                    </MenuItem>
+                                            <ListItemText
+                                                primary={line?.name || line?.id}
+                                                secondary={line?.name && line?.id ? line.id : null}
+                                                slotProps={{ secondary: { style: styles.lineId } }}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
                                 ))}
-                            </MenuList>
+                            </List>
                         </DialogContent>
                         <DialogActions>
                             <Button
@@ -1267,31 +1280,41 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                     : I18n.t('Unselect all')
                             }
                         />
-                        <MenuList>
+                        <List dense>
                             {this.props.config.l.map((line, i) => (
-                                <MenuItem
+                                <ListItem
                                     key={i}
-                                    onClick={() => {
-                                        const excluded = [...this.state.excluded];
-                                        const pos = excluded.indexOf(line.id);
-                                        if (pos === -1) {
-                                            excluded.push(line.id);
-                                        } else {
-                                            excluded.splice(pos, 1);
-                                        }
-                                        this.setState({ excluded });
-                                    }}
+                                    disablePadding
                                 >
-                                    <Checkbox checked={!this.state.excluded.includes(line?.id)} />
-                                    <div>
-                                        <div>{line?.name || line?.id}</div>
-                                        <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: 'smaller' }}>
-                                            {line?.name ? line?.id : null}
-                                        </div>
-                                    </div>
-                                </MenuItem>
+                                    <ListItemButton
+                                        onClick={() => {
+                                            const excluded = [...this.state.excluded];
+                                            const pos = excluded.indexOf(line.id);
+                                            if (pos === -1) {
+                                                excluded.push(line.id);
+                                            } else {
+                                                excluded.splice(pos, 1);
+                                            }
+                                            this.setState({ excluded });
+                                        }}
+                                    >
+                                        <ListItemIcon style={styles.lineCheckbox}>
+                                            <Checkbox
+                                                edge="start"
+                                                tabIndex={-1}
+                                                disableRipple
+                                                checked={!this.state.excluded.includes(line?.id)}
+                                            />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={line?.name || line?.id}
+                                            secondary={line?.name ? line?.id : null}
+                                            slotProps={{ secondary: { style: styles.lineId } }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
                             ))}
-                        </MenuList>
+                        </List>
                     </DialogContent>
                     <DialogActions>
                         <Button

@@ -296,6 +296,8 @@
   "Others": "Autres",
   "Outside / No lines": "Extérieur / Pas de lignes",
   "Outside/ With lines": "Extérieur / Avec lignes",
+  "Overlay on the main range": "Superposer sur la plage principale",
+  "Draw the shifted values on the time range of the not shifted lines, so that they can be compared": "Dessiner les valeurs décalées sur la plage de temps des courbes non décalées, afin de pouvoir les comparer",
   "Paste": "Pâte",
   "Percentile": "Centile",
   "Pie": "Tarte",
