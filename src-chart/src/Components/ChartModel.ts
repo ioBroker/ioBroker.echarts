@@ -362,6 +362,8 @@ class ChartModel {
     private preset?: string;
     private config?: ChartConfig;
     private barCategories?: number[];
+    /** Exclusive end (ms) of the last entry of `barCategories` */
+    private barCategoriesEnd?: number;
     private now: number = Date.now();
     private hash?: {
         range: ChartRangeOptions;
@@ -474,6 +476,7 @@ class ChartModel {
         this.seriesData = [];
         this.barData = [];
         this.barCategories = undefined;
+        this.barCategoriesEnd = undefined;
 
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
@@ -702,6 +705,36 @@ class ChartModel {
         void this.analyseAndLoadConfig(config);
     }
 
+    /**
+     * The `diff` post-processing shows the difference to the previous bar, so one interval before the
+     * visible range must be read as a reference. It is configured per line, but as all bars share the
+     * same categories, the additional interval must be requested for the whole chart.
+     */
+    hasBarDiff(): boolean {
+        return (
+            this.config.postProcessing === 'diff' ||
+            !!this.config.l?.find(line => line.chartType === 'bar' && line.postProcessing === 'diff')
+        );
+    }
+
+    /**
+     * Move the given date to the start of the next bar interval.
+     *
+     * `aggregateBar` is given in minutes, but 43200 minutes stand for "one month" and a month is not
+     * always 30 days long, so it must be counted in the calendar and not in milliseconds.
+     *
+     * @param date date to modify in place
+     * @param aggregateBar interval in minutes: 15, 60, 1440 (day) or 43200 (month)
+     */
+    static addBarInterval(date: Date, aggregateBar: number): void {
+        if (aggregateBar === 43200) {
+            date.setMonth(date.getMonth() + 1);
+        } else {
+            // setMinutes works on the local time, so the DST change is taken into account
+            date.setMinutes(date.getMinutes() + aggregateBar);
+        }
+    }
+
     increaseRegionForBar(start: number | Date, end: number | Date, option: ioBroker.GetHistoryOptions): void {
         if (!this.config) {
             throw new Error('Unexpected null config');
@@ -729,21 +762,27 @@ class ChartModel {
 
         option ||= {} as ioBroker.GetHistoryOptions;
 
+        const withDiff = this.hasBarDiff();
+
         if (this.config.aggregateBar === 15) {
             // align start and stop to 15 minutes
             const startDate = new Date(startTs);
             startDate.setMinutes(Math.floor(startDate.getMinutes() / 15) * 15);
-            if (this.config.postProcessing === 'diff') {
-                startDate.setMinutes(startDate.getMinutes() - 15);
-            }
             startDate.setSeconds(0);
             startDate.setMilliseconds(0);
+            if (withDiff) {
+                startDate.setMinutes(startDate.getMinutes() - 15);
+            }
             startTs = startDate.getTime();
 
+            // `end` is the exclusive border of the last bar, so round it up only if it is not aligned yet.
+            // Otherwise, an empty bar is appended.
             const endDate = new Date(endTs);
-            endDate.setMinutes(Math.ceil(endDate.getMinutes() / 15) * 15);
-            endDate.setSeconds(0);
-            endDate.setMilliseconds(0);
+            if (endDate.getMinutes() % 15 || endDate.getSeconds() || endDate.getMilliseconds()) {
+                endDate.setMinutes(Math.floor(endDate.getMinutes() / 15) * 15 + 15);
+                endDate.setSeconds(0);
+                endDate.setMilliseconds(0);
+            }
             endTs = endDate.getTime();
             option.count = Math.round((endTs - startTs) / 900000);
         } else if (this.config.aggregateBar === 60) {
@@ -752,15 +791,17 @@ class ChartModel {
             startDate.setMinutes(0);
             startDate.setSeconds(0);
             startDate.setMilliseconds(0);
-            if (this.config.postProcessing === 'diff') {
+            if (withDiff) {
                 startDate.setMinutes(startDate.getMinutes() - 60);
             }
             startTs = startDate.getTime();
 
             const endDate = new Date(endTs);
-            endDate.setMinutes(60);
-            endDate.setSeconds(0);
-            endDate.setMilliseconds(0);
+            if (endDate.getMinutes() || endDate.getSeconds() || endDate.getMilliseconds()) {
+                endDate.setMinutes(60);
+                endDate.setSeconds(0);
+                endDate.setMilliseconds(0);
+            }
             endTs = endDate.getTime();
             option.count = Math.round((endTs - startTs) / 3600000);
         } else if (this.config.aggregateBar === 1440) {
@@ -770,17 +811,19 @@ class ChartModel {
             startDate.setMinutes(0);
             startDate.setSeconds(0);
             startDate.setMilliseconds(0);
-            if (this.config.postProcessing === 'diff') {
+            if (withDiff) {
                 startDate.setDate(startDate.getDate() - 1);
             }
             startTs = startDate.getTime();
 
             const endDate = new Date(endTs);
-            endDate.setDate(endDate.getDate() + 1);
-            endDate.setHours(0);
-            endDate.setMinutes(0);
-            endDate.setSeconds(0);
-            endDate.setMilliseconds(0);
+            if (endDate.getHours() || endDate.getMinutes() || endDate.getSeconds() || endDate.getMilliseconds()) {
+                endDate.setDate(endDate.getDate() + 1);
+                endDate.setHours(0);
+                endDate.setMinutes(0);
+                endDate.setSeconds(0);
+                endDate.setMilliseconds(0);
+            }
             endTs = endDate.getTime();
             option.count = Math.round((endTs - startTs) / 86400000);
         } else if (this.config.aggregateBar === 43200) {
@@ -791,20 +834,31 @@ class ChartModel {
             startDate.setMinutes(0);
             startDate.setSeconds(0);
             startDate.setMilliseconds(0);
-            if (this.config.postProcessing === 'diff') {
-                startDate.setDate(startDate.getDate() - 30);
+            if (withDiff) {
+                // one calendar month back and not 30 days, as every month has a different length
+                startDate.setMonth(startDate.getMonth() - 1);
             }
             startTs = startDate.getTime();
 
             const endDate = new Date(endTs);
-            endDate.setDate(1);
-            endDate.setHours(0);
-            endDate.setMinutes(0);
-            endDate.setMonth(endDate.getMonth() + 1);
-            endDate.setSeconds(0);
-            endDate.setMilliseconds(0);
+            if (
+                endDate.getDate() !== 1 ||
+                endDate.getHours() ||
+                endDate.getMinutes() ||
+                endDate.getSeconds() ||
+                endDate.getMilliseconds()
+            ) {
+                endDate.setDate(1);
+                endDate.setHours(0);
+                endDate.setMinutes(0);
+                endDate.setSeconds(0);
+                endDate.setMilliseconds(0);
+                endDate.setMonth(endDate.getMonth() + 1);
+            }
             endTs = endDate.getTime();
-            option.count = Math.round((endTs - startTs) / (86400000 * 30)); // todo it must be variable as every month has different count of days
+            // Count the real calendar months and do not assume 30 days per month
+            option.count =
+                (endDate.getFullYear() - startDate.getFullYear()) * 12 + endDate.getMonth() - startDate.getMonth();
         }
 
         option.start = startTs;
@@ -1040,9 +1094,9 @@ class ChartModel {
 
     static postProcessing(
         series: BarSeries[],
-        categories: number[],
         aggregate: ChartAggregateType,
         postProcessingMethod?: 'diff' | '',
+        dropFirstInterval?: boolean,
     ): BarSeries {
         const barSeries: BarSeries = [];
 
@@ -1087,13 +1141,13 @@ class ChartModel {
                     barSeries[i] = 0;
                 }
             }
-            barSeries.splice(0, 1);
-            categories.splice(0, 1);
         }
 
-        for (let i = 0; i < series.length; i++) {
-            console.log(`${categories[i]}: ${barSeries[i]}`);
+        if (dropFirstInterval) {
+            // The first interval was only read as a reference for `diff` and has no category
+            barSeries.splice(0, 1);
         }
+
         return barSeries;
     }
 
@@ -1151,10 +1205,12 @@ class ChartModel {
                 this.barCategories = barCategories;
                 const start = new Date(option.start);
                 const end: number = typeof option.end === 'number' ? option.end : (option.end as Date).getTime();
-                while (start.getTime() <= end) {
+                // `end` is the exclusive border of the last bar and must not get a category of its own
+                while (start.getTime() < end) {
                     barCategories.push(start.getTime());
-                    start.setMinutes(start.getMinutes() + this.config.aggregateBar);
+                    ChartModel.addBarInterval(start, this.config.aggregateBar);
                 }
+                this.barCategoriesEnd = end;
             }
 
             barCategories.forEach(() => _barSeries.push([]));
@@ -1182,12 +1238,10 @@ class ChartModel {
             const value: number | null = ChartModel.processOneValue(values[i].val, convertFunc, yOffset);
 
             if (line.chartType === 'bar') {
-                // find category
+                // find category: every interval is [category, next category[ and the last one ends at `end`
                 for (let c = 0; c < barCategories.length; c++) {
-                    if (
-                        barCategories[c] >= values[i].ts &&
-                        values[i].ts < barCategories[c] + this.config.aggregateBar * 60000
-                    ) {
+                    const intervalEnd = c + 1 < barCategories.length ? barCategories[c + 1] : this.barCategoriesEnd;
+                    if (values[i].ts >= barCategories[c] && values[i].ts < intervalEnd) {
                         _barSeries[c].push(value);
                         break;
                     }
@@ -1256,7 +1310,7 @@ class ChartModel {
         }
 
         // it is not the series, it is bar data
-        const barData = ChartModel.postProcessing(_barSeries, barCategories, line.aggregate, line.postProcessing);
+        const barData = ChartModel.postProcessing(_barSeries, line.aggregate, line.postProcessing, this.hasBarDiff());
         return { barData };
     }
 
@@ -1786,7 +1840,12 @@ class ChartModel {
             }
         });
 
-        this.onUpdateFunc?.(updateData, this.actualValues, this.barCategories);
+        this.onUpdateFunc?.(
+            updateData,
+            this.actualValues,
+            // The first interval is only the reference of the `diff` calculation and is not shown
+            this.barCategories && this.hasBarDiff() ? this.barCategories.slice(1) : this.barCategories,
+        );
     }
 
     onStateChange = (id: string, state: ioBroker.State | null | undefined): void => {
@@ -1963,6 +2022,7 @@ class ChartModel {
             this.seriesData = [];
             this.barData = [];
             this.barCategories = null;
+            this.barCategoriesEnd = undefined;
 
             await this._readData();
             // use units from common axis

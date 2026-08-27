@@ -117,6 +117,11 @@ You can debug view charts locally with:
 ## Changelog
 ### **WORK IN PROGRESS**
 - (@Brainbug01) Fixed the white screen when opening the legend or export dialog
+- (@GermanBluefox) Fixed the bar charts: the values were shown one interval too late
+- (@GermanBluefox) Fixed the bar charts: the months are counted in the calendar now and not as 30 days
+- (@GermanBluefox) Fixed the bar charts: no additional empty bar is added at the end of the range anymore
+- (@GermanBluefox) Fixed the `difference` processing of the bar charts: the first bar is not lost anymore
+- (@GermanBluefox) The configured time format is used for the X-axis labels of the bar charts too
 
 ### 5.0.2 (2026-08-10)
 - (@GermanBluefox) Show a state under every history instance that logs it and not only under the first one

@@ -6,11 +6,10 @@
         "@emotion/cache": "^11.14.0",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
-        "@vitejs/plugin-react": "^6.0.5",
+        "@vitejs/plugin-react": "^6.1.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
-        "react-icons": "^5.7.0",
-        "typescript": "~6.0.3"
+        "react-icons": "^5.7.0"
     },
     "homepage": ".",
     "proxy": "http://localhost:8081",
