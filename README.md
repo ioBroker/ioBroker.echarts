@@ -116,6 +116,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) The Y-axis does not open a negative area anymore if the values are never negative
 - (@GermanBluefox) Fixed the confusing date in the tooltip: it uses the date format of the language of the user now
 - (@GermanBluefox) The server-side rendering formats the dates in the language of the system now and not always in English
 - (@GermanBluefox) The zoom and the pan stop at the end of the time range now, so the user cannot scroll into the future by accident. It can be switched off per preset

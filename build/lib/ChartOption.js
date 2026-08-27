@@ -576,10 +576,12 @@ class ChartOption {
             let yMax = parseFloat(oneLine.max);
             const yAxis = this.chart.yAxis;
             if (yAxis[chartIndex]) {
-                const diff = yAxis[chartIndex].max - yAxis[chartIndex].min;
+                const dataMin = yAxis[chartIndex].min;
+                const dataMax = yAxis[chartIndex].max;
+                const diff = dataMax - dataMin;
                 if (Number.isNaN(yMin)) {
                     // auto calculate
-                    yMin = yAxis[chartIndex].min - diff * 0.1; // min - 10%
+                    yMin = dataMin - diff * 0.1; // min - 10%
                     if (diff > 25000) {
                         yMin = Math.floor(yMin / 10000) * 10000;
                     }
@@ -598,10 +600,15 @@ class ChartOption {
                     else if (diff > 1) {
                         yMin = Math.floor(yMin * 10) / 10;
                     }
+                    // The reserve and the rounding must not open a negative area that holds no value at
+                    // all. A line that really needs the place below zero sets its own minimum.
+                    if (dataMin >= 0 && yMin < 0) {
+                        yMin = 0;
+                    }
                 }
                 if (Number.isNaN(yMax)) {
                     // auto calculate
-                    yMax = yAxis[chartIndex].max + diff * 0.1; // max + 10%
+                    yMax = dataMax + diff * 0.1; // max + 10%
                     if (diff > 25000) {
                         yMax = Math.ceil(yMax / 10000) * 10000;
                     }
@@ -619,6 +626,10 @@ class ChartOption {
                     }
                     else if (diff > 1) {
                         yMax = Math.floor(yMax * 10) / 10;
+                    }
+                    // The same on the other side for values that are never positive
+                    if (dataMax <= 0 && yMax > 0) {
+                        yMax = 0;
                     }
                 }
             }
