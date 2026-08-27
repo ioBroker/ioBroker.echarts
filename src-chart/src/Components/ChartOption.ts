@@ -1,7 +1,7 @@
 // Default import (not `* as moment`): with esModuleInterop the namespace object is not callable,
 // and `MomentType` below has to stay callable — ChartView passes its own default import in.
 import type moment from 'moment';
-import type { ChartConfigMore, ThemeChartType } from '../../../src/types';
+import type { ChartConfigMore, ChartLineConfigMore, ThemeChartType } from '../../../src/types';
 import type { BarAndLineSeries, BarSeries, EchartsOneValue, LineSeries } from './ChartModel';
 // `resolution-mode: import` on the echarts type imports: tasksChart.js copies this file into
 // src/lib/ for the CommonJS backend, which resolves modules as Node16. Without the attribute
@@ -15,6 +15,7 @@ import type {
     CallbackDataParams,
     GridOption,
     LinearGradientObject,
+    PiecewiseVisualMapOption,
     RegisteredSeriesOption,
     TitleOption,
     XAXisOption,
@@ -234,6 +235,16 @@ function getGradient(color: string): LinearGradientObject {
     };
 }
 
+/** One line of the tooltip. `null` if the series has nothing to show at this point */
+type TooltipRow = {
+    /** Name of the series. Lines sharing a name are merged into one row */
+    name: string;
+    seriesIndex: number;
+    /** `false` if the value at this point is null, so a line with a real value can win the merge */
+    hasValue: boolean;
+    html: string;
+} | null;
+
 type ChartInfo = {
     xMin?: number;
     xMax?: number;
@@ -252,6 +263,9 @@ type ChartInfo = {
     padBottom?: number;
     padLeft?: number;
     padRight?: number;
+
+    /** The color every series is really drawn with, by series index. Filled by `getSeries` */
+    seriesColors?: string[];
 
     lastWidth?: number;
 };
@@ -352,6 +366,7 @@ class ChartOption {
     )[] {
         this.chart.xMin = null;
         this.chart.xMax = null;
+        this.chart.seriesColors = [];
         let colorCount = 0;
 
         const anyNotOwnAxis = this.config.l.find(
@@ -363,6 +378,8 @@ class ChartOption {
             if (!oneLine.color) {
                 colorCount++;
             }
+            // `getVisualMap` needs the color that was really used, not only the configured one
+            this.chart.seriesColors[i] = color;
 
             oneLine.shadowsize = parseFloat(oneLine.shadowsize as unknown as string) || 0;
             if ((oneLine.dashes as unknown as string) === 'false') {
@@ -402,7 +419,8 @@ class ChartOption {
                     // step: oneLine.chartType === 'steps' ? 'end' : (oneLine.chartType === 'stepsStart' ? 'start' : undefined) ,
                     // smooth: oneLine.chartType === 'spline',
                     data: data[i],
-                    color,
+                    // With two colors the bars are colored by `visualMap`, an own color would win against it
+                    color: ChartOption.hasTwoColors(oneLine) ? undefined : color,
                 };
                 return cfg;
             } else if (oneLine.chartType === 'polar') {
@@ -502,21 +520,90 @@ class ChartOption {
                     },
                 };
                 if (parseFloat(oneLine.fill as unknown as string)) {
-                    let _color: string | LinearGradientObject;
-                    if (!this.isTouch) {
-                        _color = getGradient(color);
+                    if (ChartOption.hasTwoColors(oneLine)) {
+                        // `visualMap` colors the line and the area, but only if no own area color is set
+                        _cfg.areaStyle = { opacity: parseFloat(oneLine.fill as unknown as string) || 0 };
                     } else {
-                        _color = color;
+                        let _color: string | LinearGradientObject;
+                        if (!this.isTouch) {
+                            _color = getGradient(color);
+                        } else {
+                            _color = color;
+                        }
+                        _cfg.areaStyle = {
+                            color: _color,
+                            opacity: parseFloat(oneLine.fill as unknown as string) || 0,
+                        };
                     }
-                    _cfg.areaStyle = {
-                        color: _color,
-                        opacity: parseFloat(oneLine.fill as unknown as string) || 0,
-                    };
                 }
                 cfg = _cfg;
             }
             return cfg;
         });
+    }
+
+    /**
+     * Is this line drawn in two colors, depending on the value? Radar has no value axis to compare with.
+     *
+     * @param oneLine configuration of the line
+     */
+    static hasTwoColors(oneLine: ChartLineConfigMore): boolean {
+        return !!oneLine.colorNegative && oneLine.chartType !== 'polar';
+    }
+
+    /**
+     * Build one `visualMap` per line that is drawn in two colors, e.g. green while a battery is charging
+     * and red while it is discharging. echarts colors every point by its value, so one single data source
+     * is enough and the chart shows one line and one entry in the legend.
+     */
+    getVisualMap(): PiecewiseVisualMapOption[] | undefined {
+        const visualMap: PiecewiseVisualMapOption[] = [];
+
+        this.config.l.forEach((oneLine, i) => {
+            if (!ChartOption.hasTwoColors(oneLine)) {
+                return;
+            }
+            const threshold = parseFloat(oneLine.colorThreshold as unknown as string) || 0;
+            // 0 is the time and 1 is the value
+            const common: PiecewiseVisualMapOption = {
+                type: 'piecewise',
+                show: false,
+                seriesIndex: i,
+                dimension: 1,
+            };
+            const positiveColor = this.chart.seriesColors?.[i] || oneLine.color;
+
+            if (oneLine.chartType === 'bar') {
+                // Bars stand on a category axis, there echarts can handle open borders
+                visualMap.push({
+                    ...common,
+                    pieces: [
+                        { gt: threshold, color: positiveColor },
+                        { lte: threshold, color: oneLine.colorNegative },
+                    ],
+                });
+                return;
+            }
+
+            // For lines echarts builds a gradient along the axis out of the pieces, and open borders
+            // (`gt`/`lte`) deliver no color stop for it, which lets `getVisualGradient` throw. So the
+            // pieces get real borders, generously extended so that no value can fall out of them.
+            const yAxis = this.chart.yAxis[ChartOption.getCommonAxis(oneLine.commonYAxis, i)];
+            const min = Math.min(typeof yAxis?.min === 'number' ? yAxis.min : threshold, threshold);
+            const max = Math.max(typeof yAxis?.max === 'number' ? yAxis.max : threshold, threshold);
+            const reserve = (max - min || Math.abs(threshold) || 1) * 10;
+
+            visualMap.push({
+                ...common,
+                pieces: [
+                    // A value exactly on the threshold belongs to the first piece
+                    { min: threshold, max: max + reserve, color: positiveColor },
+                    { min: min - reserve, max: threshold, color: oneLine.colorNegative },
+                ],
+            });
+        });
+
+        return visualMap.length ? visualMap : undefined;
     }
 
     getXAxis(categories: number[]): XAXisOption[] {
@@ -1117,7 +1204,7 @@ class ChartOption {
         const anyBarOrPolar = this.config.l.find(l => l.chartType === 'bar' || l.chartType === 'polar');
 
         let barPolarName: string;
-        const values: string[] = series.map((line, seriesIndex: number): string => {
+        const rows: TooltipRow[] = series.map((line, seriesIndex: number): TooltipRow => {
             const lineConfig = this.config.l[seriesIndex];
             const p = params.find(param => param.seriesIndex === seriesIndex);
             if (anyBarOrPolar) {
@@ -1133,13 +1220,17 @@ class ChartOption {
                 }
                 barPolarName = p.name;
 
-                return (
-                    `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${p.color as string}">` +
-                    `<div style="display: flex;margin-right: 4px">${lineConfig.name}:</div>` +
-                    '<div style="display: flex; flex-grow: 1"></div>' +
-                    `<div style="display: flex;"><b>${val as number}</b>${lineConfig.unit || ''}</div>` +
-                    '</div>'
-                );
+                return {
+                    name: lineConfig.name,
+                    seriesIndex,
+                    hasValue: val !== null && val !== undefined,
+                    html:
+                        `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${p.color as string}">` +
+                        `<div style="display: flex;margin-right: 4px">${lineConfig.name}:</div>` +
+                        '<div style="display: flex; flex-grow: 1"></div>' +
+                        `<div style="display: flex;"><b>${val as number}</b>${lineConfig.unit || ''}</div>` +
+                        '</div>',
+                };
             }
 
             // It is a line and not a bar or polar
@@ -1151,10 +1242,10 @@ class ChartOption {
 
             interpolated = interpolated || this.getInterpolatedValue(seriesIndex, ts, lineConfig.type, hoverNoNulls);
             if (!interpolated) {
-                return '';
+                return null;
             }
             if (!interpolated.exact && this.config.hoverNoInterpolate) {
-                return '';
+                return null;
             }
 
             const val =
@@ -1169,22 +1260,56 @@ class ChartOption {
                   ).format(shiftFormat)}</div>`
                 : '';
 
-            return (
-                `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color as string}">` +
-                `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
-                `<div style="display: flex; flex-grow: 1"></div>${realTime}` +
-                `<div style="display: flex;">${interpolated.exact ? '' : 'i '}<b>${val}</b>${interpolated.val !== null ? lineConfig.unit : ''}</div>` +
-                '</div>'
-            );
+            return {
+                name: line.name as string,
+                seriesIndex,
+                hasValue: interpolated.val !== null,
+                html:
+                    `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color as string}">` +
+                    `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
+                    `<div style="display: flex; flex-grow: 1"></div>${realTime}` +
+                    `<div style="display: flex;">${interpolated.exact ? '' : 'i '}<b>${val}</b>${interpolated.val !== null ? lineConfig.unit : ''}</div>` +
+                    '</div>',
+            };
         });
+
+        const values = ChartOption.mergeTooltipRowsByName(rows);
 
         if (anyBarOrPolar) {
             const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm';
             const _date = new Date(parseInt(barPolarName.substring(1), 10));
-            return `<b>${this.moment(_date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
+            return `<b>${this.moment(_date).format(format)}</b><br/>${values.join('<br/>')}`;
         }
         const format = this.config.timeFormat || 'dd, MM Do YYYY, HH:mm:ss.SSS';
-        return `<b>${this.moment(date).format(format)}</b><br/>${values.filter(t => t).join('<br/>')}`;
+        return `<b>${this.moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
+    }
+
+    /**
+     * Several lines may carry the same name to appear as a single entry in the legend (e.g. charging and
+     * discharging of a battery). Such lines get one row in the tooltip too: the first one that really has
+     * a value at this point, as normally only one of them is defined at a time.
+     *
+     * @param rows one entry per series, `null` if the series has nothing to show
+     */
+    static mergeTooltipRowsByName(rows: TooltipRow[]): string[] {
+        const byName: Record<string, TooltipRow> = {};
+        const order: string[] = [];
+
+        for (const row of rows) {
+            if (!row?.html) {
+                continue;
+            }
+            // Lines without a name are never merged
+            const key = row.name ? `n${row.name}` : `i${row.seriesIndex}`;
+            if (!byName[key]) {
+                byName[key] = row;
+                order.push(key);
+            } else if (!byName[key].hasValue && row.hasValue) {
+                byName[key] = row;
+            }
+        }
+
+        return order.map(key => byName[key].html);
     }
 
     getLegend(actualValues: number[]): LegendComponentOption {
@@ -1340,6 +1465,7 @@ class ChartOption {
                     : undefined,
             xAxis,
             yAxis,
+            visualMap: this.getVisualMap(),
             // @ts-expect-error it is because of markArea.tooltip.position
             series,
             useCanvas,

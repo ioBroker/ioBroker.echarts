@@ -69,6 +69,7 @@ import {
     MarkLineComponent,
     MarkAreaComponent,
     TooltipComponent,
+    VisualMapComponent,
 } from 'echarts/components';
 
 import { SVGRenderer, CanvasRenderer } from 'echarts/renderers';
@@ -108,6 +109,8 @@ echarts.use([
     MarkLineComponent,
     MarkAreaComponent,
     TooltipComponent,
+    // Colors a line by its value, used for lines with two colors
+    VisualMapComponent,
     // Axis2D,
     // CartesianGrid,
     GridComponent,
@@ -1098,8 +1101,6 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                         'color',
                     ) as string;
                 });
-
-            console.log(colors);
         }
 
         return (
@@ -1133,24 +1134,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                             const newExcluded = !this.state.excluded.length
                                                 ? this.props.config.l.map(line => line.id)
                                                 : [];
-                                            this.setState({ excluded: newExcluded }, () => {
+                                            this.setState({ excluded: newExcluded }, () =>
                                                 // immediately apply visibility to chart
-                                                if (
-                                                    this.echartsReact &&
-                                                    typeof this.echartsReact.getEchartsInstance === 'function'
-                                                ) {
-                                                    const selected: Record<string, boolean> = {};
-                                                    this.props.config.l.forEach(l => {
-                                                        selected[l.name] = !newExcluded.includes(l.id);
-                                                    });
-                                                    try {
-                                                        const chartInstance = this.echartsReact.getEchartsInstance();
-                                                        chartInstance.setOption({ legend: { selected } });
-                                                    } catch {
-                                                        console.error('Cannot apply legend selection');
-                                                    }
-                                                }
-                                            });
+                                                this.applyLegendSelection(newExcluded),
+                                            );
                                         }}
                                     />
                                 }
@@ -1161,58 +1148,46 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                 }
                             />
                             <List dense>
-                                {this.props.config.l.map((line, i) => (
-                                    <ListItem
-                                        key={i}
-                                        disablePadding
-                                    >
-                                        <ListItemButton
-                                            onClick={() => {
-                                                const excluded = [...this.state.excluded];
-                                                const pos = excluded.indexOf(line.id);
-                                                if (pos === -1) {
-                                                    excluded.push(line.id);
-                                                } else {
-                                                    excluded.splice(pos, 1);
-                                                }
-                                                this.setState({ excluded }, () => {
-                                                    // immediately apply visibility to chart
-                                                    if (
-                                                        this.echartsReact &&
-                                                        typeof this.echartsReact.getEchartsInstance === 'function'
-                                                    ) {
-                                                        const selected: Record<string, boolean> = {};
-                                                        this.props.config.l.forEach(l => {
-                                                            selected[l.name] = !excluded.includes(l.id);
-                                                        });
-                                                        try {
-                                                            const chartInstance =
-                                                                this.echartsReact.getEchartsInstance();
-                                                            chartInstance.setOption({ legend: { selected } });
-                                                        } catch {
-                                                            console.error('Cannot apply legend selection');
-                                                        }
-                                                    }
-                                                });
-                                            }}
+                                {this.getLegendGroups(colors).map((group, i) => {
+                                    const shown = !group.ids.find(id => this.state.excluded.includes(id));
+                                    return (
+                                        <ListItem
+                                            key={i}
+                                            disablePadding
                                         >
-                                            <ListItemIcon style={styles.lineCheckbox}>
-                                                <Checkbox
-                                                    edge="start"
-                                                    tabIndex={-1}
-                                                    disableRipple
-                                                    checked={!this.state.excluded.includes(line?.id)}
+                                            <ListItemButton
+                                                onClick={() => {
+                                                    // All lines of a group are switched together
+                                                    const excluded = this.state.excluded.filter(
+                                                        id => !group.ids.includes(id),
+                                                    );
+                                                    if (shown) {
+                                                        excluded.push(...group.ids);
+                                                    }
+                                                    this.setState({ excluded }, () =>
+                                                        // immediately apply visibility to chart
+                                                        this.applyLegendSelection(excluded),
+                                                    );
+                                                }}
+                                            >
+                                                <ListItemIcon style={styles.lineCheckbox}>
+                                                    <Checkbox
+                                                        edge="start"
+                                                        tabIndex={-1}
+                                                        disableRipple
+                                                        checked={shown}
+                                                    />
+                                                </ListItemIcon>
+                                                <LineSvg style={{ color: group.color, marginRight: 8 }} />
+                                                <ListItemText
+                                                    primary={group.name || group.ids.join(', ')}
+                                                    secondary={group.name ? group.ids.join(', ') : null}
+                                                    slotProps={{ secondary: { style: styles.lineId } }}
                                                 />
-                                            </ListItemIcon>
-                                            <LineSvg style={{ color: line?.color || colors[i], marginRight: 8 }} />
-                                            <ListItemText
-                                                primary={line?.name || line?.id}
-                                                secondary={line?.name && line?.id ? line.id : null}
-                                                slotProps={{ secondary: { style: styles.lineId } }}
-                                            />
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
+                                            </ListItemButton>
+                                        </ListItem>
+                                    );
+                                })}
                             </List>
                         </DialogContent>
                         <DialogActions>
@@ -1229,6 +1204,50 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 ) : null}
             </>
         );
+    }
+
+    /**
+     * Lines that carry the same name are shown as a single entry in the legend of the chart, because
+     * echarts selects the series by name. So the legend dialog must group them into one row too,
+     * otherwise the user would toggle one of them and both would disappear.
+     *
+     * @param colors the colors the chart really uses, by series index
+     */
+    getLegendGroups(colors: string[]): { name: string; ids: string[]; color: string }[] {
+        const groups: { name: string; ids: string[]; color: string }[] = [];
+
+        this.props.config.l.forEach((line, i) => {
+            const group = line?.name ? groups.find(item => item.name === line.name) : null;
+            if (group) {
+                group.ids.push(line.id);
+            } else {
+                groups.push({ name: line?.name, ids: [line?.id], color: line?.color || colors[i] });
+            }
+        });
+
+        return groups;
+    }
+
+    /**
+     * Apply the selection of the legend dialog to the chart without waiting for the next update
+     *
+     * @param excluded IDs of the lines that must be hidden
+     */
+    applyLegendSelection(excluded: string[]): void {
+        if (!this.echartsReact || typeof this.echartsReact.getEchartsInstance !== 'function') {
+            return;
+        }
+        const selected: Record<string, boolean> = {};
+        // Several lines can share a name. Such a name is only shown if none of them is excluded
+        this.props.config.l.forEach(l => {
+            selected[l.name] = selected[l.name] !== false && !excluded.includes(l.id);
+        });
+
+        try {
+            this.echartsReact.getEchartsInstance().setOption({ legend: { selected } });
+        } catch {
+            console.error('Cannot apply legend selection');
+        }
     }
 
     renderExportDataDialog(): React.JSX.Element | null {

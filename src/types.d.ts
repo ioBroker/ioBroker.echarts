@@ -96,6 +96,13 @@ export type ChartLineConfig = {
     integralInterpolation?: 'none' | 'linear';
 
     color?: string;
+    /**
+     * Second color for the values below `colorThreshold`, e.g. green for charging and red for
+     * discharging a battery. If empty, the line is drawn in `color` only.
+     */
+    colorNegative?: string;
+    /** Value where the line switches from `color` to `colorNegative`. Default is 0 */
+    colorThreshold?: number;
     thickness?: number;
     shadowsize?: number;
     dashes?: boolean;

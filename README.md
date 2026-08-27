@@ -116,6 +116,8 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) Added a second color for the values below a threshold, e.g. green while charging and red while discharging a battery
+- (@GermanBluefox) Lines with the same name are shown as one entry in the legend and as one row in the tooltip now
 - (@GermanBluefox) Added the option to draw a line with X-offset on the main time range, so it can be compared with the not shifted lines
 - (@Brainbug01) Fixed the white screen when opening the legend or export dialog
 - (@GermanBluefox) Fixed the bar charts: the values were shown one interval too late

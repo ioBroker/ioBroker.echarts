@@ -588,6 +588,8 @@ export default class Line extends React.Component<LineProps, LineState> {
                 ) : null}
                 {visible.color
                     ? this.renderColorField(
+                          'color',
+                          'Color',
                           WIDTHS.color,
                           { ...styles.shortColorField, ...(this.props.onPaste ? styles.paste : undefined) },
                           true,
@@ -638,15 +640,31 @@ export default class Line extends React.Component<LineProps, LineState> {
         );
     }
 
-    renderColorField(minWidth?: string | number, style?: React.CSSProperties, noPadding?: boolean): React.JSX.Element {
-        let textColor = Utils.isUseBright(this.props.line.color, null);
+    /**
+     * Render an input for one of the colors of the line
+     *
+     * @param field which color of the line is edited
+     * @param label label of the input
+     * @param minWidth minimal width of the input
+     * @param style style of the surrounding div
+     * @param noPadding do not indent the text in the input
+     */
+    renderColorField(
+        field: 'color' | 'colorNegative',
+        label: string,
+        minWidth?: string | number,
+        style?: React.CSSProperties,
+        noPadding?: boolean,
+    ): React.JSX.Element {
+        const value = this.props.line[field];
+        let textColor = Utils.isUseBright(value, null);
         if (textColor === null) {
             textColor = undefined;
         }
 
-        const updateValue = (value: string): void => {
+        const updateValue = (newValue: string): void => {
             const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-            line.color = value;
+            line[field] = newValue;
             this.props.updateLine(this.props.index, line);
         };
 
@@ -656,11 +674,11 @@ export default class Line extends React.Component<LineProps, LineState> {
                     variant="standard"
                     disabled={!!this.props.onPaste}
                     style={{ minWidth, width: 'calc(100% - 8px)' }}
-                    label={I18n.t('Color')}
-                    value={this.props.line.color || ''}
+                    label={I18n.t(label)}
+                    value={value || ''}
                     onClick={() => {
                         if (!this.props.onPaste) {
-                            this.setState({ color: this.props.line.color }, () =>
+                            this.setState({ color: value }, () =>
                                 this.props.onSelectColor(this.state.color, color =>
                                     this.setState({ color }, () => updateValue(ColorPicker.getColor(color, true))),
                                 ),
@@ -675,12 +693,12 @@ export default class Line extends React.Component<LineProps, LineState> {
                         htmlInput: {
                             style: {
                                 paddingLeft: noPadding ? 0 : 8,
-                                backgroundColor: this.props.line.color,
+                                backgroundColor: value,
                                 color: textColor ? '#FFF' : '#000',
                             },
                         },
                         input: {
-                            endAdornment: this.props.line.color ? (
+                            endAdornment: value ? (
                                 <IconButton
                                     disabled={!!this.props.onPaste}
                                     size="small"
@@ -952,7 +970,24 @@ export default class Line extends React.Component<LineProps, LineState> {
                     sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterMain)}
                 >
                     <p style={styles.title}>{I18n.t('Main')}</p>
-                    {!this.props.index || this.props.line.chartType !== 'polar' ? this.renderColorField() : null}
+                    {!this.props.index || this.props.line.chartType !== 'polar'
+                        ? this.renderColorField('color', 'Color')
+                        : null}
+                    {this.props.line.chartType !== 'polar'
+                        ? this.renderColorField('colorNegative', 'Color below threshold')
+                        : null}
+                    {this.props.line.colorNegative && this.props.line.chartType !== 'polar' ? (
+                        <IONumberField
+                            value={this.props.line.colorThreshold}
+                            updateValue={(value: number): void => {
+                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                line.colorThreshold = value;
+                                this.props.updateLine(this.props.index, line);
+                            }}
+                            label="Color threshold"
+                            tooltip={I18n.t('Values below this limit are drawn in the second color. Default is 0')}
+                        />
+                    ) : null}
                     <IOSelect
                         value={this.props.line.chartType}
                         updateValue={(value: string): void => {
