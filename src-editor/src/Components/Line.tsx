@@ -1096,7 +1096,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                             )}
                         />
                     ) : null}
-                    {this.props.presetData.legend ? (
+                    {this.props.presetData.legend && !this.props.line.hideInLegend ? (
                         <IOCheckbox
                             value={this.props.line.hide}
                             updateValue={(value: boolean): void => {
@@ -1105,6 +1105,20 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Show only in legend"
+                        />
+                    ) : null}
+                    {this.props.presetData.legend && !this.props.line.hide ? (
+                        <IOCheckbox
+                            value={this.props.line.hideInLegend}
+                            updateValue={(value: boolean): void => {
+                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                line.hideInLegend = value;
+                                this.props.updateLine(this.props.index, line);
+                            }}
+                            label="Do not show in legend"
+                            tooltip={I18n.t(
+                                'The line is drawn, but gets no entry in the legend and cannot be switched off there anymore',
+                            )}
                         />
                     ) : null}
                     {this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? (

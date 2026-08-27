@@ -1103,6 +1103,9 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 });
         }
 
+        // Lines with `hideInLegend` are not in the dialog, so "select all" must not switch them off either
+        const selectableIds = this.props.config.l.filter(line => !line?.hideInLegend).map(line => line?.id);
+
         return (
             <>
                 <Fab
@@ -1128,12 +1131,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                         checked={!this.state.excluded.length}
                                         indeterminate={
                                             this.state.excluded.length &&
-                                            this.state.excluded.length !== this.props.config.l.length
+                                            this.state.excluded.length !== selectableIds.length
                                         }
                                         onChange={() => {
-                                            const newExcluded = !this.state.excluded.length
-                                                ? this.props.config.l.map(line => line.id)
-                                                : [];
+                                            const newExcluded = !this.state.excluded.length ? [...selectableIds] : [];
                                             this.setState({ excluded: newExcluded }, () =>
                                                 // immediately apply visibility to chart
                                                 this.applyLegendSelection(newExcluded),
@@ -1142,7 +1143,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                     />
                                 }
                                 label={
-                                    this.state.excluded.length !== this.props.config.l.length
+                                    this.state.excluded.length !== selectableIds.length
                                         ? I18n.t('Select all')
                                         : I18n.t('Unselect all')
                                 }
@@ -1217,6 +1218,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         const groups: { name: string; ids: string[]; color: string }[] = [];
 
         this.props.config.l.forEach((line, i) => {
+            if (line?.hideInLegend) {
+                // The line is drawn, but it must not be switchable
+                return;
+            }
             const group = line?.name ? groups.find(item => item.name === line.name) : null;
             if (group) {
                 group.ids.push(line.id);

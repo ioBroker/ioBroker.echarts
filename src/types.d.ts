@@ -142,8 +142,14 @@ export interface ChartLineConfigMore extends ChartLineConfig {
 
     xaxe?: 'off' | 'top' | '';
 
-    // Hide this in legend
+    // Show the line only in the legend and do not draw it: the entry starts unselected
     hide?: boolean;
+    /**
+     * Draw the line, but give it no entry in the legend. Useful for lines that are only a background,
+     * e.g. an alternating value that shades every second week. Such a line cannot be switched off by
+     * the user anymore, as there is nothing to click on.
+     */
+    hideInLegend?: boolean;
 
     // Used only for editor
     isBoolean?: boolean;
