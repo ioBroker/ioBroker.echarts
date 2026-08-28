@@ -244,9 +244,17 @@ export default class App extends GenericApp<AppProps, AppState> {
                 (this.state.selectedId?.id !== (config as { id: string; instance: string }).id ||
                     this.state.selectedId?.instance !== (config as { id: string; instance: string }).instance))
         ) {
-            void this.loadChartOrPreset(
+            this.confirmAndLoad(
                 (config as { preset: string }).preset || (config as { id: string; instance: string }),
-            ).then(() => this.setState({ scrollToSelect: true }, () => this.setState({ scrollToSelect: false })));
+                (loaded: false | SelectedChart): void => {
+                    if (loaded === false) {
+                        // The user kept the unsaved preset, so the address has to point at it again
+                        this.writeHash(this.state.selectedId);
+                        return;
+                    }
+                    this.setState({ scrollToSelect: true }, () => this.setState({ scrollToSelect: false }));
+                },
+            );
         }
     }
 
@@ -391,6 +399,10 @@ export default class App extends GenericApp<AppProps, AppState> {
     }
 
     onCopyPreset = async (presetId: string): Promise<void> => {
+        // Ask before the copy exists, so a cancel leaves no half-finished preset behind
+        if (!(await this.confirmDiscard('preset'))) {
+            return;
+        }
         try {
             const obj: ioBroker.Object | null | undefined = await this.socket.getObject(presetId);
             if (obj) {
@@ -421,6 +433,10 @@ export default class App extends GenericApp<AppProps, AppState> {
     };
 
     onCreatePreset = async (isFromCurrentSelection: boolean, parentId?: string): Promise<void> => {
+        // The same here: the question comes before the new preset is written
+        if (!(await this.confirmDiscard('preset'))) {
+            return;
+        }
         let template: ioBroker.ChartObject;
         let id: string;
         if (isFromCurrentSelection === true) {
@@ -575,6 +591,62 @@ export default class App extends GenericApp<AppProps, AppState> {
         });
     }
 
+    /** Put the current selection into the address bar */
+    writeHash(selectedId: SelectedChart | null): void {
+        if (!selectedId) {
+            return;
+        }
+        const hash =
+            typeof selectedId === 'object'
+                ? `#id=${selectedId.id}&instance=${selectedId.instance.replace(/^system\.adapter\./, '')}`
+                : `#preset=${selectedId}`;
+        if (window.location.hash !== hash) {
+            window.location.hash = hash;
+        }
+    }
+
+    /**
+     * Load another preset or chart, but ask first if the current one carries unsaved changes.
+     *
+     * Every way that changes the selection goes through here, so the question cannot be walked around
+     * by copying a preset, creating one or opening one over the address bar.
+     *
+     * @param selectedId the preset or the chart to load, `null` closes the current one
+     * @param cb called with the loaded ID, or with `false` if the user cancelled
+     */
+    confirmAndLoad = (selectedId: SelectedChart | null, cb?: (presetId: false | SelectedChart) => void): void => {
+        const target = selectedId && typeof selectedId === 'object' ? 'chart' : selectedId ? 'preset' : 'folder';
+
+        void this.confirmDiscard(target).then((confirmed: boolean): void => {
+            if (!confirmed) {
+                cb && cb(false); // cancel
+                return;
+            }
+            void this.loadChartOrPreset(selectedId).then(() => cb && cb(selectedId));
+        });
+    };
+
+    /**
+     * Ask whether the unsaved changes of the current preset may be dropped. Answers `true` at once if
+     * there is nothing to lose, so the caller does not have to check that itself.
+     *
+     * @param target what the user is about to open, it only chooses the wording of the question
+     * @returns `true` if the work may go on, `false` if the user cancelled
+     */
+    confirmDiscard(target: 'chart' | 'preset' | 'folder'): Promise<boolean> {
+        if (!this.state.selectedPresetChanged) {
+            return Promise.resolve(true);
+        }
+
+        return new Promise<boolean>(resolve => {
+            this.confirmCB = (confirmed: boolean): void => {
+                this.confirmCB = null;
+                resolve(confirmed);
+            };
+            this.setState({ discardChangesConfirmDialog: target });
+        });
+    }
+
     async loadChartOrPreset(selectedId: SelectedChart): Promise<void> {
         window.localStorage.setItem('App.echarts.selectedId', JSON.stringify(selectedId));
         // Race guard: if another loadChartOrPreset starts before this one finishes,
@@ -690,10 +762,7 @@ export default class App extends GenericApp<AppProps, AppState> {
                         selectedId,
                     },
                     () => {
-                        const hash = `#id=${selectedId.id}&instance=${selectedId.instance.replace(/^system\.adapter\./, '')}`;
-                        if (window.location.hash !== hash) {
-                            window.location.hash = hash;
-                        }
+                        this.writeHash(selectedId);
                         resolve();
                     },
                 );
@@ -705,12 +774,12 @@ export default class App extends GenericApp<AppProps, AppState> {
                 return;
             }
             if (obj?.native?.data) {
-                const selectedIdSrc = typeof selectedId === 'string' ? selectedId : JSON.stringify(selectedId);
+                this.writeHash(selectedId);
 
-                const hash = `#preset=${selectedIdSrc}`;
-                if (window.location.hash !== hash) {
-                    window.location.hash = hash;
-                }
+                // Normalize before the snapshot is taken: `normalizePreset` changes the very same
+                // object, so a preset of an older version would count as changed as soon as the user
+                // touches anything, even after undoing it again
+                App.normalizePreset(obj.native.data);
 
                 const newState = {
                     presetData: obj.native.data,
@@ -718,8 +787,6 @@ export default class App extends GenericApp<AppProps, AppState> {
                     selectedPresetChanged: false,
                     selectedId,
                 };
-
-                App.normalizePreset(newState.presetData);
 
                 await new Promise<void>(resolve => this.setState(newState, () => resolve()));
             }
@@ -770,22 +837,24 @@ export default class App extends GenericApp<AppProps, AppState> {
                     >
                         {I18n.t('Load without save')}
                     </Button>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        autoFocus
-                        onClick={() =>
-                            this.savePreset().then(() =>
-                                this.setState(
-                                    { discardChangesConfirmDialog: false },
-                                    () => this.confirmCB && this.confirmCB(true),
-                                ),
-                            )
-                        }
-                        startIcon={<IconSave />}
-                    >
-                        {I18n.t('Save current preset and load')}
-                    </Button>
+                    {typeof this.state.selectedId === 'string' && this.state.selectedId ? (
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            autoFocus
+                            onClick={() =>
+                                this.savePreset().then(() =>
+                                    this.setState(
+                                        { discardChangesConfirmDialog: false },
+                                        () => this.confirmCB && this.confirmCB(true),
+                                    ),
+                                )
+                            }
+                            startIcon={<IconSave />}
+                        >
+                            {I18n.t('Save current preset and load')}
+                        </Button>
+                    ) : null}
                     <Button
                         color="grey"
                         variant="contained"
@@ -1032,34 +1101,9 @@ export default class App extends GenericApp<AppProps, AppState> {
                             selectedId = chartsList[0];
                         }
                     }
-                    this.setState({ chartsList }, () => this.loadChartOrPreset(selectedId));
+                    this.setState({ chartsList }, () => this.confirmAndLoad(selectedId));
                 }}
-                onSelectedChanged={(
-                    selectedId: SelectedChart | null,
-                    cb?: (presetId: false | SelectedChart) => void,
-                ): void => {
-                    if (this.state.selectedPresetChanged) {
-                        this.confirmCB = (confirmed: boolean): void => {
-                            if (confirmed) {
-                                void this.loadChartOrPreset(selectedId).then(() => cb && cb(selectedId));
-                            } else {
-                                cb && cb(false); // cancel
-                            }
-                            this.confirmCB = null;
-                        };
-
-                        this.setState({
-                            discardChangesConfirmDialog:
-                                selectedId && typeof selectedId === 'object'
-                                    ? 'chart'
-                                    : selectedId
-                                      ? 'preset'
-                                      : 'folder',
-                        });
-                    } else {
-                        void this.loadChartOrPreset(selectedId);
-                    }
-                }}
+                onSelectedChanged={this.confirmAndLoad}
                 version={this.props.version}
             />
         );
