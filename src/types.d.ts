@@ -185,7 +185,13 @@ type ThemeChartType =
 export interface ChartConfig {
     aggregate?: ChartAggregateType;
     ignoreNull?: boolean;
+    /**
+     * Width of one bar in minutes. 1440 is one day, 10080 one week and 43200 stands for one calendar
+     * month. Any other number is a free interval the user entered.
+     */
     aggregateBar?: number;
+    /** The interval of the bars is entered as a number of minutes instead of chosen from the list */
+    aggregateBarCustom?: boolean;
     aggregateType: 'step' | 'count';
     aggregateSpan: number;
     relativeEnd: ChartRelativeEnd;

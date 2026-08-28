@@ -1163,24 +1163,57 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                         sx={styles.group}
                     >
                         <p style={styles.title}>{I18n.t('Aggregate for bars')}</p>
-                        <IOSelect
-                            value={
-                                this.props.presetData.aggregateBar === undefined
-                                    ? ''
-                                    : this.props.presetData.aggregateBar.toString()
-                            }
-                            updateValue={(value: string): void => {
+                        <IOCheckbox
+                            value={this.props.presetData.aggregateBarCustom}
+                            updateValue={(value: boolean): void => {
                                 const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                                if (!value) {
-                                    delete presetData.aggregateBar;
-                                } else {
-                                    presetData.aggregateBar = parseInt(value, 10);
-                                }
+                                presetData.aggregateBarCustom = value;
                                 this.props.onChange(presetData);
                             }}
-                            label={I18n.t('Intervals')}
-                            options={barIntervalOptions}
+                            label="Custom interval"
+                            tooltip={I18n.t(
+                                'Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days',
+                            )}
                         />
+                        {this.props.presetData.aggregateBarCustom ? (
+                            <IONumberField
+                                value={this.props.presetData.aggregateBar}
+                                updateValue={(value: number): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    if (value) {
+                                        presetData.aggregateBar = value;
+                                    } else {
+                                        delete presetData.aggregateBar;
+                                    }
+                                    this.props.onChange(presetData);
+                                }}
+                                label="Interval in minutes"
+                                min={1}
+                            />
+                        ) : (
+                            <IOSelect
+                                value={
+                                    this.props.presetData.aggregateBar === undefined
+                                        ? ''
+                                        : this.props.presetData.aggregateBar.toString()
+                                }
+                                updateValue={(value: string): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    if (!value) {
+                                        delete presetData.aggregateBar;
+                                    } else {
+                                        presetData.aggregateBar = parseInt(value, 10);
+                                    }
+                                    this.props.onChange(presetData);
+                                }}
+                                label={I18n.t('Intervals')}
+                                options={barIntervalOptions}
+                            />
+                        )}
                     </Box>
                 ) : null}
                 <Box

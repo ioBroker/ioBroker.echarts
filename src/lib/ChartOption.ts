@@ -1167,6 +1167,11 @@ class ChartOption {
                 // The category is the first day of the month, so no correction of the date is required
                 return `${_date.getMonth() + 1}.${_date.getFullYear()}`;
             }
+            // A free interval: whole days carry their date, anything shorter the time of the day
+            if (this.config.aggregateBar >= 1440) {
+                return `${_date.getDate()}.${_date.getMonth() + 1}`;
+            }
+            return `${padding2(_date.getHours())}:${padding2(_date.getMinutes())}`;
         }
         const date = new Date(value);
 
@@ -1389,7 +1394,7 @@ class ChartOption {
                 this.config.timeFormat ||
                 (this.config.aggregateBar === 43200
                     ? 'MMMM YYYY'
-                    : this.config.aggregateBar === 1440 || this.config.aggregateBar === 10080
+                    : this.config.aggregateBar >= 1440
                       ? 'dd, L'
                       : 'dd, L HH:mm');
             // The header has to show the same date as the label of the X-axis right below it

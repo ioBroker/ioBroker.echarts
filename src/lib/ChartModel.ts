@@ -911,6 +911,29 @@ class ChartModel {
             // Count the real calendar months and do not assume 30 days per month
             option.count =
                 (endDate.getFullYear() - startDate.getFullYear()) * 12 + endDate.getMonth() - startDate.getMonth();
+        } else {
+            // A free interval the user entered. It is anchored at the midnight before the start, so the
+            // bars keep the same width and no shorter one appears at the border of a day. The end is
+            // walked in the same steps that `addBarInterval` uses, so the categories fit exactly.
+            const interval = this.config.aggregateBar;
+            const startDate = new Date(startTs);
+            const minutesOfDay = startDate.getHours() * 60 + startDate.getMinutes();
+            startDate.setHours(0, 0, 0, 0);
+            startDate.setMinutes(Math.floor(minutesOfDay / interval) * interval);
+            if (withDiff) {
+                startDate.setMinutes(startDate.getMinutes() - interval);
+            }
+            startTs = startDate.getTime();
+
+            // `end` is the exclusive border of the last bar
+            const walker = new Date(startTs);
+            let count = 0;
+            while (walker.getTime() < endTs) {
+                ChartModel.addBarInterval(walker, interval);
+                count++;
+            }
+            endTs = walker.getTime();
+            option.count = count;
         }
 
         option.start = startTs;
