@@ -126,6 +126,9 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) The text of a marking with an upper and a lower limit is drawn only once now and not at both border lines
+- (@GermanBluefox) Fixed the Y-axis being pulled back over the upper limit of a marking, which could push the marking out of the visible area
+- (@GermanBluefox) A marking widens the Y-axis of its own line now and no longer always the first one of the chart
 - (@GermanBluefox) Fixed the sorting of the data of a JSON source: the values were not ordered by time, so the legend showed the oldest value instead of the newest one
 - (@GermanBluefox) Added "1 week" as interval for the bar charts. The bars start on Monday, like the ISO calendar week. "auto" takes it for a range of 60 days up to half a year, which used to give only a handful of monthly bars
 - (@GermanBluefox) Added the calendar week to the list of the time formats, with and without the German prefix "KW"

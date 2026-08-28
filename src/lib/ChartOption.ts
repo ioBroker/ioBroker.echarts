@@ -895,7 +895,8 @@ class ChartOption {
                 series.markArea.data.push([
                     {
                         yAxis: lowerLimitFloat,
-                        //  name: oneMark.text || '',
+                        // No `name` here on purpose: echarts would draw it a second time in the middle
+                        // of the area, in its own default color. The text belongs to the border line.
                         itemStyle: {
                             color: oneMark.color || (series.itemStyle.color as string),
                             borderWidth: 0,
@@ -908,6 +909,9 @@ class ChartOption {
                 ]);
             }
             if (isLowerNumber || isUpperNumber) {
+                // An area has two border lines, but the mark has only one text. It is drawn at the
+                // first line, so it does not appear twice.
+                let textIsPlaced = false;
                 for (let i = 0; i < 2; i++) {
                     if (!i && !isUpperNumber) {
                         continue;
@@ -919,6 +923,11 @@ class ChartOption {
                         symbol: ['none', 'none'],
                         data: [],
                     };
+
+                    const showText = !!oneMark.text && !textIsPlaced;
+                    if (showText) {
+                        textIsPlaced = true;
+                    }
 
                     series.markLine.data.push({
                         yAxis: limitFloat,
@@ -936,7 +945,7 @@ class ChartOption {
                             type: oneMark.lineStyle || 'solid',
                         },
                         label: {
-                            show: !!oneMark.text,
+                            show: showText,
                             formatter: param => param.name,
                             position:
                                 oneMark.textPosition === 'r'
@@ -956,18 +965,36 @@ class ChartOption {
                         },
                     });
 
-                    if (this.config.l[oneMark.lineId]) {
-                        // if the minimum isn't set
-                        const yMin = parseFloat(this.config.l[oneMark.lineId].min as unknown as string);
-                        if (Number.isNaN(yMin) && this.chart.yAxis[oneMark.lineId]) {
-                            if ((this.chart.yAxis[oneMark.lineId].min as number) > limitFloat && limitFloat < 0) {
-                                (options.yAxis as YAXisOption[])[0].min = limitFloat;
+                    // A marking outside of the data must stay visible, so its axis is widened for it.
+                    //
+                    // The axis is the one of the marked line, or the one it shares with another line,
+                    // and never simply the first of the chart. Both borders of an area run through
+                    // here, so the axis may only grow: the lower border must not pull it back over the
+                    // upper one. An axis whose owner carries an own minimum or maximum stays untouched.
+                    const markedLine = this.config.l[oneMark.lineId];
+                    if (markedLine) {
+                        const axisIndex = ChartOption.getCommonAxis(markedLine.commonYAxis, oneMark.lineId);
+                        const axis = (options.yAxis as YAXisOption[])[axisIndex];
+                        const axisOwner = this.config.l[axisIndex] || markedLine;
+                        // The data of the lines that share the axis, not of the marked line alone
+                        const dataRange = this.chart.yAxis[axisIndex];
+
+                        if (axis && dataRange) {
+                            // if the minimum isn't set
+                            if (
+                                Number.isNaN(parseFloat(axisOwner.min as unknown as string)) &&
+                                (dataRange.min as number) > limitFloat &&
+                                limitFloat < 0 &&
+                                (typeof axis.min !== 'number' || axis.min > limitFloat)
+                            ) {
+                                axis.min = limitFloat;
                             }
-                        }
-                        const yMax = parseFloat(this.config.l[oneMark.lineId].max as unknown as string);
-                        if (Number.isNaN(yMax) && this.chart.yAxis[oneMark.lineId]) {
-                            if ((this.chart.yAxis[oneMark.lineId].max as number) < limitFloat) {
-                                (options.yAxis as YAXisOption[])[0].max = limitFloat;
+                            if (
+                                Number.isNaN(parseFloat(axisOwner.max as unknown as string)) &&
+                                (dataRange.max as number) < limitFloat &&
+                                (typeof axis.max !== 'number' || axis.max < limitFloat)
+                            ) {
+                                axis.max = limitFloat;
                             }
                         }
                     }
