@@ -1098,9 +1098,6 @@ class ChartModel {
             }
 
             const aggregate = this.config.l[index].aggregate || this.config.aggregate;
-            if (aggregate === 'current') {
-                throw new Error('Cannot use "current" aggregate for start/stop');
-            }
 
             option = {
                 start: startTs,
@@ -1109,7 +1106,8 @@ class ChartModel {
                     this.config.l[index].ignoreNull === undefined
                         ? this.config.ignoreNull
                         : this.config.l[index].ignoreNull,
-                aggregate: aggregate || 'minmax',
+                // "current" reads the state and never the history, so it must not reach the history adapter
+                aggregate: !aggregate || aggregate === 'current' ? 'minmax' : aggregate,
                 from: false,
                 ack: false,
                 q: false,

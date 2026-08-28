@@ -435,7 +435,9 @@ export default class Line extends React.Component<LineProps, LineState> {
 
         if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
-            if (this.props.presetData.l.find(line => line.chartType === 'polar')) {
+            // The radar and the "one bar per line" chart show a single value per line, so they can take
+            // it straight from the state instead of reading the history
+            if (this.props.presetData.l.find(line => line.chartType === 'polar') || this.props.presetData.barPerLine) {
                 aggregateTypes.current = 'current';
             }
         }
@@ -858,7 +860,9 @@ export default class Line extends React.Component<LineProps, LineState> {
 
         if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
-            if (this.props.presetData.l.find(line => line.chartType === 'polar')) {
+            // The radar and the "one bar per line" chart show a single value per line, so they can take
+            // it straight from the state instead of reading the history
+            if (this.props.presetData.l.find(line => line.chartType === 'polar') || this.props.presetData.barPerLine) {
                 aggregateTypes.current = 'current';
             }
         }

@@ -2036,6 +2036,34 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                 {this.props.presetData.l.find(line => line.chartType === 'bar') ? (
                     <Grid size={{ sm: 6, xs: 12 }}>
                         <p style={styles.title}>{I18n.t('Bar settings')}</p>
+                        <IOCheckbox
+                            value={this.props.presetData.barPerLine}
+                            updateValue={(value: boolean): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.barPerLine = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="One bar per line"
+                            tooltip={I18n.t(
+                                'The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation "current" every bar is the actual value of its state',
+                            )}
+                        />
+                        {this.props.presetData.barPerLine ? (
+                            <IOCheckbox
+                                value={this.props.presetData.barHorizontal}
+                                updateValue={(value: boolean): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    presetData.barHorizontal = value;
+                                    this.props.onChange(presetData);
+                                }}
+                                label="Horizontal bars"
+                                tooltip={I18n.t(
+                                    'The bars lie from left to right and the names are on the Y-axis. Useful for long names or for many lines',
+                                )}
+                            />
+                        ) : null}
                         <IOSelect
                             value={this.props.presetData.barLabels}
                             updateValue={(value: string): void => {

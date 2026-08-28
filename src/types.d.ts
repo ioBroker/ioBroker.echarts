@@ -269,6 +269,13 @@ export interface ChartConfigMore extends ChartConfig {
     barLabels?: 'topover' | 'topunder' | 'bottom' | 'inside' | '';
     barFontSize?: number;
     barWidth?: number;
+    /**
+     * Draw one bar per line instead of one bar per time interval.
+     * The X-axis shows then the names of the lines and every bar is the last value of its line.
+     */
+    barPerLine?: boolean;
+    /** Draw the bars from left to right, so the names are on the Y-axis. Only together with `barPerLine` */
+    barHorizontal?: boolean;
 
     noAnimation?: boolean;
 

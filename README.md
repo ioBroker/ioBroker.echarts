@@ -22,6 +22,16 @@ Build useful charts in ioBroker:
 ![Radar](img/radar.png)
 Use "Actual value" aggregation for predicted result.
 
+### One bar per data point
+
+Normally the X-axis of a bar chart is the time and every bar is one interval. With **Bar settings → One
+bar per line** the X-axis becomes the list of the lines instead: every line gets exactly one bar, which
+shows the last value of that line. Together with the aggregation "Actual value" that is the current
+value of every state, e.g. the consumption of every device.
+
+**Horizontal bars** turns the chart by 90°, so the names stand on the Y-axis. That is the better choice
+for long names or for many lines.
+
 ## Usage
 
 Add after the restart the tab in the admin:
@@ -116,6 +126,8 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) Added the option to draw one bar per line instead of one bar per time interval, so the X-axis is a list of data points, e.g. the consumption of every device. The bars can lie horizontally too
+- (@GermanBluefox) Fixed the aggregation "current value": it stopped the reading of the chart with an error, so the radar charts stayed empty since v2.0.0
 - (@GermanBluefox) The Y-axis does not open a negative area anymore if the values are never negative
 - (@GermanBluefox) Fixed the confusing date in the tooltip: it uses the date format of the language of the user now
 - (@GermanBluefox) The server-side rendering formats the dates in the language of the system now and not always in English
