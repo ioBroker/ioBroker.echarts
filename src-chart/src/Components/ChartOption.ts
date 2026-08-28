@@ -1868,6 +1868,34 @@ class ChartOption {
                         }
                     }
                 });
+
+                // The labels of a category axis stand centered under their bar, so the first and the
+                // last one need half of their width beside the grid. Without that reserve they are cut
+                // off at the border of the chart, which the Y-axis measuring above does not notice.
+                if (categories?.length && this.config.l.find(oneLine => oneLine.chartType === 'bar')) {
+                    const halfLabel = (categoryIndex: number): number => {
+                        const label = this.xFormatter(`b${categories[categoryIndex]}`, categoryIndex);
+                        // A label may have several lines and may carry the rich-text markers of the axis
+                        const widest = label
+                            .split('\n')
+                            .reduce(
+                                (max, line) =>
+                                    Math.max(
+                                        max,
+                                        this.calcTextWidth(
+                                            line.replace(/\{[a-z]\|([^}]*)\}/g, '$1'),
+                                            this.config.x_labels_size,
+                                        ),
+                                    ),
+                                0,
+                            );
+                        return Math.ceil(widest / 2);
+                    };
+
+                    padLeft = Math.max(padLeft, halfLabel(0));
+                    padRight = Math.max(padRight, halfLabel(categories.length - 1));
+                }
+
                 (option.grid as GridOption).left = padLeft + 10;
                 (option.grid as GridOption).right =
                     padRight +
