@@ -1132,7 +1132,8 @@ class ChartOption {
             if (this.config.aggregateBar === 15) {
                 return `${_date.getHours().toString().padStart(2, '0')}:${_date.getMinutes().toString().padStart(2, '0')}`;
             }
-            if (this.config.aggregateBar === 1440) {
+            if (this.config.aggregateBar === 1440 || this.config.aggregateBar === 10080) {
+                // A week bar carries the date of its Monday
                 return `${_date.getDate()}.${_date.getMonth() + 1}`;
             }
             if (this.config.aggregateBar === 43200) {
@@ -1361,7 +1362,7 @@ class ChartOption {
                 this.config.timeFormat ||
                 (this.config.aggregateBar === 43200
                     ? 'MMMM YYYY'
-                    : this.config.aggregateBar === 1440
+                    : this.config.aggregateBar === 1440 || this.config.aggregateBar === 10080
                       ? 'dd, L'
                       : 'dd, L HH:mm');
             // The header has to show the same date as the label of the X-axis right below it

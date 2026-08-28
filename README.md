@@ -126,6 +126,9 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) Added "1 week" as interval for the bar charts. The bars start on Monday, like the ISO calendar week. "auto" takes it for a range of 60 days up to half a year, which used to give only a handful of monthly bars
+- (@GermanBluefox) Added the calendar week to the list of the time formats, with and without the German prefix "KW"
+- (@GermanBluefox) The bar interval of one month was still offered as "30 days" in the editor
 - (@GermanBluefox) Fixed a chart with a static time range walking one day into the future with every update
 - (@GermanBluefox) The header of the tooltip of a bar chart respects the X-label offset now, so it shows the same date as the axis below it
 - (@GermanBluefox) The bar charts respect the color and the number of the X-ticks now, and their ticks are hidden together with the axis

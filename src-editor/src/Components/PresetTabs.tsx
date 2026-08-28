@@ -892,9 +892,11 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
             15: 'i15min',
             60: 'i1hour',
             1440: 'i1day',
+            10080: 'i1week',
             43200: 'i30days',
         };
         if (this.props.presetData.timeType !== 'static') {
+            // An interval that is longer than the shown range would give a single bar, so it is hidden
             if (
                 this.props.presetData.range === 10 ||
                 this.props.presetData.range === 30 ||
@@ -902,6 +904,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
             ) {
                 delete barIntervalOptions[60];
                 delete barIntervalOptions[1440];
+                delete barIntervalOptions[10080];
                 delete barIntervalOptions[43200];
             } else if (
                 this.props.presetData.range === 120 ||
@@ -911,10 +914,12 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                 this.props.presetData.range === 1440
             ) {
                 delete barIntervalOptions[1440];
+                delete barIntervalOptions[10080];
+                delete barIntervalOptions[43200];
+            } else if (this.props.presetData.range === 2880 || this.props.presetData.range === 4320) {
+                delete barIntervalOptions[10080];
                 delete barIntervalOptions[43200];
             } else if (
-                this.props.presetData.range === 2880 ||
-                this.props.presetData.range === 4320 ||
                 this.props.presetData.range === 10080 ||
                 this.props.presetData.range === 20160 ||
                 this.props.presetData.range === '1m'
@@ -1227,6 +1232,8 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                 HH: 'HH',
                                 mm: 'MM',
                                 ddd: 'dow',
+                                WW: 'cw',
+                                '[KW] WW': 'KW ww (DE)',
                                 'DD.MM.YY': 'dd.mm.yy',
                             }}
                         />

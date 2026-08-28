@@ -733,7 +733,7 @@ class ChartModel {
      * always 30 days long, so it must be counted in the calendar and not in milliseconds.
      *
      * @param date date to modify in place
-     * @param aggregateBar interval in minutes: 15, 60, 1440 (day) or 43200 (month)
+     * @param aggregateBar interval in minutes: 15, 60, 1440 (day), 10080 (week) or 43200 (month)
      */
     static addBarInterval(date: Date, aggregateBar: number): void {
         if (aggregateBar === 43200) {
@@ -742,6 +742,14 @@ class ChartModel {
             // setMinutes works on the local time, so the DST change is taken into account
             date.setMinutes(date.getMinutes() + aggregateBar);
         }
+    }
+
+    /**
+     * How many days the date lies behind its Monday. `getDay` counts the Sunday as 0, so the days are
+     * rotated to let the week start on Monday, like the ISO calendar week does.
+     */
+    private static daysSinceMonday(date: Date): number {
+        return (date.getDay() + 6) % 7;
     }
 
     increaseRegionForBar(start: number | Date, end: number | Date, option: ioBroker.GetHistoryOptions): void {
@@ -754,17 +762,22 @@ class ChartModel {
 
         // calculate count of intervals
         if (!this.config.aggregateBar) {
-            if (endTs - startTs <= 3600000 * 12) {
+            const range = endTs - startTs;
+            if (range <= 3600000 * 12) {
                 // less than 12 hours => 15 minutes
                 this.config.aggregateBar = 15;
-            } else if (endTs - startTs >= 3600000 * 24 * 60) {
-                // more than 60 days => 1 month
+            } else if (range > 3600000 * 24 * 180) {
+                // more than half a year => 1 month
                 this.config.aggregateBar = 43200;
-            } else if (endTs - startTs > 3600000 * 24 * 3) {
+            } else if (range >= 3600000 * 24 * 60) {
+                // 60 days up to half a year => 1 week. Days would give more than 60 bars here, and a
+                // month would leave only two of them
+                this.config.aggregateBar = 10080;
+            } else if (range > 3600000 * 24 * 3) {
                 // more than 3 days => 1 day
                 this.config.aggregateBar = 1440;
             } else {
-                // if (endTs - startTs > 3600000 * 12) { // more than 12 hours => 60 minutes
+                // if (range > 3600000 * 12) { // more than 12 hours => 60 minutes
                 this.config.aggregateBar = 60;
             }
         }
@@ -835,6 +848,36 @@ class ChartModel {
             }
             endTs = endDate.getTime();
             option.count = Math.round((endTs - startTs) / 86400000);
+        } else if (this.config.aggregateBar === 10080) {
+            // align start and stop to 1 week. The week starts on Monday, like the ISO calendar week
+            const startDate = new Date(startTs);
+            startDate.setHours(0);
+            startDate.setMinutes(0);
+            startDate.setSeconds(0);
+            startDate.setMilliseconds(0);
+            startDate.setDate(startDate.getDate() - ChartModel.daysSinceMonday(startDate));
+            if (withDiff) {
+                startDate.setDate(startDate.getDate() - 7);
+            }
+            startTs = startDate.getTime();
+
+            const endDate = new Date(endTs);
+            if (
+                ChartModel.daysSinceMonday(endDate) ||
+                endDate.getHours() ||
+                endDate.getMinutes() ||
+                endDate.getSeconds() ||
+                endDate.getMilliseconds()
+            ) {
+                endDate.setHours(0);
+                endDate.setMinutes(0);
+                endDate.setSeconds(0);
+                endDate.setMilliseconds(0);
+                endDate.setDate(endDate.getDate() - ChartModel.daysSinceMonday(endDate) + 7);
+            }
+            endTs = endDate.getTime();
+            // A week can have 167 or 169 hours because of the daylight saving time
+            option.count = Math.round((endTs - startTs) / (7 * 86400000));
         } else if (this.config.aggregateBar === 43200) {
             // align start and stop to 1 month
             const startDate = new Date(startTs);
