@@ -1568,7 +1568,7 @@ class ChartModel {
                     }
                 }
 
-                values.sort((a, b) => (a.ts - b.ts ? -1 : a.ts < b.ts ? 1 : 0));
+                values.sort((a, b) => a.ts - b.ts);
 
                 const result = this.processRawData(id, lineConfig, values);
                 if (result.barData) {
@@ -1722,7 +1722,7 @@ class ChartModel {
                     values = [];
                     console.warn('JSON is not an array');
                 }
-                values.sort((a, b) => (a.ts - b.ts ? -1 : a.ts < b.ts ? 1 : 0));
+                values.sort((a, b) => a.ts - b.ts);
 
                 return values;
             } catch (e) {
@@ -2066,7 +2066,7 @@ class ChartModel {
                             data = [];
                             console.warn('JSON is not an array');
                         }
-                        data.sort((a, b) => (a.ts - b.ts ? -1 : a.ts < b.ts ? 1 : 0));
+                        data.sort((a, b) => a.ts - b.ts);
                         const result = this.processRawData(id, this.config.l[index], data);
 
                         if (result.barData) {

@@ -126,6 +126,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) Fixed the sorting of the data of a JSON source: the values were not ordered by time, so the legend showed the oldest value instead of the newest one
 - (@GermanBluefox) Added "1 week" as interval for the bar charts. The bars start on Monday, like the ISO calendar week. "auto" takes it for a range of 60 days up to half a year, which used to give only a handful of monthly bars
 - (@GermanBluefox) Added the calendar week to the list of the time formats, with and without the German prefix "KW"
 - (@GermanBluefox) The bar interval of one month was still offered as "30 days" in the editor
