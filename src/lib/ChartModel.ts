@@ -361,6 +361,15 @@ class ChartModel {
     private systemConfig: ioBroker.SystemConfigCommon | null = null;
     private preset?: string;
     private config?: ChartConfig;
+    /**
+     * The borders of a static time range as the user configured them.
+     *
+     * `getStartStop` writes the range that is really drawn back into `config.start`/`config.end`, and
+     * the static branch reads them again on the next run. With the default end time of 24:00 that moved
+     * the chart one day further into the future with every re-read, e.g. with every tick of "live".
+     * The entry is bound to the config object, so a new preset starts with fresh borders.
+     */
+    private staticRange: { config: ChartConfig; start?: number | string; end?: number | string } | null = null;
     private barCategories?: number[];
     /** Exclusive end (ms) of the last entry of `barCategories` */
     private barCategoriesEnd?: number;
@@ -1023,6 +1032,9 @@ class ChartModel {
                     : this.zoomData.end;
                 startTs = endTs - (this.zoomData.end - this.zoomData.start);
             } else if (this.config.timeType === 'static') {
+                if (this.staticRange?.config !== this.config) {
+                    this.staticRange = { config: this.config, start: this.config.start, end: this.config.end };
+                }
                 let startTime: [number, number];
                 let endTime: [number, number];
                 if (this.config.start_time !== undefined) {
@@ -1038,8 +1050,8 @@ class ChartModel {
                 }
 
                 // offset is in seconds
-                const startDate = new Date(this.config.start).setHours(startTime[0], startTime[1]);
-                const endDate = new Date(this.config.end).setHours(endTime[0], endTime[1]);
+                const startDate = new Date(this.staticRange.start).setHours(startTime[0], startTime[1]);
+                const endDate = new Date(this.staticRange.end).setHours(endTime[0], endTime[1]);
 
                 startTs = ChartModel.addTime(startDate, this.config.l[index].offset);
                 endTs = ChartModel.addTime(endDate, this.config.l[index].offset);

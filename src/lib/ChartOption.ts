@@ -647,6 +647,14 @@ class ChartOption {
                               : { type: 'dashed' },
                 },
                 position: this.config.l[0].xaxe === 'top' ? 'top' : 'bottom',
+                axisTick: {
+                    lineStyle:
+                        this.config.l[0].xaxe === 'off'
+                            ? { color: 'rgba(0,0,0,0)' }
+                            : this.config.x_ticks_color
+                              ? { color: this.config.x_ticks_color }
+                              : undefined,
+                },
                 axisLabel: {
                     show: !this.compact,
                     formatter: (value: string, _index: number) =>
@@ -1076,6 +1084,23 @@ class ChartOption {
         return Math.round((lines * fontSize * 4) / 3) + 8;
     }
 
+    /**
+     * Apply the configured X-label offset to a date. It only moves the labels of the X-axis and the
+     * header of the tooltip, the values themselves keep their place.
+     */
+    applyXLabelShift(date: Date): Date {
+        if (this.config.xLabelShift) {
+            if (this.config.xLabelShiftMonth) {
+                date.setMonth(date.getMonth() + (this.config.xLabelShift as number));
+            } else if (this.config.xLabelShiftYear) {
+                date.setFullYear(date.getFullYear() + (this.config.xLabelShift as number));
+            } else {
+                date.setSeconds(date.getSeconds() + (this.config.xLabelShift as number));
+            }
+        }
+        return date;
+    }
+
     xFormatter(value: string | number | Date, _index: number, isTop?: boolean): string {
         // The categories are names of lines and not time stamps, and a name may start with a "b" too
         if (this.isBarPerLine()) {
@@ -1083,15 +1108,7 @@ class ChartOption {
         }
         if (typeof value === 'string' && value.startsWith('b')) {
             const _date = new Date(parseInt(value.substring(1), 10));
-            if (this.config.xLabelShift) {
-                if (this.config.xLabelShiftMonth) {
-                    _date.setMonth(_date.getMonth() + (this.config.xLabelShift as number));
-                } else if (this.config.xLabelShiftYear) {
-                    _date.setFullYear(_date.getFullYear() + (this.config.xLabelShift as number));
-                } else {
-                    _date.setSeconds(_date.getSeconds() + (this.config.xLabelShift as number));
-                }
-            }
+            this.applyXLabelShift(_date);
 
             if (this.config.timeFormat) {
                 // Replace the tag only after formatting: moment drops a `\n` from the format string,
@@ -1115,15 +1132,7 @@ class ChartOption {
         }
         const date = new Date(value);
 
-        if (this.config.xLabelShift) {
-            if (this.config.xLabelShiftMonth) {
-                date.setMonth(date.getMonth() + (this.config.xLabelShift as number));
-            } else if (this.config.xLabelShiftYear) {
-                date.setFullYear(date.getFullYear() + (this.config.xLabelShift as number));
-            } else {
-                date.setSeconds(date.getSeconds() + (this.config.xLabelShift as number));
-            }
-        }
+        this.applyXLabelShift(date);
 
         if (this.config.timeFormat) {
             // Replace the tag only after formatting: moment drops a `\n` from the format string,
@@ -1236,15 +1245,7 @@ class ChartOption {
         if (Array.isArray(params[0].value)) {
             ts = params[0].value[0] as number;
             date = new Date(ts);
-            if (this.config.xLabelShift) {
-                if (this.config.xLabelShiftMonth) {
-                    date.setMonth(date.getMonth() + (this.config.xLabelShift as number));
-                } else if (this.config.xLabelShiftYear) {
-                    date.setFullYear(date.getFullYear() + (this.config.xLabelShift as number));
-                } else {
-                    date.setSeconds(date.getSeconds() + (this.config.xLabelShift as number));
-                }
-            }
+            this.applyXLabelShift(date);
         }
 
         const hoverNoNulls =
@@ -1353,7 +1354,8 @@ class ChartOption {
                     : this.config.aggregateBar === 1440
                       ? 'dd, L'
                       : 'dd, L HH:mm');
-            const _date = new Date(parseInt(barPolarName.substring(1), 10));
+            // The header has to show the same date as the label of the X-axis right below it
+            const _date = this.applyXLabelShift(new Date(parseInt(barPolarName.substring(1), 10)));
             return `<b>${this.moment(_date).format(format)}</b><br/>${values.join('<br/>')}`;
         }
         // `L` is the date format of the language of the user. The time stays at 24 hours, as the labels
