@@ -630,6 +630,13 @@ class ChartOption {
 
     getXAxis(categories: number[]): XAXisOption[] {
         if (this.config.l.find(l => l.chartType === 'bar')) {
+            // A category axis knows no `splitNumber`. There the number of the ticks is given by how many
+            // categories are skipped between two of them: `0` labels every category, `1` every second
+            // one. So the wish for N ticks becomes the corresponding step width.
+            const xTicks = parseInt(this.config.l[0].xticks as unknown as string, 10) || 0;
+            const interval =
+                xTicks && categories?.length ? Math.max(Math.ceil(categories.length / xTicks) - 1, 0) : undefined;
+
             const xAxis: XAXisOption = {
                 type: 'category',
                 // Without history there are no categories, e.g. with the aggregation "current value"
@@ -648,6 +655,8 @@ class ChartOption {
                 },
                 position: this.config.l[0].xaxe === 'top' ? 'top' : 'bottom',
                 axisTick: {
+                    // Keep the ticks under their labels
+                    interval,
                     lineStyle:
                         this.config.l[0].xaxe === 'off'
                             ? { color: 'rgba(0,0,0,0)' }
@@ -657,6 +666,7 @@ class ChartOption {
                 },
                 axisLabel: {
                     show: !this.compact,
+                    interval,
                     formatter: (value: string, _index: number) =>
                         this.xFormatter(value, _index, this.config.l[0].xaxe === 'top'),
                     fontSize: parseInt(this.config.x_labels_size as unknown as string, 10) || 12,

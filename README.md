@@ -128,7 +128,7 @@ You can debug view charts locally with:
 ### **WORK IN PROGRESS**
 - (@GermanBluefox) Fixed a chart with a static time range walking one day into the future with every update
 - (@GermanBluefox) The header of the tooltip of a bar chart respects the X-label offset now, so it shows the same date as the axis below it
-- (@GermanBluefox) The color of the X-ticks is used by the bar charts too, and their ticks are hidden together with the axis
+- (@GermanBluefox) The bar charts respect the color and the number of the X-ticks now, and their ticks are hidden together with the axis
 - (@GermanBluefox) The bar charts can draw a shifted line on the main time range too, so a value that carries the time stamp of the following interval can be moved into the interval it belongs to
 - (@GermanBluefox) Fixed the drawing of a shifted line with an offset in months or years: it is moved in the calendar now and does not wander away from the 1st of the month anymore
 - (@GermanBluefox) Added the option to draw one bar per line instead of one bar per time interval, so the X-axis is a list of data points, e.g. the consumption of every device. The bars can lie horizontally too
