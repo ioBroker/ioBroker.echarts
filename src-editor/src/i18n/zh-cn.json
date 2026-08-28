@@ -378,6 +378,7 @@
   "The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation \"current\" every bar is the actual value of its state": "X 轴显示曲线的名称而不是时间，每根柱是其曲线的最后一个值。配合聚合方式 \"current\"，每根柱就是其状态的当前值",
   "The bars lie from left to right and the names are on the Y-axis. Useful for long names or for many lines": "柱子从左向右排列，名称位于 Y 轴上。名称较长或曲线较多时很有用",
   "The line is drawn, but gets no entry in the legend and cannot be switched off there anymore": "曲线会被绘制，但不会出现在图例中，也无法再从那里关闭",
+  "The unit comes from line %s, because this line shares its Y-axis": "单位来自曲线 %s，因为这条曲线与它共用 Y 轴",
   "Theme": "主题",
   "This time offset will be added to the X label by displaying data on the chart": "通过在图表上显示数据，此时间偏移量将添加到 X 标签",
   "This time offset will be added to the request by reading data from DB": "该时间偏移量将通过从 DB 读取数据添加到请求中",

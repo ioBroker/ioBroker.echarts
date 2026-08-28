@@ -378,6 +378,7 @@
   "The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation \"current\" every bar is the actual value of its state": "Вісь X показує назви ліній замість часу, і кожен стовпець — це останнє значення своєї лінії. Разом з агрегацією \"current\" кожен стовпець — це поточне значення свого стану",
   "The bars lie from left to right and the names are on the Y-axis. Useful for long names or for many lines": "Стовпці лежать зліва направо, а назви розташовані на осі Y. Зручно за довгих назв або великої кількості ліній",
   "The line is drawn, but gets no entry in the legend and cannot be switched off there anymore": "Лінія малюється, але не отримує запису в легенді й більше не може бути вимкнена там",
+  "The unit comes from line %s, because this line shares its Y-axis": "Одиниця береться з лінії %s, бо ця лінія використовує її вісь Y",
   "Theme": "Тема",
   "This time offset will be added to the X label by displaying data on the chart": "Цей часовий зсув буде додано до мітки X шляхом відображення даних на діаграмі",
   "This time offset will be added to the request by reading data from DB": "Цей часовий зсув буде додано до запиту шляхом читання даних з БД",

@@ -1151,15 +1151,30 @@ export default class Line extends React.Component<LineProps, LineState> {
                         }}
                         label="Name"
                     />
-                    {!this.state.isBoolean && ownYAxis ? (
+                    {!this.state.isBoolean ? (
                         <IOTextField
-                            value={this.props.line.unit}
+                            // A line on a shared axis shows the unit of that axis, so the field only
+                            // tells where the value comes from instead of disappearing without a word
+                            value={
+                                ownYAxis
+                                    ? this.props.line.unit
+                                    : this.props.presetData.l[this.props.line.commonYAxis]?.unit
+                            }
                             updateValue={(value: string): void => {
                                 const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
                                 line.unit = value;
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Unit"
+                            disabled={!ownYAxis}
+                            tooltip={
+                                ownYAxis
+                                    ? undefined
+                                    : I18n.t(
+                                          'The unit comes from line %s, because this line shares its Y-axis',
+                                          (this.props.line.commonYAxis + 1).toString(),
+                                      )
+                            }
                         />
                     ) : null}
                     {this.state.isBoolean && this.state.withStates === null ? (

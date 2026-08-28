@@ -378,6 +378,7 @@
   "The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation \"current\" every bar is the actual value of its state": "De X-as toont de namen van de lijnen in plaats van de tijd, en elke balk is de laatste waarde van zijn lijn. Samen met de aggregatie \"current\" is elke balk de actuele waarde van zijn state",
   "The bars lie from left to right and the names are on the Y-axis. Useful for long names or for many lines": "De balken liggen van links naar rechts en de namen staan op de Y-as. Handig bij lange namen of veel lijnen",
   "The line is drawn, but gets no entry in the legend and cannot be switched off there anymore": "De lijn wordt getekend, maar krijgt geen vermelding in de legenda en kan daar niet meer worden uitgeschakeld",
+  "The unit comes from line %s, because this line shares its Y-axis": "De eenheid komt van lijn %s, omdat deze lijn de Y-as daarvan deelt",
   "Theme": "Thema",
   "This time offset will be added to the X label by displaying data on the chart": "Deze tijdsverschuiving wordt toegevoegd aan het X-label door gegevens op de kaart weer te geven",
   "This time offset will be added to the request by reading data from DB": "Deze tijdverschuiving wordt aan het verzoek toegevoegd door gegevens uit DB te lezen",

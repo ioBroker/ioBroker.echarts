@@ -2239,10 +2239,21 @@ class ChartModel {
             this.barCategoriesEnd = undefined;
 
             await this._readData();
-            // use units from common axis
+            // The lines that share a Y-axis show the unit of that axis. A preset that was written by
+            // hand or that survived a conversion can point at a line that does not exist. That must not
+            // stop the whole chart, so such a line falls back to an own axis.
             for (let i = 0; i < this.config.l.length; i++) {
-                if (this.config.l[i].commonYAxis || this.config.l[i].commonYAxis === 0) {
-                    this.config.l[i].unit = this.config.l[this.config.l[i].commonYAxis].unit;
+                const commonYAxis = this.config.l[i].commonYAxis;
+                if (commonYAxis || commonYAxis === 0) {
+                    const axisOwner = this.config.l[commonYAxis];
+                    if (axisOwner) {
+                        this.config.l[i].unit = axisOwner.unit;
+                    } else {
+                        console.warn(
+                            `[ChartModel] Line ${i + 1} shares the Y-axis of line ${Number(commonYAxis) + 1}, which does not exist. It gets an own axis.`,
+                        );
+                        delete this.config.l[i].commonYAxis;
+                    }
                 }
             }
 

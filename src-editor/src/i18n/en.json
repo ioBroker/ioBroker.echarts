@@ -378,6 +378,7 @@
   "The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation \"current\" every bar is the actual value of its state": "The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation \"current\" every bar is the actual value of its state",
   "The bars lie from left to right and the names are on the Y-axis. Useful for long names or for many lines": "The bars lie from left to right and the names are on the Y-axis. Useful for long names or for many lines",
   "The line is drawn, but gets no entry in the legend and cannot be switched off there anymore": "The line is drawn, but gets no entry in the legend and cannot be switched off there anymore",
+  "The unit comes from line %s, because this line shares its Y-axis": "The unit comes from line %s, because this line shares its Y-axis",
   "Theme": "Theme",
   "This time offset will be added to the X label by displaying data on the chart": "This time offset will be added to the X label by displaying data on the chart",
   "This time offset will be added to the request by reading data from DB": "This time offset will be added to the request by reading data from DB",

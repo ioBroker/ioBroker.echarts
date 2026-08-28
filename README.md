@@ -126,6 +126,8 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) A line on a shared Y-axis shows the inherited unit in a disabled field now instead of hiding it, so it is visible where the unit comes from
+- (@GermanBluefox) A line that shares the Y-axis of a line that does not exist gets an own axis now instead of stopping the whole chart
 - (@GermanBluefox) The interval of the bars can be entered freely in minutes now, e.g. 90 for one and a half hours or 4320 for three days
 - (@GermanBluefox) Fixed the first and the last label of a bar chart being cut off at the border: the place beside the grid is calculated from their width now
 - (@GermanBluefox) The text of a marking with an upper and a lower limit is drawn only once now and not at both border lines

@@ -378,6 +378,7 @@
   "The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation \"current\" every bar is the actual value of its state": "L'asse X mostra i nomi delle linee invece del tempo e ogni barra è l'ultimo valore della sua linea. Insieme all'aggregazione \"current\" ogni barra è il valore attuale del suo stato",
   "The bars lie from left to right and the names are on the Y-axis. Useful for long names or for many lines": "Le barre vanno da sinistra a destra e i nomi sono sull'asse Y. Utile per nomi lunghi o per molte linee",
   "The line is drawn, but gets no entry in the legend and cannot be switched off there anymore": "La linea viene disegnata, ma non compare nella legenda e non può più essere disattivata da lì",
+  "The unit comes from line %s, because this line shares its Y-axis": "L'unità viene dalla linea %s, perché questa linea condivide il suo asse Y",
   "Theme": "Tema",
   "This time offset will be added to the X label by displaying data on the chart": "Questa differenza di tempo verrà aggiunta all'etichetta X visualizzando i dati sul grafico",
   "This time offset will be added to the request by reading data from DB": "Questo offset temporale verrà aggiunto alla richiesta leggendo i dati dal DB",
