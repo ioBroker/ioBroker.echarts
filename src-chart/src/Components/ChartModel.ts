@@ -903,28 +903,71 @@ class ChartModel {
     }
 
     /**
-     * Is the line drawn on the main time range instead of extending the X-axis? Bars and polar charts
-     * are excluded, as they share their categories with all other lines.
+     * Is the line drawn on the main time range instead of extending the X-axis? Polar charts are
+     * excluded: they show a single value per line and have no time axis to be moved on.
      *
      * @param index index of the line
      */
     private isOffsetOverlay(index: number): boolean {
         const line = this.config.l[index];
-        return !!line.offsetOverlay && line.chartType !== 'bar' && line.chartType !== 'polar';
+        return !!line.offsetOverlay && line.chartType !== 'polar';
     }
 
     /**
-     * Calculate how far the values of a line must be moved to the right to draw them on the main time
-     * range. The result is stored on the line and used by `processRawData`.
+     * Move one time stamp from the shifted range of a line onto the main time range.
+     *
+     * An offset in months or years is applied in the calendar and not as a fixed number of
+     * milliseconds. Otherwise a value that is written on the 1st of every month wanders away from the
+     * 1st after a few intervals, because the months have different lengths.
+     *
+     * @param line the line, carrying the shift calculated by `getOffsetShift`
+     * @param ts the real time stamp of the value
+     */
+    static shiftToMainRange(line: ChartLineConfig, ts: number): number {
+        if (line.offsetShiftMonths) {
+            const date = new Date(ts);
+            date.setMonth(date.getMonth() + line.offsetShiftMonths);
+            return date.getTime();
+        }
+        if (line.offsetShiftYears) {
+            const date = new Date(ts);
+            date.setFullYear(date.getFullYear() + line.offsetShiftYears);
+            return date.getTime();
+        }
+        return ts + (line.offsetShift || 0);
+    }
+
+    /**
+     * Calculate how far the values of a line must be moved to draw them on the main time range. The
+     * result is stored on the line and used by `processRawData` via `shiftToMainRange`.
      *
      * @param index index of the line
      * @param referenceEnd end of the time range the line would have without its offset
      * @param endTs end of the time range of this line
      */
     private getOffsetShift(index: number, referenceEnd: number, endTs: number): number {
-        const shift = this.isOffsetOverlay(index) ? referenceEnd - endTs : 0;
-        this.config.l[index].offsetShift = shift;
-        return shift;
+        const line = this.config.l[index];
+        delete line.offsetShiftMonths;
+        delete line.offsetShiftYears;
+
+        if (!this.isOffsetOverlay(index)) {
+            line.offsetShift = 0;
+            return 0;
+        }
+
+        // `addTime` moves the read window by whole months or years, so the values have to move back the
+        // same way. The sign is inverted: the window went into the past, the values come back from it.
+        const offset = line.offset;
+        if (typeof offset === 'string') {
+            if (offset[1] === 'm' || offset[2] === 'm') {
+                line.offsetShiftMonths = getInt(offset);
+            } else if (offset[1] === 'y' || offset[2] === 'y') {
+                line.offsetShiftYears = getInt(offset);
+            }
+        }
+
+        line.offsetShift = referenceEnd - endTs;
+        return line.offsetShift;
     }
 
     getStartStop(index: number, step?: number): ioBroker.GetHistoryOptions {
@@ -1125,9 +1168,9 @@ class ChartModel {
             this.rememberZoomLimit(referenceEnd);
 
             // The X-axis shows the main time range, so a shifted line reports the range it is drawn in
-            const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
-            this.config.start = startTs + offsetShift;
-            this.config.end = endTs + offsetShift;
+            this.getOffsetShift(index, referenceEnd, endTs);
+            this.config.start = ChartModel.shiftToMainRange(this.config.l[index], startTs);
+            this.config.end = ChartModel.shiftToMainRange(this.config.l[index], endTs);
 
             return option;
         }
@@ -1163,9 +1206,12 @@ class ChartModel {
 
         this.rememberZoomLimit(referenceEnd);
 
-        const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
-        this.config.start = ChartModel.addTime(endTs, this.config.range, true) + offsetShift;
-        this.config.end = endTs + offsetShift;
+        this.getOffsetShift(index, referenceEnd, endTs);
+        this.config.start = ChartModel.shiftToMainRange(
+            this.config.l[index],
+            ChartModel.addTime(endTs, this.config.range, true),
+        );
+        this.config.end = ChartModel.shiftToMainRange(this.config.l[index], endTs);
 
         return option;
     }
@@ -1270,8 +1316,6 @@ class ChartModel {
         }
 
         const yOffset: number = line.yOffset || 0;
-        // If the line is drawn on the main time range, every value is moved by this amount
-        const xShift: number = line.offsetShift || 0;
 
         const seriesData: LineSeries = [];
         // Collects for every time interval the values. Later it will be combined to number[]
@@ -1283,8 +1327,12 @@ class ChartModel {
             if (!barCategories) {
                 barCategories = [];
                 this.barCategories = barCategories;
-                const start = new Date(option.start);
-                const end: number = typeof option.end === 'number' ? option.end : (option.end as Date).getTime();
+                // A shifted line is drawn on the main time range, so its categories are the moved ones
+                const start = new Date(ChartModel.shiftToMainRange(line, option.start));
+                const end: number = ChartModel.shiftToMainRange(
+                    line,
+                    typeof option.end === 'number' ? option.end : (option.end as Date).getTime(),
+                );
                 // `end` is the exclusive border of the last bar and must not get a category of its own
                 while (start.getTime() < end) {
                     barCategories.push(start.getTime());
@@ -1317,11 +1365,14 @@ class ChartModel {
         for (let i = 0; i < values.length; i++) {
             const value: number | null = ChartModel.processOneValue(values[i].val, convertFunc, yOffset);
 
+            // The place on the X-axis: for a shifted line that is not the time the value was written
+            const ts = ChartModel.shiftToMainRange(line, values[i].ts);
+
             if (line.chartType === 'bar') {
                 // find category: every interval is [category, next category[ and the last one ends at `end`
                 for (let c = 0; c < barCategories.length; c++) {
                     const intervalEnd = c + 1 < barCategories.length ? barCategories[c + 1] : this.barCategoriesEnd;
-                    if (values[i].ts >= barCategories[c] && values[i].ts < intervalEnd) {
+                    if (ts >= barCategories[c] && ts < intervalEnd) {
                         _barSeries[c].push(value);
                         break;
                     }
@@ -1332,7 +1383,7 @@ class ChartModel {
                     break;
                 }
 
-                const dp: EchartsOneValue = { value: [values[i].ts + xShift, value] };
+                const dp: EchartsOneValue = { value: [ts, value] };
 
                 // If value was interpolated by backend
                 if (values[i].i) {
@@ -1361,8 +1412,8 @@ class ChartModel {
                 end = this.now;
             }
             // The values were moved, so the borders of the series must be moved too
-            start += xShift;
-            end += xShift;
+            start = ChartModel.shiftToMainRange(line, start);
+            end = ChartModel.shiftToMainRange(line, end);
             if (seriesData.length) {
                 if (seriesData[0].value[0] > start) {
                     seriesData.unshift({ value: [start, null], exact: false });

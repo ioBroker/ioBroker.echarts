@@ -1373,9 +1373,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                             }}
                         />
                     ) : null}
-                    {this.props.line.offset &&
-                    this.props.line.chartType !== 'bar' &&
-                    this.props.line.chartType !== 'polar' ? (
+                    {this.props.line.offset && this.props.line.chartType !== 'polar' ? (
                         <IOCheckbox
                             value={this.props.line.offsetOverlay}
                             updateValue={(value: boolean): void => {
@@ -1384,9 +1382,11 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Overlay on the main range"
-                            tooltip={I18n.t(
+                            tooltip={`${I18n.t(
                                 'Draw the shifted values on the time range of the not shifted lines, so that they can be compared',
-                            )}
+                            )} ${I18n.t(
+                                'It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month',
+                            )}`}
                         />
                     ) : null}
                     {this.props.line.chartType !== 'polar' ? (

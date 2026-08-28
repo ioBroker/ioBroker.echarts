@@ -243,6 +243,7 @@
   "Interpolation method": "Interpolation method",
   "Intervals": "Intervals",
   "Invalid object": "Invalid object",
+  "It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month": "It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month",
   "Label": "Label",
   "Label color:": "Label color:",
   "Label font size:": "Label font size:",

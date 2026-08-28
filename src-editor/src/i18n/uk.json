@@ -243,6 +243,7 @@
   "Interpolation method": "Метод інтерполяції",
   "Intervals": "Інтервали",
   "Invalid object": "Недійсний об'єкт",
+  "It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month": "Він також зсуває значення, які мають позначку часу наступного інтервалу, наприклад місячну суму, записану 1-го числа наступного місяця",
   "Label": "Мітка",
   "Label color:": "Колір етикетки:",
   "Label font size:": "Розмір шрифту етикетки:",

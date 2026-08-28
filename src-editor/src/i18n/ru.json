@@ -243,6 +243,7 @@
   "Interpolation method": "Метод интерполяции",
   "Intervals": "Интервалы",
   "Invalid object": "Недопустимый объект",
+  "It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month": "Он также сдвигает значения, которые несут метку времени следующего интервала, например месячную сумму, записанную 1-го числа следующего месяца",
   "Label": "этикетка",
   "Label color:": "Цвет подписи:",
   "Label font size:": "Шрифт подписи:",

@@ -243,6 +243,7 @@
   "Interpolation method": "Metodo di interpolazione",
   "Intervals": "Intervalli",
   "Invalid object": "Oggetto non valido",
+  "It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month": "Sposta anche i valori che portano l'orario dell'intervallo successivo, ad esempio un totale mensile scritto il 1° del mese successivo",
   "Label": "Etichetta",
   "Label color:": "Colore dell'etichetta:",
   "Label font size:": "Dimensione del carattere dell'etichetta:",

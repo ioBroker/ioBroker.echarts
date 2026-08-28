@@ -87,6 +87,13 @@ export type ChartLineConfig = {
      * are moved to the right to place them on the main time range. Not stored in the preset.
      */
     offsetShift?: number;
+    /**
+     * Calculated at runtime like `offsetShift`, but for an offset in months. A month has no fixed
+     * length, so such a line is moved in the calendar and not by milliseconds. Not stored in the preset.
+     */
+    offsetShiftMonths?: number;
+    /** The same as `offsetShiftMonths` for an offset in years. Not stored in the preset. */
+    offsetShiftYears?: number;
     name?: string;
     aggregate?: ChartAggregateType;
 

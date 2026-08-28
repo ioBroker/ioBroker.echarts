@@ -243,6 +243,7 @@
   "Interpolation method": "Interpolatie methode:",
   "Intervals": "intervallen",
   "Invalid object": "Ongeldig object",
+  "It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month": "Het verschuift ook waarden die het tijdstempel van het volgende interval dragen, bijv. een maandtotaal dat op de 1e van de volgende maand wordt weggeschreven",
   "Label": "Etiket",
   "Label color:": "Label kleur:",
   "Label font size:": "Label lettergrootte:",

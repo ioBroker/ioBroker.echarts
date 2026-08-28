@@ -243,6 +243,7 @@
   "Interpolation method": "插值法",
   "Intervals": "间隔",
   "Invalid object": "无效对象",
+  "It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month": "它也会移动带有下一个区间时间戳的值，例如在下月 1 日写入的月度总和",
   "Label": "标签",
   "Label color:": "标签颜色：",
   "Label font size:": "签字体大小：",

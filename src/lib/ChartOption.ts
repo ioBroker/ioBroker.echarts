@@ -1311,11 +1311,18 @@ class ChartOption {
                     ? 'null'
                     : this.yFormatter(interpolated.val, seriesIndex, false, !interpolated.exact, true);
 
-            // Show the real time of the values, if the line was moved onto the main time range
-            const realTime = lineConfig.offsetShift
-                ? `<div style="display: flex; margin-right: 4px; opacity: 0.7; font-style: italic">${this.moment(
-                      new Date(ts - lineConfig.offsetShift),
-                  ).format(shiftFormat)}</div>`
+            // Show the real time of the values, if the line was moved onto the main time range. Months
+            // and years were moved in the calendar, so they have to be undone the same way
+            let realDate: string;
+            if (lineConfig.offsetShiftMonths) {
+                realDate = this.moment(ts).subtract(lineConfig.offsetShiftMonths, 'months').format(shiftFormat);
+            } else if (lineConfig.offsetShiftYears) {
+                realDate = this.moment(ts).subtract(lineConfig.offsetShiftYears, 'years').format(shiftFormat);
+            } else if (lineConfig.offsetShift) {
+                realDate = this.moment(new Date(ts - lineConfig.offsetShift)).format(shiftFormat);
+            }
+            const realTime = realDate
+                ? `<div style="display: flex; margin-right: 4px; opacity: 0.7; font-style: italic">${realDate}</div>`
                 : '';
 
             return {
