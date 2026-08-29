@@ -645,6 +645,11 @@ class ChartModel {
             }
         }
     }
+    /**
+     * Align the given range to the borders of the bars and write it into `option`.
+     *
+     * @returns the exclusive end of the last bar
+     */
     increaseRegionForBar(start, end, option) {
         if (!this.config) {
             throw new Error('Unexpected null config');
@@ -825,6 +830,7 @@ class ChartModel {
         }
         option.start = startTs;
         option.end = endTs;
+        return endTs;
     }
     /**
      * Data can reach behind the end of the time range: a `json` source is not limited by start and end,
@@ -1189,7 +1195,16 @@ class ChartModel {
                 addID: false,
             };
             if (this.config.l[index].chartType === 'bar' || this.config.l[index].chartType === 'polar') {
-                this.increaseRegionForBar(startTs, endTs, option);
+                const alignedEnd = this.increaseRegionForBar(startTs, endTs, option);
+                // A relative range asks for a number of intervals: "7 days" with daily bars means seven
+                // bars. The end is rounded up to the border of the last bar and the start was rounded
+                // down, so both ends got a bar that holds only a part of its interval - "7 days" showed
+                // eight bars, the first and the last one cut off. The start is therefore measured again
+                // from the rounded end, so the range holds whole bars. A zoomed or a static range is the
+                // window the user picked himself and stays untouched.
+                if (!this.zoomData && this.config.timeType !== 'static') {
+                    this.increaseRegionForBar(ChartModel.addTime(alignedEnd, this.config.range, true), alignedEnd, option);
+                }
             }
             else if (this.config.aggregateType === 'step') {
                 option.step = this.config.aggregateSpan * 1000;
