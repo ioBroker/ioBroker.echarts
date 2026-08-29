@@ -444,6 +444,26 @@ class ChartOption {
         return !!oneLine.colorNegative && oneLine.chartType !== 'polar';
     }
     /**
+     * The chart draws one bar per line instead of one bar per time interval: the category axis carries
+     * the names of the lines and every bar is the last value of its own line. Together with the
+     * aggregation "current value" that is the list of data points the user asked for in #235.
+     */
+    isBarPerLine() {
+        return !!this.config.barPerLine && !!this.config.l.find(oneLine => oneLine.chartType === 'bar');
+    }
+    /**
+     * The last value of a series that is really there. A chart that shows one value per line needs
+     * exactly this: the newest state of the data point, whatever aggregation produced the series.
+     */
+    static getLastValue(data) {
+        for (let i = data?.length - 1; i >= 0; i--) {
+            if (data[i] !== undefined && data[i] !== null) {
+                return data[i];
+            }
+        }
+        return null;
+    }
+    /**
      * Build one `visualMap` per line that is drawn in two colors, e.g. green while a battery is charging
      * and red while it is discharging. echarts colors every point by its value, so one single data source
      * is enough and the chart shows one line and one entry in the legend.
@@ -494,9 +514,15 @@ class ChartOption {
     }
     getXAxis(categories) {
         if (this.config.l.find(l => l.chartType === 'bar')) {
+            // A category axis knows no `splitNumber`. There the number of the ticks is given by how many
+            // categories are skipped between two of them: `0` labels every category, `1` every second
+            // one. So the wish for N ticks becomes the corresponding step width.
+            const xTicks = parseInt(this.config.l[0].xticks, 10) || 0;
+            const interval = xTicks && categories?.length ? Math.max(Math.ceil(categories.length / xTicks) - 1, 0) : undefined;
             const xAxis = {
                 type: 'category',
-                data: categories.map(i => `b${i}`),
+                // Without history there are no categories, e.g. with the aggregation "current value"
+                data: (categories || []).map(i => `b${i}`),
                 splitLine: {
                     show: !this.config.grid_hideX,
                     lineStyle: this.config.l[0].xaxe === 'off'
@@ -509,8 +535,18 @@ class ChartOption {
                             : { type: 'dashed' },
                 },
                 position: this.config.l[0].xaxe === 'top' ? 'top' : 'bottom',
+                axisTick: {
+                    // Keep the ticks under their labels
+                    interval,
+                    lineStyle: this.config.l[0].xaxe === 'off'
+                        ? { color: 'rgba(0,0,0,0)' }
+                        : this.config.x_ticks_color
+                            ? { color: this.config.x_ticks_color }
+                            : undefined,
+                },
                 axisLabel: {
                     show: !this.compact,
+                    interval,
                     formatter: (value, _index) => this.xFormatter(value, _index, this.config.l[0].xaxe === 'top'),
                     fontSize: parseInt(this.config.x_labels_size, 10) || 12,
                     color: this.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : this.config.x_labels_color || undefined,
@@ -715,7 +751,8 @@ class ChartOption {
                 series.markArea.data.push([
                     {
                         yAxis: lowerLimitFloat,
-                        //  name: oneMark.text || '',
+                        // No `name` here on purpose: echarts would draw it a second time in the middle
+                        // of the area, in its own default color. The text belongs to the border line.
                         itemStyle: {
                             color: oneMark.color || series.itemStyle.color,
                             borderWidth: 0,
@@ -728,6 +765,9 @@ class ChartOption {
                 ]);
             }
             if (isLowerNumber || isUpperNumber) {
+                // An area has two border lines, but the mark has only one text. It is drawn at the
+                // first line, so it does not appear twice.
+                let textIsPlaced = false;
                 for (let i = 0; i < 2; i++) {
                     if (!i && !isUpperNumber) {
                         continue;
@@ -740,6 +780,10 @@ class ChartOption {
                         symbol: ['none', 'none'],
                         data: [],
                     };
+                    const showText = !!oneMark.text && !textIsPlaced;
+                    if (showText) {
+                        textIsPlaced = true;
+                    }
                     series.markLine.data.push({
                         yAxis: limitFloat,
                         name: oneMark.text,
@@ -756,7 +800,7 @@ class ChartOption {
                             type: oneMark.lineStyle || 'solid',
                         },
                         label: {
-                            show: !!oneMark.text,
+                            show: showText,
                             formatter: param => param.name,
                             position: oneMark.textPosition === 'r'
                                 ? 'end'
@@ -774,18 +818,31 @@ class ChartOption {
                             fontSize: oneMark.textSize || undefined,
                         },
                     });
-                    if (this.config.l[oneMark.lineId]) {
-                        // if the minimum isn't set
-                        const yMin = parseFloat(this.config.l[oneMark.lineId].min);
-                        if (Number.isNaN(yMin) && this.chart.yAxis[oneMark.lineId]) {
-                            if (this.chart.yAxis[oneMark.lineId].min > limitFloat && limitFloat < 0) {
-                                options.yAxis[0].min = limitFloat;
+                    // A marking outside of the data must stay visible, so its axis is widened for it.
+                    //
+                    // The axis is the one of the marked line, or the one it shares with another line,
+                    // and never simply the first of the chart. Both borders of an area run through
+                    // here, so the axis may only grow: the lower border must not pull it back over the
+                    // upper one. An axis whose owner carries an own minimum or maximum stays untouched.
+                    const markedLine = this.config.l[oneMark.lineId];
+                    if (markedLine) {
+                        const axisIndex = ChartOption.getCommonAxis(markedLine.commonYAxis, oneMark.lineId);
+                        const axis = options.yAxis[axisIndex];
+                        const axisOwner = this.config.l[axisIndex] || markedLine;
+                        // The data of the lines that share the axis, not of the marked line alone
+                        const dataRange = this.chart.yAxis[axisIndex];
+                        if (axis && dataRange) {
+                            // if the minimum isn't set
+                            if (Number.isNaN(parseFloat(axisOwner.min)) &&
+                                dataRange.min > limitFloat &&
+                                limitFloat < 0 &&
+                                (typeof axis.min !== 'number' || axis.min > limitFloat)) {
+                                axis.min = limitFloat;
                             }
-                        }
-                        const yMax = parseFloat(this.config.l[oneMark.lineId].max);
-                        if (Number.isNaN(yMax) && this.chart.yAxis[oneMark.lineId]) {
-                            if (this.chart.yAxis[oneMark.lineId].max < limitFloat) {
-                                options.yAxis[0].max = limitFloat;
+                            if (Number.isNaN(parseFloat(axisOwner.max)) &&
+                                dataRange.max < limitFloat &&
+                                (typeof axis.max !== 'number' || axis.max < limitFloat)) {
+                                axis.max = limitFloat;
                             }
                         }
                     }
@@ -897,40 +954,11 @@ class ChartOption {
         const lines = this.isXLabelHasBreak() ? 2 : 1;
         return Math.round((lines * fontSize * 4) / 3) + 8;
     }
-    xFormatter(value, _index, isTop) {
-        if (typeof value === 'string' && value.startsWith('b')) {
-            const _date = new Date(parseInt(value.substring(1), 10));
-            if (this.config.xLabelShift) {
-                if (this.config.xLabelShiftMonth) {
-                    _date.setMonth(_date.getMonth() + this.config.xLabelShift);
-                }
-                else if (this.config.xLabelShiftYear) {
-                    _date.setFullYear(_date.getFullYear() + this.config.xLabelShift);
-                }
-                else {
-                    _date.setSeconds(_date.getSeconds() + this.config.xLabelShift);
-                }
-            }
-            if (this.config.timeFormat) {
-                // Replace the tag only after formatting: moment drops a `\n` from the format string,
-                // as its token regex ends with `.`, which does not match a line break
-                return this.moment(_date).format(this.config.timeFormat).replace(BR_TAG, '\n');
-            }
-            if (this.config.aggregateBar === 60) {
-                return `${_date.getDate()}. ${_date.getHours().toString().padStart(2, '0')}:00`;
-            }
-            if (this.config.aggregateBar === 15) {
-                return `${_date.getHours().toString().padStart(2, '0')}:${_date.getMinutes().toString().padStart(2, '0')}`;
-            }
-            if (this.config.aggregateBar === 1440) {
-                return `${_date.getDate()}.${_date.getMonth() + 1}`;
-            }
-            if (this.config.aggregateBar === 43200) {
-                // The category is the first day of the month, so no correction of the date is required
-                return `${_date.getMonth() + 1}.${_date.getFullYear()}`;
-            }
-        }
-        const date = new Date(value);
+    /**
+     * Apply the configured X-label offset to a date. It only moves the labels of the X-axis and the
+     * header of the tooltip, the values themselves keep their place.
+     */
+    applyXLabelShift(date) {
         if (this.config.xLabelShift) {
             if (this.config.xLabelShiftMonth) {
                 date.setMonth(date.getMonth() + this.config.xLabelShift);
@@ -942,6 +970,43 @@ class ChartOption {
                 date.setSeconds(date.getSeconds() + this.config.xLabelShift);
             }
         }
+        return date;
+    }
+    xFormatter(value, _index, isTop) {
+        // The categories are names of lines and not time stamps, and a name may start with a "b" too
+        if (this.isBarPerLine()) {
+            return value;
+        }
+        if (typeof value === 'string' && value.startsWith('b')) {
+            const _date = new Date(parseInt(value.substring(1), 10));
+            this.applyXLabelShift(_date);
+            if (this.config.timeFormat) {
+                // Replace the tag only after formatting: moment drops a `\n` from the format string,
+                // as its token regex ends with `.`, which does not match a line break
+                return this.moment(_date).format(this.config.timeFormat).replace(BR_TAG, '\n');
+            }
+            if (this.config.aggregateBar === 60) {
+                return `${_date.getDate()}. ${_date.getHours().toString().padStart(2, '0')}:00`;
+            }
+            if (this.config.aggregateBar === 15) {
+                return `${_date.getHours().toString().padStart(2, '0')}:${_date.getMinutes().toString().padStart(2, '0')}`;
+            }
+            if (this.config.aggregateBar === 1440 || this.config.aggregateBar === 10080) {
+                // A week bar carries the date of its Monday
+                return `${_date.getDate()}.${_date.getMonth() + 1}`;
+            }
+            if (this.config.aggregateBar === 43200) {
+                // The category is the first day of the month, so no correction of the date is required
+                return `${_date.getMonth() + 1}.${_date.getFullYear()}`;
+            }
+            // A free interval: whole days carry their date, anything shorter the time of the day
+            if (this.config.aggregateBar >= 1440) {
+                return `${_date.getDate()}.${_date.getMonth() + 1}`;
+            }
+            return `${padding2(_date.getHours())}:${padding2(_date.getMinutes())}`;
+        }
+        const date = new Date(value);
+        this.applyXLabelShift(date);
         if (this.config.timeFormat) {
             // Replace the tag only after formatting: moment drops a `\n` from the format string,
             // as its token regex ends with `.`, which does not match a line break
@@ -1027,17 +1092,7 @@ class ChartOption {
         if (Array.isArray(params[0].value)) {
             ts = params[0].value[0];
             date = new Date(ts);
-            if (this.config.xLabelShift) {
-                if (this.config.xLabelShiftMonth) {
-                    date.setMonth(date.getMonth() + this.config.xLabelShift);
-                }
-                else if (this.config.xLabelShiftYear) {
-                    date.setFullYear(date.getFullYear() + this.config.xLabelShift);
-                }
-                else {
-                    date.setSeconds(date.getSeconds() + this.config.xLabelShift);
-                }
-            }
+            this.applyXLabelShift(date);
         }
         const hoverNoNulls = this.config.hoverNoNulls === true || this.config.hoverNoNulls === 'true';
         // Lines with `offsetOverlay` are drawn on the main time range, so their real time is shown per line
@@ -1060,6 +1115,11 @@ class ChartOption {
                     val = p.value;
                 }
                 barPolarName = p.name;
+                // With one bar per line only the line of the hovered bar has a value, all others
+                // are `null` and would show up as an empty row
+                if (this.isBarPerLine() && (val === null || val === undefined)) {
+                    return null;
+                }
                 return {
                     name: lineConfig.name,
                     seriesIndex,
@@ -1087,9 +1147,20 @@ class ChartOption {
             const val = interpolated.val === null
                 ? 'null'
                 : this.yFormatter(interpolated.val, seriesIndex, false, !interpolated.exact, true);
-            // Show the real time of the values, if the line was moved onto the main time range
-            const realTime = lineConfig.offsetShift
-                ? `<div style="display: flex; margin-right: 4px; opacity: 0.7; font-style: italic">${this.moment(new Date(ts - lineConfig.offsetShift)).format(shiftFormat)}</div>`
+            // Show the real time of the values, if the line was moved onto the main time range. Months
+            // and years were moved in the calendar, so they have to be undone the same way
+            let realDate;
+            if (lineConfig.offsetShiftMonths) {
+                realDate = this.moment(ts).subtract(lineConfig.offsetShiftMonths, 'months').format(shiftFormat);
+            }
+            else if (lineConfig.offsetShiftYears) {
+                realDate = this.moment(ts).subtract(lineConfig.offsetShiftYears, 'years').format(shiftFormat);
+            }
+            else if (lineConfig.offsetShift) {
+                realDate = this.moment(new Date(ts - lineConfig.offsetShift)).format(shiftFormat);
+            }
+            const realTime = realDate
+                ? `<div style="display: flex; margin-right: 4px; opacity: 0.7; font-style: italic">${realDate}</div>`
                 : '';
             return {
                 name: line.name,
@@ -1104,14 +1175,19 @@ class ChartOption {
         });
         const values = ChartOption.mergeTooltipRowsByName(rows);
         if (anyBarOrPolar) {
+            // The category is the name of the line and not a time stamp
+            if (this.isBarPerLine()) {
+                return `<b>${barPolarName || ''}</b><br/>${values.join('<br/>')}`;
+            }
             // A bar stands for a whole interval, so the time below a day is always 00:00 and left out
             const format = this.config.timeFormat ||
                 (this.config.aggregateBar === 43200
                     ? 'MMMM YYYY'
-                    : this.config.aggregateBar === 1440
+                    : this.config.aggregateBar >= 1440
                         ? 'dd, L'
                         : 'dd, L HH:mm');
-            const _date = new Date(parseInt(barPolarName.substring(1), 10));
+            // The header has to show the same date as the label of the X-axis right below it
+            const _date = this.applyXLabelShift(new Date(parseInt(barPolarName.substring(1), 10)));
             return `<b>${this.moment(_date).format(format)}</b><br/>${values.join('<br/>')}`;
         }
         // `L` is the date format of the language of the user. The time stays at 24 hours, as the labels
@@ -1214,6 +1290,108 @@ class ChartOption {
             right: titlePos.right === 5 ? this.chart.padRight : undefined,
         };
     }
+    /**
+     * A mark line or a mark area is placed on the value axis. That is the Y-axis for standing bars, but
+     * the X-axis for lying ones, so the markings have to move with the axes.
+     */
+    static swapMarkAxis(series, options) {
+        series.forEach(ser => {
+            ser.markLine?.data?.forEach((mark) => {
+                if (mark.yAxis !== undefined) {
+                    mark.xAxis = mark.yAxis;
+                    delete mark.yAxis;
+                }
+            });
+            ser.markArea?.data?.forEach(area => area.forEach(mark => {
+                if (mark.yAxis !== undefined) {
+                    mark.xAxis = mark.yAxis;
+                    delete mark.yAxis;
+                }
+            }));
+        });
+        // `getMarkings` may widen the value axis so a marking outside of the data stays visible
+        const valueAxis = options.yAxis[0];
+        const min = valueAxis?.min;
+        const max = valueAxis?.max;
+        if (min !== undefined) {
+            options.xAxis[0].min = min;
+            delete valueAxis.min;
+        }
+        if (max !== undefined) {
+            options.xAxis[0].max = max;
+            delete valueAxis.max;
+        }
+    }
+    /**
+     * Turn the time chart into a list of data points: one bar per line, the names on the category axis.
+     *
+     * Every line keeps its own series, so the legend, the tooltip, the colors and the switching of the
+     * lines work exactly as before. A series carries its value only at its own position and `null`
+     * everywhere else; stacking them lets every bar use the full width of its category instead of a
+     * narrow slot beside the empty ones.
+     */
+    buildBarPerLine(option) {
+        const names = this.config.l.map(oneLine => oneLine.name);
+        const barSeries = option.series;
+        barSeries.forEach((ser, chartIndex) => {
+            const last = ChartOption.getLastValue(ser.data);
+            // A bar holds the plain value, a line holds `{ value: [time, value] }`
+            const value = last && typeof last === 'object' && Array.isArray(last.value)
+                ? last.value[1]
+                : last;
+            // Whatever the line was configured as, here it is one bar out of the list
+            ser.type = 'bar';
+            ser.stack = 'total';
+            ser.data = names.map((_name, i) => (i === chartIndex ? value : null));
+        });
+        const axisColor = this.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : this.config.grid_color || undefined;
+        const categoryAxis = {
+            type: 'category',
+            data: names,
+            splitLine: {
+                show: !this.config.grid_hideX,
+                lineStyle: { color: axisColor, type: 'dashed' },
+            },
+            axisLabel: {
+                show: !this.compact,
+                fontSize: parseInt(this.config.x_labels_size, 10) || 12,
+                color: this.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : this.config.x_labels_color || undefined,
+            },
+            axisTick: {
+                alignWithLabel: true,
+                lineStyle: this.config.x_ticks_color ? { color: this.config.x_ticks_color } : undefined,
+            },
+        };
+        // Take the axis of the first line that really has one, so its min/max, its ticks and its
+        // formatting (unit, decimals, states) are used for the single common value axis
+        const valueAxis = option.yAxis.find(axis => axis.type) || { type: 'value' };
+        // The bars are built standing, so that `getMarkings` finds the value axis where it expects it
+        option.xAxis = [categoryAxis];
+        option.yAxis = [valueAxis];
+        this.getMarkings(option);
+        if (this.config.barHorizontal) {
+            ChartOption.swapMarkAxis(barSeries, option);
+            // "left"/"right" of a Y-axis is no valid position for an X-axis
+            delete valueAxis.position;
+            // echarts separates the two axis types by a `mainType`, so the swap needs the detour
+            const asXAxis = valueAxis;
+            const asYAxis = categoryAxis;
+            option.xAxis = [asXAxis];
+            option.yAxis = [asYAxis];
+        }
+        // The labels are names of any length, so echarts is asked to keep the place for them itself
+        // instead of the estimation that the time axis uses
+        const grid = option.grid;
+        grid.containLabel = true;
+        grid.left = 10;
+        grid.right = this.config.export === true || this.config.export === 'true' ? 30 : 10;
+        grid.top = 8;
+        grid.bottom = this.compact ? 4 : 8;
+        this.chart.padLeft = grid.left;
+        this.chart.padRight = grid.right;
+        this.chart.padTop = grid.top;
+        this.chart.padBottom = grid.bottom;
+    }
     getOption(data, config, actualValues, categories) {
         if (config) {
             this.config = JSON.parse(JSON.stringify(config));
@@ -1287,8 +1465,12 @@ class ChartOption {
                 option.series[chartIndex].data = [actualValues[chartIndex]];
             }
         });
-        // modify series for polar
-        if (this.config.l.find(item => item.chartType === 'polar')) {
+        // modify series for "one bar per line"
+        if (this.isBarPerLine()) {
+            this.buildBarPerLine(option);
+        }
+        else if (this.config.l.find(item => item.chartType === 'polar')) {
+            // modify series for polar
             option.animation = false;
             option.radar = {
                 shape: this.config.radarCircle === 'circle' ? 'circle' : undefined,
@@ -1316,22 +1498,9 @@ class ChartOption {
                     name: item.name + (max !== undefined ? ` (max ${this.yFormatter(max, chartIndex, true)})` : ''),
                     max,
                 });
-                // find last not null value;
-                let value;
-                for (let d = item.data.length - 1; d >= 0; d--) {
-                    if (item.data[d] !== undefined && item.data[d] !== null) {
-                        value = item.data[d];
-                        break;
-                    }
-                }
-                if (value !== undefined) {
-                    // @ts-expect-error fix later
-                    radarSeries[0].data[0].value.push(value);
-                }
-                else {
-                    // @ts-expect-error fix later
-                    radarSeries[0].data[0].value.push(0);
-                }
+                const value = ChartOption.getLastValue(item.data);
+                // @ts-expect-error fix later
+                radarSeries[0].data[0].value.push(value === null ? 0 : value);
             });
             option.series = radarSeries;
             delete option.xAxis;
@@ -1425,6 +1594,21 @@ class ChartOption {
                         }
                     }
                 });
+                // The labels of a category axis stand centered under their bar, so the first and the
+                // last one need half of their width beside the grid. Without that reserve they are cut
+                // off at the border of the chart, which the Y-axis measuring above does not notice.
+                if (categories?.length && this.config.l.find(oneLine => oneLine.chartType === 'bar')) {
+                    const halfLabel = (categoryIndex) => {
+                        const label = this.xFormatter(`b${categories[categoryIndex]}`, categoryIndex);
+                        // A label may have several lines and may carry the rich-text markers of the axis
+                        const widest = label
+                            .split('\n')
+                            .reduce((max, line) => Math.max(max, this.calcTextWidth(line.replace(/\{[a-z]\|([^}]*)\}/g, '$1'), this.config.x_labels_size)), 0);
+                        return Math.ceil(widest / 2);
+                    };
+                    padLeft = Math.max(padLeft, halfLabel(0));
+                    padRight = Math.max(padRight, halfLabel(categories.length - 1));
+                }
                 option.grid.left = padLeft + 10;
                 option.grid.right =
                     padRight +

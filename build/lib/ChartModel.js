@@ -218,9 +218,24 @@ class ChartModel {
     systemConfig = null;
     preset;
     config;
+    /**
+     * The borders of a static time range as the user configured them.
+     *
+     * `getStartStop` writes the range that is really drawn back into `config.start`/`config.end`, and
+     * the static branch reads them again on the next run. With the default end time of 24:00 that moved
+     * the chart one day further into the future with every re-read, e.g. with every tick of "live".
+     * The entry is bound to the config object, so a new preset starts with fresh borders.
+     */
+    staticRange = null;
     barCategories;
     /** Exclusive end (ms) of the last entry of `barCategories` */
     barCategoriesEnd;
+    /**
+     * For every bar line of a `json` source the first and the last time stamp of the data the
+     * categories were built from. A later update of the state can bring another time range, and the
+     * chart must be read again then.
+     */
+    barJsonRange = [];
     now = Date.now();
     hash;
     convertFunctions = {};
@@ -321,6 +336,7 @@ class ChartModel {
         this.barData = [];
         this.barCategories = undefined;
         this.barCategoriesEnd = undefined;
+        this.barJsonRange = [];
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = null;
@@ -539,7 +555,7 @@ class ChartModel {
      * always 30 days long, so it must be counted in the calendar and not in milliseconds.
      *
      * @param date date to modify in place
-     * @param aggregateBar interval in minutes: 15, 60, 1440 (day) or 43200 (month)
+     * @param aggregateBar interval in minutes: 15, 60, 1440 (day), 10080 (week) or 43200 (month)
      */
     static addBarInterval(date, aggregateBar) {
         if (aggregateBar === 43200) {
@@ -548,6 +564,85 @@ class ChartModel {
         else {
             // setMinutes works on the local time, so the DST change is taken into account
             date.setMinutes(date.getMinutes() + aggregateBar);
+        }
+    }
+    /**
+     * Move the given date to the start of the previous bar interval. The counterpart of
+     * `addBarInterval`, needed to grow the categories to the front.
+     *
+     * @param date date to modify in place
+     * @param aggregateBar interval in minutes: 15, 60, 1440 (day), 10080 (week) or 43200 (month)
+     */
+    static subBarInterval(date, aggregateBar) {
+        if (aggregateBar === 43200) {
+            date.setMonth(date.getMonth() - 1);
+        }
+        else {
+            // setMinutes works on the local time, so the DST change is taken into account
+            date.setMinutes(date.getMinutes() - aggregateBar);
+        }
+    }
+    /**
+     * How many days the date lies behind its Monday. `getDay` counts the Sunday as 0, so the days are
+     * rotated to let the week start on Monday, like the ISO calendar week does.
+     */
+    static daysSinceMonday(date) {
+        return (date.getDay() + 6) % 7;
+    }
+    /**
+     * Make sure the bar categories cover the given time range.
+     *
+     * The categories are built by the first line that is processed, and every value outside them is
+     * dropped without a trace. A `json` source brings its own time range, so a second source can reach
+     * further than the first one, and an update of the state can bring a value behind the end. The
+     * categories therefore grow instead of cutting the data off, and the bars that were collected for
+     * the lines before are moved with them.
+     *
+     * The new categories are walked from the existing ones, so they always stay on the same raster.
+     *
+     * @param startTs first time stamp that needs a category, on the main time range
+     * @param endTs exclusive end of the range that must be covered, on the main time range
+     */
+    ensureBarCategories(startTs, endTs) {
+        const interval = this.config.aggregateBar;
+        // `endTs` is the exclusive border of the last bar and must not get a category of its own
+        if (!this.barCategories?.length) {
+            const categories = [];
+            const walker = new Date(startTs);
+            while (walker.getTime() < endTs) {
+                categories.push(walker.getTime());
+                ChartModel.addBarInterval(walker, interval);
+            }
+            this.barCategories = categories;
+            this.barCategoriesEnd = endTs;
+            return;
+        }
+        const front = [];
+        const walkerFront = new Date(this.barCategories[0]);
+        while (walkerFront.getTime() > startTs) {
+            ChartModel.subBarInterval(walkerFront, interval);
+            front.unshift(walkerFront.getTime());
+        }
+        const back = [];
+        const walkerBack = new Date(this.barCategoriesEnd);
+        while (walkerBack.getTime() < endTs) {
+            back.push(walkerBack.getTime());
+            ChartModel.addBarInterval(walkerBack, interval);
+        }
+        if (!front.length && !back.length) {
+            return;
+        }
+        this.barCategories = front.concat(this.barCategories, back);
+        if (back.length) {
+            this.barCategoriesEnd = walkerBack.getTime();
+        }
+        // The lines that were processed before keep their bars, they only move to the right
+        for (let i = 0; i < this.barData.length; i++) {
+            if (this.barData[i]) {
+                this.barData[i] = new Array(front.length)
+                    .fill(null)
+                    .concat(this.barData[i], new Array(back.length).fill(null));
+            }
         }
     }
     increaseRegionForBar(start, end, option) {
@@ -559,20 +654,26 @@ class ChartModel {
         let startTs = typeof start === 'number' ? start : start.getTime();
         // calculate count of intervals
         if (!this.config.aggregateBar) {
-            if (endTs - startTs <= 3600000 * 12) {
+            const range = endTs - startTs;
+            if (range <= 3600000 * 12) {
                 // less than 12 hours => 15 minutes
                 this.config.aggregateBar = 15;
             }
-            else if (endTs - startTs >= 3600000 * 24 * 60) {
-                // more than 60 days => 1 month
+            else if (range > 3600000 * 24 * 180) {
+                // more than half a year => 1 month
                 this.config.aggregateBar = 43200;
             }
-            else if (endTs - startTs > 3600000 * 24 * 3) {
+            else if (range >= 3600000 * 24 * 60) {
+                // 60 days up to half a year => 1 week. Days would give more than 60 bars here, and a
+                // month would leave only two of them
+                this.config.aggregateBar = 10080;
+            }
+            else if (range > 3600000 * 24 * 3) {
                 // more than 3 days => 1 day
                 this.config.aggregateBar = 1440;
             }
             else {
-                // if (endTs - startTs > 3600000 * 12) { // more than 12 hours => 60 minutes
+                // if (range > 3600000 * 12) { // more than 12 hours => 60 minutes
                 this.config.aggregateBar = 60;
             }
         }
@@ -640,6 +741,34 @@ class ChartModel {
             endTs = endDate.getTime();
             option.count = Math.round((endTs - startTs) / 86400000);
         }
+        else if (this.config.aggregateBar === 10080) {
+            // align start and stop to 1 week. The week starts on Monday, like the ISO calendar week
+            const startDate = new Date(startTs);
+            startDate.setHours(0);
+            startDate.setMinutes(0);
+            startDate.setSeconds(0);
+            startDate.setMilliseconds(0);
+            startDate.setDate(startDate.getDate() - ChartModel.daysSinceMonday(startDate));
+            if (withDiff) {
+                startDate.setDate(startDate.getDate() - 7);
+            }
+            startTs = startDate.getTime();
+            const endDate = new Date(endTs);
+            if (ChartModel.daysSinceMonday(endDate) ||
+                endDate.getHours() ||
+                endDate.getMinutes() ||
+                endDate.getSeconds() ||
+                endDate.getMilliseconds()) {
+                endDate.setHours(0);
+                endDate.setMinutes(0);
+                endDate.setSeconds(0);
+                endDate.setMilliseconds(0);
+                endDate.setDate(endDate.getDate() - ChartModel.daysSinceMonday(endDate) + 7);
+            }
+            endTs = endDate.getTime();
+            // A week can have 167 or 169 hours because of the daylight saving time
+            option.count = Math.round((endTs - startTs) / (7 * 86400000));
+        }
         else if (this.config.aggregateBar === 43200) {
             // align start and stop to 1 month
             const startDate = new Date(startTs);
@@ -670,6 +799,29 @@ class ChartModel {
             // Count the real calendar months and do not assume 30 days per month
             option.count =
                 (endDate.getFullYear() - startDate.getFullYear()) * 12 + endDate.getMonth() - startDate.getMonth();
+        }
+        else {
+            // A free interval the user entered. It is anchored at the midnight before the start, so the
+            // bars keep the same width and no shorter one appears at the border of a day. The end is
+            // walked in the same steps that `addBarInterval` uses, so the categories fit exactly.
+            const interval = this.config.aggregateBar;
+            const startDate = new Date(startTs);
+            const minutesOfDay = startDate.getHours() * 60 + startDate.getMinutes();
+            startDate.setHours(0, 0, 0, 0);
+            startDate.setMinutes(Math.floor(minutesOfDay / interval) * interval);
+            if (withDiff) {
+                startDate.setMinutes(startDate.getMinutes() - interval);
+            }
+            startTs = startDate.getTime();
+            // `end` is the exclusive border of the last bar
+            const walker = new Date(startTs);
+            let count = 0;
+            while (walker.getTime() < endTs) {
+                ChartModel.addBarInterval(walker, interval);
+                count++;
+            }
+            endTs = walker.getTime();
+            option.count = count;
         }
         option.start = startTs;
         option.end = endTs;
@@ -708,27 +860,142 @@ class ChartModel {
         }
     }
     /**
-     * Is the line drawn on the main time range instead of extending the X-axis? Bars and polar charts
-     * are excluded, as they share their categories with all other lines.
+     * Is the line drawn on the main time range instead of extending the X-axis? Polar charts are
+     * excluded: they show a single value per line and have no time axis to be moved on.
      *
      * @param index index of the line
      */
     isOffsetOverlay(index) {
         const line = this.config.l[index];
-        return !!line.offsetOverlay && line.chartType !== 'bar' && line.chartType !== 'polar';
+        return !!line.offsetOverlay && line.chartType !== 'polar';
     }
     /**
-     * Calculate how far the values of a line must be moved to the right to draw them on the main time
-     * range. The result is stored on the line and used by `processRawData`.
+     * Split a time offset into its number and its unit.
+     *
+     * An offset is stored as a number of seconds, or as a string with a unit: `1m` is one month and
+     * `1y` is one year. The negative entries of the editor arrive as strings too (`-3600`), and a
+     * preset that was written by hand or converted from an old chart can carry other spellings.
+     *
+     * The unit used to be found by looking at the second and the third character of the string, so
+     * `-12m` was read as -12 seconds and `100m` as 100 seconds, and an upper case `1M` as one second.
+     *
+     * @param offset the offset as it stands in the configuration
+     * @param defaultUnit the unit of a bare number, seconds if not given
+     */
+    static parseOffset(offset, defaultUnit = 'second') {
+        if (typeof offset === 'number') {
+            return { value: offset || 0, unit: defaultUnit };
+        }
+        const parts = /^\s*([+-]?\d+(?:\.\d+)?)\s*([a-zA-Z]*)\s*$/.exec(offset || '');
+        if (!parts) {
+            return { value: 0, unit: defaultUnit };
+        }
+        const value = parseFloat(parts[1]) || 0;
+        switch (parts[2].toLowerCase()) {
+            case '':
+                return { value, unit: defaultUnit };
+            case 's':
+            case 'sec':
+            case 'secs':
+            case 'second':
+            case 'seconds':
+                return { value, unit: 'second' };
+            case 'h':
+            case 'hour':
+            case 'hours':
+                return { value, unit: 'hour' };
+            case 'd':
+            case 'day':
+            case 'days':
+                return { value, unit: 'day' };
+            case 'w':
+            case 'week':
+            case 'weeks':
+                return { value, unit: 'week' };
+            case 'y':
+            case 'year':
+            case 'years':
+                return { value, unit: 'year' };
+            // A bare `m` has always meant a month in the presets, not a minute
+            case 'm':
+            case 'mon':
+            case 'month':
+            case 'months':
+                return { value, unit: 'month' };
+            default:
+                return { value, unit: defaultUnit };
+        }
+    }
+    /**
+     * Move a date by whole months or years in the calendar.
+     *
+     * `setMonth` rolls over into the next month if the target month is shorter, so the 31st of March
+     * minus one month would land on the 1st or the 3rd of March instead of the end of February. The
+     * day is therefore kept inside the target month.
+     *
+     * @param date date to modify in place
+     * @param months whole months to add, may be negative
+     * @param years whole years to add, may be negative
+     */
+    static addCalendarTime(date, months, years) {
+        const day = date.getDate();
+        date.setDate(1);
+        if (years) {
+            date.setFullYear(date.getFullYear() + years);
+        }
+        if (months) {
+            date.setMonth(date.getMonth() + months);
+        }
+        // the 0th day of the following month is the last day of this one
+        const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        date.setDate(day < daysInMonth ? day : daysInMonth);
+    }
+    /**
+     * Move one time stamp from the shifted range of a line onto the main time range.
+     *
+     * An offset in months or years is applied in the calendar and not as a fixed number of
+     * milliseconds. Otherwise a value that is written on the 1st of every month wanders away from the
+     * 1st after a few intervals, because the months have different lengths.
+     *
+     * @param line the line, carrying the shift calculated by `getOffsetShift`
+     * @param ts the real time stamp of the value
+     */
+    static shiftToMainRange(line, ts) {
+        if (line.offsetShiftMonths || line.offsetShiftYears) {
+            const date = new Date(ts);
+            // the same step that `addTime` walked, so both cancel each other out exactly
+            ChartModel.addCalendarTime(date, line.offsetShiftMonths || 0, line.offsetShiftYears || 0);
+            return date.getTime();
+        }
+        return ts + (line.offsetShift || 0);
+    }
+    /**
+     * Calculate how far the values of a line must be moved to draw them on the main time range. The
+     * result is stored on the line and used by `processRawData` via `shiftToMainRange`.
      *
      * @param index index of the line
      * @param referenceEnd end of the time range the line would have without its offset
      * @param endTs end of the time range of this line
      */
     getOffsetShift(index, referenceEnd, endTs) {
-        const shift = this.isOffsetOverlay(index) ? referenceEnd - endTs : 0;
-        this.config.l[index].offsetShift = shift;
-        return shift;
+        const line = this.config.l[index];
+        delete line.offsetShiftMonths;
+        delete line.offsetShiftYears;
+        if (!this.isOffsetOverlay(index)) {
+            line.offsetShift = 0;
+            return 0;
+        }
+        // `addTime` moves the read window by whole months or years, so the values have to move back the
+        // same way. The sign is inverted: the window went into the past, the values come back from it.
+        const { value, unit } = ChartModel.parseOffset(line.offset);
+        if (unit === 'month') {
+            line.offsetShiftMonths = Math.trunc(value);
+        }
+        else if (unit === 'year') {
+            line.offsetShiftYears = Math.trunc(value);
+        }
+        line.offsetShift = referenceEnd - endTs;
+        return line.offsetShift;
     }
     getStartStop(index, step) {
         let option;
@@ -780,6 +1047,9 @@ class ChartModel {
                 startTs = endTs - (this.zoomData.end - this.zoomData.start);
             }
             else if (this.config.timeType === 'static') {
+                if (this.staticRange?.config !== this.config) {
+                    this.staticRange = { config: this.config, start: this.config.start, end: this.config.end };
+                }
                 let startTime;
                 let endTime;
                 if (this.config.start_time !== undefined) {
@@ -795,8 +1065,8 @@ class ChartModel {
                     endTime = [24, 0];
                 }
                 // offset is in seconds
-                const startDate = new Date(this.config.start).setHours(startTime[0], startTime[1]);
-                const endDate = new Date(this.config.end).setHours(endTime[0], endTime[1]);
+                const startDate = new Date(this.staticRange.start).setHours(startTime[0], startTime[1]);
+                const endDate = new Date(this.staticRange.end).setHours(endTime[0], endTime[1]);
                 startTs = ChartModel.addTime(startDate, this.config.l[index].offset);
                 endTs = ChartModel.addTime(endDate, this.config.l[index].offset);
                 referenceEnd = endDate;
@@ -905,16 +1175,14 @@ class ChartModel {
                 referenceEnd = _nowDate.getTime();
             }
             const aggregate = this.config.l[index].aggregate || this.config.aggregate;
-            if (aggregate === 'current') {
-                throw new Error('Cannot use "current" aggregate for start/stop');
-            }
             option = {
                 start: startTs,
                 end: endTs,
                 ignoreNull: this.config.l[index].ignoreNull === undefined
                     ? this.config.ignoreNull
                     : this.config.l[index].ignoreNull,
-                aggregate: aggregate || 'minmax',
+                // "current" reads the state and never the history, so it must not reach the history adapter
+                aggregate: !aggregate || aggregate === 'current' ? 'minmax' : aggregate,
                 from: false,
                 ack: false,
                 q: false,
@@ -931,9 +1199,9 @@ class ChartModel {
             }
             this.rememberZoomLimit(referenceEnd);
             // The X-axis shows the main time range, so a shifted line reports the range it is drawn in
-            const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
-            this.config.start = startTs + offsetShift;
-            this.config.end = endTs + offsetShift;
+            this.getOffsetShift(index, referenceEnd, endTs);
+            this.config.start = ChartModel.shiftToMainRange(this.config.l[index], startTs);
+            this.config.end = ChartModel.shiftToMainRange(this.config.l[index], endTs);
             return option;
         }
         if (this.zoomData) {
@@ -964,9 +1232,9 @@ class ChartModel {
             addId: false,
         };
         this.rememberZoomLimit(referenceEnd);
-        const offsetShift = this.getOffsetShift(index, referenceEnd, endTs);
-        this.config.start = ChartModel.addTime(endTs, this.config.range, true) + offsetShift;
-        this.config.end = endTs + offsetShift;
+        this.getOffsetShift(index, referenceEnd, endTs);
+        this.config.start = ChartModel.shiftToMainRange(this.config.l[index], ChartModel.addTime(endTs, this.config.range, true));
+        this.config.end = ChartModel.shiftToMainRange(this.config.l[index], endTs);
         return option;
     }
     static postProcessing(series, aggregate, postProcessingMethod, dropFirstInterval) {
@@ -1046,35 +1314,31 @@ class ChartModel {
     }
     processRawData(_id, line, values, option) {
         if (!option) {
+            const firstTs = values.length ? values[0].ts : this.now;
+            const lastTs = values.length ? values[values.length - 1].ts : this.now;
             option = {
-                start: values[0].ts,
-                end: values[values.length - 1].ts,
+                start: firstTs,
+                end: lastTs,
             };
             if (line.chartType === 'bar' || line.chartType === 'polar') {
-                this.increaseRegionForBar(option.start, option.end, option);
+                // A `json` source has no time range of its own, so the range is the data itself. The end
+                // of the range is the exclusive border of the last bar, and it is rounded up only if it
+                // is not on the raster yet. A value that sits exactly on an interval border - a counter
+                // written at 00:00 is the normal case - would therefore fall out of the range and lose
+                // its bar, so the end is moved one millisecond behind the last value.
+                this.increaseRegionForBar(firstTs, lastTs + 1, option);
             }
         }
         const yOffset = line.yOffset || 0;
-        // If the line is drawn on the main time range, every value is moved by this amount
-        const xShift = line.offsetShift || 0;
         const seriesData = [];
         // Collects for every time interval the values. Later it will be combined to number[]
         const _barSeries = [];
         let barCategories = this.barCategories;
         // fill categories for bars
         if (line.chartType === 'bar') {
-            if (!barCategories) {
-                barCategories = [];
-                this.barCategories = barCategories;
-                const start = new Date(option.start);
-                const end = typeof option.end === 'number' ? option.end : option.end.getTime();
-                // `end` is the exclusive border of the last bar and must not get a category of its own
-                while (start.getTime() < end) {
-                    barCategories.push(start.getTime());
-                    ChartModel.addBarInterval(start, this.config.aggregateBar);
-                }
-                this.barCategoriesEnd = end;
-            }
+            // A shifted line is drawn on the main time range, so its categories are the moved ones
+            this.ensureBarCategories(ChartModel.shiftToMainRange(line, option.start), ChartModel.shiftToMainRange(line, typeof option.end === 'number' ? option.end : option.end.getTime()));
+            barCategories = this.barCategories;
             barCategories.forEach(() => _barSeries.push([]));
         }
         let convertFunc;
@@ -1095,11 +1359,13 @@ class ChartModel {
         }
         for (let i = 0; i < values.length; i++) {
             const value = ChartModel.processOneValue(values[i].val, convertFunc, yOffset);
+            // The place on the X-axis: for a shifted line that is not the time the value was written
+            const ts = ChartModel.shiftToMainRange(line, values[i].ts);
             if (line.chartType === 'bar') {
                 // find category: every interval is [category, next category[ and the last one ends at `end`
                 for (let c = 0; c < barCategories.length; c++) {
                     const intervalEnd = c + 1 < barCategories.length ? barCategories[c + 1] : this.barCategoriesEnd;
-                    if (values[i].ts >= barCategories[c] && values[i].ts < intervalEnd) {
+                    if (ts >= barCategories[c] && ts < intervalEnd) {
                         _barSeries[c].push(value);
                         break;
                     }
@@ -1110,7 +1376,7 @@ class ChartModel {
                     // todo: interpolate value
                     break;
                 }
-                const dp = { value: [values[i].ts + xShift, value] };
+                const dp = { value: [ts, value] };
                 // If value was interpolated by backend
                 if (values[i].i) {
                     dp.exact = false;
@@ -1135,8 +1401,8 @@ class ChartModel {
                 end = this.now;
             }
             // The values were moved, so the borders of the series must be moved too
-            start += xShift;
-            end += xShift;
+            start = ChartModel.shiftToMainRange(line, start);
+            end = ChartModel.shiftToMainRange(line, end);
             if (seriesData.length) {
                 if (seriesData[0].value[0] > start) {
                     seriesData.unshift({ value: [start, null], exact: false });
@@ -1236,7 +1502,13 @@ class ChartModel {
                         }
                     }
                 }
-                values.sort((a, b) => (a.ts - b.ts ? -1 : a.ts < b.ts ? 1 : 0));
+                values.sort((a, b) => a.ts - b.ts);
+                // Remember the range the categories are built from, so a later update of the state can
+                // see that the chart has to be read again
+                this.barJsonRange[index] =
+                    lineConfig.chartType === 'bar' && values.length
+                        ? { first: values[0].ts, last: values[values.length - 1].ts }
+                        : undefined;
                 const result = this.processRawData(id, lineConfig, values);
                 if (result.barData) {
                     this.barData[index] = result.barData;
@@ -1376,7 +1648,7 @@ class ChartModel {
                     values = [];
                     console.warn('JSON is not an array');
                 }
-                values.sort((a, b) => (a.ts - b.ts ? -1 : a.ts < b.ts ? 1 : 0));
+                values.sort((a, b) => a.ts - b.ts);
                 return values;
             }
             catch (e) {
@@ -1649,6 +1921,38 @@ class ChartModel {
         // The first interval is only the reference of the `diff` calculation and is not shown
         this.barCategories && this.hasBarDiff() ? this.barCategories.slice(1) : this.barCategories);
     }
+    /**
+     * The category a time stamp belongs to, or -1 if it lies outside of the categories.
+     */
+    barCategoryIndex(ts) {
+        const categories = this.barCategories;
+        if (!categories?.length || ts < categories[0] || ts >= this.barCategoriesEnd) {
+            return -1;
+        }
+        for (let c = categories.length - 1; c >= 0; c--) {
+            if (ts >= categories[c]) {
+                return c;
+            }
+        }
+        return -1;
+    }
+    /**
+     * Do the new contents of a `json` source stand in other bars than the ones the categories were
+     * built from? Then the time range of the chart has moved and it must be read again.
+     *
+     * @param index index of the line in the configuration
+     * @param values the new values, sorted by time
+     */
+    barsMoveOutOfRange(index, values) {
+        const known = this.barJsonRange[index];
+        if (!known || !values.length || !this.barCategories?.length) {
+            return false;
+        }
+        const line = this.config.l[index];
+        const category = (ts) => this.barCategoryIndex(ChartModel.shiftToMainRange(line, ts));
+        return (category(values[0].ts) !== category(known.first) ||
+            category(values[values.length - 1].ts) !== category(known.last));
+    }
     onStateChange = (id, state) => {
         if (!id || !state || this.reading) {
             return;
@@ -1674,7 +1978,16 @@ class ChartModel {
                             data = [];
                             console.warn('JSON is not an array');
                         }
-                        data.sort((a, b) => (a.ts - b.ts ? -1 : a.ts < b.ts ? 1 : 0));
+                        data.sort((a, b) => a.ts - b.ts);
+                        // The time range of a `json` source is the data itself, so a new value can move
+                        // it. The categories of the bars would only grow then, and a rolling window
+                        // would leave more and more empty bars at the front, so the whole chart is read
+                        // again in that case. As long as the data stays inside the range, the cheap
+                        // update is enough.
+                        if (this.config.l[index].chartType === 'bar' && this.barsMoveOutOfRange(index, data)) {
+                            void this.readData();
+                            return;
+                        }
                         const result = this.processRawData(id, this.config.l[index], data);
                         if (result.barData) {
                             this.barData[index] = result.barData;
@@ -1705,40 +2018,37 @@ class ChartModel {
             this.onUpdateFunc?.(null, this.actualValues);
         }
     };
+    /**
+     * Go back in time by the given offset. A positive offset reaches into the past.
+     *
+     * Months and years are counted in the calendar, everything else is a fixed number of
+     * milliseconds.
+     *
+     * @param time the point the offset is measured from
+     * @param offset seconds, or a string with a unit like `1m` (month) or `1y` (year)
+     * @param isOffsetInMinutes a bare number stands for minutes instead of seconds
+     */
     static addTime(time, offset, isOffsetInMinutes) {
         const date = new Date(time);
-        if (typeof offset === 'string') {
-            if (offset[1] === 'm' || offset[2] === 'm') {
-                offset = getInt(offset);
-                date.setMonth(date.getMonth() - offset);
-                time = date.getTime();
-            }
-            else if (offset[1] === 'y' || offset[2] === 'y') {
-                offset = getInt(offset);
-                date.setFullYear(date.getFullYear() - offset);
-                time = date.getTime();
-            }
-            else {
-                time = date.getTime();
-                if (isOffsetInMinutes) {
-                    time -= getInt(offset) * 60000;
-                }
-                else {
-                    time -= getInt(offset) * 1000;
-                }
-            }
+        const { value, unit } = ChartModel.parseOffset(offset, isOffsetInMinutes ? 'minute' : 'second');
+        switch (unit) {
+            case 'month':
+                ChartModel.addCalendarTime(date, -Math.trunc(value));
+                return date.getTime();
+            case 'year':
+                ChartModel.addCalendarTime(date, 0, -Math.trunc(value));
+                return date.getTime();
+            case 'week':
+                return date.getTime() - value * 7 * 86400000;
+            case 'day':
+                return date.getTime() - value * 86400000;
+            case 'hour':
+                return date.getTime() - value * 3600000;
+            case 'minute':
+                return date.getTime() - value * 60000;
+            default:
+                return date.getTime() - value * 1000;
         }
-        else {
-            offset = offset || 0;
-            time = date.getTime();
-            if (isOffsetInMinutes) {
-                time -= offset * 60000;
-            }
-            else {
-                time -= offset * 1000;
-            }
-        }
-        return time;
     }
     async exportData(from, to, excludes) {
         // read all raw data
@@ -1797,11 +2107,22 @@ class ChartModel {
             this.barData = [];
             this.barCategories = null;
             this.barCategoriesEnd = undefined;
+            this.barJsonRange = [];
             await this._readData();
-            // use units from common axis
+            // The lines that share a Y-axis show the unit of that axis. A preset that was written by
+            // hand or that survived a conversion can point at a line that does not exist. That must not
+            // stop the whole chart, so such a line falls back to an own axis.
             for (let i = 0; i < this.config.l.length; i++) {
-                if (this.config.l[i].commonYAxis || this.config.l[i].commonYAxis === 0) {
-                    this.config.l[i].unit = this.config.l[this.config.l[i].commonYAxis].unit;
+                const commonYAxis = this.config.l[i].commonYAxis;
+                if (commonYAxis || commonYAxis === 0) {
+                    const axisOwner = this.config.l[commonYAxis];
+                    if (axisOwner) {
+                        this.config.l[i].unit = axisOwner.unit;
+                    }
+                    else {
+                        console.warn(`[ChartModel] Line ${i + 1} shares the Y-axis of line ${Number(commonYAxis) + 1}, which does not exist. It gets an own axis.`);
+                        delete this.config.l[i].commonYAxis;
+                    }
                 }
             }
             await this.readTicks();

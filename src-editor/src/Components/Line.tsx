@@ -1310,20 +1310,8 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 if (!value) {
                                     delete line.offset;
                                 } else {
-                                    line.offset = value as
-                                        | number
-                                        | '1m'
-                                        | '2m'
-                                        | '3m'
-                                        | '6m'
-                                        | '1y'
-                                        | '2y'
-                                        | '-1m'
-                                        | '-2m'
-                                        | '-3m'
-                                        | '-6m'
-                                        | '-1y'
-                                        | '-2y';
+                                    // seconds, or a string with a unit like "1m" for one month
+                                    line.offset = value;
                                 }
                                 this.props.updateLine(this.props.index, line);
                             }}

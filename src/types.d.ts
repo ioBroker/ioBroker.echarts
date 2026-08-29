@@ -76,7 +76,12 @@ export type ChartLineConfig = {
     // cut the chart after "now"
     noFuture?: boolean;
     postProcessing?: 'diff' | '';
-    offset?: number | '1m' | '2m' | '3m' | '6m' | '1y' | '2y' | '-1m' | '-2m' | '-3m' | '-6m' | '-1y' | '-2y';
+    /**
+     * How far the data of this line is read from the past. A number counts seconds; the editor writes
+     * its negative entries as strings (`'-3600'`). A string can carry a unit: `s`, `h`, `d`, `w`, `m`
+     * (month) or `y`, written short or in full, e.g. `'1m'` or `'2years'`. See `ChartModel.parseOffset`.
+     */
+    offset?: number | string;
     /**
      * Draw the shifted data on the main time range instead of extending the X-axis, so the line can be
      * compared with the not-shifted ones. Has only an effect together with `offset`.
