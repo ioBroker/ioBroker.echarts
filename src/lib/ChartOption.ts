@@ -366,6 +366,11 @@ class ChartOption {
     )[] {
         this.chart.xMin = null;
         this.chart.xMax = null;
+        // The value range is collected by `convertData` from the data of this call. It must not keep
+        // the range of the call before, otherwise the Y-axis of a chart that is updated can only grow:
+        // a `json` source that switches to a smaller set of values would keep the old, much too high
+        // scale.
+        this.chart.yAxis = [];
         this.chart.seriesColors = [];
         let colorCount = 0;
 
