@@ -1537,11 +1537,20 @@ class ChartModel {
             value = getFloat(value);
         }
 
-        if (convertFunc) {
-            return value !== null ? convertFunc((value as number) + yOffset) : null;
+        if (value === null || value === undefined) {
+            return null;
         }
 
-        return value !== null ? (value as number) + yOffset : null;
+        // A preset that was written by hand can carry an offset that is not a number. Adding it would
+        // glue the value and the offset together to a text.
+        const offset = typeof yOffset === 'number' ? yOffset : getFloat(yOffset);
+        const result: unknown = convertFunc ? convertFunc((value as number) + offset) : (value as number) + offset;
+
+        // The convert function of the user can return anything: a division by zero gives infinity, a
+        // formula without a result gives undefined, and a wrong one gives a text. Such a result is not
+        // a value. It must not be drawn, and above all it must not reach the Y-axis: one single
+        // infinity or NaN makes the whole axis disappear, labels and grid lines included.
+        return typeof result === 'number' && Number.isFinite(result) ? result : null;
     }
 
     processRawData(
@@ -1744,7 +1753,9 @@ class ChartModel {
 
                     // convert ts to number
                     if (values[0].ts) {
-                        if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
+                        // `window` does not exist on the server: the data is read before `main.ts` creates the
+                        // jsdom stub, so `window.isFinite` threw and the whole source was dropped
+                        if (typeof values[0].ts === 'string' && Number.isFinite(Number(values[0].ts))) {
                             values.forEach(v => (v.ts = getInt(v.ts)));
                         } else if (
                             typeof values[0].ts === 'string' &&
@@ -1901,7 +1912,9 @@ class ChartModel {
 
                     // convert ts to number
                     if (values[0].ts) {
-                        if (typeof values[0].ts === 'string' && window.isFinite(values[0].ts)) {
+                        // `window` does not exist on the server: the data is read before `main.ts` creates the
+                        // jsdom stub, so `window.isFinite` threw and the whole source was dropped
+                        if (typeof values[0].ts === 'string' && Number.isFinite(Number(values[0].ts))) {
                             values.forEach(v => (v.ts = getInt(v.ts)));
                         } else if (
                             typeof values[0].ts === 'string' &&

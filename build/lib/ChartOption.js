@@ -241,7 +241,9 @@ class ChartOption {
         const yAxis = this.chart.yAxis[yAxisIndex] || { max: null, min: null };
         this.chart.yAxis[yAxisIndex] = yAxis;
         for (let ii = 0; ii < values.length; ii++) {
-            if (values[ii].value[1] === null) {
+            // Only a real number may widen the axis. An infinity or a NaN would spread it over
+            // everything and ECharts would draw no label and no grid line at all.
+            if (typeof values[ii].value[1] !== 'number' || !Number.isFinite(values[ii].value[1])) {
                 continue;
             }
             if (yAxis.min === null || yAxis.min > values[ii].value[1]) {
