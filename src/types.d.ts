@@ -252,6 +252,8 @@ export interface ChartConfig {
     debug?: boolean;
     presetId?: string;
     range: ChartRangeOptions;
+    /** Show a chart-local selector for changing the relative time range. */
+    rangeSelector?: boolean;
 }
 
 // string = presetID, {id, instance} = direct from state with history enabled

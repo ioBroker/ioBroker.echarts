@@ -16,5 +16,6 @@
   "Time format": "时间格式",
   "Time stamp in milliseconds": "以毫秒为单位的时间戳",
   "Unfortunately your browser does not support this feature": "不幸的是，您的浏览器不支持此功能",
-  "Unselect all": "全部取消选择"
+  "Unselect all": "全部取消选择",
+  "Chart time range": "时间范围"
 }
