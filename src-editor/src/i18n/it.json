@@ -349,6 +349,7 @@
   "Show legend:": "Mostra legenda:",
   "Show only in legend": "Mostra solo nella legenda",
   "Show points": "Mostra punti",
+  "Show range selector in chart": "Mostra selettore intervallo nel grafico",
   "Show save image button": "Mostra pulsante salva immagine",
   "Show values": "Mostra valori",
   "Smoothing": "Smussare",
@@ -564,6 +565,5 @@
   "ØL Line thickness": "ØL Spessore della linea",
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Dimensione ombra",
-  "ØS Shadow size": "ØS Dimensione ombra",
-  "Show range selector in chart": "Mostra selettore intervallo nel grafico"
+  "ØS Shadow size": "ØS Dimensione ombra"
 }

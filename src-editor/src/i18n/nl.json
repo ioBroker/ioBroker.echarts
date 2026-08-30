@@ -349,6 +349,7 @@
   "Show legend:": "Legenda weergeven:",
   "Show only in legend": "Alleen in legenda weergeven",
   "Show points": "Toon punten",
+  "Show range selector in chart": "Tijdselectie in grafiek tonen",
   "Show save image button": "Toon knop afbeelding opslaan",
   "Show values": "Toon waarden",
   "Smoothing": "smoothing",
@@ -564,6 +565,5 @@
   "ØL Line thickness": "ØL Lijndikte",
   "ØS": "Os",
   "ØS - Shadow size": "ØS - Schaduwmaat",
-  "ØS Shadow size": "ØS Schaduwmaat",
-  "Show range selector in chart": "Tijdselectie in grafiek tonen"
+  "ØS Shadow size": "ØS Schaduwmaat"
 }

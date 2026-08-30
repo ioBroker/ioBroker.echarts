@@ -349,6 +349,7 @@
   "Show legend:": "Показать легенду:",
   "Show only in legend": "Показать только в легенде",
   "Show points": "Показать баллы",
+  "Show range selector in chart": "Показывать выбор диапазона на графике",
   "Show save image button": "Показать кнопку сохранения изображения",
   "Show values": "Показать значения",
   "Smoothing": "Сглаживание",
@@ -564,6 +565,5 @@
   "ØL Line thickness": "ØL Толщина линии",
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Размер тени",
-  "ØS Shadow size": "ØS Размер тени",
-  "Show range selector in chart": "Показывать выбор диапазона на графике"
+  "ØS Shadow size": "ØS Размер тени"
 }

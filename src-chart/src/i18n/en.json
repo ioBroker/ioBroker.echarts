@@ -1,6 +1,25 @@
 {
+  "1 day": "1 day",
+  "1 hour": "1 hour",
+  "1 month": "1 month",
+  "1 year": "1 year",
+  "10 minutes": "10 minutes",
+  "12 hours": "12 hours",
+  "14 days": "14 days",
+  "2 days": "2 days",
+  "2 hours": "2 hours",
+  "2 months": "2 months",
+  "2 years": "2 years",
+  "3 days": "3 days",
+  "3 hours": "3 hours",
+  "3 months": "3 months",
+  "30 minutes": "30 minutes",
+  "6 hours": "6 hours",
+  "6 months": "6 months",
+  "7 days": "7 days",
   "Browser format": "Browser time format",
   "Cancel": "Cancel",
+  "Chart time range": "Time range",
   "Close": "Close",
   "Export": "Export",
   "Export raw data as CSV": "Export raw data as CSV",
@@ -16,6 +35,5 @@
   "Time format": "Time format",
   "Time stamp in milliseconds": "Time stamp in milliseconds",
   "Unfortunately your browser does not support this feature": "Unfortunately your browser does not support this feature",
-  "Unselect all": "Unselect all",
-  "Chart time range": "Time range"
+  "Unselect all": "Unselect all"
 }

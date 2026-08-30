@@ -349,6 +349,7 @@
   "Show legend:": "Zeige Legende:",
   "Show only in legend": "Nur in der Legende anzeigen",
   "Show points": "Punkte anzeigen",
+  "Show range selector in chart": "Bereichsauswahl im Diagramm anzeigen",
   "Show save image button": "Schaltfläche „Bild speichern“ anzeigen",
   "Show values": "Werte anzeigen",
   "Smoothing": "Glätten",
@@ -564,6 +565,5 @@
   "ØL Line thickness": "ØL Linienstärke",
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Schattengröße",
-  "ØS Shadow size": "ØS Schattengröße",
-  "Show range selector in chart": "Bereichsauswahl im Diagramm anzeigen"
+  "ØS Shadow size": "ØS Schattengröße"
 }

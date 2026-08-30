@@ -422,12 +422,7 @@ class App extends Component<AppProps, AppState> {
                             onRangeChange={(options: { stopLive?: boolean; start?: number; end?: number }): void =>
                                 this.chartData.setNewRange(options)
                             }
-                            onRangeSelectorChange={(range: ChartRangeOptions): void => {
-                                const currentConfig = this.chartData?.getConfig();
-                                if (currentConfig && typeof currentConfig !== 'string') {
-                                    this.chartData?.setConfig({ ...currentConfig, range });
-                                }
-                            }}
+                            onRangeSelectorChange={(range: ChartRangeOptions): void => this.chartData.setRange(range)}
                             exportData={(
                                 from: number,
                                 to: number,

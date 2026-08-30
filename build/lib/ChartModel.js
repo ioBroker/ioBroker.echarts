@@ -165,7 +165,7 @@ function normalizeConfig(config) {
     newConfig.hoverDetail = getBoolean(config.hoverDetail);
     newConfig.noLoader = getBoolean(config.noLoader);
     newConfig.noedit = getBoolean(config.noedit);
-    newConfig.rangeSelector = getBoolean(config.rangeSelector || false);
+    newConfig.rangeSelector = getBoolean(config.rangeSelector);
     newConfig.animation = getInt(config.animation);
     newConfig.afterComma =
         config.afterComma === undefined || config.afterComma === null ? 2 : getInt(config.afterComma);
@@ -238,6 +238,11 @@ class ChartModel {
      */
     barJsonRange = [];
     now = Date.now();
+    /**
+     * A range that overrides the one of the preset for this view only: it comes from the URL hash or
+     * from the range selector in the chart. It is kept apart from the config, so a reload of the preset
+     * object does not throw the choice away.
+     */
     hash;
     convertFunctions = {};
     constructor(socket, 
@@ -359,19 +364,7 @@ class ChartModel {
                 this.config.live = getInt(this.config.live);
                 this.config.debug = this.debug;
                 this.config.presetId = this.preset;
-                if (this.hash?.range) {
-                    if (typeof this.hash.range === 'string' &&
-                        !this.hash.range.includes('y') &&
-                        !this.hash.range.includes('m')) {
-                        this.config.range = getInt(this.hash.range) || 1;
-                    }
-                    else {
-                        this.config.range = this.hash.range;
-                    }
-                }
-                if (this.hash?.relativeEnd) {
-                    this.config.relativeEnd = this.hash.relativeEnd;
-                }
+                this.applyHash(this.config);
                 await this.readData();
                 // subscribe on preset changes
                 if (!this.serverSide && this.presetSubscribed !== this.preset) {
@@ -401,6 +394,25 @@ class ChartModel {
             }
         }
     }
+    /**
+     * A range or an end that was given in the URL hash or picked in the range selector wins over the one
+     * of the preset, so it must be applied again every time the preset object is read.
+     */
+    applyHash(config) {
+        if (this.hash?.range) {
+            if (typeof this.hash.range === 'string' &&
+                !this.hash.range.includes('y') &&
+                !this.hash.range.includes('m')) {
+                config.range = getInt(this.hash.range) || 1;
+            }
+            else {
+                config.range = this.hash.range;
+            }
+        }
+        if (this.hash?.relativeEnd) {
+            config.relativeEnd = this.hash.relativeEnd;
+        }
+    }
     onHashChange = () => {
         if (this.lastHash !== window.location.hash) {
             this.lastHash = window.location.hash;
@@ -423,6 +435,7 @@ class ChartModel {
             else {
                 newConfig = normalizeConfig({});
             }
+            this.applyHash(newConfig);
             if (JSON.stringify(newConfig) !== JSON.stringify(this.config)) {
                 this.config = newConfig;
                 this.updateInterval && clearInterval(this.updateInterval);
@@ -538,15 +551,27 @@ class ChartModel {
         return this.systemConfig;
     }
     setConfig(config) {
-        this.config = normalizeConfig(config);
-        this.config.useComma = this.config.useComma ?? this.systemConfig?.isFloatComma ?? true;
-        this.config.lang = this.systemConfig?.language || this.config.lang || 'en';
-        this.config.live = getInt(this.config.live);
-        this.config.debug = this.debug;
+        void this.analyseAndLoadConfig(config);
+    }
+    /**
+     * The range selector in the chart shows another time range without touching the preset. The choice
+     * is remembered like a range from the URL hash, so an update of the preset object does not throw it
+     * away, and a zoom must be dropped: a zoomed window is read from `zoomData` and would swallow the
+     * new range.
+     */
+    setRange(range) {
+        if (this.config.range === range && !this.zoomData) {
+            return;
+        }
+        this.config.range = range;
+        this.hash = { ...this.hash, range };
+        this.zoomData = null;
+        this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
+        this.readOnZoomTimeout = null;
         this.updateInterval && clearInterval(this.updateInterval);
         this.updateInterval = null;
         void this.readData().then(() => {
-            if (!this.serverSide && this.config?.live && (!this.zoomData || !this.zoomData.stopLive)) {
+            if (!this.serverSide && this.config.live) {
                 this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
             }
         });

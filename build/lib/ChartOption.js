@@ -962,6 +962,16 @@ class ChartOption {
      * line), which is only enough for the default font size of 12 pixels and cut the date off for
      * bigger ones. The factors below deliver exactly those two numbers for 12 pixels.
      */
+    /**
+     * The image, the range and the CSV button hang over the right edge of the chart, so the grid has to
+     * leave a place for them. A new button of that row belongs in this check too.
+     */
+    hasRightToolbar() {
+        return (this.config.export === true ||
+            this.config.export === 'true' ||
+            !!this.config.exportData ||
+            !!this.config.rangeSelector);
+    }
     getXLabelHeight() {
         const fontSize = parseInt(this.config.x_labels_size, 10) || 12;
         const lines = this.isXLabelHasBreak() ? 2 : 1;
@@ -1399,11 +1409,7 @@ class ChartOption {
         const grid = option.grid;
         grid.containLabel = true;
         grid.left = 10;
-        grid.right =
-            this.config.export === true ||
-                this.config.export === 'true' ||
-                !!this.config.exportData ||
-                !!this.config.rangeSelector ? 30 : 10;
+        grid.right = this.hasRightToolbar() ? 30 : 10;
         grid.top = 8;
         grid.bottom = this.compact ? 4 : 8;
         this.chart.padLeft = grid.left;
@@ -1461,9 +1467,7 @@ class ChartOption {
                 show: !!this.config.bg_custom,
                 left: 10,
                 top: 8,
-                right: this.config.export === true ||
-                    this.config.export === 'true' ||
-                    !!this.config.exportData || !!this.config.rangeSelector ? 30 : 0,
+                right: this.hasRightToolbar() ? 30 : 0,
                 bottom: this.compact ? 4 : this.getXLabelHeight(),
                 containLabel: this.config.autoGridPadding,
             },
@@ -1631,12 +1635,7 @@ class ChartOption {
                     padRight = Math.max(padRight, halfLabel(categories.length - 1));
                 }
                 option.grid.left = padLeft + 10;
-                option.grid.right =
-                    padRight +
-                        10 +
-                        (this.config.export === true ||
-                            this.config.export === 'true' ||
-                            !!this.config.exportData || !!this.config.rangeSelector ? 20 : 0);
+                option.grid.right = padRight + 10 + (this.hasRightToolbar() ? 20 : 0);
                 // if xAxis shown, let the place for last value
                 if (option.grid.right <= 10 && (padTop || padBottom)) {
                     option.grid.right = 18;

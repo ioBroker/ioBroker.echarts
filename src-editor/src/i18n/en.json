@@ -349,6 +349,7 @@
   "Show legend:": "Show legend:",
   "Show only in legend": "Show only in legend",
   "Show points": "Show points",
+  "Show range selector in chart": "Show range selector in chart",
   "Show save image button": "Show save image button",
   "Show values": "Show values",
   "Smoothing": "Smoothing",
@@ -564,6 +565,5 @@
   "ØL Line thickness": "ØL Line thickness",
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Shadow size",
-  "ØS Shadow size": "ØS Shadow size",
-  "Show range selector in chart": "Show range selector in chart"
+  "ØS Shadow size": "ØS Shadow size"
 }

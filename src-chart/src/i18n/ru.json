@@ -1,6 +1,25 @@
 {
+  "1 day": "1 день",
+  "1 hour": "1 час",
+  "1 month": "1 месяц",
+  "1 year": "1 год",
+  "10 minutes": "10 минут",
+  "12 hours": "12 часов",
+  "14 days": "14 дней",
+  "2 days": "2 дня",
+  "2 hours": "2 часа",
+  "2 months": "2 месяца",
+  "2 years": "2 года",
+  "3 days": "3 дня",
+  "3 hours": "3 часа",
+  "3 months": "3 месяца",
+  "30 minutes": "30 минут",
+  "6 hours": "6 часов",
+  "6 months": "6 месяцев",
+  "7 days": "7 дней",
   "Browser format": "Формат времени браузера",
   "Cancel": "Отмена",
+  "Chart time range": "Диапазон времени",
   "Close": "Закрыть",
   "Export": "Экспорт",
   "Export raw data as CSV": "Экспорт необработанных данных в формате CSV",
@@ -16,6 +35,5 @@
   "Time format": "Формат времени",
   "Time stamp in milliseconds": "Отметка времени в миллисекундах",
   "Unfortunately your browser does not support this feature": "К сожалению, ваш браузер не поддерживает эту функцию",
-  "Unselect all": "Снять все",
-  "Chart time range": "Диапазон времени"
+  "Unselect all": "Снять все"
 }

@@ -1,6 +1,25 @@
 {
+  "1 day": "1 dag",
+  "1 hour": "1 uur",
+  "1 month": "1 maand",
+  "1 year": "1 jaar",
+  "10 minutes": "10 minuten",
+  "12 hours": "12 uren",
+  "14 days": "14 dagen",
+  "2 days": "2 dagen",
+  "2 hours": "twee uur",
+  "2 months": "2 maanden",
+  "2 years": "2 jaar",
+  "3 days": "3 dagen",
+  "3 hours": "3 uur",
+  "3 months": "3 maanden",
+  "30 minutes": "30 minuten",
+  "6 hours": "6 uur",
+  "6 months": "6 maanden",
+  "7 days": "7 dagen",
   "Browser format": "Browser tijdformaat",
   "Cancel": "Annuleren",
+  "Chart time range": "Tijdsbereik",
   "Close": "Dichtbij",
   "Export": "Exporteren",
   "Export raw data as CSV": "Exporteer onbewerkte gegevens als CSV",
@@ -16,6 +35,5 @@
   "Time format": "Tijd formaat",
   "Time stamp in milliseconds": "Tijdstempel in milliseconden",
   "Unfortunately your browser does not support this feature": "Helaas ondersteunt uw browser deze functie niet",
-  "Unselect all": "Deselecteer alles",
-  "Chart time range": "Tijdsbereik"
+  "Unselect all": "Deselecteer alles"
 }

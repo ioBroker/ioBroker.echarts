@@ -1,6 +1,25 @@
 {
+  "1 day": "1天",
+  "1 hour": "1小时",
+  "1 month": "1个月",
+  "1 year": "1年",
+  "10 minutes": "10分钟",
+  "12 hours": "12小时",
+  "14 days": "14天",
+  "2 days": "2天",
+  "2 hours": "2小时",
+  "2 months": "2个月",
+  "2 years": "2年",
+  "3 days": "3天",
+  "3 hours": "3小时",
+  "3 months": "3个月",
+  "30 minutes": "30分钟",
+  "6 hours": "6小时",
+  "6 months": "6个月",
+  "7 days": "7天",
   "Browser format": "浏览器时间格式",
   "Cancel": "取消",
+  "Chart time range": "时间范围",
   "Close": "关闭",
   "Export": "出口",
   "Export raw data as CSV": "将原始数据导出为 CSV",
@@ -16,6 +35,5 @@
   "Time format": "时间格式",
   "Time stamp in milliseconds": "以毫秒为单位的时间戳",
   "Unfortunately your browser does not support this feature": "不幸的是，您的浏览器不支持此功能",
-  "Unselect all": "全部取消选择",
-  "Chart time range": "时间范围"
+  "Unselect all": "全部取消选择"
 }

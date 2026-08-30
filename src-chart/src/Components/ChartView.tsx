@@ -18,7 +18,6 @@ import {
     DialogContent,
     DialogActions,
     Button,
-    IconButton,
     Checkbox,
     FormControl,
     InputLabel,
@@ -102,11 +101,26 @@ import type { EChartsInstance } from 'echarts-for-react/src/types';
 
 import type { ChartConfigMore, ChartLineConfigMore, ChartRangeOptions } from '../../../src/types';
 
+/** The ranges the selector offers. Keep in sync with the "Range" list of the preset editor. */
 const rangeOptions: Record<ChartRangeOptions, string> = {
-    10: '10 minutes', 30: '30 minutes', 60: '1 hour', 120: '2 hours', 180: '3 hours',
-    360: '6 hours', 720: '12 hours', 1440: '1 day', 2880: '2 days', 4320: '3 days',
-    10080: '7 days', 20160: '14 days', '1m': '1 month', '2m': '2 months', '3m': '3 months',
-    '6m': '6 months', '1y': '1 year', '2y': '2 years',
+    10: '10 minutes',
+    30: '30 minutes',
+    60: '1 hour',
+    120: '2 hours',
+    180: '3 hours',
+    360: '6 hours',
+    720: '12 hours',
+    1440: '1 day',
+    2880: '2 days',
+    4320: '3 days',
+    10080: '7 days',
+    20160: '14 days',
+    '1m': '1 month',
+    '2m': '2 months',
+    '3m': '3 months',
+    '6m': '6 months',
+    '1y': '1 year',
+    '2y': '2 years',
 };
 
 echarts.use([
@@ -157,6 +171,9 @@ function LineSvg(props: { style?: React.CSSProperties }): React.JSX.Element {
     );
 }
 
+/** Vertical distance between two buttons on the right edge of the chart */
+const BUTTON_SLOT = 30;
+
 const styles: Record<string, React.CSSProperties> = {
     chart: {
         maxHeight: '100%',
@@ -187,6 +204,15 @@ const styles: Record<string, React.CSSProperties> = {
         opacity: 0.7,
         cursor: 'pointer',
         // background: '#00000000',
+    },
+    rangeButton: {
+        position: 'absolute',
+        right: 5,
+        width: 20,
+        height: 20,
+        zIndex: 2,
+        opacity: 0.7,
+        cursor: 'pointer',
     },
     copyButton: {
         position: 'absolute',
@@ -272,8 +298,7 @@ interface ChartViewState {
     exporting: boolean;
     showExportDataDialog: boolean;
     showLegendDialog: boolean;
-    selectedRange: ChartRangeOptions;
-    rangeMenuAnchorEl: HTMLElement | null;
+    rangeMenuAnchorEl: Element | null;
 }
 
 class ChartView extends React.Component<ChartViewProps, ChartViewState> {
@@ -313,7 +338,6 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             exporting: false,
             showExportDataDialog: false,
             showLegendDialog: false,
-            selectedRange: props.config.range,
             rangeMenuAnchorEl: null,
         };
 
@@ -385,37 +409,47 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     };
 
     UNSAFE_componentWillReceiveProps(props: ChartViewProps): void {
-        if (props.config.range !== this.props.config.range) {
-            this.setState({ selectedRange: props.config.range });
-        }
         if (props.data !== this.state.data) {
             this.updatePropertiesTimeout && clearTimeout(this.updatePropertiesTimeout);
             this.updatePropertiesTimeout = setTimeout(this.updateProperties, 100, props);
         }
     }
 
+    /**
+     * The buttons on the right edge hang under each other, one slot apart. The range selector is drawn
+     * between the image and the CSV button, so both of them keep the place they had without it.
+     */
+    getButtonTop(button: 'range' | 'exportData' | 'copy'): number {
+        // Without an image button above it the range selector takes its place and moves nothing
+        const shift = this.props.config.rangeSelector && this.props.config.export ? BUTTON_SLOT : 0;
+
+        if (button === 'range') {
+            return (this.props.config.export ? styles.exportDataButton.top : styles.saveImageButton.top) as number;
+        }
+        if (button === 'exportData') {
+            return (styles.exportDataButton.top as number) + shift;
+        }
+        return (styles.copyButton.top as number) + shift;
+    }
+
     renderRangeSelector(): React.JSX.Element | null {
         if (!this.props.config.rangeSelector || this.props.config.timeType === 'static') {
             return null;
         }
-        const rangeMenuOpen = Boolean(this.state.rangeMenuAnchorEl);
+
         return (
             <>
-                <IconButton
-                    style={{
-                        position: 'absolute', top: this.props.config.export ? 82 : 40, right: 5,
-                        zIndex: 10, width: 20, height: 20, padding: 0, borderRadius: 0,
-                        color: this.props.config.exportColor || undefined,
-                    }}
+                <IconRange
+                    color={this.props.config.exportColor || 'default'}
+                    style={{ ...styles.rangeButton, top: this.getButtonTop('range') }}
                     title={I18n.t('Chart time range')}
-                    aria-label={I18n.t('Chart time range')}
-                    onClick={event => this.setState({ rangeMenuAnchorEl: event.currentTarget })}
-                >
-                    <IconRange />
-                </IconButton>
+                    onClick={(event: React.MouseEvent<SVGElement>) =>
+                        this.setState({ rangeMenuAnchorEl: event.currentTarget })
+                    }
+                />
                 <Menu
                     anchorEl={this.state.rangeMenuAnchorEl}
-                    open={rangeMenuOpen}
+                    open={!!this.state.rangeMenuAnchorEl}
                     onClose={() => this.setState({ rangeMenuAnchorEl: null })}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                     transformOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -423,12 +457,16 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     {Object.entries(rangeOptions).map(([value, label]) => (
                         <MenuItem
                             key={value}
-                            selected={this.state.selectedRange?.toString() === value}
+                            selected={this.props.config.range?.toString() === value}
                             onClick={() => {
-                                const range = value.match(/^\d+$/)
-                                    ? (parseInt(value, 10) as ChartRangeOptions)
+                                const range: ChartRangeOptions = value.match(/^\d+$/)
+                                    ? parseInt(value, 10)
                                     : (value as ChartRangeOptions);
-                                this.setState({ selectedRange: range, rangeMenuAnchorEl: null });
+                                this.setState({ rangeMenuAnchorEl: null });
+                                // The new range replaces a zoomed window, so the reset button has nothing to reset
+                                if (this.divResetButton.current) {
+                                    this.divResetButton.current.style.display = 'none';
+                                }
                                 this.props.onRangeSelectorChange(range);
                             }}
                         >
@@ -1149,9 +1187,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     color={this.props.config.exportDataColor || 'default'}
                     style={{
                         ...styles.exportDataButton,
-                        top: this.props.config.rangeSelector
-                            ? this.props.config.export ? 100 : 70
-                            : styles.exportDataButton.top,
+                        top: this.getButtonTop('exportData'),
                         opacity: this.state.exporting ? 0.5 : 1,
                     }}
                     title={I18n.t('Export raw data as CSV')}
@@ -1465,7 +1501,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             return (
                 <IconCopy
                     color="default"
-                    style={styles.copyButton}
+                    style={{ ...styles.copyButton, top: this.getButtonTop('copy') }}
                     title="Copy option to clipboard"
                     onClick={() => Utils.copyToClipboard(JSON.stringify(this.option, null, 2))}
                 />
