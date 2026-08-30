@@ -311,9 +311,15 @@ class ChartOption {
                     },
                     barWidth: parseInt(this.config.barWidth, 10) || undefined,
                     // xAxisIndex: 0,
-                    stack: anyNotOwnAxis ? 'total' : undefined,
+                    // Only the bars that really share a Y-axis are stacked on each other. Without the
+                    // index in the name, a line with an own axis would be stacked on a line of another
+                    // axis, which puts it at a height that belongs to a different scale.
+                    stack: anyNotOwnAxis ? `total${yAxisIndex}` : undefined,
                     silent: true,
-                    // yAxisIndex,
+                    // Without this every bar hangs on the axis of the first line: a line with 0..120 °C
+                    // and one with 0..5 kWh were drawn on the same scale, so the second one was pressed
+                    // flat on the bottom while its own axis stayed empty
+                    yAxisIndex,
                     type: 'bar',
                     // showSymbol: oneLine.chartType === 'scatterplot' || oneLine.points,
                     // hoverAnimation: false,
@@ -1349,6 +1355,8 @@ class ChartOption {
             // Whatever the line was configured as, here it is one bar out of the list
             ser.type = 'bar';
             ser.stack = 'total';
+            // All the bars stand side by side on the one common value axis that is built below
+            ser.yAxisIndex = 0;
             ser.data = names.map((_name, i) => (i === chartIndex ? value : null));
         });
         const axisColor = this.config.l[0].xaxe === 'off' ? 'rgba(0,0,0,0)' : this.config.grid_color || undefined;
