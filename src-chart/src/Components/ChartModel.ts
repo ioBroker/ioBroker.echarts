@@ -847,7 +847,13 @@ class ChartModel {
         if (!this.config) {
             throw new Error('Unexpected null config');
         }
-        this.config.aggregateBar = getInt(this.config.aggregateBar);
+        // A free interval comes from a number field or from a preset that was written by hand. It has to
+        // be a whole number of minutes greater than zero: with a fraction below one minute the walk over
+        // the intervals would not move at all, and with a negative one it would run backwards. In both
+        // cases the loops below would never reach the end of the range and the browser would freeze.
+        const interval = Math.round(getInt(this.config.aggregateBar));
+        this.config.aggregateBar = interval >= 1 ? interval : 0;
+
         let endTs = typeof end === 'number' ? end : end.getTime();
         let startTs = typeof start === 'number' ? start : start.getTime();
 
