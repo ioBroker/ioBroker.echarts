@@ -16,5 +16,6 @@
   "Time format": "Формат времени",
   "Time stamp in milliseconds": "Отметка времени в миллисекундах",
   "Unfortunately your browser does not support this feature": "К сожалению, ваш браузер не поддерживает эту функцию",
-  "Unselect all": "Снять все"
+  "Unselect all": "Снять все",
+  "Chart time range": "Диапазон времени"
 }

@@ -72,6 +72,7 @@ const DEFAULT_PRESET: ChartConfigMore = {
     timeType: 'relative',
     relativeEnd: '30minutes',
     range: 120,
+    rangeSelector: false,
     aggregateType: 'count',
     aggregateSpan: 300,
     legend: 'ne',

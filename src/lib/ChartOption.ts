@@ -1637,7 +1637,13 @@ class ChartOption {
         const grid = option.grid as GridOption;
         grid.containLabel = true;
         grid.left = 10;
-        grid.right = this.config.export === true || (this.config.export as unknown as string) === 'true' ? 30 : 10;
+        grid.right =
+            this.config.export === true ||
+            (this.config.export as unknown as string) === 'true' ||
+            !!this.config.exportData ||
+            !!this.config.rangeSelector
+                ? 30
+                : 10;
         grid.top = 8;
         grid.bottom = this.compact ? 4 : 8;
 
@@ -1718,7 +1724,13 @@ class ChartOption {
                 show: !!this.config.bg_custom,
                 left: 10,
                 top: 8,
-                right: this.config.export === true || (this.config.export as unknown as string) === 'true' ? 30 : 0,
+                right:
+                    this.config.export === true ||
+                    (this.config.export as unknown as string) === 'true' ||
+                    !!this.config.exportData ||
+                    !!this.config.rangeSelector
+                        ? 30
+                        : 0,
                 bottom: this.compact ? 4 : this.getXLabelHeight(),
                 containLabel: this.config.autoGridPadding,
             },
@@ -1920,7 +1932,12 @@ class ChartOption {
                 (option.grid as GridOption).right =
                     padRight +
                     10 +
-                    (this.config.export === true || (this.config.export as unknown as string) === 'true' ? 20 : 0);
+                    (this.config.export === true ||
+                    (this.config.export as unknown as string) === 'true' ||
+                    !!this.config.exportData ||
+                    !!this.config.rangeSelector
+                        ? 20
+                        : 0);
                 // if xAxis shown, let the place for last value
                 if (((option.grid as GridOption).right as number) <= 10 && (padTop || padBottom)) {
                     (option.grid as GridOption).right = 18;

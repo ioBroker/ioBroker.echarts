@@ -301,6 +301,9 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
     newConfig.hoverDetail = getBoolean(config.hoverDetail);
     newConfig.noLoader = getBoolean(config.noLoader);
     newConfig.noedit = getBoolean(config.noedit);
+    newConfig.rangeSelector = getBoolean(
+        (config as unknown as { rangeSelector?: boolean | string }).rangeSelector || false,
+    );
     newConfig.animation = getInt(config.animation);
     newConfig.afterComma =
         config.afterComma === undefined || config.afterComma === null ? 2 : getInt(config.afterComma);
@@ -718,7 +721,18 @@ class ChartModel {
     }
 
     setConfig(config: ChartConfig | ChartConfigOld): void {
-        void this.analyseAndLoadConfig(config);
+        this.config = normalizeConfig(config as ChartConfigOld);
+        this.config.useComma = this.config.useComma ?? this.systemConfig?.isFloatComma ?? true;
+        this.config.lang = this.systemConfig?.language || this.config.lang || 'en';
+        this.config.live = getInt(this.config.live);
+        this.config.debug = this.debug;
+        this.updateInterval && clearInterval(this.updateInterval);
+        this.updateInterval = null;
+        void this.readData().then(() => {
+            if (!this.serverSide && this.config?.live && (!this.zoomData || !this.zoomData.stopLive)) {
+                this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+            }
+        });
     }
 
     /**

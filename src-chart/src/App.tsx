@@ -47,7 +47,7 @@ import zhLang from './i18n/zh-cn.json';
 
 import ChartModel, { type SeriesData, type BarAndLineSeries, type ChartConfigOld } from './Components/ChartModel';
 import ChartView from './Components/ChartView';
-import type { ChartConfig, ChartConfigMore } from '../../src/types';
+import type { ChartConfig, ChartConfigMore, ChartRangeOptions } from '../../src/types';
 
 declare module '@mui/material/Button' {
     interface ButtonPropsColorOverrides {
@@ -422,6 +422,12 @@ class App extends Component<AppProps, AppState> {
                             onRangeChange={(options: { stopLive?: boolean; start?: number; end?: number }): void =>
                                 this.chartData.setNewRange(options)
                             }
+                            onRangeSelectorChange={(range: ChartRangeOptions): void => {
+                                const currentConfig = this.chartData?.getConfig();
+                                if (currentConfig && typeof currentConfig !== 'string') {
+                                    this.chartData?.setConfig({ ...currentConfig, range });
+                                }
+                            }}
                             exportData={(
                                 from: number,
                                 to: number,

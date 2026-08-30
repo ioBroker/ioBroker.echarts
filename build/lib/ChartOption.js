@@ -1399,7 +1399,11 @@ class ChartOption {
         const grid = option.grid;
         grid.containLabel = true;
         grid.left = 10;
-        grid.right = this.config.export === true || this.config.export === 'true' ? 30 : 10;
+        grid.right =
+            this.config.export === true ||
+                this.config.export === 'true' ||
+                !!this.config.exportData ||
+                !!this.config.rangeSelector ? 30 : 10;
         grid.top = 8;
         grid.bottom = this.compact ? 4 : 8;
         this.chart.padLeft = grid.left;
@@ -1457,7 +1461,9 @@ class ChartOption {
                 show: !!this.config.bg_custom,
                 left: 10,
                 top: 8,
-                right: this.config.export === true || this.config.export === 'true' ? 30 : 0,
+                right: this.config.export === true ||
+                    this.config.export === 'true' ||
+                    !!this.config.exportData || !!this.config.rangeSelector ? 30 : 0,
                 bottom: this.compact ? 4 : this.getXLabelHeight(),
                 containLabel: this.config.autoGridPadding,
             },
@@ -1628,7 +1634,9 @@ class ChartOption {
                 option.grid.right =
                     padRight +
                         10 +
-                        (this.config.export === true || this.config.export === 'true' ? 20 : 0);
+                        (this.config.export === true ||
+                            this.config.export === 'true' ||
+                            !!this.config.exportData || !!this.config.rangeSelector ? 20 : 0);
                 // if xAxis shown, let the place for last value
                 if (option.grid.right <= 10 && (padTop || padBottom)) {
                     option.grid.right = 18;

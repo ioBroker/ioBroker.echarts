@@ -1066,6 +1066,17 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                         '2y': '2 years',
                                     }}
                                 />
+                                <IOCheckbox
+                                    value={!!this.props.presetData.rangeSelector}
+                                    updateValue={(value: boolean): void => {
+                                        const presetData: ChartConfigMore = JSON.parse(
+                                            JSON.stringify(this.props.presetData),
+                                        );
+                                        presetData.rangeSelector = value;
+                                        this.props.onChange(presetData);
+                                    }}
+                                    label="Show range selector in chart"
+                                />
                                 <IOSelect
                                     value={
                                         this.props.presetData.live === undefined

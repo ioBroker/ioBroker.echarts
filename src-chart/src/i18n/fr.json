@@ -16,5 +16,6 @@
   "Time format": "Format de l'heure",
   "Time stamp in milliseconds": "Horodatage en millisecondes",
   "Unfortunately your browser does not support this feature": "Malheureusement, votre navigateur ne prend pas en charge cette fonctionnalité",
-  "Unselect all": "Tout déselectionner"
+  "Unselect all": "Tout déselectionner",
+  "Chart time range": "Période"
 }

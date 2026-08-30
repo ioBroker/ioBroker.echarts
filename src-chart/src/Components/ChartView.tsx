@@ -11,12 +11,14 @@ type ZRenderInstance = ReturnType<ECharts['getZr']>;
 
 import {
     LinearProgress,
+    Menu,
     MenuItem,
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
     Button,
+    IconButton,
     Checkbox,
     FormControl,
     InputLabel,
@@ -37,6 +39,7 @@ import {
     FaCopy as IconCopy,
     FaBars as IconMenu,
     FaCheck as IconCheck,
+    FaCalendarAlt as IconRange,
 } from 'react-icons/fa';
 import { Close as IconClose } from '@mui/icons-material';
 
@@ -97,7 +100,14 @@ import 'echarts/theme/dark-bold';
 import type { GridOption, RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
 import type { EChartsInstance } from 'echarts-for-react/src/types';
 
-import type { ChartConfigMore, ChartLineConfigMore } from '../../../src/types';
+import type { ChartConfigMore, ChartLineConfigMore, ChartRangeOptions } from '../../../src/types';
+
+const rangeOptions: Record<ChartRangeOptions, string> = {
+    10: '10 minutes', 30: '30 minutes', 60: '1 hour', 120: '2 hours', 180: '3 hours',
+    360: '6 hours', 720: '12 hours', 1440: '1 day', 2880: '2 days', 4320: '3 days',
+    10080: '7 days', 20160: '14 days', '1m': '1 month', '2m': '2 months', '3m': '3 months',
+    '6m': '6 months', '1y': '1 year', '2y': '2 years',
+};
 
 echarts.use([
     GridComponent,
@@ -248,6 +258,7 @@ interface ChartViewProps {
     data: BarAndLineSeries[];
     actualValues: number[];
     onRangeChange: (settings?: { stopLive?: boolean; start?: number; end?: number }) => void;
+    onRangeSelectorChange: (range: ChartRangeOptions) => void;
     categories: number[]; // for bar and pie charts
     exportData: (from: number, to: number, excludes?: string[]) => Promise<{ [objectId: string]: SeriesData[] }>;
 }
@@ -261,6 +272,8 @@ interface ChartViewState {
     exporting: boolean;
     showExportDataDialog: boolean;
     showLegendDialog: boolean;
+    selectedRange: ChartRangeOptions;
+    rangeMenuAnchorEl: HTMLElement | null;
 }
 
 class ChartView extends React.Component<ChartViewProps, ChartViewState> {
@@ -300,6 +313,8 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             exporting: false,
             showExportDataDialog: false,
             showLegendDialog: false,
+            selectedRange: props.config.range,
+            rangeMenuAnchorEl: null,
         };
 
         this.divRef = React.createRef();
@@ -370,10 +385,59 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     };
 
     UNSAFE_componentWillReceiveProps(props: ChartViewProps): void {
+        if (props.config.range !== this.props.config.range) {
+            this.setState({ selectedRange: props.config.range });
+        }
         if (props.data !== this.state.data) {
             this.updatePropertiesTimeout && clearTimeout(this.updatePropertiesTimeout);
             this.updatePropertiesTimeout = setTimeout(this.updateProperties, 100, props);
         }
+    }
+
+    renderRangeSelector(): React.JSX.Element | null {
+        if (!this.props.config.rangeSelector || this.props.config.timeType === 'static') {
+            return null;
+        }
+        const rangeMenuOpen = Boolean(this.state.rangeMenuAnchorEl);
+        return (
+            <>
+                <IconButton
+                    style={{
+                        position: 'absolute', top: this.props.config.export ? 82 : 40, right: 5,
+                        zIndex: 10, width: 20, height: 20, padding: 0, borderRadius: 0,
+                        color: this.props.config.exportColor || undefined,
+                    }}
+                    title={I18n.t('Chart time range')}
+                    aria-label={I18n.t('Chart time range')}
+                    onClick={event => this.setState({ rangeMenuAnchorEl: event.currentTarget })}
+                >
+                    <IconRange />
+                </IconButton>
+                <Menu
+                    anchorEl={this.state.rangeMenuAnchorEl}
+                    open={rangeMenuOpen}
+                    onClose={() => this.setState({ rangeMenuAnchorEl: null })}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                    {Object.entries(rangeOptions).map(([value, label]) => (
+                        <MenuItem
+                            key={value}
+                            selected={this.state.selectedRange?.toString() === value}
+                            onClick={() => {
+                                const range = value.match(/^\d+$/)
+                                    ? (parseInt(value, 10) as ChartRangeOptions)
+                                    : (value as ChartRangeOptions);
+                                this.setState({ selectedRange: range, rangeMenuAnchorEl: null });
+                                this.props.onRangeSelectorChange(range);
+                            }}
+                        >
+                            {I18n.t(label)}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            </>
+        );
     }
 
     onResize = (): void => {
@@ -1083,7 +1147,13 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             return (
                 <IconExportData
                     color={this.props.config.exportDataColor || 'default'}
-                    style={{ ...styles.exportDataButton, opacity: this.state.exporting ? 0.5 : 1 }}
+                    style={{
+                        ...styles.exportDataButton,
+                        top: this.props.config.rangeSelector
+                            ? this.props.config.export ? 100 : 70
+                            : styles.exportDataButton.top,
+                        opacity: this.state.exporting ? 0.5 : 1,
+                    }}
                     title={I18n.t('Export raw data as CSV')}
                     onClick={() => {
                         if (this.state.exporting) {
@@ -1446,6 +1516,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     padding: borderPadding || 0,
                 }}
             >
+                {this.renderRangeSelector()}
                 {chart}
                 {this.renderSaveImageButton()}
                 {this.renderExportDataDialog()}
