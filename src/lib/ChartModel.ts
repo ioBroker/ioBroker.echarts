@@ -1475,10 +1475,16 @@ class ChartModel {
                         option,
                     );
                 }
-            } else if (this.config.aggregateType === 'step') {
-                option.step = this.config.aggregateSpan * 1000;
-            } else if (this.config.aggregateType === 'count') {
-                option.count = this.config.aggregateSpan || 300;
+            } else if (option.aggregate !== 'onchange') {
+                // "raw" asks for the values as they were written. A step or a count would make the
+                // history adapter build intervals around them anyway, and the editor hides both
+                // settings for that aggregation - but only when the whole chart uses it, not when a
+                // single line does, and such a line came back empty
+                if (this.config.aggregateType === 'step') {
+                    option.step = this.config.aggregateSpan * 1000;
+                } else if (this.config.aggregateType === 'count') {
+                    option.count = this.config.aggregateSpan || 300;
+                }
             }
 
             this.rememberZoomLimit(referenceEnd);

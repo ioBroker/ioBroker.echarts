@@ -1494,6 +1494,20 @@ export default class Line extends React.Component<LineProps, LineState> {
                         />
                     ) : null}
                     {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                        <IOCheckbox
+                            value={!!this.props.line.logarithmic}
+                            updateValue={(value: boolean): void => {
+                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                line.logarithmic = value;
+                                this.props.updateLine(this.props.index, line);
+                            }}
+                            label="Logarithmic Y-axis"
+                            tooltip={I18n.t(
+                                'Scale the Y-axis in powers of ten. Values of zero or below cannot be drawn on such an axis and are left out',
+                            )}
+                        />
+                    ) : null}
+                    {this.props.line.chartType !== 'polar' && ownYAxis ? (
                         <IONumberField
                             value={this.props.line.yticks}
                             updateValue={(value: number): void => {

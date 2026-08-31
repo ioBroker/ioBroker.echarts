@@ -125,6 +125,11 @@ export type ChartLineConfig = {
     dashes?: boolean;
     min?: number | string;
     max?: number | string;
+    /**
+     * Scale the Y-axis of this line logarithmically, base 10. Values of zero or below cannot be drawn
+     * on such an axis and are left out by echarts.
+     */
+    logarithmic?: boolean;
     yOffset?: number;
     validTime?: number;
     chartType?: ChartType;

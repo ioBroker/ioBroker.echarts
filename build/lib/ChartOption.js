@@ -779,10 +779,14 @@ class ChartOption {
             // Positive values move a "left" axis further left, or a "right" axis
             // further right (identical to the Apache ECharts `offset` property).
             const yAxisOffset = parseFloat(oneLine.yAxisOffset) || 0;
+            // A logarithmic axis knows no zero and no negative value. echarts leaves such points out,
+            // and a `min` of 0 as well, so both borders are only handed over if they can be drawn
+            const logarithmic = !!oneLine.logarithmic;
             return {
-                type: 'value',
-                min: yMin,
-                max: yMax,
+                type: logarithmic ? 'log' : 'value',
+                logBase: logarithmic ? 10 : undefined,
+                min: logarithmic && !(yMin > 0) ? undefined : yMin,
+                max: logarithmic && !(yMax > 0) ? undefined : yMax,
                 offset: yAxisOffset,
                 position: oneLine.yaxe === 'left' || oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor'
                     ? 'left'
@@ -804,7 +808,9 @@ class ChartOption {
                 splitNumber: parseInt(oneLine.yticks, 10) || undefined,
                 axisLabel: {
                     show: !this.compact,
-                    formatter: value => this.yFormatter(value, chartIndex, true),
+                    // The type of the axis is only known at runtime now, so echarts cannot hand the
+                    // type of the parameter over any more
+                    formatter: (value) => this.yFormatter(value, chartIndex, true),
                     color: oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor'
                         ? color
                         : this.config.y_labels_color || undefined,
