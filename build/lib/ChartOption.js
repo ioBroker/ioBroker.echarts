@@ -1346,10 +1346,23 @@ class ChartOption {
             // not in `data`, so nothing else has to be done for them
             data: this.config.l.filter(oneLine => !oneLine.hideInLegend).map(oneLine => oneLine.name),
             show: true,
-            left: this.config.legend === 'nw' || this.config.legend === 'sw' ? this.chart.padLeft + 1 : undefined,
+            // "n" and "s" stand outside the chart, centered in the band that `reserveOutsideBands` took
+            left: this.config.legend === 'n' || this.config.legend === 's'
+                ? 'center'
+                : this.config.legend === 'nw' || this.config.legend === 'sw'
+                    ? this.chart.padLeft + 1
+                    : undefined,
             right: this.config.legend === 'ne' || this.config.legend === 'se' ? this.chart.padRight + 1 : undefined,
-            top: this.config.legend === 'nw' || this.config.legend === 'ne' ? this.chart.padTop + 2 : undefined,
-            bottom: this.config.legend === 'sw' || this.config.legend === 'se' ? this.chart.padBottom + 2 : undefined,
+            top: this.config.legend === 'n'
+                ? this.chart.outsideLegendTop
+                : this.config.legend === 'nw' || this.config.legend === 'ne'
+                    ? this.chart.padTop + 2
+                    : undefined,
+            bottom: this.config.legend === 's'
+                ? this.chart.outsideLegendBottom
+                : this.config.legend === 'sw' || this.config.legend === 'se'
+                    ? this.chart.padBottom + 2
+                    : undefined,
             backgroundColor: this.config.legBg || undefined,
             height: this.config.legendHeight || undefined,
             formatter: (name /* , arg */) => {
@@ -1379,6 +1392,68 @@ class ChartOption {
         });
         return legend;
     }
+    /** Where the title stands: outside over the chart, outside under it, or somewhere inside */
+    getTitleSide() {
+        if (!this.config?.title) {
+            return undefined;
+        }
+        const pos = this.config.titlePos || '';
+        if (pos.includes('top:-5')) {
+            return 'top';
+        }
+        return pos.includes('bottom:-5') ? 'bottom' : undefined;
+    }
+    /**
+     * The title and the legend can stand outside the chart instead of over it. echarts draws both of
+     * them onto the whole canvas and knows nothing about the grid, so the grid has to give up a band at
+     * its top or at its bottom, and both share that band if both stand on the same side. It must run
+     * after all the measuring of the axes, because it works on the finished grid.
+     */
+    reserveOutsideBands(option) {
+        this.chart.outsideTitleTop = undefined;
+        this.chart.outsideTitleBottom = undefined;
+        this.chart.outsideLegendTop = undefined;
+        this.chart.outsideLegendBottom = undefined;
+        const grid = option.grid;
+        // A radar chart has no grid, there is nothing to take the place from
+        if (!grid) {
+            return;
+        }
+        const titleSide = this.getTitleSide();
+        const legendSide = this.config.legend === 'n' ? 'top' : this.config.legend === 's' ? 'bottom' : undefined;
+        if (!titleSide && !legendSide) {
+            return;
+        }
+        const titleHeight = (parseInt(this.config.titleSize, 10) || 20) + 8;
+        // echarts draws a legend entry 14 px high; a bigger font needs more, and the user may set the
+        // height himself, e.g. when the entries wrap into several rows
+        const legendHeight = parseInt(this.config.legendHeight, 10) ||
+            Math.max(parseInt(this.config.legFontSize, 10) || 12, 14) + 10;
+        // The title stands outermost, the legend between it and the chart
+        let top = 0;
+        if (titleSide === 'top') {
+            this.chart.outsideTitleTop = top + 2;
+            top += titleHeight;
+        }
+        if (legendSide === 'top') {
+            this.chart.outsideLegendTop = top + 2;
+            top += legendHeight;
+        }
+        let bottom = 0;
+        if (legendSide === 'bottom') {
+            this.chart.outsideLegendBottom = bottom + 2;
+            bottom += legendHeight;
+        }
+        if (titleSide === 'bottom') {
+            this.chart.outsideTitleBottom = bottom + 2;
+            bottom += titleHeight;
+        }
+        grid.top = (grid.top || 0) + top;
+        grid.bottom = (grid.bottom || 0) + bottom;
+        // The inside positions of the title and of the legend hang on these two
+        this.chart.padTop = grid.top;
+        this.chart.padBottom = grid.bottom;
+    }
     getTitle() {
         if (!this.config || !this.config.title) {
             return undefined;
@@ -1388,12 +1463,31 @@ class ChartOption {
             const parts = a.split(':');
             titlePos[parts[0].trim()] = parseInt(parts[1].trim(), 10);
         });
+        const textStyle = {
+            fontSize: this.config.titleSize ? parseInt(this.config.titleSize, 10) : 20,
+            color: this.config.titleColor || (this.themeType === 'light' ? '#000' : '#FFF'),
+        };
+        // Only for the outside positions. The inside ones keep the rule they always had
+        const outsideAlign = titlePos.left === 50 ? 'center' : titlePos.right === 5 ? 'right' : 'left';
+        // Outside: the title sits in the band that `reserveOutsideBands` took from the grid. It is
+        // aligned to the whole canvas and not to the axes, so it stands over the chart and not over
+        // the plotting area alone
+        const side = this.getTitleSide();
+        if (side) {
+            return {
+                text: this.config.title,
+                textStyle,
+                textVerticalAlign: 'top',
+                textAlign: outsideAlign,
+                top: side === 'top' ? this.chart.outsideTitleTop : undefined,
+                bottom: side === 'bottom' ? this.chart.outsideTitleBottom : undefined,
+                left: outsideAlign === 'center' ? '50%' : outsideAlign === 'left' ? this.chart.padLeft : undefined,
+                right: outsideAlign === 'right' ? this.chart.padRight : undefined,
+            };
+        }
         return {
             text: this.config.title,
-            textStyle: {
-                fontSize: this.config.titleSize ? parseInt(this.config.titleSize, 10) : 20,
-                color: this.config.titleColor || (this.themeType === 'light' ? '#000' : '#FFF'),
-            },
+            textStyle,
             textVerticalAlign: titlePos.bottom ? 'bottom' : 'top',
             textAlign: titlePos.left === 50 ? 'center' : titlePos.right === -5 ? 'right' : 'left',
             top: titlePos.top === 35 ? 5 + this.chart.padTop : titlePos.top === 50 ? '50%' : undefined,
@@ -1754,6 +1848,8 @@ class ChartOption {
         // 'ne': 'Top, right',
         // 'sw': 'Bottom, left',
         // 'se': 'Bottom, right',
+        // Both are drawn onto the whole canvas, so the grid has to give up their place first
+        this.reserveOutsideBands(option);
         option.legend = this.getLegend(actualValues);
         option.title = this.getTitle();
         if (!this.config.grid_color && Array.isArray(option.yAxis)) {

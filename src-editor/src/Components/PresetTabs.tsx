@@ -1359,7 +1359,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                         value={this.props.presetData.legend}
                         updateValue={(value: string): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                            presetData.legend = value as 'nw' | 'sw' | 'ne' | 'se' | 'dialog' | '';
+                            presetData.legend = value as 'nw' | 'sw' | 'ne' | 'se' | 'n' | 's' | 'dialog' | '';
                             this.props.onChange(presetData);
                         }}
                         label="Show legend"
@@ -1369,6 +1369,8 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                             ne: 'Top, right',
                             sw: 'Bottom, left',
                             se: 'Bottom, right',
+                            n: 'Over the chart',
+                            s: 'Under the chart',
                             dialog: 'Dialog',
                         }}
                     />
@@ -1693,10 +1695,12 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                     'bottom:5;left:65': 'Bottom, left, inside',
                                     'bottom:5;right:5': 'Bottom, right, inside',
                                     'bottom:5;left:50': 'Bottom, center, inside',
-                                    /* 'top:5;right:-5': 'Top, right, outside',
-                            'top:50;right:-5': 'Middle, right, outside',
-                            'bottom:5;right:-5': 'Bottom, right, outside',
-                            'bottom:-5;left:50': 'Bottom, center, outside', */
+                                    'top:-5;left:65': 'Over the chart, left',
+                                    'top:-5;left:50': 'Over the chart, center',
+                                    'top:-5;right:5': 'Over the chart, right',
+                                    'bottom:-5;left:65': 'Under the chart, left',
+                                    'bottom:-5;left:50': 'Under the chart, center',
+                                    'bottom:-5;right:5': 'Under the chart, right',
                                 }}
                             />
                             {this.renderColorField(this.props.presetData.titleColor, 'Title color', 'titleColor')}

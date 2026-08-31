@@ -313,7 +313,8 @@ export interface ChartConfigMore extends ChartConfig {
     resetZoom?: number;
 
     // Show legend
-    legend?: 'nw' | 'sw' | 'ne' | 'se' | 'dialog' | '';
+    /** Corner inside the chart, `n`/`s` over or under it, `dialog` behind a button */
+    legend?: 'nw' | 'sw' | 'ne' | 'se' | 'n' | 's' | 'dialog' | '';
     // Legend background
     legBg?: string;
     // Legend Height

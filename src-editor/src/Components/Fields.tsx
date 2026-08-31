@@ -337,7 +337,11 @@ export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
             <div
                 style={{
                     ...(props.fullWidth ? { width: '100%' } : undefined),
-                    ...(props.styles?.objectContainer || styles.objectContainer),
+                    // The row has to stay a flex box. A caller that only wants to widen it would
+                    // otherwise take the layout away too, and the select button would hang on the
+                    // text baseline next to the label instead of standing on the line of the field
+                    ...styles.objectContainer,
+                    ...props.styles?.objectContainer,
                 }}
             >
                 <TextField
