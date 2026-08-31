@@ -24,9 +24,17 @@ import {
 } from '@mui/icons-material';
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
-import { I18n, Utils, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
+import { I18n, Utils, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
 
-import { IOTextField, IOCheckbox, IOSelect, IOObjectField, IOSlider, IONumberField } from './Fields';
+import {
+    IOTextField,
+    IOCheckbox,
+    IOSelect,
+    IOObjectField,
+    IOSlider,
+    IONumberField,
+    getColorFromPicker,
+} from './Fields';
 
 import LineDialog from './LineDialog';
 import EditStatesDialog from './EditStatesDialog';
@@ -682,7 +690,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         if (!this.props.onPaste) {
                             this.setState({ color: value }, () =>
                                 this.props.onSelectColor(this.state.color, color =>
-                                    this.setState({ color }, () => updateValue(ColorPicker.getColor(color, true))),
+                                    this.setState({ color }, () => updateValue(getColorFromPicker(color))),
                                 ),
                             );
                         }
@@ -889,8 +897,13 @@ export default class Line extends React.Component<LineProps, LineState> {
                     >
                         <IconFolderOpened />
                     </IconButton>
-                    {I18n.t('Line')} {this.props.index + 1}
-                    {this.props.line.name ? ` - ${this.props.line.name}` : ''}
+                    {/* Bare text becomes an anonymous flex item that no rule can reach, so it kept the
+                        `flex-end` of the row while the icons beside it are centered - the title stood
+                        lower than the folder and the drag handle. In a span the existing rule catches it */}
+                    <span>
+                        {I18n.t('Line')} {this.props.index + 1}
+                        {this.props.line.name ? ` - ${this.props.line.name}` : ''}
+                    </span>
                     <div style={{ flexGrow: 1 }} />
                     <IconButton
                         style={styles.copyButtonFull}

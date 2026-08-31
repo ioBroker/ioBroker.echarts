@@ -16,7 +16,28 @@ import {
 
 import { Subject as IconSelectID, Close as ClearIcon, Help as HelpIcon } from '@mui/icons-material';
 
-import { I18n, DialogSelectID, type AdminConnection, type IobTheme } from '@iobroker/gui-components';
+import { I18n, ColorPicker, DialogSelectID, type AdminConnection, type IobTheme } from '@iobroker/gui-components';
+
+/**
+ * The color the picker delivered, as a string for the preset.
+ *
+ * `ColorPicker.getColor(color, true)` always writes `#rrggbb`, and a hex value carries no alpha - so
+ * whatever the user did with the alpha slider was thrown away and the picker showed `A: 1` again the
+ * next time. A color that is not fully opaque is therefore written as `rgba()`; a normal one keeps its
+ * short hex, so nothing changes for the presets that are already there.
+ */
+export function getColorFromPicker(color: unknown): string {
+    // Already a string: that is what the dialog built, it must not be converted a second time -
+    // `getColor` would send an `rgba()` through `rgb2hex` and lose the alpha again
+    if (typeof color === 'string') {
+        return color;
+    }
+
+    const withRgb = color as { rgb?: { a?: number }; a?: number };
+    const alpha = withRgb?.rgb ? withRgb.rgb.a : withRgb?.a;
+
+    return ColorPicker.getColor(color as Parameters<typeof ColorPicker.getColor>[0], alpha === undefined || alpha >= 1);
+}
 
 const styles: Record<string, React.CSSProperties> = {
     fieldContainer: {
@@ -41,7 +62,9 @@ const styles: Record<string, React.CSSProperties> = {
     },
     sliderLabel: {
         position: 'absolute',
-        top: 0,
+        // The container carries a `paddingTop` of 10 that an absolute child does not see, so the label
+        // is pulled up by it and stands as high as the labels of the fields beside it
+        top: -10,
         left: 0,
         fontSize: 'small',
     },

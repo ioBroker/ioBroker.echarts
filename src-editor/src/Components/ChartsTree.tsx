@@ -14,7 +14,15 @@ import {
 
 import { AiOutlineAreaChart as IconChart } from 'react-icons/ai';
 
-import { I18n, Utils, withWidth, DialogSelectID, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
+import {
+    I18n,
+    Icon,
+    Utils,
+    withWidth,
+    DialogSelectID,
+    type IobTheme,
+    type AdminConnection,
+} from '@iobroker/gui-components';
 
 import Switch from './Switch';
 
@@ -30,15 +38,66 @@ function sortObj(a: CustomInstance | string, b: CustomInstance | string): 1 | -1
     return 0;
 }
 
-function getEnumsForId(enums: Record<string, ioBroker.EnumObject>, id: string): string[] {
-    const result: string[] = [];
-    Object.keys(enums).forEach(eID => {
-        const en = enums[eID];
-        if (en.common.members.includes(id) && !result.includes(eID)) {
-            result.push(eID);
+/**
+ * All enums of one kind (`enum.rooms.` or `enum.functions.`) an object belongs to.
+ *
+ * A room or a function is normally not written onto every single state but onto the channel or onto
+ * the device above it, and everything below inherits it - that is how the categories of the admin are
+ * used. Only looking at the state itself therefore found nothing and put the whole chart list under
+ * "Others".
+ *
+ * The way up is walked over the types of the objects and not over the names: from a state to its
+ * channel and from there to its device. A device is the last station, above it nothing is inherited
+ * anymore. The nearest station that carries something wins, and it may hand over several enums at
+ * once, because an object can be a member of more than one of them.
+ */
+function getEnumsOfKind(
+    enums: Record<string, ioBroker.EnumObject>,
+    objects: Record<string, ioBroker.Object>,
+    id: string,
+    kind: string,
+): string[] {
+    const enumIds = Object.keys(enums).filter(eID => eID.startsWith(kind));
+    const membersOf = (objectId: string): string[] =>
+        enumIds.filter(eID => enums[eID].common.members.includes(objectId));
+
+    let result = membersOf(id);
+    if (result.length) {
+        return result;
+    }
+
+    // Only a state inherits. A channel or a device that carries nothing itself gets nothing
+    if (objects[id]?.type !== 'state') {
+        return [];
+    }
+
+    let parentId = Utils.getParentId(id);
+    let parent = objects[parentId];
+
+    while (parent && (parent.type === 'channel' || parent.type === 'device')) {
+        result = membersOf(parentId);
+        if (result.length) {
+            return result;
         }
-    });
-    return result;
+        if (parent.type === 'device') {
+            break;
+        }
+        parentId = Utils.getParentId(parentId);
+        parent = objects[parentId];
+    }
+
+    return [];
+}
+
+/** The rooms and the functions of a state. Both are resolved on their own, they may sit on different levels */
+function getEnumsForId(
+    enums: Record<string, ioBroker.EnumObject>,
+    objects: Record<string, ioBroker.Object>,
+    id: string,
+): string[] {
+    return getEnumsOfKind(enums, objects, id, 'enum.functions.').concat(
+        getEnumsOfKind(enums, objects, id, 'enum.rooms.'),
+    );
 }
 
 const LEVEL_PADDING = 16;
@@ -254,6 +313,10 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                         common: {
                             members: [...enums[id].common.members],
                             name: Utils.getObjectNameFromObj(enums[id], null, { language: I18n.getLanguage() }),
+                            // A room or a function carries its own color and its own icon in the admin,
+                            // and the list shows the group with them instead of a grey folder
+                            color: enums[id].common.color,
+                            icon: enums[id].common.icon,
                         },
                         type: 'enum',
                         native: {},
@@ -402,6 +465,18 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
             '',
         )) as Record<string, ioBroker.Object>;
 
+        // A room or a function normally hangs on the channel or on the device over the state, so those
+        // objects are needed to walk up from a state. Only their id and their type are read here
+        const [channels, devices] = await Promise.all([
+            this.props.socket.getObjectViewSystem('channel', '', '香'),
+            this.props.socket.getObjectViewSystem('device', '', '香'),
+        ]);
+        const objectsForEnums: Record<string, ioBroker.Object> = {
+            ...(channels as Record<string, ioBroker.Object>),
+            ...(devices as Record<string, ioBroker.Object>),
+            ...objs,
+        };
+
         const _instances: Record<string, CustomInstance> = {};
         newState.enums ||= this.state.enums;
         const iconPromises: Promise<{ groupId: string; id: string; img: string; name: string[] }>[] = [];
@@ -426,7 +501,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                 _instances[id].enabledDP[obj._id] = { ...obj };
                 _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
                 _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
-                _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, obj._id);
+                _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, objectsForEnums, obj._id);
                 iconPromises.push(this.getChartIconAndName(id, obj, cache));
             });
         });
@@ -447,7 +522,8 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
 
             // Build for every instance the list of enums
             Object.keys(newState.enums).forEach(eID => {
-                if (Object.keys(enabledDP).find(id => newState.enums[eID].common.members.includes(id))) {
+                // `statesEnums` already knows the inherited assignments, `members` alone does not
+                if (Object.keys(enabledDP).find(id => obj.statesEnums[id]?.includes(eID))) {
                     obj.enums ||= [];
                     if (!obj.enums.includes(eID)) {
                         obj.enums.push(eID);
@@ -469,10 +545,11 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                 native: {},
             };
             Object.keys(enabledDP).forEach(id => {
-                if (!funcIds.find(eID => newState.enums[eID].common.members.includes(id))) {
+                const own = obj.statesEnums[id] || [];
+                if (!own.some(eID => funcIds.includes(eID))) {
                     otherFuncs.common.members.push(id);
                 }
-                if (!roomIds.find(eID => newState.enums[eID].common.members.includes(id))) {
+                if (!own.some(eID => roomIds.includes(eID))) {
                     otherRooms.common.members.push(id);
                 }
             });
@@ -800,10 +877,18 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         const key = `${instance}///${enumId}`;
         const opened = this.state.chartsOpened[key];
         if (opened) {
-            ids = ids.filter(id => this.state.enums[enumId].common.members.includes(id));
+            ids = ids.filter(
+                id =>
+                    group.statesEnums[id]?.includes(enumId) ||
+                    // The synthetic "Others" enums are built from the state ids themselves
+                    this.state.enums[enumId].common.members.includes(id),
+            );
         }
         const nameObj: ioBroker.StringOrTranslated = this.state.enums[enumId].common.name;
         const name = typeof nameObj === 'object' ? nameObj[I18n.getLanguage()] || nameObj.en : nameObj;
+        // The synthetic "Others" groups have neither of them and stay the grey folder they were
+        const color: string | undefined = this.state.enums[enumId].common.color || undefined;
+        const icon: string | undefined = this.state.enums[enumId].common.icon || undefined;
 
         return [
             <ListItem
@@ -829,13 +914,24 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                     style={styles.itemIconRoot}
                     onClick={() => this.toggleChartFolder(key)}
                 >
-                    {opened ? (
-                        <IconFolderOpened style={{ ...styles.itemIcon, ...styles.itemIconFolder }} />
+                    {/* A room or a function that brings an own icon is shown with it. The folder would
+                        only stand beside it and say nothing, the chevron on the right already tells
+                        whether the group is open.
+                        `Icon` draws a `data:image/svg` inline, so a `currentColor` inside the picture
+                        takes the color of the enum. An `img` would only ever be black. It knows a UTF-8
+                        character and a normal URL as well */}
+                    {icon ? (
+                        <Icon
+                            src={icon}
+                            style={{ ...styles.itemIcon, ...styles.itemIconFolder, color }}
+                        />
+                    ) : opened ? (
+                        <IconFolderOpened style={{ ...styles.itemIcon, ...styles.itemIconFolder, color }} />
                     ) : (
-                        <IconFolderClosed style={{ ...styles.itemIcon, ...styles.itemIconFolder }} />
+                        <IconFolderClosed style={{ ...styles.itemIcon, ...styles.itemIconFolder, color }} />
                     )}
                 </ListItemIcon>
-                <ListItemText primary={name} />
+                <ListItemText primary={<div style={{ ...styles.itemNameDiv, color }}>{name}</div>} />
             </ListItem>,
             opened ? (
                 <List key={`${key}_LIST`}>
@@ -926,10 +1022,7 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
                                                     this.props.theme,
                                                     styles.width100,
                                                     styles.folderItem,
-                                                    { height: 48 },
-                                                    {
-                                                        '&.MuiListItem-gutters': styles.noGutters,
-                                                    },
+                                                    { height: 48, '&.MuiListItem-gutters': styles.noGutters },
                                                 )}
                                                 secondaryAction={
                                                     <>

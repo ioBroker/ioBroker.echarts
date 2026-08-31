@@ -33,9 +33,9 @@ import {
     Delete as IconDelete,
 } from '@mui/icons-material';
 
-import { I18n, Utils, IconCopy, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
+import { I18n, Utils, IconCopy, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
 
-import { IOTextField, IOCheckbox, IOSelect, IODateTimeField, IONumberField } from './Fields';
+import { IOTextField, IOCheckbox, IOSelect, IODateTimeField, IONumberField, getColorFromPicker } from './Fields';
 
 import Line from './Line';
 import Mark from './Mark';
@@ -592,9 +592,13 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                 <ChromePicker
                     color={this.state.colorDialogValue}
                     onChange={(value: ColorResult) => {
+                        // `value.hex` is always six digits and knows no alpha. Reading it here threw the
+                        // transparency away before anyone could see it, so the alpha slider of the picker
+                        // did nothing at all
+                        const color = getColorFromPicker(value.rgb);
                         this.setState(
-                            { colorDialogValue: value.hex },
-                            () => this.colorPickerCb && this.colorPickerCb(value.hex),
+                            { colorDialogValue: color },
+                            () => this.colorPickerCb && this.colorPickerCb(color),
                         );
                     }}
                 />
@@ -2216,7 +2220,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                         this.setState({ [name]: value } as unknown as PresetTabsState, () =>
                             this.showColorPicker(this.state[name], color =>
                                 this.setState({ [name]: color } as unknown as PresetTabsState, () =>
-                                    onUpdate(ColorPicker.getColor(color, true)),
+                                    onUpdate(getColorFromPicker(color)),
                                 ),
                             ),
                         );

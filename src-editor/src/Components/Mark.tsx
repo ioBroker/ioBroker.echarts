@@ -10,9 +10,9 @@ import {
 } from '@mui/icons-material';
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
-import { I18n, Utils, ColorPicker, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
+import { I18n, Utils, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
 
-import { IOTextField, IOSelect, IOObjectField, IOSlider, IONumberField } from './Fields';
+import { IOTextField, IOSelect, IOObjectField, IOSlider, IONumberField, getColorFromPicker } from './Fields';
 import type { ChartConfigMore, ChartMarkConfig } from '../../../src/types';
 
 const WIDTHS = {
@@ -205,7 +205,7 @@ class Mark extends React.Component<MarkProps, MarkState> {
                         !this.props.onPaste &&
                         this.setState({ color: this.props.mark.color }, () =>
                             this.props.onSelectColor(this.state.color, color =>
-                                this.setState({ color }, () => onUpdate(ColorPicker.getColor(color, true))),
+                                this.setState({ color }, () => onUpdate(getColorFromPicker(color))),
                             ),
                         )
                     }
@@ -266,7 +266,7 @@ class Mark extends React.Component<MarkProps, MarkState> {
                         !this.props.onPaste &&
                         this.setState({ textColor: this.props.mark.textColor }, () =>
                             this.props.onSelectColor(this.state.textColor, textColor =>
-                                this.setState({ textColor }, () => onUpdate(ColorPicker.getColor(textColor, true))),
+                                this.setState({ textColor }, () => onUpdate(getColorFromPicker(textColor))),
                             ),
                         )
                     }
