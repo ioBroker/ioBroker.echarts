@@ -195,6 +195,7 @@
   "End:": "End:",
   "Enter chart name": "Enter chart name",
   "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days": "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days",
+  "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"": "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"",
   "Expand": "Expand",
   "Expand all lines": "Expand all lines",
   "Expand all markings": "Expand all markings",

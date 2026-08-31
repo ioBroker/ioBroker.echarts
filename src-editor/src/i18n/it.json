@@ -195,6 +195,7 @@
   "End:": "Fine:",
   "Enter chart name": "Inserisci il nome del grafico",
   "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days": "La larghezza di una barra in minuti, ad esempio 30 per mezz'ora o 4320 per tre giorni",
+  "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"": "Ogni valore diventa la media degli ultimi N valori di questa linea. 0 o 1 la lascia invariata. Funziona meglio con l’aggregazione «media»",
   "Expand": "Espandere",
   "Expand all lines": "Espandi tutte le linee",
   "Expand all markings": "Espandi tutti i segni",

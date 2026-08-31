@@ -195,6 +195,7 @@
   "End:": "Einde:",
   "Enter chart name": "Voer de diagramnaam in",
   "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days": "De breedte van een balk in minuten, bijv. 30 voor een half uur of 4320 voor drie dagen",
+  "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"": "Elke waarde wordt het gemiddelde van de laatste N waarden van deze lijn. 0 of 1 laat hem ongewijzigd. Werkt het best met de aggregatie \"gemiddeld\"",
   "Expand": "Uitbreiden",
   "Expand all lines": "Vouw alle regels uit",
   "Expand all markings": "Vouw alle markeringen uit",

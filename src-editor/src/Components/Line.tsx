@@ -1540,11 +1540,21 @@ export default class Line extends React.Component<LineProps, LineState> {
                             0: 'use 0 instead of null values',
                         }}
                     />
-                    {/* <IOTextField value={this.props.line.} updateValue={(value: number): void => {
-                        const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                        line.integralUnit = value;
-                        this.props.updateLine(this.props.index, line);
-                    }} name="smoothing" label="Smoothing" type="number" min={0} /> */}
+                    {this.props.line.chartType !== 'bar' && this.props.line.chartType !== 'polar' ? (
+                        <IONumberField
+                            value={this.props.line.smoothing}
+                            updateValue={(value: number): void => {
+                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                line.smoothing = value;
+                                this.props.updateLine(this.props.index, line);
+                            }}
+                            label="Smoothing"
+                            tooltip={I18n.t(
+                                'Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation "average"',
+                            )}
+                            min={0}
+                        />
+                    ) : null}
                     <IONumberField
                         value={this.props.line.afterComma}
                         updateValue={(value: number): void => {

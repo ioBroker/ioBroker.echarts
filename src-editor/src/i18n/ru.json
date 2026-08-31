@@ -195,6 +195,7 @@
   "End:": "Конец:",
   "Enter chart name": "Введите имя графика",
   "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days": "Ширина одного столбца в минутах, например 30 для получаса или 4320 для трёх дней",
+  "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"": "Каждое значение становится средним из последних N значений этой линии. 0 или 1 оставляет её без изменений. Лучше всего работает с агрегацией «среднее»",
   "Expand": "Развернуть",
   "Expand all lines": "Развернуть все строки",
   "Expand all markings": "Развернуть все маркировки",

@@ -195,6 +195,7 @@
   "End:": "Ende:",
   "Enter chart name": "Chartname eintragen",
   "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days": "Die Breite eines Balkens in Minuten, z. B. 30 für eine halbe Stunde oder 4320 für drei Tage",
+  "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"": "Jeder Wert wird zum Mittelwert der letzten N Werte dieser Linie. 0 oder 1 lässt sie unverändert. Passt am besten zur Aggregation „Mittel“",
   "Expand": "Ausklappen",
   "Expand all lines": "Alle Zeilen ausklappen",
   "Expand all markings": "Alle Markierungen aufklappen",

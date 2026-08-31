@@ -195,6 +195,7 @@
   "End:": "Кінець:",
   "Enter chart name": "Введіть назву діаграми",
   "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days": "Ширина одного стовпця у хвилинах, наприклад 30 для півгодини або 4320 для трьох днів",
+  "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"": "Кожне значення стає середнім з останніх N значень цієї лінії. 0 або 1 залишає її без змін. Найкраще працює з агрегацією «середнє»",
   "Expand": "Розгорнути",
   "Expand all lines": "Розгорнути всі рядки",
   "Expand all markings": "Розгорнути всі позначки",

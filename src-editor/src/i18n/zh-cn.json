@@ -195,6 +195,7 @@
   "End:": "结束：",
   "Enter chart name": "该图表的名字",
   "Enter the width of one bar in minutes, e.g. 30 for half an hour or 4320 for three days": "一根柱的宽度，以分钟为单位，例如 30 表示半小时，4320 表示三天",
+  "Every value becomes the average of the last N values of this line. 0 or 1 leaves it as it is. Works best together with the aggregation \"average\"": "每个值取该曲线最近 N 个值的平均。0 或 1 表示不变。与聚合方式“平均”配合最佳",
   "Expand": "扩大",
   "Expand all lines": "展开所有行",
   "Expand all markings": "展开所有标记",

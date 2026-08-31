@@ -77,6 +77,11 @@ export type ChartLineConfig = {
     noFuture?: boolean;
     postProcessing?: 'diff' | '';
     /**
+     * Smooth this line: every value becomes the average of the last N values of the same line. 0 or 1
+     * leaves it untouched. Only for lines, a bar has its own aggregation over its interval.
+     */
+    smoothing?: number;
+    /**
      * How far the data of this line is read from the past. A number counts seconds; the editor writes
      * its negative entries as strings (`'-3600'`). A string can carry a unit: `s`, `h`, `d`, `w`, `m`
      * (month) or `y`, written short or in full, e.g. `'1m'` or `'2years'`. See `ChartModel.parseOffset`.

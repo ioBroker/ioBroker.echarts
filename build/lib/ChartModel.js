@@ -1297,6 +1297,41 @@ class ChartModel {
         this.config.end = ChartModel.shiftToMainRange(this.config.l[index], endTs);
         return option;
     }
+    /**
+     * Replace every value by the average of the last `count` values of the same line, so that a restless
+     * line becomes readable. It is the classic moving average: the window ends at the point itself, as
+     * "the average of the last N values" says.
+     *
+     * The averages are built from the original values. Taking the already smoothed ones would let every
+     * point drag its predecessors along and the line would slowly creep away from the data.
+     *
+     * A gap stays a gap: a `null` is not a value, it neither falls into a window nor gets one. The first
+     * points of a line average over the fewer values that are there before them.
+     *
+     * @param seriesData the values of one line, sorted by time. Changed in place
+     * @param count how many values one average is built from. Below 2 nothing happens
+     */
+    static smoothSeries(seriesData, count) {
+        const window = Math.round(getFloat(count));
+        if (window < 2 || seriesData.length < 2) {
+            return;
+        }
+        const values = seriesData.map(item => item.value[1]);
+        for (let i = 0; i < seriesData.length; i++) {
+            if (typeof values[i] !== 'number' || !Number.isFinite(values[i])) {
+                continue;
+            }
+            let sum = 0;
+            let used = 0;
+            for (let j = Math.max(0, i - window + 1); j <= i; j++) {
+                if (typeof values[j] === 'number' && Number.isFinite(values[j])) {
+                    sum += values[j];
+                    used++;
+                }
+            }
+            seriesData[i].value[1] = sum / used;
+        }
+    }
     static postProcessing(series, aggregate, postProcessingMethod, dropFirstInterval) {
         const barSeries = [];
         for (let i = 0; i < series.length; i++) {
@@ -1497,6 +1532,9 @@ class ChartModel {
             }
             // TODO: May be not required?
             seriesData.sort((a, b) => (a.value[0] > b.value[0] ? 1 : a.value[0] < b.value[0] ? -1 : 0));
+            // The line is finished here: converted, moved by its offset and sorted by time. Only now
+            // can it be smoothed, and only this one line - the others keep their own values
+            ChartModel.smoothSeries(seriesData, line.smoothing);
             // The next line is not required, as it is already done at the start
             return { seriesData };
         }
