@@ -96,7 +96,7 @@ if (!existsSync(`${__dirname}/src-chart/node_modules`)) {
 }
 
 installPromise
-    .then(() => buildReact(`${__dirname}/src-chart/`, { vite: true, tsc: true }))
+    .then(() => buildReact(`${__dirname}/src-chart/`, { rootDir: `${__dirname}/src-chart/`, vite: true, tsc: true }))
     .then(() => copyAllFiles())
     .then(() => {
         if (existsSync(`${__dirname}/admin/chart/index.html`)) {
