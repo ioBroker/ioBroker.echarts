@@ -1173,6 +1173,17 @@ class ChartOption {
                 if (y2 === null || y2 === undefined || y1 === null || y1 === undefined) {
                     return hoverNoNulls ? null : { exact: false, val: null };
                 }
+                // A step chart holds its value between two points, so there is nothing to interpolate:
+                // at `ts` the line really carries the value of the step. `steps` draws the step at the
+                // end of the interval and shows the previous value there, `stepsStart` at its beginning
+                // and shows the next one. That value was measured, so it counts as exact and survives
+                // "no interpolation in the tooltip" - without it only the one line that happens to have
+                // a value at this time stamp was shown
+                const chartType = this.config.l[seriesIndex]?.chartType;
+                if (chartType === 'steps' || chartType === 'stepsStart') {
+                    const held = chartType === 'steps' ? data[k] : data[k + 1];
+                    return { exact: held.exact !== false, val: held.value[1] };
+                }
                 if (type === 'boolean') {
                     return { exact: false, val: y1 };
                 }
