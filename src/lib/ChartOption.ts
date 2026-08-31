@@ -493,8 +493,11 @@ class ChartOption {
                     animation: false,
                     data: this.convertData(data as LineSeries[], i, yAxisIndex),
                     itemStyle: { color },
-                    symbolSize: oneLine.points ? oneLine.symbolSize : undefined,
-                    symbol: oneLine.points ? 'circle' : 'none',
+                    // A scatter plot consists of its symbols alone. For a line they are an addition
+                    // that "show points" switches on, here they are the whole drawing: with
+                    // `symbol: 'none'` the chart stays empty, however much data it carries
+                    symbolSize: oneLine.symbolSize,
+                    symbol: 'circle',
                     emphasis: {
                         scale: false,
                         focus: 'none',
