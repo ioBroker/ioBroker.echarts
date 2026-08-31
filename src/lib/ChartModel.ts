@@ -1415,8 +1415,11 @@ class ChartModel {
                     _nowDate.setMilliseconds(0);
                 } else if (this.config.relativeEnd === 'month') {
                     _nowDate = new Date(this.now);
-                    _nowDate.setMonth(_nowDate.getMonth() + 1);
+                    // The 1st must be set before the month is counted up. On the 31st `setMonth` would
+                    // otherwise land in a month that has only 30 days and roll over into the one after
+                    // it, so the range would end a whole month too late
                     _nowDate.setDate(1);
+                    _nowDate.setMonth(_nowDate.getMonth() + 1);
                     _nowDate.setHours(0);
                     _nowDate.setMinutes(0);
                     _nowDate.setSeconds(0);
