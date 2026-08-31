@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "5.1.0",
+    "version": "5.1.1",
     "news": {
+      "5.1.1": {
+        "en": "Many GUI fixes",
+        "de": "Viele GUI-Korrekturen",
+        "ru": "Множество исправлений графического интерфейса.",
+        "pt": "Muitas correções na interface gráfica.",
+        "nl": "Veel GUI-verbeteringen",
+        "fr": "De nombreuses corrections d'interface graphique",
+        "it": "Numerose correzioni all'interfaccia grafica",
+        "es": "Muchas correcciones de la interfaz gráfica de usuario",
+        "pl": "Wiele poprawek GUI",
+        "uk": "Багато виправлень графічного інтерфейсу",
+        "zh-cn": "修复了许多图形用户界面问题"
+      },
       "5.0.2": {
         "en": "Show a state under every history instance that logs it and not only under the first one\nFixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`",
         "de": "Zeigen Sie einen Zustand unter jeder historischen Instanz, die es protokolliert und nicht nur unter dem ersten\nBehebt den Linienumbruch in den X-Achsen-Etiketten für die Zeitformate wie `HH:MM / dd.mm.yy`",

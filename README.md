@@ -125,7 +125,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 5.1.1 (2026-08-31)
 - (@GermanBluefox) Many GUI fixes
 
 ### 5.0.3 (2026-08-10)
