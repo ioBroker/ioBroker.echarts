@@ -50,7 +50,7 @@ jobs:
         steps:
             - uses: ioBroker/testing-action-adapter@v1
               with:
-                  install-command: 'npm install -f'
+                  install-command: 'npm run npm'
                   package-cache: 'false'
                   build: true
                   os: 'ubuntu-latest'
@@ -77,7 +77,7 @@ jobs:
             - uses: ioBroker/testing-action-deploy@v1
               with:
                   node-version: '24.x'
-                  install-command: 'npm install -f'
+                  install-command: 'npm run npm'
                   package-cache: 'false'
                   build: true
                   github-token: ${{ secrets.GITHUB_TOKEN }}
