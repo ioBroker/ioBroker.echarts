@@ -989,6 +989,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Color threshold"
+                            float
                             tooltip={I18n.t('Values below this limit are drawn in the second color. Default is 0')}
                         />
                     ) : null}
@@ -1254,6 +1255,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="ØL - Line thickness"
+                            float
                             min={this.props.line.fill > 0.01 ? 0 : 1}
                         />
                         <IONumberField
@@ -1264,6 +1266,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="ØS - Shadow size"
+                            float
                             min={0}
                         />
                     </Box>
@@ -1401,6 +1404,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 this.props.updateLine(this.props.index, line);
                             }}
                             label="Y-Offset"
+                            float
                         />
                     ) : null}
 

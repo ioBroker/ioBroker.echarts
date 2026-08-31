@@ -242,6 +242,8 @@ interface IONumberFieldProps extends IOProps {
     min?: number;
     max?: number;
     width?: number;
+    /** The field holds a real number. Without it everything behind the comma is thrown away */
+    float?: boolean;
 }
 
 export const IONumberField = (props: IONumberFieldProps): React.JSX.Element => (
@@ -260,7 +262,9 @@ export const IONumberField = (props: IONumberFieldProps): React.JSX.Element => (
             }}
             label={I18n.t(props.label)}
             onChange={e => {
-                const v = parseInt(e.target.value, 10);
+                // `parseInt` throws the fraction away, so a field that holds a real number, like an
+                // offset or a threshold, could only ever be a whole one
+                const v = props.float ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
                 props.updateValue(Number.isFinite(v) ? v : 0);
             }}
             value={props.value || ''}
@@ -273,6 +277,9 @@ export const IONumberField = (props: IONumberFieldProps): React.JSX.Element => (
                 htmlInput: {
                     min: props.min,
                     max: props.max,
+                    // Without it the browser lets the field snap to whole numbers and marks a fraction
+                    // as an invalid entry
+                    step: props.float ? 'any' : undefined,
                 },
             }}
         />

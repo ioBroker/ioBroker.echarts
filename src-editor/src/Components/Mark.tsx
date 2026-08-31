@@ -621,6 +621,7 @@ class Mark extends React.Component<MarkProps, MarkState> {
                                 this.props.updateMark(this.props.index, mark);
                             }}
                             label="ØL Line thickness"
+                            float
                         />
 
                         <IONumberField
@@ -631,6 +632,7 @@ class Mark extends React.Component<MarkProps, MarkState> {
                                 this.props.updateMark(this.props.index, mark);
                             }}
                             label="ØS Shadow size"
+                            float
                         />
 
                         <IOSelect
