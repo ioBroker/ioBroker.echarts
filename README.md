@@ -126,6 +126,9 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) Many GUI fixes
+
+### 5.0.3 (2026-08-10)
 - (@GermanBluefox) A line with the aggregation "raw" is drawn again. The step or the count of the preset was sent to the history adapter for such a line as well, although the editor hides both settings for that aggregation, and the line came back empty while the others in the same chart were fine
 - (@GermanBluefox) The Y-axis of a line can be scaled logarithmically, in powers of ten. Values of zero or below cannot stand on such an axis and are left out
 - (@GermanBluefox) A single line can be smoothed now: "Smoothing" in its settings replaces every value by the average of the last N values of that line. The other lines of the chart keep their own values, and a gap stays a gap. Only for lines - a bar already averages over its interval
