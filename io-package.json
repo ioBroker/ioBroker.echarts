@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "5.0.2",
+    "version": "5.1.0",
     "news": {
+      "5.1.0": {
+        "en": "Many GUI fixes",
+        "de": "Viele GUI-Korrekturen",
+        "ru": "Множество исправлений графического интерфейса.",
+        "pt": "Muitas correções na interface gráfica.",
+        "nl": "Veel GUI-verbeteringen",
+        "fr": "De nombreuses corrections d'interface graphique",
+        "it": "Numerose correzioni all'interfaccia grafica",
+        "es": "Muchas correcciones de la interfaz gráfica de usuario",
+        "pl": "Wiele poprawek GUI",
+        "uk": "Багато виправлень графічного інтерфейсу",
+        "zh-cn": "修复了许多图形用户界面问题"
+      },
       "5.0.2": {
         "en": "Show a state under every history instance that logs it and not only under the first one\nFixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`",
         "de": "Zeigen Sie einen Zustand unter jeder historischen Instanz, die es protokolliert und nicht nur unter dem ersten\nBehebt den Linienumbruch in den X-Achsen-Etiketten für die Zeitformate wie `HH:MM / dd.mm.yy`",
@@ -80,19 +93,6 @@
         "pl": "Dodano yAxisOffset do oddzielenia wielu osi Y- wizualnie\nDodano widżet urządzeń",
         "uk": "Додано yAxisOffset для відокремлення кількох Y-axes візуально\nДодано віджет пристроїв",
         "zh-cn": "添加 Y 轴以分离多根 Y 轴\n添加设备部件"
-      },
-      "3.1.0": {
-        "en": "Trying to rebuild the canvas by the start",
-        "de": "Versuchen, die Leinwand von Anfang an neu zu bauen",
-        "ru": "Попытка восстановить холст к началу",
-        "pt": "Tentando reconstruir a tela no início",
-        "nl": "Proberen om het canvas bij de start te herbouwen",
-        "fr": "Essayer de reconstruire la toile avant le début",
-        "it": "Cercando di ricostruire la tela all'inizio",
-        "es": "Intentando reconstruir el lienzo para el comienzo",
-        "pl": "Próbując odbudować płótno na początku",
-        "uk": "Спробувати перебудувати полотно стартом",
-        "zh-cn": "试图在开始前重建画布"
       }
     },
     "titleLang": {

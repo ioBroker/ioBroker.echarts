@@ -125,7 +125,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 5.1.0 (2026-08-31)
 - (@GermanBluefox) Many GUI fixes
 
 ### 5.0.3 (2026-08-10)
@@ -207,13 +207,6 @@ You can debug view charts locally with:
 
 ### 5.0.0 (2026-08-03)
 - (@GermanBluefox) Update to ECharts 6.1.0 and React 19
-
-### 4.0.0 (2026-06-07)
-- (copilot) Adapter requires node.js >= 22 now
-- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
-
-### 3.1.2 (2026-05-28)
-- (@GermanBluefox) Corrected the devices widget
 
 ## License
 

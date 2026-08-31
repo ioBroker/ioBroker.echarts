@@ -1,4 +1,11 @@
 # Older changes
+## 4.0.0 (2026-06-07)
+- (copilot) Adapter requires node.js >= 22 now
+- (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
+
+## 3.1.2 (2026-05-28)
+- (@GermanBluefox) Corrected the devices widget
+
 ## 3.1.1 (2026-05-27)
 - (@Brainbug01) Added yAxisOffset to separate multiple Y-axes visually
 - (@GermanBluefox) Added the devices widget
