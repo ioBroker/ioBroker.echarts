@@ -270,6 +270,9 @@ type ChartInfo = {
     lastWidth?: number;
 };
 
+/** Prefix of the id and the name of the series that only carries the sum of a stack */
+const SUM_SERIES_ID = 'barSum';
+
 class ChartOption {
     private readonly moment: MomentType;
     calcTextWidth: (text: string, fontSize: number) => number;
@@ -380,7 +383,7 @@ class ChartOption {
             (oneLine, i) => ChartOption.getCommonAxis(oneLine.commonYAxis, i) !== i,
         );
 
-        return this.config.l.map((oneLine, i) => {
+        const series = this.config.l.map((oneLine, i) => {
             const color = oneLine.color || (THEMES[theme] ? THEMES[theme][colorCount % THEMES[theme].length] : '');
             if (!oneLine.color) {
                 colorCount++;
@@ -553,6 +556,91 @@ class ChartOption {
             }
             return cfg;
         });
+
+        return series.concat(this.getSumSeries(data, !!anyNotOwnAxis));
+    }
+
+    /**
+     * One empty bar per stack that carries the sum of the stack as its label.
+     *
+     * echarts knows no label for a whole stack, only one per segment. A segment of the height zero at
+     * the end of the stack therefore carries it: its `top` is the top of everything below it. The
+     * series is appended behind all lines, so it is stacked last and every index that points into
+     * `config.l` keeps pointing at the same series.
+     */
+    getSumSeries(data: BarAndLineSeries[], stacked: boolean): RegisteredSeriesOption['bar'][] {
+        if (!this.config.barSum || !stacked || this.isBarPerLine()) {
+            return [];
+        }
+
+        // Which bars end up on the same stack? Only the ones that really share a Y-axis
+        const stacks: Record<number, number[]> = {};
+        this.config.l.forEach((oneLine, i) => {
+            if (oneLine.chartType !== 'bar') {
+                return;
+            }
+            const yAxisIndex = ChartOption.getCommonAxis(oneLine.commonYAxis, i);
+            stacks[yAxisIndex] = stacks[yAxisIndex] || [];
+            stacks[yAxisIndex].push(i);
+        });
+
+        // echarts draws a label in 12 px if no size is configured
+        const fontSize = parseInt(this.config.barFontSize as unknown as string, 10) || 12;
+
+        return (
+            Object.keys(stacks)
+                .map(key => parseInt(key, 10))
+                // A stack of one bar would only repeat the value that the bar already shows
+                .filter(yAxisIndex => stacks[yAxisIndex].length > 1)
+                .map((yAxisIndex): RegisteredSeriesOption['bar'] => {
+                    const lines = stacks[yAxisIndex];
+                    const length = lines.reduce((max, i) => Math.max(max, (data[i] as BarSeries)?.length || 0), 0);
+
+                    const sums: (number | null)[] = [];
+                    for (let category = 0; category < length; category++) {
+                        let sum: number | null = null;
+                        for (const i of lines) {
+                            const value = (data[i] as BarSeries)?.[category];
+                            // A gap in one of the lines must not turn the whole sum into a zero
+                            if (typeof value === 'number' && Number.isFinite(value)) {
+                                sum = (sum || 0) + value;
+                            }
+                        }
+                        sums.push(sum);
+                    }
+
+                    return {
+                        id: `${SUM_SERIES_ID}${yAxisIndex}`,
+                        // Not in `legend.data`, so the sum gets no entry of its own in the legend
+                        name: `${SUM_SERIES_ID}${yAxisIndex}`,
+                        type: 'bar',
+                        stack: `total${yAxisIndex}`,
+                        yAxisIndex,
+                        barWidth: parseInt(this.config.barWidth as unknown as string, 10) || undefined,
+                        silent: true,
+                        animation: false,
+                        // Nothing to see, the segment is only the anchor of the label
+                        data: sums.map(sum => (sum === null ? null : 0)),
+                        itemStyle: { color: 'transparent', borderWidth: 0 },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            // With "top over" the uppermost bar writes its own value at the top of the
+                            // stack as well, so the sum moves one line further up instead of onto it
+                            offset: this.config.barLabels === 'topover' ? [0, -(fontSize + 2)] : undefined,
+                            // The unit and the decimals of the line that owns the axis: all bars of a stack
+                            // share that axis and therefore its unit
+                            formatter: (value: CallbackDataParams): string =>
+                                sums[value.dataIndex] === null
+                                    ? ''
+                                    : this.yFormatter(sums[value.dataIndex], yAxisIndex, true),
+                            color: this.config.barFontColor || (this.themeType === 'dark' ? '#fff' : '#000'),
+                            fontSize,
+                        },
+                        legendHoverLink: false,
+                    };
+                })
+        );
     }
 
     /**
@@ -1327,6 +1415,11 @@ class ChartOption {
 
         let barPolarName: string;
         const rows: TooltipRow[] = series.map((line, seriesIndex: number): TooltipRow => {
+            // The sum of a stack is an own series behind all lines. It has no line configuration and
+            // its value is always zero, so it would only add an empty row
+            if (typeof line.id === 'string' && line.id.startsWith(SUM_SERIES_ID)) {
+                return null;
+            }
             const lineConfig = this.config.l[seriesIndex];
             const p = params.find(param => param.seriesIndex === seriesIndex);
             if (anyBarOrPolar) {

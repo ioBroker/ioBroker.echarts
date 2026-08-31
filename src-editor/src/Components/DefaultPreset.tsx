@@ -94,6 +94,7 @@ const DEFAULT_PRESET: ChartConfigMore = {
     grid_hideY: false,
     border_width: 0,
     barLabels: 'topover',
+    barSum: false,
     barFontColor: '',
     title: '',
     titlePos: '',

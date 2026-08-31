@@ -2131,6 +2131,16 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                 middle: 'middle',
                             }}
                         />
+                        <IOCheckbox
+                            value={!!this.props.presetData.barSum}
+                            updateValue={(value: boolean): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.barSum = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="Show sum over the stack"
+                            tooltip={I18n.t('Only for bars that share a Y-axis and are therefore drawn on each other')}
+                        />
                         <IONumberField
                             value={this.props.presetData.barWidth}
                             updateValue={(value: number): void => {

@@ -287,6 +287,8 @@ export interface ChartConfigMore extends ChartConfig {
     theme?: ThemeChartType | 'default';
     barFontColor?: string;
     barLabels?: 'topover' | 'topunder' | 'bottom' | 'inside' | '';
+    /** Write the sum of a stack over it. Only for bars that share a Y-axis and are therefore stacked */
+    barSum?: boolean;
     barFontSize?: number;
     barWidth?: number;
     /**
