@@ -24,7 +24,9 @@ const config = {
         commonjs(),
     ],
     resolve: {
-        tsconfigPath: true,
+        tsconfigPaths: true,
+        // Same set as the shared modules above: the fallback copies inside the widget bundle must be unique too
+        dedupe: ['react', 'react-dom', '@emotion/react', '@mui/material', '@mui/system', '@mui/icons-material'],
     },
     server: {
         port: 3000,
