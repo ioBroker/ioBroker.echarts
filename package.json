@@ -1,89 +1,89 @@
 {
-  "name": "iobroker.echarts",
-  "version": "5.1.1",
-  "description": "Build useful charts in ioBroker",
-  "author": {
-    "name": "bluefox",
-    "email": "dogafox@gmail.com"
-  },
-  "homepage": "https://github.com/ioBroker/ioBroker.echarts",
-  "license": "Apache-2.0",
-  "keywords": [
-    "charts",
-    "diagram",
-    "ioBroker"
-  ],
-  "engines": {
-    "node": ">=22"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ioBroker/ioBroker.echarts"
-  },
-  "optionalDependencies": {
-    "canvas": "^3.2.3",
-    "echarts": "^6.1.0",
-    "jsdom": "^30.0.1"
-  },
-  "dependencies": {
-    "@iobroker/adapter-core": "^3.4.3",
-    "moment": "^2.30.1"
-  },
-  "devDependencies": {
-    "@alcalzone/release-script": "^5.2.1",
-    "@alcalzone/release-script-plugin-iobroker": "^5.2.0",
-    "@alcalzone/release-script-plugin-license": "^5.2.2",
-    "@iobroker/gui-components": "^10.2.0",
-    "@iobroker/build-tools": "^3.0.1",
-    "@iobroker/eslint-config": "^2.3.4",
-    "@iobroker/legacy-testing": "^3.0.1",
-    "@iobroker/testing": "^5.3.0",
-    "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
-    "@mui/icons-material": "^9.3.1",
-    "@mui/material": "^9.3.1",
-    "@tsconfig/node20": "^20.1.10",
-    "@types/jsdom": "^30.0.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
-    "axios": "^1.20.0",
-    "colorette": "^2.0.20",
-    "puppeteer": "^25.9.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "typescript": "~6.0.3"
-  },
-  "main": "build/main.js",
-  "files": [
-    "admin/",
-    "img/",
-    "widgets/",
-    "www/",
-    "io-package.json",
-    "LICENSE",
-    "build/"
-  ],
-  "scripts": {
-    "test:package": "mocha test/package --exit",
-    "test:integration": "mocha ./test/*.gui.js --exit",
-    "test": "npm run test:integration",
-    "prepublishOnly": "npm run build",
-    "tsc": "tsc -p tsconfig.build.json",
-    "build": "npm run build:widgets && npm run build:chart && npm run build:preview && npm run build:edit && npm run build:devices && npm run tsc",
-    "lint": "eslint -c eslint.config.mjs && cd src-editor && npm run lint && cd ../src-preview && npm run lint",
-    "build:widgets": "node tasksWidgets",
-    "build:chart": "node tasksChart",
-    "build:preview": "node tasksPreview",
-    "build:edit": "node tasksEdit.js",
-    "build:devices": "node tasksDevices",
-    "release": "release-script",
-    "release-patch": "release-script patch --yes",
-    "release-minor": "release-script minor --yes",
-    "release-major": "release-script major --yes",
-    "update-packages": "npx -y npm-check-updates --upgrade && cd src-editor && npx -y npm-check-updates --upgrade && cd ../src-chart && npx -y npm-check-updates --upgrade && cd ../src-preview && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade && cd ../src-devices && npx -y npm-check-updates --upgrade",
-    "npm": "npm i && cd src-editor && npm i && cd ../src-chart && npm i && cd ../src-preview && npm i && cd ../src-widgets && npm i && cd ../src-devices && npm i"
-  },
-  "bugs": {
-    "url": "https://github.com/ioBroker/ioBroker.echarts/issues"
-  },
-  "readmeFilename": "README.md"
+    "name": "iobroker.echarts",
+    "version": "5.1.1",
+    "description": "Build useful charts in ioBroker",
+    "author": {
+        "name": "bluefox",
+        "email": "dogafox@gmail.com"
+    },
+    "homepage": "https://github.com/ioBroker/ioBroker.echarts",
+    "license": "Apache-2.0",
+    "keywords": [
+        "charts",
+        "diagram",
+        "ioBroker"
+    ],
+    "engines": {
+        "node": ">=22"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ioBroker/ioBroker.echarts"
+    },
+    "optionalDependencies": {
+        "canvas": "^3.2.3",
+        "echarts": "^6.1.0",
+        "jsdom": "^30.0.1"
+    },
+    "dependencies": {
+        "@iobroker/adapter-core": "^3.4.3",
+        "moment": "^2.30.1"
+    },
+    "devDependencies": {
+        "@alcalzone/release-script": "^5.2.1",
+        "@alcalzone/release-script-plugin-iobroker": "^5.2.0",
+        "@alcalzone/release-script-plugin-license": "^5.2.2",
+        "@iobroker/gui-components": "^10.2.3",
+        "@iobroker/build-tools": "^3.0.3",
+        "@iobroker/eslint-config": "^2.3.4",
+        "@iobroker/legacy-testing": "^3.0.1",
+        "@iobroker/testing": "^6.1.0",
+        "@iobroker/vis-2-widgets-react-dev": "^4.0.4",
+        "@mui/icons-material": "^9.4.0",
+        "@mui/material": "^9.4.0",
+        "@tsconfig/node20": "^20.1.10",
+        "@types/jsdom": "^30.0.0",
+        "@types/react": "^19.2.18",
+        "@types/react-dom": "^19.2.7",
+        "axios": "^1.20.0",
+        "colorette": "^2.0.20",
+        "puppeteer": "^25.10.0",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
+        "typescript": "~6.0.3"
+    },
+    "main": "build/main.js",
+    "files": [
+        "admin/",
+        "img/",
+        "widgets/",
+        "www/",
+        "io-package.json",
+        "LICENSE",
+        "build/"
+    ],
+    "scripts": {
+        "test:package": "mocha test/package --exit",
+        "test:integration": "mocha ./test/*.gui.js --exit",
+        "test": "npm run test:integration",
+        "prepublishOnly": "npm run build",
+        "tsc": "tsc -p tsconfig.build.json",
+        "build": "npm run build:widgets && npm run build:chart && npm run build:preview && npm run build:edit && npm run build:devices && npm run tsc",
+        "lint": "eslint -c eslint.config.mjs && cd src-editor && npm run lint && cd ../src-preview && npm run lint",
+        "build:widgets": "node tasksWidgets",
+        "build:chart": "node tasksChart",
+        "build:preview": "node tasksPreview",
+        "build:edit": "node tasksEdit.js",
+        "build:devices": "node tasksDevices",
+        "release": "release-script",
+        "release-patch": "release-script patch --yes",
+        "release-minor": "release-script minor --yes",
+        "release-major": "release-script major --yes",
+        "update-packages": "npx -y npm-check-updates --upgrade && cd src-editor && npx -y npm-check-updates --upgrade && cd ../src-chart && npx -y npm-check-updates --upgrade && cd ../src-preview && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade && cd ../src-devices && npx -y npm-check-updates --upgrade",
+        "npm": "npm i && cd src-editor && npm i && cd ../src-chart && npm i && cd ../src-preview && npm i && cd ../src-widgets && npm i && cd ../src-devices && npm i"
+    },
+    "bugs": {
+        "url": "https://github.com/ioBroker/ioBroker.echarts/issues"
+    },
+    "readmeFilename": "README.md"
 }
