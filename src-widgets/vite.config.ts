@@ -1,7 +1,6 @@
 // @ts-expect-error no types
 import react from '@vitejs/plugin-react';
 import commonjs from 'vite-plugin-commonjs';
-import vitetsConfigPaths from 'vite-tsconfig-paths';
 import { federation } from '@module-federation/vite';
 import { moduleFederationShared } from '@iobroker/types-vis-2/modulefederation.vis.config';
 import { readFileSync } from 'node:fs';
@@ -22,9 +21,11 @@ const config = {
             dts: false,
         }),
         react(),
-        vitetsConfigPaths(),
         commonjs(),
     ],
+    resolve: {
+        tsconfigPath: true,
+    },
     server: {
         port: 3000,
         proxy: {

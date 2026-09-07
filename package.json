@@ -80,7 +80,7 @@
     "release-minor": "release-script minor --yes",
     "release-major": "release-script major --yes",
     "update-packages": "npx -y npm-check-updates --upgrade && cd src-editor && npx -y npm-check-updates --upgrade && cd ../src-chart && npx -y npm-check-updates --upgrade && cd ../src-preview && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade && cd ../src-devices && npx -y npm-check-updates --upgrade",
-    "npm": "npm i && cd src-editor && npm i -f && cd ../src-chart && npm i -f && cd ../src-preview && npm i -f && cd ../src-widgets && npm i -f && cd ../src-devices && npm i -f"
+    "npm": "npm i && cd src-editor && npm i && cd ../src-chart && npm i && cd ../src-preview && npm i && cd ../src-widgets && npm i && cd ../src-devices && npm i"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.echarts/issues"

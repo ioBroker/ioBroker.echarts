@@ -4,7 +4,7 @@ import { MenuItem, Select } from '@mui/material';
 
 import { Timeline as ChartIcon } from '@mui/icons-material';
 
-import { I18n, IconClosed as FolderIcon, Utils } from '@iobroker/adapter-react-v5';
+import { I18n, IconClosed as FolderIcon, Utils } from '@iobroker/gui-components';
 import type {
     RxRenderWidgetProps,
     RxWidgetInfo,
@@ -623,10 +623,10 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
     }
 
     async createChartFromLine(): Promise<PresetLines> {
-        this.systemConfig ||= await this.props.context.socket.getObject('system.config');
+        this.systemConfig ||= (await this.props.context.socket.getObject('system.config')) || null;
 
         if (!this.object || this.object._id !== this.state.rxData.history_oid) {
-            this.object = await this.props.context.socket.getObject(this.state.rxData.history_oid!);
+            this.object = (await this.props.context.socket.getObject(this.state.rxData.history_oid!)) || null;
         }
 
         const lines = [
