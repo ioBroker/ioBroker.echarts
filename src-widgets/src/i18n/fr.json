@@ -27,6 +27,7 @@
   "chart_not_selected": "Graphique non défini",
   "counts": "Comptes",
   "echart_oid": "Préréglage ECharts",
+  "echarts_help": "Affiche un préréglage ECharts ou l'historique d'un seul état sous forme de graphique interactif.",
   "end of 10 minutes": "fin des 10 minutes",
   "end of 12 hours": "fin des 12 heures",
   "end of 2 hours": "fin de 2 heures",

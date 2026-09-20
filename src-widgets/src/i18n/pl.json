@@ -27,6 +27,7 @@
   "chart_not_selected": "Wykres nie został zdefiniowany",
   "counts": "Liczy",
   "echart_oid": "Wstępnie ustawione ECharts",
+  "echarts_help": "Pokazuje wstępnie ustawione ECharts lub historię pojedynczego stanu jako interaktywny wykres.",
   "end of 10 minutes": "koniec 10 minut",
   "end of 12 hours": "koniec 12 godzin",
   "end of 2 hours": "koniec 2 godzin",

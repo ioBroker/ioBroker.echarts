@@ -27,6 +27,7 @@
   "chart_not_selected": "Grafiek niet gedefinieerd",
   "counts": "Telt",
   "echart_oid": "ECarts-voorinstelling",
+  "echarts_help": "Toont een ECharts-voorinstelling of de geschiedenis van één status als een interactieve grafiek.",
   "end of 10 minutes": "einde van 10 minuten",
   "end of 12 hours": "einde van 12 uur",
   "end of 2 hours": "einde van 2 uur",

@@ -27,6 +27,7 @@
   "chart_not_selected": "Chart not defined",
   "counts": "Counts",
   "echart_oid": "ECharts Preset",
+  "echarts_help": "Shows an ECharts preset or the history of a single state as an interactive chart.",
   "end of 10 minutes": "end of 10 minutes",
   "end of 12 hours": "end of 12 hours",
   "end of 2 hours": "end of 2 hours",

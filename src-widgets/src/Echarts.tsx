@@ -308,6 +308,7 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
 
             visWidgetLabel: 'E-Charts', // Label of widget
             visName: 'E-Charts',
+            visHelp: 'echarts_help', // Description of widget, shown in the tooltip of the palette
             visAttrs: [
                 {
                     name: 'common',

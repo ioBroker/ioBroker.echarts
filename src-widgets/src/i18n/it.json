@@ -27,6 +27,7 @@
   "chart_not_selected": "Grafico non definito",
   "counts": "Conta",
   "echart_oid": "Preimpostazione ECharts",
+  "echarts_help": "Mostra una preimpostazione ECharts o la cronologia di un singolo stato come grafico interattivo.",
   "end of 10 minutes": "fine di 10 minuti",
   "end of 12 hours": "fine delle 12 ore",
   "end of 2 hours": "fine di 2 ore",

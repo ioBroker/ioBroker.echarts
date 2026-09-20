@@ -27,6 +27,7 @@
   "chart_not_selected": "图表未定义",
   "counts": "计数",
   "echart_oid": "电子图表预设",
+  "echarts_help": "以交互式图表显示 ECharts 预设或单个状态的历史数据。",
   "end of 10 minutes": "10分钟结束",
   "end of 12 hours": "12小时结束",
   "end of 2 hours": "2小时结束",

@@ -27,6 +27,7 @@
   "chart_not_selected": "Diagramm nicht definiert",
   "counts": "Zählt",
   "echart_oid": "ECharts-Preset",
+  "echarts_help": "Zeigt ein ECharts-Preset oder den Verlauf eines einzelnen Datenpunkts als interaktives Diagramm an.",
   "end of 10 minutes": "Ende von 10 Minuten",
   "end of 12 hours": "Ende der 12 Stunden",
   "end of 2 hours": "Ende von 2 Stunden",

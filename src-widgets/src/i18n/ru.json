@@ -27,6 +27,7 @@
   "chart_not_selected": "Диаграмма не определена",
   "counts": "имеет значение",
   "echart_oid": "ECharts Presets",
+  "echarts_help": "Показывает пресет ECharts или историю одного состояния в виде интерактивной диаграммы.",
   "end of 10 minutes": "конец 10 минут",
   "end of 12 hours": "конец 12 часов",
   "end of 2 hours": "конец 2 часов",

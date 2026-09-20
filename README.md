@@ -125,6 +125,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@GermanBluefox) Added description of the vis-2 widget to the palette tooltip
+
 ### 5.1.1 (2026-08-31)
 - (@GermanBluefox) Many GUI fixes
 

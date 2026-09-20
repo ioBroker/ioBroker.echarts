@@ -27,6 +27,7 @@
   "chart_not_selected": "Gráfico não definido",
   "counts": "Conta",
   "echart_oid": "Predefinição de gráficos eletrônicos",
+  "echarts_help": "Mostra uma predefinição do ECharts ou o histórico de um único estado como um gráfico interativo.",
   "end of 10 minutes": "final de 10 minutos",
   "end of 12 hours": "final das 12 horas",
   "end of 2 hours": "final de 2 horas",
