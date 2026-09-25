@@ -189,11 +189,20 @@ function normalizeConfig(config) {
     newConfig.timeType = config.timeType || 'relative';
     // "One bar per line" was the first chart that showed one value per line. It is the chart mode
     // "barCurrent" now, and an old preset is read as such
-    newConfig.chartMode ||=
-        getBoolean(newConfig.barPerLine) &&
-            newConfig.l?.find(oneLine => oneLine.chartType === 'bar')
-            ? 'barCurrent'
-            : 'mixed';
+    // "One bar per line" and the line type "polar" were the first charts that showed one value per
+    // line. They are chart modes now, and an old preset is read as the mode it always was
+    if (!newConfig.chartMode) {
+        if (newConfig.l?.find(oneLine => oneLine.chartType === 'polar')) {
+            newConfig.chartMode = 'radar';
+        }
+        else if (getBoolean(newConfig.barPerLine) &&
+            newConfig.l?.find(oneLine => oneLine.chartType === 'bar')) {
+            newConfig.chartMode = 'barCurrent';
+        }
+        else {
+            newConfig.chartMode = 'mixed';
+        }
+    }
     if (config.xLabelShift) {
         if (typeof config.xLabelShift === 'string' && config.xLabelShift.endsWith('m')) {
             newConfig.xLabelShift = getInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1));
@@ -305,7 +314,7 @@ class ChartModel {
      * history. In every other mode the line decides it on its own with the aggregation "current".
      */
     isCurrentValueOnly(lineConfig) {
-        return this.config.chartMode === 'donut' || lineConfig.aggregate === 'current';
+        return (this.config.chartMode === 'donut' || this.config.chartMode === 'gauge' || lineConfig.aggregate === 'current');
     }
     async analyseAndLoadConfig(config) {
         if (config) {

@@ -7,7 +7,7 @@ export type ChartType = 'bar' | 'polar' | 'line' | 'auto' | 'steps' | 'stepsStar
  * two draw one value per line instead of a course over time - the current value of the state, read
  * once and kept up to date by a subscription.
  */
-export type ChartMode = 'mixed' | 'donut' | 'barCurrent';
+export type ChartMode = 'mixed' | 'donut' | 'barCurrent' | 'radar' | 'gauge';
 
 export type ChartAggregateType =
     | 'minmax'
@@ -383,6 +383,20 @@ export interface ChartConfigMore extends ChartConfig {
     donutCenterText?: string;
     /** Donut: order of the slices. Missing means the order of the lines */
     donutSort?: '' | 'desc' | 'asc';
+
+    /**
+     * Gauge: `circles` bends the scale into a full circle and stacks a ring per line, `gauge` keeps
+     * the open scale and gives every line a pointer. Missing means `circles`
+     */
+    gaugeShape?: 'circles' | 'gauge';
+    /** Gauge: the value the scale starts at. Missing means 0 */
+    gaugeMin?: number;
+    /** Gauge: the value the scale ends at. Missing means 100 */
+    gaugeMax?: number;
+    /** Gauge: write the values under the gauge instead of into its middle */
+    gaugeValuesBelow?: boolean;
+    /** Gauge, shape `circles`: how thick a ring is. Missing means 40 */
+    gaugeThickness?: number;
 }
 
 export type EchartsOptions = {

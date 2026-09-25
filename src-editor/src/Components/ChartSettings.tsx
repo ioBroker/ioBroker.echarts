@@ -207,11 +207,11 @@ const liveOptions: Record<'' | number, string> = {
     43200: '12 hours',
     86400: '1 day',
 };
-const CHART_TYPES: Record<ChartType, string> = {
+// The radar is a chart mode now, so `polar` is not offered as a type of a single line any more
+const CHART_TYPES: Partial<Record<ChartType, string>> = {
     auto: 'Auto (Line or Steps)',
     line: 'Line',
     bar: 'Bar',
-    polar: 'Polar',
     scatterplot: 'Scatter plot',
     steps: 'Steps',
     stepsStart: 'Steps on start',
@@ -453,7 +453,8 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
      * series on `bar` whatever the line says, and a donut knows no line types at all.
      */
     hasChartType(): boolean {
-        return this.props.presetData.chartMode !== 'donut' && this.props.presetData.chartMode !== 'barCurrent';
+        const mode = this.props.presetData.chartMode;
+        return mode !== 'donut' && mode !== 'barCurrent' && mode !== 'radar' && mode !== 'gauge';
     }
 
     renderAggregateElements(): (React.JSX.Element | null)[] {
@@ -648,7 +649,7 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
 
         // A donut shows the current values of its states, so neither the time span nor an aggregation
         // nor an auto-refresh has anything to say - the states come in through a subscription
-        const isDonut = this.props.presetData.chartMode === 'donut';
+        const isDonut = this.props.presetData.chartMode === 'donut' || this.props.presetData.chartMode === 'gauge';
 
         return (
             <Toolbar

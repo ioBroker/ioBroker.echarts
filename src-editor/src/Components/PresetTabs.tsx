@@ -394,12 +394,21 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                 if (line.aggregate === 'current') {
                     line.aggregate = 'minmax';
                 }
+                // The radar has no type of its own on the line any more, so it must not stay behind
+                if (line.chartType === 'polar') {
+                    line.chartType = 'line';
+                }
             });
         } else {
             presetData.l.forEach(line => {
                 line.aggregate = 'current';
                 if (chartMode === 'barCurrent') {
                     line.chartType = 'bar';
+                } else if (chartMode === 'radar') {
+                    // The renderer and the model still read the type of the line for the radar
+                    line.chartType = 'polar';
+                } else if (line.chartType === 'polar') {
+                    line.chartType = 'line';
                 }
             });
         }
@@ -1405,12 +1414,14 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                     updateValue={(value: string): void => this.updateChartMode(value as ChartMode)}
                     label="Chart mode"
                     tooltip={I18n.t(
-                        '"Mixed" is the normal chart with a time axis, where every line brings its own type. The other modes draw one slice or one bar per line with the current value of its state',
+                        '"Mixed" is the normal chart with a time axis, where every line brings its own type. In the other modes every line contributes a single current value instead: a slice of the donut, a bar, an axis of the radar, or a ring or a pointer of the gauge',
                     )}
                     options={{
                         mixed: 'Mixed',
                         donut: 'Donut',
                         barCurrent: 'Bar (current value)',
+                        radar: 'Radar',
+                        gauge: 'Gauge',
                     }}
                 />
             </Box>
@@ -1423,6 +1434,67 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         return (
             <Paper sx={styles.tabContent}>
                 {this.renderChartMode()}
+                {this.props.presetData.chartMode === 'gauge' ? (
+                    <Box
+                        component="div"
+                        sx={styles.group}
+                    >
+                        <p style={styles.title}>{I18n.t('Gauge settings')}</p>
+                        <IOSelect
+                            value={this.props.presetData.gaugeShape || 'circles'}
+                            updateValue={(value: string): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.gaugeShape = value as ChartConfigMore['gaugeShape'];
+                                this.props.onChange(presetData);
+                            }}
+                            label="Shape"
+                            options={{
+                                circles: 'Circles',
+                                gauge: 'Gauge',
+                            }}
+                        />
+                        <IONumberField
+                            value={this.props.presetData.gaugeMin}
+                            updateValue={(value: number): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.gaugeMin = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="Scale from"
+                            float
+                        />
+                        <IONumberField
+                            value={this.props.presetData.gaugeMax}
+                            updateValue={(value: number): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.gaugeMax = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="Scale to"
+                            float
+                        />
+                        {this.props.presetData.gaugeShape !== 'gauge' ? (
+                            <IOSlider
+                                value={
+                                    this.props.presetData.gaugeThickness === undefined
+                                        ? 40
+                                        : this.props.presetData.gaugeThickness
+                                }
+                                updateValue={(value: number): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    presetData.gaugeThickness = value;
+                                    this.props.onChange(presetData);
+                                }}
+                                min={5}
+                                max={60}
+                                step={5}
+                                label="Thickness of a ring"
+                            />
+                        ) : null}
+                    </Box>
+                ) : null}
                 {this.props.presetData.chartMode === 'donut' ? (
                     <Box
                         component="div"
@@ -2429,7 +2501,8 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         const anyPolar = this.props.presetData.l.find(line => line.chartType === 'polar');
         const anyNotCurrent = this.props.presetData.l.find(line => line.aggregate !== 'current');
         // A donut draws no line over the time, so a marking would have nothing to hang on
-        const noMarkings = !!anyPolar || this.props.presetData.chartMode === 'donut';
+        const noMarkings =
+            !!anyPolar || this.props.presetData.chartMode === 'donut' || this.props.presetData.chartMode === 'gauge';
 
         return (
             <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>

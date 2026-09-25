@@ -60,7 +60,7 @@ import type { BarAndLineSeries, SeriesData } from './ChartModel';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
-import { LineChart, ScatterChart, BarChart, RadarChart, PieChart } from 'echarts/charts';
+import { LineChart, ScatterChart, BarChart, RadarChart, PieChart, GaugeChart } from 'echarts/charts';
 import {
     GridComponent,
     ToolboxComponent,
@@ -148,6 +148,7 @@ echarts.use([
     BarChart,
     RadarChart,
     PieChart,
+    GaugeChart,
 
     SVGRenderer,
 
@@ -400,6 +401,8 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         return JSON.stringify({
             ids,
             mode: config?.chartMode || 'mixed',
+            // A gauge is one series per line as rings and a single one as a speedometer
+            gaugeShape: config?.gaugeShape || 'ring',
             types: config?.l?.map((item: ChartLineConfigMore): ChartType => item.chartType) || [],
         });
     }
@@ -459,7 +462,8 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         if (
             !this.props.config.rangeSelector ||
             this.props.config.timeType === 'static' ||
-            this.props.config.chartMode === 'donut'
+            this.props.config.chartMode === 'donut' ||
+            this.props.config.chartMode === 'gauge'
         ) {
             return null;
         }
@@ -883,7 +887,8 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         );
 
         // A chart that shows one value per line has no time axis to zoom into
-        const oneValuePerLine = this.props.config.chartMode === 'donut' || this.props.config.chartMode === 'barCurrent';
+        const mode = this.props.config.chartMode;
+        const oneValuePerLine = mode === 'donut' || mode === 'barCurrent' || mode === 'gauge';
 
         if (this.props.compact || !this.props.config.zoom || hasAnyBarOrPolar || oneValuePerLine) {
             return;

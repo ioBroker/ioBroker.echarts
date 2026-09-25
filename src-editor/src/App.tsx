@@ -558,6 +558,19 @@ export default class App extends GenericApp<AppProps, AppState> {
     };
 
     static normalizePreset(presetData: ChartConfigMore): void {
+        // The whole-chart modes used to be a checkbox ("one bar per line") and a line type ("polar").
+        // A preset that still carries them is read as the mode it always was, so the editor shows the
+        // user what the chart really draws. `normalizeConfig` of the chart does the very same.
+        if (!presetData.chartMode) {
+            if (presetData.l?.find(oneLine => oneLine.chartType === 'polar')) {
+                presetData.chartMode = 'radar';
+            } else if (presetData.barPerLine && presetData.l?.find(oneLine => oneLine.chartType === 'bar')) {
+                presetData.chartMode = 'barCurrent';
+            } else {
+                presetData.chartMode = 'mixed';
+            }
+        }
+
         // @ts-expect-error deprecated
         if (presetData.lines) {
             // @ts-expect-error deprecated

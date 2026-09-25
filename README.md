@@ -64,6 +64,11 @@ The "Options" tab of the preset editor opens with a "Chart mode", which says wha
   values come in through a subscription, so the ring follows the states without a refresh.
 - **Bar (current value)** - one bar per line instead of one bar per time interval. This is what the
   checkbox "One bar per line" did; an old preset is read as this mode and keeps working.
+- **Radar** - the polar chart. It used to be a type a single line could take, which then forced every
+  other line to it; an old preset is read as this mode.
+- **Gauge** - in the shape "Circles" the scale is bent into a full circle and a ring is stacked per
+  line, with the names and the values in the middle; in the shape "Gauge" the open scale stays and
+  every line gets a pointer, with the names and the values in a row underneath.
 
 Donut and "Bar (current value)" read the states and never the history, so they need no time range and
 no aggregation.
@@ -168,6 +173,17 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) A value of a line without a unit does not end in the word "undefined" any more. The unit was hung onto the value whether the line carried one or not, which a gauge showed as "0,00undefined"
+- (@GermanBluefox) The names and the values in the middle of the rings of a gauge do not lie on each other any more. They stood at a share of the radius, while both of them are of a size given in pixels, so they ran into each other as soon as the chart was drawn big
+- (@GermanBluefox) Every axis of a radar is labelled with the name of its line again. A series of the type "polar" is built without a name, and the radar read exactly that, so every axis stood there as "undefined"
+- (@GermanBluefox) A gauge reads the "Max" and the "Min" of a line, as the radar reads the "Max" as the end of its axis. Only where a line says nothing do the ends of the whole gauge count, and after them the values. Where the lines end at different places every one of them is drawn as how full it is and the scale counts percent - the badges keep showing what the states really say
+- (@GermanBluefox) Of the axis settings of a line a gauge shows only "Min" and "Max". Position, ticks and offsets belong to an axis a line runs along, which a gauge does not have - the radar has narrowed the same group from the beginning
+- (@GermanBluefox) A gauge shows the current value of a line whatever aggregation the line carries. A line on "unprocessed" or "max" read the history instead, which left every ring and every pointer at zero
+- (@GermanBluefox) The aggregation of a line is hidden in the donut and in the gauge, as the chart type already is. Neither of them reads the history, so the setting had no effect there
+- (@GermanBluefox) The ends of a gauge scale that are left empty follow the values instead of standing at 0..100, where every pointer sat at the stop. The badge under a value is as wide as the value needs
+- (@GermanBluefox) The label of a slider is translated. "Percentile", "Fill (from 0 to 1)" and the thickness of a ring stood in English in every language
+- (@GermanBluefox) New chart mode "Gauge", in two shapes: "Circles" stacks a ring per line with the names and the values in the middle, "Gauge" keeps the open scale and gives every line a pointer. The ends of the scale and the thickness of a ring are configurable
+- (@GermanBluefox) The radar stands in the "Chart mode" as well and is not a type of a single line any more. An old preset whose lines carry "polar" is read as that mode, in the chart and in the editor
 - (@GermanBluefox) A chart drawn without an iframe does not grow any more. It measures the box it stands in, and in a layout whose rows follow their content it kept measuring itself; it now sits in a box of its own that is out of the flow
 - (@GermanBluefox) A chart drawn without an iframe does not crash any more when a time range is handed to it while the preset is still being read
 - (@GermanBluefox) A switch of the chart mode redraws the chart instead of merging the new one into the old. Switching from the bars to the donut left the axes, the grid and the old bars standing under the ring

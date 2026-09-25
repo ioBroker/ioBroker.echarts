@@ -491,7 +491,7 @@ export const IOSlider = (props: IOSliderProps): React.JSX.Element => (
             ...(props.styles?.sliderContainer || styles.sliderContainer),
         }}
     >
-        <Typography style={props.styles?.sliderLabel || styles.sliderLabel}>{props.label}</Typography>
+        <Typography style={props.styles?.sliderLabel || styles.sliderLabel}>{I18n.t(props.label)}</Typography>
         <Slider
             disabled={!!props.disabled}
             style={props.styles?.sliderRoot || styles.sliderRoot}

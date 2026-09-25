@@ -341,7 +341,8 @@ export default class Line extends React.Component<LineProps, LineState> {
      * somebody switched logging on for. The same holds for a radar, whose lines are "current" too.
      */
     needsHistory(): boolean {
-        return this.props.presetData.chartMode !== 'donut' && this.props.line.aggregate !== 'current';
+        const mode = this.props.presetData.chartMode;
+        return mode !== 'donut' && mode !== 'gauge' && this.props.line.aggregate !== 'current';
     }
 
     /**
@@ -350,8 +351,20 @@ export default class Line extends React.Component<LineProps, LineState> {
      * Not in the modes that draw one value per line: `buildBarPerLine` puts every series on `bar`
      * whatever the line says, and a slice of a donut has no type at all.
      */
+    /**
+     * Does the line still choose how its values are aggregated?
+     *
+     * A donut and a gauge read the state itself, so there is nothing to aggregate - showing the
+     * field would let the user pick something that the chart then quietly ignores.
+     */
+    hasAggregation(): boolean {
+        const mode = this.props.presetData.chartMode;
+        return mode !== 'donut' && mode !== 'gauge';
+    }
+
     hasChartType(): boolean {
-        return this.props.presetData.chartMode !== 'donut' && this.props.presetData.chartMode !== 'barCurrent';
+        const mode = this.props.presetData.chartMode;
+        return mode !== 'donut' && mode !== 'barCurrent' && mode !== 'radar' && mode !== 'gauge';
     }
 
     /**
@@ -634,7 +647,6 @@ export default class Line extends React.Component<LineProps, LineState> {
                             auto: 'Auto',
                             line: 'Line',
                             bar: 'Bar',
-                            polar: 'Polar',
                             scatterplot: 'Scatter plot',
                             steps: 'Steps',
                             stepsStart: 'Steps on start',
@@ -649,7 +661,10 @@ export default class Line extends React.Component<LineProps, LineState> {
                         }}
                     />
                 ) : null}
-                {this.props.line.instance !== 'json' && visible.dataType && this.props.line.chartType !== 'auto' ? (
+                {this.props.line.instance !== 'json' &&
+                visible.dataType &&
+                this.hasAggregation() &&
+                this.props.line.chartType !== 'auto' ? (
                     <IOSelect
                         disabled={!!this.props.onPaste}
                         value={this.props.line.aggregate}
@@ -931,7 +946,6 @@ export default class Line extends React.Component<LineProps, LineState> {
             auto: 'Auto (Line or Steps)',
             line: 'Line',
             bar: 'Bar',
-            polar: 'Polar',
             scatterplot: 'Scatter plot',
             steps: 'Steps',
             stepsStart: 'Steps on start',
@@ -965,7 +979,13 @@ export default class Line extends React.Component<LineProps, LineState> {
             aggregateTypes.current = 'current';
         }
 
-        const ownYAxis = this.props.line.commonYAxis === undefined;
+        // A gauge gives every line a scale of its own and reads the unit off the line, so a shared
+        // Y-axis means nothing there - the line keeps its own unit, its own "Min" and its own "Max"
+        const ownYAxis = this.props.line.commonYAxis === undefined || this.props.presetData.chartMode === 'gauge';
+        // Everything about an axis but its ends means nothing where a line does not run along one.
+        // The radar has narrowed this group to "Max" from the beginning, by way of its line type;
+        // a gauge draws a scale per line and keeps "Min" and "Max" as the ends of it
+        const axisSettings = this.props.line.chartType !== 'polar' && this.props.presetData.chartMode !== 'gauge';
         return (
             <>
                 {/* Folder line */}
@@ -1102,7 +1122,9 @@ export default class Line extends React.Component<LineProps, LineState> {
                             options={chartTypes}
                         />
                     ) : null}
-                    {this.props.line.instance !== 'json' && this.props.line.chartType !== 'auto' ? (
+                    {this.props.line.instance !== 'json' &&
+                    this.hasAggregation() &&
+                    this.props.line.chartType !== 'auto' ? (
                         <IOSelect
                             value={this.props.line.aggregate}
                             updateValue={(value: string): void => {
@@ -1378,7 +1400,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterAxis)}
                     >
                         <p style={styles.title}>{I18n.t('Axis')}</p>
-                        {!this.props.index && this.props.line.chartType !== 'polar' ? (
+                        {!this.props.index && axisSettings ? (
                             <IOSelect
                                 value={this.props.line.xaxe}
                                 updateValue={(value: string): void => {
@@ -1394,7 +1416,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 }}
                             />
                         ) : null}
-                        {!this.props.index && this.props.line.chartType !== 'polar' ? (
+                        {!this.props.index && axisSettings ? (
                             <IONumberField
                                 value={this.props.line.xticks}
                                 updateValue={(value: number): void => {
@@ -1406,7 +1428,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 min={1}
                             />
                         ) : null}
-                        {this.props.line.chartType !== 'polar' ? (
+                        {axisSettings ? (
                             <IOSelect
                                 value={this.props.line.offset === undefined ? '0' : this.props.line.offset.toString()}
                                 updateValue={(value: string | number): void => {
@@ -1482,7 +1504,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 }}
                             />
                         ) : null}
-                        {this.props.line.offset && this.props.line.chartType !== 'polar' ? (
+                        {this.props.line.offset && axisSettings ? (
                             <IOCheckbox
                                 value={this.props.line.offsetOverlay}
                                 updateValue={(value: boolean): void => {
@@ -1498,7 +1520,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 )}`}
                             />
                         ) : null}
-                        {this.props.line.chartType !== 'polar' ? (
+                        {axisSettings ? (
                             <IONumberField
                                 value={this.props.line.yOffset}
                                 updateValue={(value: number): void => {
@@ -1512,7 +1534,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         ) : null}
 
                         <br />
-                        {this.props.line.chartType !== 'polar' ? (
+                        {axisSettings ? (
                             <IOSelect
                                 value={
                                     this.props.line.commonYAxis === undefined
@@ -1530,7 +1552,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                             />
                         ) : null}
 
-                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                        {axisSettings && ownYAxis ? (
                             <IOSelect
                                 value={this.props.line.yaxe}
                                 updateValue={(value: string): void => {
@@ -1585,7 +1607,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 label="Max"
                             />
                         ) : null}
-                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                        {axisSettings && ownYAxis ? (
                             <IOCheckbox
                                 value={!!this.props.line.logarithmic}
                                 updateValue={(value: boolean): void => {
@@ -1599,7 +1621,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 )}
                             />
                         ) : null}
-                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                        {axisSettings && ownYAxis ? (
                             <IONumberField
                                 value={this.props.line.yticks}
                                 updateValue={(value: number): void => {
@@ -1610,7 +1632,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 label="Y-Axis ticks"
                             />
                         ) : null}
-                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                        {axisSettings && ownYAxis ? (
                             <IONumberField
                                 value={(this.props.line as ChartLineConfigMore & { yAxisOffset?: number }).yAxisOffset}
                                 updateValue={(value: number): void => {

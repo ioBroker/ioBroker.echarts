@@ -25,6 +25,36 @@ import type {
 type ThemeType = 'light' | 'dark';
 
 // The time formats offered in the editor use `<br />` (with spaces) as a line break, custom ones may use `<br/>`
+/** The needle of the gauge, as the echarts example draws it */
+/**
+ * The next round number above (or below) a value, so an automatic gauge scale ends somewhere a
+ * human would have picked: 160.9 -> 200, -3.2 -> -4, 0.42 -> 0.5.
+ */
+/** A number out of a setting that may be a string, an empty string or nothing at all. */
+function toNumber(value: number | string | undefined | null): number | undefined {
+    if (value === undefined || value === null || value === '') {
+        return undefined;
+    }
+    const num = typeof value === 'number' ? value : parseFloat(value);
+    return isFinite(num) ? num : undefined;
+}
+
+const NICE_STEPS = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+
+function niceScale(value: number): number {
+    if (!value) {
+        return 0;
+    }
+    // a little air above the value, so the pointer does not stand at the very end of the scale
+    const target = Math.abs(value) * 1.05;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(target)));
+    const step = NICE_STEPS.find(one => one * magnitude >= target) || 10;
+    return (value < 0 ? -1 : 1) * step * magnitude;
+}
+
+const GAUGE_POINTER =
+    'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z';
+
 const BR_TAG = /\s*<\s*br\s*\/?\s*>\s*/gi;
 
 const THEMES: Record<ThemeChartType, string[]> = {
@@ -677,6 +707,26 @@ class ChartOption {
         return !!this.config.barPerLine && !!this.config.l.find(oneLine => oneLine.chartType === 'bar');
     }
 
+    /**
+     * Is the whole chart one radar instead of a course over time?
+     *
+     * The lines carry `chartType: 'polar'` as they always did - that is what the model and the series
+     * builder read. The mode is the front of it, so the user picks it where the other whole-chart
+     * modes stand.
+     */
+    isRadar(): boolean {
+        if (this.config.chartMode) {
+            return this.config.chartMode === 'radar';
+        }
+        // A config that did not go through `normalizeConfig` only has the line type
+        return !!this.config.l.find(oneLine => oneLine.chartType === 'polar');
+    }
+
+    /** Is the whole chart a gauge - rings or a speedometer - instead of a course over time? */
+    isGauge(): boolean {
+        return this.config.chartMode === 'gauge';
+    }
+
     /** Is the whole chart one ring of current values instead of a course over time? */
     isDonut(): boolean {
         return this.config.chartMode === 'donut';
@@ -1229,13 +1279,17 @@ class ChartOption {
             return '';
         }
 
+        // A line does not have to carry a unit - without this the word "undefined" was hung onto
+        // every one of its values
+        const unit = withUnit ? this.config.l[line].unit || '' : '';
+
         const afterComma = this.getAfterComma(line, lineDigitsOnly);
         if (afterComma !== undefined && afterComma !== null) {
             simpleValue = parseFloat(simpleValue as string);
             if (this.config.useComma) {
-                return simpleValue.toFixed(afterComma).replace('.', ',') + (withUnit ? this.config.l[line].unit : '');
+                return simpleValue.toFixed(afterComma).replace('.', ',') + unit;
             }
-            return simpleValue.toFixed(afterComma) + (withUnit ? this.config.l[line].unit : '');
+            return simpleValue.toFixed(afterComma) + unit;
         }
         if (interpolated) {
             simpleValue = Math.round((simpleValue as number) * 10000) / 10000;
@@ -1243,10 +1297,10 @@ class ChartOption {
 
         if (this.config.useComma) {
             simpleValue = parseFloat(simpleValue as string) || 0;
-            simpleValue = simpleValue.toString().replace('.', ',') + (withUnit ? this.config.l[line].unit : '');
+            simpleValue = simpleValue.toString().replace('.', ',') + unit;
             return simpleValue;
         }
-        return simpleValue.toString() + (withUnit ? this.config.l[line].unit : '');
+        return simpleValue.toString() + unit;
     }
 
     isXLabelHasBreak(): boolean {
@@ -2057,6 +2111,171 @@ class ChartOption {
         delete option.axisPointer;
     }
 
+    /**
+     * The whole chart as a gauge: one value per line, on a scale instead of on a time axis.
+     *
+     * Two shapes, both a single echarts gauge with one entry per line - echarts lays the entries out
+     * on its own, and every one of them carries its own name and its own value badge:
+     *  - `circles` bends the scale into a full circle and stacks a ring per line, the names and the
+     *    values standing under each other in the middle.
+     *  - `gauge` keeps the open scale and gives every line a pointer, with the names and the values
+     *    in a row underneath.
+     *
+     * Like the donut it never reads the history - the values come out of `actualValues`.
+     */
+    buildGauge(option: EChartsOption, actualValues: number[]): void {
+        const circles = this.config.gaugeShape !== 'gauge';
+        const fontSize = parseInt(this.config.barFontSize as unknown as string, 10) || 14;
+        const fontColor = this.config.barFontColor || (this.themeType === 'light' ? '#000' : '#FFF');
+        // The track the rings and the pointers run on
+        const trackColor = this.themeType === 'light' ? '#E5E7EB' : '#3A4252';
+        const count = this.config.l.length;
+
+        const values = this.config.l.map((_oneLine, index) => {
+            const raw = actualValues?.[index];
+            const value = typeof raw === 'number' ? raw : parseFloat(raw);
+            return isFinite(value) ? value : 0;
+        });
+
+        // echarts draws the value on a badge of a fixed width, so the longest of them decides how
+        // wide that badge has to be and how much room a line needs in the row under the scale
+        const longest = values.reduce(
+            (max, value, index) => Math.max(max, this.yFormatter(value, index, true).length),
+            0,
+        );
+        const badgeWidth = Math.max(40, Math.round(longest * fontSize * 0.62) + 12);
+        // echarts pads the badge around the given width, so the gap has to account for that too
+        const slot = badgeWidth + 36;
+        // The name and the badge of a line stand under each other in the middle of the rings. Both
+        // are of a size given in pixels, so the rows are measured in pixels as well - a share of the
+        // radius would let the name lie on the badge as soon as the chart is drawn big
+        const badgeHeight = fontSize + 18;
+        const row = badgeHeight + fontSize + 24;
+
+        // A line brings its own "Max" (and "Min") - the radar reads it as the end of its axis, and
+        // the gauge does the same. Only where a line says nothing do the ends of the whole gauge
+        // count, and where those are empty too the values themselves: nobody knows up front how big
+        // a state gets, and a scale standing at 0..100 leaves every pointer at the stop
+        const gaugeMin = toNumber(this.config.gaugeMin);
+        const gaugeMax = toNumber(this.config.gaugeMax);
+        const autoMin = Math.min(0, ...values.map(value => niceScale(value)));
+        const autoMax = Math.max(1, ...values.map(value => niceScale(value)));
+
+        const scales = this.config.l.map(oneLine => ({
+            min: toNumber(oneLine.min) ?? (gaugeMin === undefined ? autoMin : gaugeMin),
+            max: toNumber(oneLine.max) ?? (gaugeMax === undefined ? autoMax : gaugeMax),
+        }));
+
+        // One dial carries all the lines, so as long as they end at the same place the real values
+        // are drawn on it. Where they do not, every line is drawn as how full it is and the scale
+        // counts percent - the badges keep showing what the states really say
+        const shared = scales.every(scale => scale.min === scales[0].min && scale.max === scales[0].max);
+        const min = shared ? scales[0].min : 0;
+        const max = shared ? scales[0].max : 100;
+
+        const data = this.config.l.map((oneLine, index) => {
+            // The entries share the middle, so every one of them gets its own place there: under
+            // each other for the circles, side by side under the scale for the gauge
+            const step = index - (count - 1) / 2;
+            const span = scales[index].max - scales[index].min;
+
+            return {
+                value: shared ? values[index] : span ? ((values[index] - scales[index].min) / span) * 100 : 0,
+                name: oneLine.name || oneLine.id,
+                itemStyle: { color: this.chart.seriesColors?.[index] || oneLine.color },
+                title: {
+                    offsetCenter: circles ? [0, step * row - badgeHeight / 2 - fontSize / 2 - 8] : [step * slot, '80%'],
+                    width: circles ? undefined : slot - 6,
+                    overflow: circles ? undefined : ('truncate' as const),
+                },
+                detail: {
+                    offsetCenter: circles ? [0, step * row] : [step * slot, '97%'],
+                    formatter: (val: number): string => this.yFormatter(shared ? val : values[index], index, true),
+                },
+            };
+        });
+
+        option.series = [
+            {
+                type: 'gauge',
+                min,
+                max,
+                ...(circles
+                    ? {
+                          startAngle: 90,
+                          endAngle: -270,
+                          pointer: { show: false },
+                          progress: {
+                              show: true,
+                              overlap: false,
+                              roundCap: true,
+                              clip: false,
+                              itemStyle: { borderWidth: 1, borderColor: trackColor },
+                          },
+                          axisLine: {
+                              lineStyle: {
+                                  width: Math.max(5, Math.min(60, this.config.gaugeThickness || 40)),
+                                  color: [[1, trackColor]],
+                              },
+                          },
+                          splitLine: { show: false },
+                          axisTick: { show: false },
+                          axisLabel: { show: false },
+                          detail: {
+                              width: badgeWidth,
+                              height: fontSize,
+                              fontSize,
+                              color: 'inherit',
+                              borderColor: 'inherit',
+                              borderRadius: 20,
+                              borderWidth: 1,
+                          },
+                      }
+                    : {
+                          anchor: {
+                              show: true,
+                              showAbove: true,
+                              size: 18,
+                              itemStyle: { color: '#FAC858' },
+                          },
+                          pointer: {
+                              icon: GAUGE_POINTER,
+                              width: 8,
+                              length: '80%',
+                              offsetCenter: [0, '8%'],
+                          },
+                          progress: { show: true, overlap: true, roundCap: true },
+                          axisLine: { roundCap: true, lineStyle: { color: [[1, trackColor]] } },
+                          axisLabel: { color: fontColor, distance: 20, formatter: shared ? undefined : '{value}%' },
+                          axisTick: { lineStyle: { color: trackColor } },
+                          splitLine: { lineStyle: { color: trackColor } },
+                          detail: {
+                              width: badgeWidth,
+                              height: fontSize,
+                              fontSize,
+                              color: '#fff',
+                              backgroundColor: 'inherit',
+                              borderRadius: 3,
+                          },
+                      }),
+                title: { fontSize, color: fontColor },
+                data,
+            },
+        ];
+
+        // A gauge has nothing to animate that the user would want to watch, and the expansion
+        // animation was seen standing still when the chart is drawn inside another app
+        option.animation = false;
+        option.tooltip = undefined;
+
+        delete option.graphic;
+        delete option.xAxis;
+        delete option.yAxis;
+        delete option.grid;
+        delete option.visualMap;
+        delete option.axisPointer;
+    }
+
     getOption(
         data: BarAndLineSeries[],
         config: ChartConfigMore,
@@ -2157,11 +2376,13 @@ class ChartOption {
         });
 
         // modify series for "one bar per line"
-        if (this.isDonut()) {
+        if (this.isGauge()) {
+            this.buildGauge(option, actualValues);
+        } else if (this.isDonut()) {
             this.buildDonut(option, actualValues);
         } else if (this.isBarPerLine()) {
             this.buildBarPerLine(option);
-        } else if (this.config.l.find(item => item.chartType === 'polar')) {
+        } else if (this.isRadar()) {
             // modify series for polar
             option.animation = false;
             option.radar = {
@@ -2183,12 +2404,14 @@ class ChartOption {
 
             // @ts-expect-error fix later
             option.series.forEach((item, chartIndex) => {
-                const max = this.config.l[chartIndex].max
-                    ? parseFloat(this.config.l[chartIndex].max as unknown as string) || undefined
-                    : undefined;
+                const oneLine = this.config.l[chartIndex];
+                const max = oneLine.max ? parseFloat(oneLine.max as unknown as string) || undefined : undefined;
+                // The name comes from the line, not from the series: a series of the type `polar` is
+                // built without one, so every axis of the radar was labelled "undefined"
+                const name = oneLine.name || oneLine.id || '';
                 // @ts-expect-error fix later
                 option.radar.indicator.push({
-                    name: item.name + (max !== undefined ? ` (max ${this.yFormatter(max, chartIndex, true)})` : ''),
+                    name: name + (max !== undefined ? ` (max ${this.yFormatter(max, chartIndex, true)})` : ''),
                     max,
                 });
                 const value = ChartOption.getLastValue(item.data as unknown[]);
