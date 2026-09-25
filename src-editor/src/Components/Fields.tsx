@@ -74,6 +74,9 @@ const styles: Record<string, React.CSSProperties> = {
     },
     selectIcon: {
         paddingRight: 4,
+        display: 'inline-flex',
+        alignItems: 'center',
+        verticalAlign: 'middle',
     },
     tooltip: {
         pointerEvents: 'none',
@@ -104,6 +107,11 @@ interface IOSelectProps extends Omit<IOProps, 'updateValue'> {
 
 export const IOSelect = (props: IOSelectProps): React.JSX.Element => {
     const label = I18n.t(props.label);
+    // The open menu lies over the field, and the tooltip lay over the menu - it explained the field
+    // while it covered exactly the entries the user wanted to read. It stays away while the list is open
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [hovered, setHovered] = useState(false);
+
     return (
         <div
             style={{
@@ -114,6 +122,9 @@ export const IOSelect = (props: IOSelectProps): React.JSX.Element => {
         >
             <Tooltip
                 title={props.tooltip ? I18n.t(props.tooltip) : null}
+                open={!!props.tooltip && hovered && !menuOpen}
+                onOpen={() => setHovered(true)}
+                onClose={() => setHovered(false)}
                 slotProps={{ popper: { style: styles.tooltip } }}
             >
                 <FormControl
@@ -131,6 +142,8 @@ export const IOSelect = (props: IOSelectProps): React.JSX.Element => {
                             color: props.colors ? props.colors[props.value] || undefined : undefined,
                         }}
                         onChange={e => props.updateValue(e.target.value)}
+                        onOpen={() => setMenuOpen(true)}
+                        onClose={() => setMenuOpen(false)}
                         value={props.value || ''}
                         renderValue={props.renderValue}
                         displayEmpty
@@ -354,6 +367,23 @@ interface IOObjectFieldProps extends IOProps {
 }
 export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
     const [showDialog, setShowDialog] = useState(false);
+    /**
+     * What the user typed but has not confirmed yet.
+     *
+     * The ID travels up into the preset, and the list of the lines is keyed by it - so reporting
+     * every single keystroke tore the line out of the tree and built it again, which took the focus
+     * out of the field after the first letter. It also asked the server for an object per keystroke,
+     * for dozens of IDs that cannot exist. The value leaves the field when it is done: on Enter, or
+     * when the field is left. `null` means "nothing typed, show what the preset says".
+     */
+    const [draft, setDraft] = useState<string | null>(null);
+
+    const confirm = (): void => {
+        if (draft !== null && draft !== (props.value || '')) {
+            props.updateValue(draft);
+        }
+        setDraft(null);
+    };
 
     return (
         <div
@@ -390,15 +420,26 @@ export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
                                 !props.disabled && props.value ? (
                                     <IconButton
                                         size="small"
-                                        onClick={() => props.updateValue('')}
+                                        onClick={() => {
+                                            setDraft(null);
+                                            props.updateValue('');
+                                        }}
                                     >
                                         <ClearIcon />
                                     </IconButton>
                                 ) : undefined,
                         },
                     }}
-                    value={props.value || ''}
-                    onChange={e => props.updateValue(e.target.value)}
+                    value={draft === null ? props.value || '' : draft}
+                    onChange={e => setDraft(e.target.value)}
+                    onBlur={confirm}
+                    onKeyUp={e => {
+                        if (e.key === 'Enter') {
+                            confirm();
+                        } else if (e.key === 'Escape') {
+                            setDraft(null);
+                        }
+                    }}
                 />
                 <IconButton
                     disabled={!!props.disabled}
@@ -420,6 +461,8 @@ export const IOObjectField = (props: IOObjectFieldProps): React.JSX.Element => {
                     title={`${I18n.t('Select for')} ${props.label}`}
                     selected={props.value}
                     onOk={(e: string | string[]): void => {
+                        // What the dialog delivers wins over anything half typed
+                        setDraft(null);
                         if (Array.isArray(e)) {
                             props.updateValue(e[0] || '');
                         } else {

@@ -448,21 +448,31 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
         );
     }
 
+    /**
+     * A chart that shows one value per line has no type to choose: `buildBarPerLine` puts every
+     * series on `bar` whatever the line says, and a donut knows no line types at all.
+     */
+    hasChartType(): boolean {
+        return this.props.presetData.chartMode !== 'donut' && this.props.presetData.chartMode !== 'barCurrent';
+    }
+
     renderAggregateElements(): (React.JSX.Element | null)[] {
         return [
-            <IOSelect
-                key="chart-type"
-                fullWidth
-                value={this.props.presetData.chartType}
-                updateValue={(value: string): void => {
-                    const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                    presetData.chartType = value as ChartType;
-                    this.props.onChange(presetData);
-                    window.localStorage.setItem(`App.echarts.__chartType`, value);
-                }}
-                label="Chart type"
-                options={CHART_TYPES}
-            />,
+            this.hasChartType() ? (
+                <IOSelect
+                    key="chart-type"
+                    fullWidth
+                    value={this.props.presetData.chartType}
+                    updateValue={(value: string): void => {
+                        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                        presetData.chartType = value as ChartType;
+                        this.props.onChange(presetData);
+                        window.localStorage.setItem(`App.echarts.__chartType`, value);
+                    }}
+                    label="Chart type"
+                    options={CHART_TYPES}
+                />
+            ) : null,
             this.props.presetData.chartType !== 'auto' ? (
                 <IOSelect
                     key="aggregate"
@@ -525,10 +535,9 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
                     onClick={() => this.setState({ aggregateOpened: !this.state.aggregateOpened })}
                 >
                     <IconAggregate style={styles.aggregateIcon} />
-                    {CHART_TYPES[this.props.presetData.chartType]
-                        ? I18n.t(CHART_TYPES[this.props.presetData.chartType])
+                    {this.hasChartType() && CHART_TYPES[this.props.presetData.chartType]
+                        ? `${I18n.t(CHART_TYPES[this.props.presetData.chartType])}/`
                         : ''}
-                    /
                     {AGGREGATES[this.props.presetData.aggregate]
                         ? I18n.t(AGGREGATES[this.props.presetData.aggregate])
                         : ''}
@@ -637,15 +646,19 @@ class ChartSettings extends React.Component<ChartSettingsProps, ChartSettingsSta
             showMore = true;
         }
 
+        // A donut shows the current values of its states, so neither the time span nor an aggregation
+        // nor an auto-refresh has anything to say - the states come in through a subscription
+        const isDonut = this.props.presetData.chartMode === 'donut';
+
         return (
             <Toolbar
                 ref={this.toolbarRef}
                 sx={styles.mainToolbar}
             >
                 {this.renderShowMore()}
-                {visible.timeSpan ? this.renderTimeSpan() : null}
-                {visible.aggregate ? this.renderAggregate() : null}
-                {visible.autoRefresh ? (
+                {visible.timeSpan && !isDonut ? this.renderTimeSpan() : null}
+                {visible.aggregate && !isDonut ? this.renderAggregate() : null}
+                {visible.autoRefresh && !isDonut ? (
                     <>
                         {this.renderAutoRefresh()}
                         <Box sx={styles.divider} />

@@ -2,6 +2,7 @@
 import react from '@vitejs/plugin-react';
 import commonjs from 'vite-plugin-commonjs';
 import { federation } from '@module-federation/vite';
+import { resolve } from 'node:path';
 import { moduleFederationShared } from '@iobroker/types-vis-2/modulefederation.vis.config';
 import { readFileSync } from 'node:fs';
 const pack = JSON.parse(readFileSync('./package.json').toString());
@@ -14,6 +15,7 @@ const config = {
             filename: 'customWidgets.js',
             exposes: {
                 './Echarts': './src/Echarts',
+                './Interval': './src/Interval',
                 './translations': './src/translations',
             },
             remotes: {},
@@ -25,6 +27,13 @@ const config = {
     ],
     resolve: {
         tsconfigPaths: true,
+        alias: {
+            // The chart renderer of src-chart, drawn into the widget instead of into an iframe.
+            // It is imported through an alias and not by a relative path, so the widget does not
+            // type-check the chart sources: they are not strict, the widget set is. What the widget
+            // expects of them stands in src/chartRenderer.d.ts.
+            '@chart-renderer': resolve(__dirname, '../src-chart/src/Components'),
+        },
         // Same set as the shared modules above: the fallback copies inside the widget bundle must be unique too
         dedupe: ['react', 'react-dom', '@emotion/react', '@mui/material', '@mui/system', '@mui/icons-material'],
     },

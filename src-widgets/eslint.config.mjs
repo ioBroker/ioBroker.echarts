@@ -30,6 +30,15 @@ export default [
         },
     },
     {
+        // Inside an ambient `declare module` the type-aware rules do not resolve the imports, so every
+        // imported type looks like an error type to them. They would flag exactly the declarations that
+        // `tsc` checks without a complaint.
+        files: ['**/*.d.ts'],
+        rules: {
+            '@typescript-eslint/no-redundant-type-constituents': 'off',
+        },
+    },
+    {
         ignores: ['.__mf__temp/**/*', 'build/**/*', 'node_modules/**/*', 'public/_socket/info.js'],
     },
 ];

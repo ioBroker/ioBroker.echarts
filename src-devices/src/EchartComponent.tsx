@@ -31,6 +31,14 @@ const DialogContent: React.ComponentType<DialogContentProps> = MuiMaterial?.Dial
 const IconButton: React.ComponentType<IconButtonProps> = MuiMaterial?.IconButton;
 const CloseIcon: React.ComponentType<any> = MuiIcons?.Close;
 
+/**
+ * The chart drawn into the widget instead of into an iframe.
+ *
+ * Loaded on demand: it pulls echarts in, which the Devices host does not share, so a page without
+ * such a tile must not pay for it.
+ */
+const ChartEmbed = React.lazy(() => import('@chart-renderer/ChartEmbed'));
+
 export interface EchartsViewerSettings extends CustomWidgetPlugin {
     /** Full ioBroker object ID of the echarts preset (e.g. `echarts.0.MyChart`). */
     presetId?: string;
@@ -40,6 +48,13 @@ export interface EchartsViewerSettings extends CustomWidgetPlugin {
     noLoader?: boolean;
     /** Make the iframe transparent (uses ?noBG=true). */
     transparentBackground?: boolean;
+    /**
+     * Draw the chart into the widget instead of into an iframe.
+     *
+     * The widget then uses the connection the Devices host already holds instead of opening a new
+     * one per tile, and the chart lives in the theme of the host.
+     */
+    directRender?: boolean;
     /**
      * Theme to use for the embedded chart.
      *  - `auto` (default): chart inherits the host's theme via shared localStorage
@@ -158,6 +173,14 @@ export class EchartComponent extends WidgetGeneric<EchartsViewerState, EchartsVi
                         sm: 12,
                         md: 4,
                     },
+                    directRender: {
+                        type: 'checkbox',
+                        label: 'echarts_directRender',
+                        help: 'echarts_directRender_help',
+                        default: false,
+                        sm: 12,
+                        md: 4,
+                    },
                     chartTheme: {
                         type: 'select',
                         label: 'echarts_chartTheme',
@@ -210,6 +233,22 @@ export class EchartComponent extends WidgetGeneric<EchartsViewerState, EchartsVi
                 </Box>
             );
         }
+        if (this.props.settings.directRender) {
+            // The host already holds a connection, and the chart takes the theme of the page it
+            // stands in - the `theme` and `noBG` parameters of the iframe have nothing to do here
+            return (
+                <Box sx={{ width: '100%', height: '100%', pointerEvents: interactive ? 'auto' : 'none' }}>
+                    <React.Suspense fallback={<div />}>
+                        <ChartEmbed
+                            config={this.props.settings.presetId}
+                            socket={this.props.stateContext.getSocket()}
+                            themeType={this.props.stateContext.themeType}
+                        />
+                    </React.Suspense>
+                </Box>
+            );
+        }
+
         const url = buildChartUrl(
             this.props.settings.presetId || '',
             this.props.settings,

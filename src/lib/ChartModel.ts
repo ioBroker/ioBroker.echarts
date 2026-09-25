@@ -3,11 +3,51 @@ import type {
     ChartMarkConfig,
     ChartType,
     ChartConfig,
+    ChartConfigMore,
     ChartRelativeEnd,
     ChartLineConfig,
     ChartRangeOptions,
     Connection,
 } from '../types';
+
+/**
+ * A time range that is put over the one of a preset for this view only.
+ *
+ * Everything the editor offers on the "Time" tab can be given in the URL hash beside the preset, so
+ * a range selector that sits outside of the chart - the vis widget, for example - can drive a preset
+ * without writing into the preset object.
+ */
+export interface ChartTimeRangeOverride {
+    /** A URL and a widget hand the minutes over as text, `setRange` as a number - `applyHash` converts */
+    range?: number | string;
+    relativeEnd?: ChartRelativeEnd;
+    timeType?: 'relative' | 'static';
+    start?: string;
+    start_time?: string;
+    end?: string;
+    end_time?: string;
+}
+
+/**
+ * Read the time range out of a parsed query or hash. Returns `undefined` if it carries none, so a
+ * URL without a range leaves the one of the preset alone.
+ */
+export function parseTimeRangeOverride(
+    query: Record<string, number | string | boolean>,
+): ChartTimeRangeOverride | undefined {
+    const override: ChartTimeRangeOverride = {};
+    let found = false;
+
+    (['range', 'relativeEnd', 'timeType', 'start', 'start_time', 'end', 'end_time'] as const).forEach(name => {
+        const value = query[name];
+        if (value !== undefined && value !== null && value !== '') {
+            (override as Record<string, string>)[name] = value.toString();
+            found = true;
+        }
+    });
+
+    return found ? override : undefined;
+}
 
 export type EchartsOneValue = { value: [number, number]; exact?: false };
 type EchartsAnyValue = { value: [number, number | string | boolean]; exact?: false };
@@ -307,6 +347,13 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
     newConfig.afterComma =
         config.afterComma === undefined || config.afterComma === null ? 2 : getInt(config.afterComma);
     newConfig.timeType = config.timeType || 'relative';
+    // "One bar per line" was the first chart that showed one value per line. It is the chart mode
+    // "barCurrent" now, and an old preset is read as such
+    newConfig.chartMode ||=
+        getBoolean((newConfig as ChartConfigMore).barPerLine) &&
+        newConfig.l?.find(oneLine => oneLine.chartType === 'bar')
+            ? 'barCurrent'
+            : 'mixed';
     if (config.xLabelShift) {
         if (typeof config.xLabelShift === 'string' && config.xLabelShift.endsWith('m')) {
             newConfig.xLabelShift = getInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1));
@@ -387,10 +434,7 @@ class ChartModel {
      * from the range selector in the chart. It is kept apart from the config, so a reload of the preset
      * object does not throw the choice away.
      */
-    private hash?: {
-        range?: ChartRangeOptions;
-        relativeEnd?: ChartRelativeEnd;
-    };
+    private hash?: ChartTimeRangeOverride;
 
     private convertFunctions: Record<string, (val: number) => number> = {};
 
@@ -431,6 +475,16 @@ class ChartModel {
             });
     }
 
+    /**
+     * Does this line consist of a single current value instead of a course over time?
+     *
+     * A donut draws the current state of every line, so the whole chart reads states and never the
+     * history. In every other mode the line decides it on its own with the aggregation "current".
+     */
+    private isCurrentValueOnly(lineConfig: ChartLineConfig): boolean {
+        return this.config.chartMode === 'donut' || lineConfig.aggregate === 'current';
+    }
+
     async analyseAndLoadConfig(config?: string | ChartConfigOld | ChartConfig): Promise<void> {
         if (config) {
             if (typeof config === 'string') {
@@ -445,6 +499,9 @@ class ChartModel {
 
             if (query.preset && typeof query.preset === 'string') {
                 this.preset = query.preset;
+                this.hash = parseTimeRangeOverride(
+                    parseQuery((window.location.hash || '').toString().replace(/^#/, '')),
+                );
             } else {
                 const hQuery: Record<string, number | string | boolean> = parseQuery(
                     (window.location.hash || '').toString().replace(/^#/, ''),
@@ -467,12 +524,7 @@ class ChartModel {
                 }
                 if (hQuery.preset) {
                     this.preset = hQuery.preset as string;
-                    if (hQuery.range || hQuery.relativeEnd) {
-                        this.hash = {
-                            range: hQuery.range as ChartRangeOptions,
-                            relativeEnd: hQuery.relativeEnd as ChartRelativeEnd,
-                        };
-                    }
+                    this.hash = parseTimeRangeOverride(hQuery);
                 } else {
                     // search ID and range
                     if (hQuery.noLoader !== undefined) {
@@ -572,11 +624,29 @@ class ChartModel {
             ) {
                 config.range = getInt(this.hash.range) || 1;
             } else {
-                config.range = this.hash.range;
+                // Everything that is left is a month or a year step, which the config carries as text
+                config.range = this.hash.range as ChartRangeOptions;
             }
         }
         if (this.hash?.relativeEnd) {
             config.relativeEnd = this.hash.relativeEnd;
+        }
+        if (this.hash?.timeType) {
+            config.timeType = this.hash.timeType;
+        }
+        // A static range is only complete with all four parts, but every one of them is applied on its
+        // own: the preset brings the others, and a half-given range would otherwise be ignored silently
+        if (this.hash?.start !== undefined) {
+            config.start = this.hash.start;
+        }
+        if (this.hash?.start_time !== undefined) {
+            config.start_time = this.hash.start_time;
+        }
+        if (this.hash?.end !== undefined) {
+            config.end = this.hash.end;
+        }
+        if (this.hash?.end_time !== undefined) {
+            config.end_time = this.hash.end_time;
         }
     }
 
@@ -744,11 +814,31 @@ class ChartModel {
      * new range.
      */
     setRange(range: ChartRangeOptions): void {
-        if (this.config.range === range && !this.zoomData) {
+        if (this.config?.range === range && !this.zoomData) {
             return;
         }
-        this.config.range = range;
-        this.hash = { ...this.hash, range };
+        this.setTimeRange({ range });
+    }
+
+    /**
+     * Put a whole time range over the one of the preset, as the URL hash does.
+     *
+     * A selector outside of the chart - the vis widget - reaches the chart through the hash when it
+     * lives in an iframe. Drawn directly into the widget there is no URL to change, so the same
+     * override is handed over here.
+     */
+    setTimeRange(override: ChartTimeRangeOverride): void {
+        this.hash = { ...this.hash, ...override };
+
+        // A caller may hand the range over right after `new ChartModel()`, while the configuration is
+        // still being read - the constructor reads the system config and then the preset. The
+        // override is remembered above and `analyseAndLoadConfig` puts it over the config as soon as
+        // it arrives, so there is nothing to do here yet
+        if (!this.config) {
+            return;
+        }
+
+        this.applyHash(this.config);
         this.zoomData = null;
         this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
         this.readOnZoomTimeout = null;
@@ -1905,8 +1995,9 @@ class ChartModel {
                     this.seriesData[index] = result.seriesData;
                 }
 
-                // set actual value for legend from last JSON entry
-                if (this.config.legActual && values.length) {
+                // The last entry of the JSON is the current value: the legend shows it, and a chart that
+                // draws one value per line is built out of nothing else
+                if ((this.config.legActual || this.isCurrentValueOnly(lineConfig)) && values.length) {
                     this.actualValues[index] = ChartModel.processOneValue(
                         values[values.length - 1].val,
                         this.convertFunctions[lineConfig.convert?.trim()],
@@ -1932,7 +2023,7 @@ class ChartModel {
                 console.log(`[ChartModel] ${new Date(option.start).toString()} - ${new Date(option.end).toString()}`);
             }
 
-            if (lineConfig.aggregate !== 'current') {
+            if (!this.isCurrentValueOnly(lineConfig)) {
                 try {
                     const res = await this.socket.getHistoryEx(id, option);
                     if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
@@ -1964,7 +2055,7 @@ class ChartModel {
 
             if (
                 (this.config.legActual && lineConfig.chartType !== 'bar' && lineConfig.chartType !== 'polar') ||
-                lineConfig.aggregate === 'current'
+                this.isCurrentValueOnly(lineConfig)
             ) {
                 // read current value
                 try {

@@ -1,5 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.parseTimeRangeOverride = parseTimeRangeOverride;
+/**
+ * Read the time range out of a parsed query or hash. Returns `undefined` if it carries none, so a
+ * URL without a range leaves the one of the preset alone.
+ */
+function parseTimeRangeOverride(query) {
+    const override = {};
+    let found = false;
+    ['range', 'relativeEnd', 'timeType', 'start', 'start_time', 'end', 'end_time'].forEach(name => {
+        const value = query[name];
+        if (value !== undefined && value !== null && value !== '') {
+            override[name] = value.toString();
+            found = true;
+        }
+    });
+    return found ? override : undefined;
+}
 /**
  * Parse a query string into its parts.
  * Copied from adapter-react-v5/Components/Utils
@@ -170,6 +187,13 @@ function normalizeConfig(config) {
     newConfig.afterComma =
         config.afterComma === undefined || config.afterComma === null ? 2 : getInt(config.afterComma);
     newConfig.timeType = config.timeType || 'relative';
+    // "One bar per line" was the first chart that showed one value per line. It is the chart mode
+    // "barCurrent" now, and an old preset is read as such
+    newConfig.chartMode ||=
+        getBoolean(newConfig.barPerLine) &&
+            newConfig.l?.find(oneLine => oneLine.chartType === 'bar')
+            ? 'barCurrent'
+            : 'mixed';
     if (config.xLabelShift) {
         if (typeof config.xLabelShift === 'string' && config.xLabelShift.endsWith('m')) {
             newConfig.xLabelShift = getInt(config.xLabelShift.substring(0, config.xLabelShift.length - 1));
@@ -274,6 +298,15 @@ class ChartModel {
             return this.analyseAndLoadConfig(config);
         });
     }
+    /**
+     * Does this line consist of a single current value instead of a course over time?
+     *
+     * A donut draws the current state of every line, so the whole chart reads states and never the
+     * history. In every other mode the line decides it on its own with the aggregation "current".
+     */
+    isCurrentValueOnly(lineConfig) {
+        return this.config.chartMode === 'donut' || lineConfig.aggregate === 'current';
+    }
     async analyseAndLoadConfig(config) {
         if (config) {
             if (typeof config === 'string') {
@@ -288,6 +321,7 @@ class ChartModel {
             this.debug = query.debug === true || query.debug === 'true' || query.debug === 1 || query.debug === '1';
             if (query.preset && typeof query.preset === 'string') {
                 this.preset = query.preset;
+                this.hash = parseTimeRangeOverride(parseQuery((window.location.hash || '').toString().replace(/^#/, '')));
             }
             else {
                 const hQuery = parseQuery((window.location.hash || '').toString().replace(/^#/, '')); // Utils.parseQuery
@@ -310,12 +344,7 @@ class ChartModel {
                 }
                 if (hQuery.preset) {
                     this.preset = hQuery.preset;
-                    if (hQuery.range || hQuery.relativeEnd) {
-                        this.hash = {
-                            range: hQuery.range,
-                            relativeEnd: hQuery.relativeEnd,
-                        };
-                    }
+                    this.hash = parseTimeRangeOverride(hQuery);
                 }
                 else {
                     // search ID and range
@@ -406,11 +435,29 @@ class ChartModel {
                 config.range = getInt(this.hash.range) || 1;
             }
             else {
+                // Everything that is left is a month or a year step, which the config carries as text
                 config.range = this.hash.range;
             }
         }
         if (this.hash?.relativeEnd) {
             config.relativeEnd = this.hash.relativeEnd;
+        }
+        if (this.hash?.timeType) {
+            config.timeType = this.hash.timeType;
+        }
+        // A static range is only complete with all four parts, but every one of them is applied on its
+        // own: the preset brings the others, and a half-given range would otherwise be ignored silently
+        if (this.hash?.start !== undefined) {
+            config.start = this.hash.start;
+        }
+        if (this.hash?.start_time !== undefined) {
+            config.start_time = this.hash.start_time;
+        }
+        if (this.hash?.end !== undefined) {
+            config.end = this.hash.end;
+        }
+        if (this.hash?.end_time !== undefined) {
+            config.end_time = this.hash.end_time;
         }
     }
     onHashChange = () => {
@@ -560,11 +607,28 @@ class ChartModel {
      * new range.
      */
     setRange(range) {
-        if (this.config.range === range && !this.zoomData) {
+        if (this.config?.range === range && !this.zoomData) {
             return;
         }
-        this.config.range = range;
-        this.hash = { ...this.hash, range };
+        this.setTimeRange({ range });
+    }
+    /**
+     * Put a whole time range over the one of the preset, as the URL hash does.
+     *
+     * A selector outside of the chart - the vis widget - reaches the chart through the hash when it
+     * lives in an iframe. Drawn directly into the widget there is no URL to change, so the same
+     * override is handed over here.
+     */
+    setTimeRange(override) {
+        this.hash = { ...this.hash, ...override };
+        // A caller may hand the range over right after `new ChartModel()`, while the configuration is
+        // still being read - the constructor reads the system config and then the preset. The
+        // override is remembered above and `analyseAndLoadConfig` puts it over the config as soon as
+        // it arrives, so there is nothing to do here yet
+        if (!this.config) {
+            return;
+        }
+        this.applyHash(this.config);
         this.zoomData = null;
         this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
         this.readOnZoomTimeout = null;
@@ -1630,8 +1694,9 @@ class ChartModel {
                 else {
                     this.seriesData[index] = result.seriesData;
                 }
-                // set actual value for legend from last JSON entry
-                if (this.config.legActual && values.length) {
+                // The last entry of the JSON is the current value: the legend shows it, and a chart that
+                // draws one value per line is built out of nothing else
+                if ((this.config.legActual || this.isCurrentValueOnly(lineConfig)) && values.length) {
                     this.actualValues[index] = ChartModel.processOneValue(values[values.length - 1].val, this.convertFunctions[lineConfig.convert?.trim()], lineConfig.yOffset || 0);
                 }
             }
@@ -1652,7 +1717,7 @@ class ChartModel {
             if (this.debug) {
                 console.log(`[ChartModel] ${new Date(option.start).toString()} - ${new Date(option.end).toString()}`);
             }
-            if (lineConfig.aggregate !== 'current') {
+            if (!this.isCurrentValueOnly(lineConfig)) {
                 try {
                     const res = await this.socket.getHistoryEx(id, option);
                     if (this.sessionId && res.sessionId && res.sessionId !== this.sessionId) {
@@ -1680,7 +1745,7 @@ class ChartModel {
                 }
             }
             if ((this.config.legActual && lineConfig.chartType !== 'bar' && lineConfig.chartType !== 'polar') ||
-                lineConfig.aggregate === 'current') {
+                this.isCurrentValueOnly(lineConfig)) {
                 // read current value
                 try {
                     const state = await this.socket.getState(id);

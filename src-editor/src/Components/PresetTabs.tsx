@@ -35,7 +35,15 @@ import {
 
 import { I18n, Utils, IconCopy, type IobTheme, type AdminConnection } from '@iobroker/gui-components';
 
-import { IOTextField, IOCheckbox, IOSelect, IODateTimeField, IONumberField, getColorFromPicker } from './Fields';
+import {
+    IOTextField,
+    IOCheckbox,
+    IOSelect,
+    IODateTimeField,
+    IONumberField,
+    IOSlider,
+    getColorFromPicker,
+} from './Fields';
 
 import Line from './Line';
 import Mark from './Mark';
@@ -44,6 +52,7 @@ import type {
     ChartConfigMore,
     ChartLineConfigMore,
     ChartMarkConfig,
+    ChartMode,
     ChartRelativeEnd,
     ThemeChartType,
 } from '../../../src/types';
@@ -369,6 +378,39 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         window.localStorage.setItem('App.echarts.Marks.opened', JSON.stringify(marksOpened));
     };
 
+    /**
+     * Switch the whole chart between a course over time and one value per line.
+     *
+     * The modes that show one value per line need every line to deliver exactly one number, so they
+     * set the aggregation "current" on all of them - as switching to polar always did. Going back to
+     * "mixed" gives the lines an aggregation that makes a series again.
+     */
+    updateChartMode = (chartMode: ChartMode): void => {
+        const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+        presetData.chartMode = chartMode;
+
+        if (chartMode === 'mixed') {
+            presetData.l.forEach(line => {
+                if (line.aggregate === 'current') {
+                    line.aggregate = 'minmax';
+                }
+            });
+        } else {
+            presetData.l.forEach(line => {
+                line.aggregate = 'current';
+                if (chartMode === 'barCurrent') {
+                    line.chartType = 'bar';
+                }
+            });
+        }
+
+        // The old checkbox would fight with the new mode on the next read of the preset
+        delete presetData.barPerLine;
+
+        this.props.onChange(presetData);
+        window.localStorage.setItem('App.echarts.__chartMode', chartMode);
+    };
+
     updateMark = (index: number, markData: ChartMarkConfig): void => {
         const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
         presetData.marks[index] = markData;
@@ -627,10 +669,8 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
     }
 
     renderTabLines(): React.ReactNode {
-        const anyClosed =
-            this.props.presetData.l.length > 1 && this.props.presetData.l.find((_l, i) => !this.state.linesOpened[i]);
-        const anyOpened =
-            this.props.presetData.l.length > 1 && this.props.presetData.l.find((_l, i) => this.state.linesOpened[i]);
+        const anyClosed = this.props.presetData.l.some((_l, i) => !this.state.linesOpened[i]);
+        const anyOpened = this.props.presetData.l.some((_l, i) => this.state.linesOpened[i]);
 
         return (
             <Droppable droppableId="tabs">
@@ -651,6 +691,9 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                 sx={styles.tabContent}
                                 ref={this.paperLineRef}
                             >
+                                {/* The buttons on the right are positioned absolutely, so the mode
+                                    keeps its own row and does not run under them */}
+                                <div style={{ marginRight: 60, marginBottom: 8 }}>{this.renderChartMode()}</div>
                                 <Fab
                                     onClick={() => this.addLine()}
                                     size="small"
@@ -780,12 +823,8 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
     }
 
     renderTabMarkings(): React.JSX.Element {
-        const anyClosed =
-            this.props.presetData.marks.length > 1 &&
-            this.props.presetData.marks.find((_l, i) => !this.state.marksOpened[i]);
-        const anyOpened =
-            this.props.presetData.marks.length > 1 &&
-            this.props.presetData.marks.find((_l, i) => this.state.marksOpened[i]);
+        const anyClosed = this.props.presetData.marks.some((_l, i) => !this.state.marksOpened[i]);
+        const anyOpened = this.props.presetData.marks.some((_l, i) => this.state.marksOpened[i]);
 
         return (
             <Paper
@@ -1348,11 +1387,139 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         );
     }
 
+    /**
+     * What the whole chart is - the first thing to decide about a preset.
+     *
+     * It stands on both tabs the user works on: over the list of the data sources, where it decides
+     * what a line even means, and at the top of the options.
+     */
+    renderChartMode(): React.JSX.Element {
+        return (
+            <Box
+                component="div"
+                sx={styles.group}
+            >
+                <p style={styles.title}>{I18n.t('Chart mode')}</p>
+                <IOSelect
+                    value={this.props.presetData.chartMode || 'mixed'}
+                    updateValue={(value: string): void => this.updateChartMode(value as ChartMode)}
+                    label="Chart mode"
+                    tooltip={I18n.t(
+                        '"Mixed" is the normal chart with a time axis, where every line brings its own type. The other modes draw one slice or one bar per line with the current value of its state',
+                    )}
+                    options={{
+                        mixed: 'Mixed',
+                        donut: 'Donut',
+                        barCurrent: 'Bar (current value)',
+                    }}
+                />
+            </Box>
+        );
+    }
+
     renderTabOptions(): React.JSX.Element {
         const anyPolar = this.props.presetData.l.find(item => item.chartType === 'polar');
 
         return (
             <Paper sx={styles.tabContent}>
+                {this.renderChartMode()}
+                {this.props.presetData.chartMode === 'donut' ? (
+                    <Box
+                        component="div"
+                        sx={styles.group}
+                    >
+                        <p style={styles.title}>{I18n.t('Donut settings')}</p>
+                        <IOSlider
+                            value={this.props.presetData.donutHole === undefined ? 50 : this.props.presetData.donutHole}
+                            updateValue={(value: number): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.donutHole = value;
+                                this.props.onChange(presetData);
+                            }}
+                            min={0}
+                            max={95}
+                            step={5}
+                            label="Hole in the middle (%)"
+                            tooltip={I18n.t('0 draws a full pie instead of a ring')}
+                        />
+                        <IOSelect
+                            value={
+                                this.props.presetData.donutLabels === undefined
+                                    ? 'namePercent'
+                                    : this.props.presetData.donutLabels
+                            }
+                            updateValue={(value: string): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.donutLabels = value as ChartConfigMore['donutLabels'];
+                                this.props.onChange(presetData);
+                            }}
+                            label="Labels on the slices"
+                            options={{
+                                '': 'none',
+                                name: 'Name',
+                                value: 'Value',
+                                percent: 'Percent',
+                                nameValue: 'Name and value',
+                                namePercent: 'Name and percent',
+                            }}
+                        />
+                        {this.props.presetData.donutLabels !== '' ? (
+                            <IOCheckbox
+                                value={this.props.presetData.donutLabelsOutside}
+                                updateValue={(value: boolean): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    presetData.donutLabelsOutside = value;
+                                    this.props.onChange(presetData);
+                                }}
+                                label="Labels outside of the ring"
+                                tooltip={I18n.t('Useful for long names or for many slices')}
+                            />
+                        ) : null}
+                        <IOSelect
+                            value={this.props.presetData.donutCenter || ''}
+                            updateValue={(value: string): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.donutCenter = value as ChartConfigMore['donutCenter'];
+                                this.props.onChange(presetData);
+                            }}
+                            label="In the hole"
+                            options={{
+                                '': 'nothing',
+                                sum: 'Sum of all slices',
+                                text: 'Own text',
+                            }}
+                        />
+                        {this.props.presetData.donutCenter === 'text' ? (
+                            <IOTextField
+                                value={this.props.presetData.donutCenterText}
+                                updateValue={(value: string): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    presetData.donutCenterText = value;
+                                    this.props.onChange(presetData);
+                                }}
+                                label="Text in the hole"
+                            />
+                        ) : null}
+                        <IOSelect
+                            value={this.props.presetData.donutSort || ''}
+                            updateValue={(value: string): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.donutSort = value as ChartConfigMore['donutSort'];
+                                this.props.onChange(presetData);
+                            }}
+                            label="Order of the slices"
+                            options={{
+                                '': 'As the lines stand',
+                                desc: 'Biggest first',
+                                asc: 'Smallest first',
+                            }}
+                        />
+                    </Box>
+                ) : null}
                 {/* Legend line */}
                 <Box
                     component="div"
@@ -1451,6 +1618,19 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                     sx={styles.group}
                 >
                     <p style={styles.title}>{I18n.t('Options')}</p>
+                    <IONumberField
+                        value={this.props.presetData.afterComma}
+                        updateValue={(value: number): void => {
+                            const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                            presetData.afterComma = value;
+                            this.props.onChange(presetData);
+                        }}
+                        label="After comma"
+                        tooltip={I18n.t(
+                            'How many digits a value shows. A line that carries its own "Digits after comma" keeps that one, and the ticks of an axis keep the round numbers they already have',
+                        )}
+                        min={0}
+                    />
                     <IOCheckbox
                         value={this.props.presetData.hoverDetail}
                         updateValue={(value: boolean): void => {
@@ -2092,22 +2272,11 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                         </>
                     ) : null}
                 </Box>
-                {this.props.presetData.l.find(line => line.chartType === 'bar') ? (
+                {this.props.presetData.l.find(line => line.chartType === 'bar') ||
+                this.props.presetData.chartMode === 'barCurrent' ? (
                     <Grid size={{ sm: 6, xs: 12 }}>
                         <p style={styles.title}>{I18n.t('Bar settings')}</p>
-                        <IOCheckbox
-                            value={this.props.presetData.barPerLine}
-                            updateValue={(value: boolean): void => {
-                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                                presetData.barPerLine = value;
-                                this.props.onChange(presetData);
-                            }}
-                            label="One bar per line"
-                            tooltip={I18n.t(
-                                'The X-axis shows the names of the lines instead of the time, and every bar is the last value of its line. Together with the aggregation "current" every bar is the actual value of its state',
-                            )}
-                        />
-                        {this.props.presetData.barPerLine ? (
+                        {this.props.presetData.chartMode === 'barCurrent' ? (
                             <IOCheckbox
                                 value={this.props.presetData.barHorizontal}
                                 updateValue={(value: boolean): void => {
@@ -2259,6 +2428,8 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
     render(): React.JSX.Element {
         const anyPolar = this.props.presetData.l.find(line => line.chartType === 'polar');
         const anyNotCurrent = this.props.presetData.l.find(line => line.aggregate !== 'current');
+        // A donut draws no line over the time, so a marking would have nothing to hang on
+        const noMarkings = !!anyPolar || this.props.presetData.chartMode === 'donut';
 
         return (
             <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -2314,7 +2485,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                             label={I18n.t('Data')}
                             value="data"
                         />
-                        {anyPolar ? null : (
+                        {noMarkings ? null : (
                             <Tab
                                 label={I18n.t('Markings')}
                                 value="markings"
@@ -2342,7 +2513,7 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                 </AppBar>
                 <div style={styles.tabsBody}>
                     {this.state.selectedTab === 'data' || !this.state.selectedTab ? this.renderTabLines() : null}
-                    {this.state.selectedTab === 'markings' && !anyPolar ? this.renderTabMarkings() : null}
+                    {this.state.selectedTab === 'markings' && !noMarkings ? this.renderTabMarkings() : null}
                     {this.state.selectedTab === 'time' && anyNotCurrent ? this.renderTabTime() : null}
                     {this.state.selectedTab === 'options' ? this.renderTabOptions() : null}
                     {this.state.selectedTab === 'title' ? this.renderTabTitle() : null}

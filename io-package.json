@@ -205,7 +205,8 @@
         "url": "echarts/customWidgets.js",
         "bundlerType": "module",
         "components": [
-          "Echarts"
+          "Echarts",
+          "Interval"
         ]
       }
     },

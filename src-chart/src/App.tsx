@@ -378,7 +378,7 @@ class App extends Component<AppProps, AppState> {
         if (!this.chartData) {
             throw new Error('Unexpected null chartData');
         }
-        const config: ChartConfigMore = this.chartData.getConfig() as ChartConfigMore;
+        const config: ChartConfigMore = this.chartData.getConfig();
         // get IDs hash
         const hash = MD5(JSON.stringify((config?.l?.map(item => item.id) || []).sort())).toString();
 

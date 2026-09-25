@@ -670,7 +670,16 @@ class ChartOption {
      * aggregation "current value" that is the list of data points the user asked for in #235.
      */
     isBarPerLine(): boolean {
+        if (this.config.chartMode) {
+            return this.config.chartMode === 'barCurrent';
+        }
+        // A config that did not go through `normalizeConfig` still carries the old checkbox
         return !!this.config.barPerLine && !!this.config.l.find(oneLine => oneLine.chartType === 'bar');
+    }
+
+    /** Is the whole chart one ring of current values instead of a course over time? */
+    isDonut(): boolean {
+        return this.config.chartMode === 'donut';
     }
 
     /**
@@ -961,7 +970,7 @@ class ChartOption {
                     show: !this.compact,
                     // The type of the axis is only known at runtime now, so echarts cannot hand the
                     // type of the parameter over any more
-                    formatter: (value: number): string => this.yFormatter(value, chartIndex, true),
+                    formatter: (value: number): string => this.yFormatter(value, chartIndex, true, false, false, true),
                     color:
                         oneLine.yaxe === 'off' || oneLine.yaxe === 'leftColor' || oneLine.yaxe === 'rightColor'
                             ? color
@@ -1125,12 +1134,39 @@ class ChartOption {
         return options;
     }
 
+    /**
+     * How many digits after the comma a value shows.
+     *
+     * The line decides it, and if it does not, the chart does. The value of the chart used to be
+     * read by nobody although `normalizeConfig` has always been filling it in, so a line without an
+     * own setting printed whatever the aggregation produced - down to `434.32000000000005`.
+     *
+     * The ticks of an axis are round numbers that echarts has already chosen, and a chart-wide
+     * default would only hang zeros onto them ("50.00 MB" instead of "50 MB"). There only the
+     * setting of the line counts, exactly as it always did - `lineDigitsOnly` says so.
+     */
+    getAfterComma(line: number, lineDigitsOnly?: boolean): number | undefined {
+        const ofLine = this.config.l[line]?.afterComma;
+        if (ofLine !== undefined && ofLine !== null) {
+            return ofLine;
+        }
+        if (lineDigitsOnly) {
+            return undefined;
+        }
+        return this.config.afterComma === null ? undefined : this.config.afterComma;
+    }
+
     yFormatter(
         val: CallbackDataParams | ioBroker.StateValue,
         line: number,
         withUnit?: boolean,
         interpolated?: boolean,
         forAxis?: boolean,
+        /**
+         * Only the digits of the line count. The ticks of an axis are already round numbers, and the
+         * digits of the chart would only hang zeros onto them
+         */
+        lineDigitsOnly?: boolean,
     ): string {
         let simpleValue: string | number | null | undefined | boolean;
         if (val && typeof val === 'object') {
@@ -1193,7 +1229,7 @@ class ChartOption {
             return '';
         }
 
-        const afterComma = this.config.l[line].afterComma;
+        const afterComma = this.getAfterComma(line, lineDigitsOnly);
         if (afterComma !== undefined && afterComma !== null) {
             simpleValue = parseFloat(simpleValue as string);
             if (this.config.useComma) {
@@ -1458,8 +1494,9 @@ class ChartOption {
                     return null;
                 }
                 let val;
-                if (lineConfig.afterComma !== undefined) {
-                    const ex = 10 ** lineConfig.afterComma;
+                const afterComma = this.getAfterComma(seriesIndex);
+                if (afterComma !== undefined) {
+                    const ex = 10 ** afterComma;
                     val = Math.round((p.value as number) * ex) / ex;
                 } else {
                     val = p.value;
@@ -1892,6 +1929,134 @@ class ChartOption {
         this.chart.padBottom = grid.bottom;
     }
 
+    /**
+     * The whole chart as one ring: every line is one slice with its current value.
+     *
+     * A donut has neither axes nor a grid, so everything the time chart built for them is thrown away.
+     * The values do not come out of the series either - a line of a donut never reads the history -
+     * but out of `actualValues`, which `ChartModel` holds up to date with a subscription.
+     */
+    buildDonut(option: EChartsOption, actualValues: number[]): void {
+        const hole = Math.max(0, Math.min(95, this.config.donutHole === undefined ? 50 : this.config.donutHole));
+        const labels = this.config.donutLabels === undefined ? 'namePercent' : this.config.donutLabels;
+        const outside = !!this.config.donutLabelsOutside;
+
+        // A slice carries the index of its line, so the formatter finds the unit and the states of it
+        // again after the slices were sorted
+        const data: { name: string; value: number; lineIndex: number; itemStyle: { color?: string } }[] =
+            this.config.l.map((oneLine, index) => {
+                const raw = actualValues?.[index];
+                const value = typeof raw === 'number' ? raw : parseFloat(raw);
+
+                return {
+                    name: oneLine.name || oneLine.id,
+                    // A state that is not readable yet must not tear a hole into the ring
+                    value: isFinite(value) ? value : 0,
+                    lineIndex: index,
+                    itemStyle: { color: this.chart.seriesColors?.[index] || oneLine.color },
+                };
+            });
+
+        if (this.config.donutSort === 'desc') {
+            data.sort((a, b) => b.value - a.value);
+        } else if (this.config.donutSort === 'asc') {
+            data.sort((a, b) => a.value - b.value);
+        }
+
+        const lineIndexOf = (params: CallbackDataParams): number =>
+            (params.data as { lineIndex?: number })?.lineIndex ?? 0;
+
+        const fontSize = parseInt(this.config.barFontSize as unknown as string, 10) || 12;
+        const fontColor = this.config.barFontColor || (this.themeType === 'light' ? '#000' : '#FFF');
+
+        let formatter: ((params: CallbackDataParams) => string) | undefined;
+        switch (labels) {
+            case 'name':
+                formatter = (params): string => params.name;
+                break;
+            case 'value':
+                formatter = (params): string => this.yFormatter(params.value as number, lineIndexOf(params), true);
+                break;
+            case 'percent':
+                formatter = (params): string => `${params.percent} %`;
+                break;
+            case 'nameValue':
+                formatter = (params): string =>
+                    `${params.name}: ${this.yFormatter(params.value as number, lineIndexOf(params), true)}`;
+                break;
+            case 'namePercent':
+                formatter = (params): string => `${params.name}: ${params.percent} %`;
+                break;
+            default:
+                formatter = undefined;
+        }
+
+        option.series = [
+            {
+                type: 'pie',
+                radius: [`${hole}%`, '75%'],
+                center: ['50%', '50%'],
+                avoidLabelOverlap: true,
+                // The user put the lines in an order, and `donutSort` is the only thing that changes it
+                data,
+                label: {
+                    show: !!formatter,
+                    position: outside ? 'outside' : 'inside',
+                    formatter,
+                    fontSize,
+                    color: outside ? fontColor : undefined,
+                },
+                labelLine: { show: !!formatter && outside },
+                emphasis: { focus: 'self' },
+            },
+        ];
+
+        // The sum in the hole: only useful with a hole, and only with one unit for all of the lines
+        const center = this.config.donutCenter;
+        if (center === 'text' || (center === 'sum' && hole > 20)) {
+            // Adding floats leaves a tail of noise behind (0.1 + 0.2), and the sum is a number the
+            // user reads, not one the chart calculates with
+            const sum = Math.round(data.reduce((total, item) => total + item.value, 0) * 1000) / 1000;
+            option.graphic = {
+                type: 'text',
+                left: 'center',
+                top: 'middle',
+                silent: true,
+                style: {
+                    text: center === 'text' ? this.config.donutCenterText || '' : this.yFormatter(sum, 0, true),
+                    fill: fontColor,
+                    fontSize: fontSize + 6,
+                    fontWeight: 'bold',
+                    align: 'center',
+                },
+            };
+        }
+
+        // A pie hovers its slice and not a column of the axis
+        option.tooltip = {
+            ...(option.tooltip as TooltipComponentOption),
+            trigger: 'item',
+            axisPointer: undefined,
+            formatter: (params: CallbackDataParams): string =>
+                `${params.marker as string}${params.name}: ${this.yFormatter(
+                    params.value as number,
+                    lineIndexOf(params),
+                    true,
+                )} (${params.percent} %)`,
+        };
+
+        // A ring of current values has nothing to animate, and the expansion animation was seen
+        // standing still when the chart is drawn inside another app - the radar takeover below
+        // switches it off for the same reason
+        option.animation = false;
+
+        delete option.xAxis;
+        delete option.yAxis;
+        delete option.grid;
+        delete option.visualMap;
+        delete option.axisPointer;
+    }
+
     getOption(
         data: BarAndLineSeries[],
         config: ChartConfigMore,
@@ -1992,7 +2157,9 @@ class ChartOption {
         });
 
         // modify series for "one bar per line"
-        if (this.isBarPerLine()) {
+        if (this.isDonut()) {
+            this.buildDonut(option, actualValues);
+        } else if (this.isBarPerLine()) {
             this.buildBarPerLine(option);
         } else if (this.config.l.find(item => item.chartType === 'polar')) {
             // modify series for polar

@@ -1,5 +1,14 @@
 export type ChartType = 'bar' | 'polar' | 'line' | 'auto' | 'steps' | 'stepsStart' | 'scatterplot' | 'spline';
 
+/**
+ * What the whole chart is.
+ *
+ * `mixed` is the chart as it always was: a time axis, and every line brings its own type. The other
+ * two draw one value per line instead of a course over time - the current value of the state, read
+ * once and kept up to date by a subscription.
+ */
+export type ChartMode = 'mixed' | 'donut' | 'barCurrent';
+
 export type ChartAggregateType =
     | 'minmax'
     | 'min'
@@ -198,6 +207,13 @@ type ThemeChartType =
     | 'dark-bold';
 
 export interface ChartConfig {
+    /**
+     * What the whole chart is. Missing means `mixed`, the normal chart with a time axis.
+     *
+     * It stands in the base config and not in `ChartConfigMore`, because it decides how the data is
+     * read: the modes that show one value per line never ask the history adapter.
+     */
+    chartMode?: ChartMode;
     aggregate?: ChartAggregateType;
     ignoreNull?: boolean;
     /**
@@ -354,6 +370,19 @@ export interface ChartConfigMore extends ChartConfig {
 
     /** Chart type for all lines (fast editing) */
     chartType?: ChartType;
+
+    /** Donut: the hole in the middle, in percent of the outer radius. 0 draws a full pie */
+    donutHole?: number;
+    /** Donut: what is written on the slices */
+    donutLabels?: '' | 'name' | 'value' | 'percent' | 'nameValue' | 'namePercent';
+    /** Donut: write the labels outside of the ring instead of on it */
+    donutLabelsOutside?: boolean;
+    /** Donut: what stands in the hole. `sum` is the sum of all slices with the unit of the first line */
+    donutCenter?: '' | 'sum' | 'text';
+    /** Donut: the text in the hole when `donutCenter` is `text` */
+    donutCenterText?: string;
+    /** Donut: order of the slices. Missing means the order of the lines */
+    donutSort?: '' | 'desc' | 'asc';
 }
 
 export type EchartsOptions = {

@@ -12,5 +12,7 @@
     "echarts_chartTheme_auto": "Auto (wie Host)",
     "echarts_chartTheme_light": "Hell",
     "echarts_chartTheme_dark": "Dunkel",
-    "echarts_chartTheme_blue": "Blau"
+    "echarts_chartTheme_blue": "Blau",
+    "echarts_directRender": "Ohne iframe (experimentell)",
+    "echarts_directRender_help": "Zeichnet das Diagramm ins Widget statt in ein iframe: es nutzt die Verbindung, die die Seite ohnehin hält, statt je Kachel eine eigene zu öffnen, und übernimmt das Theme der Seite. Lädt beim ersten Einsatz etwa 1,5 MB Diagramm-Code nach."
 }

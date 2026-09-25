@@ -21,6 +21,7 @@ import {
     Menu as IconDrag,
     ContentPaste as IconPaste,
     Close as IconClose,
+    DataObject as IconJson,
 } from '@mui/icons-material';
 import { FaFolder as IconFolderClosed, FaFolderOpen as IconFolderOpened } from 'react-icons/fa';
 
@@ -40,8 +41,29 @@ import LineDialog from './LineDialog';
 import EditStatesDialog from './EditStatesDialog';
 import type { ChartAggregateType, ChartConfigMore, ChartLineConfigMore, ChartType } from '../../../src/types';
 
+const SOURCE_ICON_STYLE: React.CSSProperties = {
+    width: 20,
+    height: 20,
+    borderRadius: 2,
+};
+
+/**
+ * The adapter icon of a history instance, as it is shown in the charts tree.
+ *
+ * The instance objects carry `common.icon` as a file name relative to the adapter folder, so the
+ * path has to be built here. `../../` because the editor is served as `adapter/echarts/tab.html`.
+ */
+function getInstanceIcon(instance: ioBroker.InstanceObject): React.JSX.Element | null {
+    const adapterName = instance._id.split('.')[2];
+    return Utils.getIcon(
+        { icon: instance.common.icon, name: adapterName, prefix: `../../adapter/${adapterName}/` },
+        SOURCE_ICON_STYLE,
+    );
+}
+
 const WIDTHS = {
-    instance: 100,
+    // the source carries the adapter icon beside the instance name
+    instance: 120,
     id: 100,
     chartType: 120,
     dataType: 110,
@@ -311,6 +333,70 @@ export default class Line extends React.Component<LineProps, LineState> {
         return null;
     }
 
+    /**
+     * Does this line need a state that a history adapter logs?
+     *
+     * A donut and a line with the aggregation "current" read the state itself and never the history
+     * (`ChartModel.isCurrentValueOnly`), so every state can be picked there - not only the ones
+     * somebody switched logging on for. The same holds for a radar, whose lines are "current" too.
+     */
+    needsHistory(): boolean {
+        return this.props.presetData.chartMode !== 'donut' && this.props.line.aggregate !== 'current';
+    }
+
+    /**
+     * Does a line still bring a chart type of its own?
+     *
+     * Not in the modes that draw one value per line: `buildBarPerLine` puts every series on `bar`
+     * whatever the line says, and a slice of a donut has no type at all.
+     */
+    hasChartType(): boolean {
+        return this.props.presetData.chartMode !== 'donut' && this.props.presetData.chartMode !== 'barCurrent';
+    }
+
+    /**
+     * Options and icons of the "Source" select.
+     *
+     * The compact row and the opened settings must offer the same sources - the opened one was
+     * missing the "standard" entry, so a line that used the default history adapter could not be
+     * set back to it once it was changed (#1276).
+     */
+    getSourceOptions(): { options: Record<string, string>; icons: Record<string, React.JSX.Element> } {
+        const options: Record<string, string> = { '': I18n.t('standard') };
+        const icons: Record<string, React.JSX.Element> = {};
+        // an empty instance means "whatever is configured as default history adapter", so "standard"
+        // is shown with the icon of exactly that adapter
+        const defaultHistory = this.props.systemConfig?.common?.defaultHistory;
+
+        // A line that shows only its current value reads the state itself, so which history adapter
+        // logs it makes no difference at all. `JSON` stays: that is not a history instance but a
+        // state that carries the values itself, and the chart reads its last entry
+        if (this.needsHistory()) {
+            this.props.instances.forEach(instance => {
+                const shortId = instance._id.replace('system.adapter.', '');
+                options[instance._id] = shortId;
+                const icon = getInstanceIcon(instance);
+                if (icon) {
+                    icons[instance._id] = icon;
+                    if (shortId === defaultHistory) {
+                        icons[''] = icon;
+                    }
+                }
+            });
+        }
+
+        options.json = 'JSON';
+        icons.json = <IconJson style={SOURCE_ICON_STYLE} />;
+
+        // an instance that is not installed (anymore) must stay in the list, or the select would
+        // silently show another source than the one the line is configured with
+        if (this.props.line.instance && !options[this.props.line.instance]) {
+            options[this.props.line.instance] = this.props.line.instance.replace('system.adapter.', '');
+        }
+
+        return { options, icons };
+    }
+
     onIdChanged = async (value: string): Promise<void> => {
         const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
 
@@ -375,6 +461,7 @@ export default class Line extends React.Component<LineProps, LineState> {
     };
 
     renderClosedLine(): React.JSX.Element {
+        const sourceOptions = this.getSourceOptions();
         const visible: {
             chartType?: boolean;
             dataType?: boolean;
@@ -443,11 +530,15 @@ export default class Line extends React.Component<LineProps, LineState> {
 
         if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
-            // The radar and the "one bar per line" chart show a single value per line, so they can take
-            // it straight from the state instead of reading the history
-            if (this.props.presetData.l.find(line => line.chartType === 'polar') || this.props.presetData.barPerLine) {
-                aggregateTypes.current = 'current';
-            }
+        }
+        // The radar, the donut and the bars of the current values show a single value per line, so
+        // they take it straight from the state instead of reading the history
+        if (
+            (hasBarOrPolar && this.props.presetData.l.find(line => line.chartType === 'polar')) ||
+            this.props.presetData.chartMode === 'donut' ||
+            this.props.presetData.chartMode === 'barCurrent'
+        ) {
+            aggregateTypes.current = 'current';
         }
 
         return (
@@ -490,17 +581,8 @@ export default class Line extends React.Component<LineProps, LineState> {
                     }}
                     label="Source"
                     noTranslate
-                    options={(() => {
-                        const result: Record<string, string> = { '': I18n.t('standard') };
-                        this.props.instances.forEach(
-                            instance => (result[instance._id] = instance._id.replace('system.adapter.', '')),
-                        );
-                        result.json = 'JSON';
-                        if (!result[this.props.line.instance]) {
-                            result[this.props.line.instance] = this.props.line.instance.replace('system.adapter.', '');
-                        }
-                        return result;
-                    })()}
+                    options={sourceOptions.options}
+                    icons={sourceOptions.icons}
                     minWidth={WIDTHS.instance}
                     styles={{
                         fieldContainer: {
@@ -518,7 +600,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                     name="id"
                     label="ID"
                     customFilter={
-                        this.props.line.instance !== 'json'
+                        this.props.line.instance !== 'json' && this.needsHistory()
                             ? {
                                   common: {
                                       custom: this.props.line.instance
@@ -537,7 +619,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                     }}
                     socket={this.props.socket}
                 />
-                {visible.chartType ? (
+                {visible.chartType && this.hasChartType() ? (
                     <IOSelect
                         disabled={!!this.props.onPaste}
                         value={this.props.line.chartType}
@@ -827,6 +909,10 @@ export default class Line extends React.Component<LineProps, LineState> {
     }
 
     renderOpenedLine(): React.JSX.Element {
+        const sourceOptions = this.getSourceOptions();
+        // A slice of a donut is one number with a name and a color. Everything that describes a course
+        // over time - the type of the line, its shape, its axes - has nothing to say here
+        const isDonut = this.props.presetData.chartMode === 'donut';
         const xAxisOptions: Record<string, string> = {
             '': I18n.t('own axis'),
         };
@@ -868,11 +954,15 @@ export default class Line extends React.Component<LineProps, LineState> {
 
         if (hasBarOrPolar) {
             delete aggregateTypes.minmax;
-            // The radar and the "one bar per line" chart show a single value per line, so they can take
-            // it straight from the state instead of reading the history
-            if (this.props.presetData.l.find(line => line.chartType === 'polar') || this.props.presetData.barPerLine) {
-                aggregateTypes.current = 'current';
-            }
+        }
+        // The radar, the donut and the bars of the current values show a single value per line, so
+        // they take it straight from the state instead of reading the history
+        if (
+            (hasBarOrPolar && this.props.presetData.l.find(line => line.chartType === 'polar')) ||
+            this.props.presetData.chartMode === 'donut' ||
+            this.props.presetData.chartMode === 'barCurrent'
+        ) {
+            aggregateTypes.current = 'current';
         }
 
         const ownYAxis = this.props.line.commonYAxis === undefined;
@@ -942,7 +1032,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                     style={{ marginRight: 30 }}
                 >
                     <IOSelect
-                        value={this.props.line.instance}
+                        value={this.props.line.instance || ''}
                         updateValue={(value: string): void => {
                             const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
                             line.instance = value;
@@ -950,14 +1040,8 @@ export default class Line extends React.Component<LineProps, LineState> {
                         }}
                         label="Source"
                         noTranslate
-                        options={(() => {
-                            const result: Record<string, string> = {};
-                            this.props.instances.forEach(
-                                instance => (result[instance._id] = instance._id.replace('system.adapter.', '')),
-                            );
-                            result.json = 'JSON';
-                            return result;
-                        })()}
+                        options={sourceOptions.options}
+                        icons={sourceOptions.icons}
                     />
                     <IOObjectField
                         theme={this.props.theme}
@@ -968,7 +1052,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         label="ID"
                         width="calc(100% - 250px)"
                         customFilter={
-                            this.props.line.instance !== 'json'
+                            this.props.line.instance !== 'json' && this.needsHistory()
                                 ? {
                                       common: {
                                           custom: this.props.line.instance
@@ -1006,16 +1090,18 @@ export default class Line extends React.Component<LineProps, LineState> {
                             tooltip={I18n.t('Values below this limit are drawn in the second color. Default is 0')}
                         />
                     ) : null}
-                    <IOSelect
-                        value={this.props.line.chartType}
-                        updateValue={(value: string): void => {
-                            const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                            line.chartType = value as ChartType;
-                            this.props.updateLine(this.props.index, line);
-                        }}
-                        label="Chart type"
-                        options={chartTypes}
-                    />
+                    {this.hasChartType() ? (
+                        <IOSelect
+                            value={this.props.line.chartType}
+                            updateValue={(value: string): void => {
+                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                line.chartType = value as ChartType;
+                                this.props.updateLine(this.props.index, line);
+                            }}
+                            label="Chart type"
+                            options={chartTypes}
+                        />
+                    ) : null}
                     {this.props.line.instance !== 'json' && this.props.line.chartType !== 'auto' ? (
                         <IOSelect
                             value={this.props.line.aggregate}
@@ -1216,7 +1302,8 @@ export default class Line extends React.Component<LineProps, LineState> {
                     {this.renderStates()}
                 </Box>
                 {/* Line thick and fill */}
-                {this.props.line.chartType !== 'scatterplot' &&
+                {!isDonut &&
+                this.props.line.chartType !== 'scatterplot' &&
                 this.props.line.chartType !== 'bar' &&
                 (!this.props.index || this.props.line.chartType !== 'polar') ? (
                     <Box
@@ -1285,253 +1372,259 @@ export default class Line extends React.Component<LineProps, LineState> {
                     </Box>
                 ) : null}
                 {/* Axis */}
-                <Box
-                    component="div"
-                    sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterAxis)}
-                >
-                    <p style={styles.title}>{I18n.t('Axis')}</p>
-                    {!this.props.index && this.props.line.chartType !== 'polar' ? (
-                        <IOSelect
-                            value={this.props.line.xaxe}
-                            updateValue={(value: string): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.xaxe = value as 'top' | '' | 'off';
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="X Axis position"
-                            options={{
-                                '': 'bottom',
-                                top: 'top',
-                                off: 'off',
-                            }}
-                        />
-                    ) : null}
-                    {!this.props.index && this.props.line.chartType !== 'polar' ? (
-                        <IONumberField
-                            value={this.props.line.xticks}
-                            updateValue={(value: number): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.xticks = value;
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="X-Axis ticks"
-                            min={1}
-                        />
-                    ) : null}
-                    {this.props.line.chartType !== 'polar' ? (
-                        <IOSelect
-                            value={this.props.line.offset === undefined ? '0' : this.props.line.offset.toString()}
-                            updateValue={(value: string | number): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                if (!value) {
-                                    delete line.offset;
-                                } else {
-                                    // seconds, or a string with a unit like "1m" for one month
-                                    line.offset = value;
-                                }
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            tooltip={I18n.t('This time offset will be added to the request by reading data from DB')}
-                            label="X-Offset"
-                            options={{
-                                0: '0 seconds',
-                                10: '10 seconds',
-                                30: '30 seconds',
-                                60: '60 seconds',
-                                120: '2 minutes',
-                                180: '3 minutes',
-                                240: '4 minutes',
-                                300: '5 minutes',
-                                600: '10 minutes',
-                                900: '15 minutes',
-                                1800: '30 minutes',
-                                2700: '45 minutes',
-                                3600: '1 hour',
-                                7200: '2 hours',
-                                21600: '6 hours',
-                                43200: '12 hours',
-                                86400: '1 day',
-                                172800: '2 days',
-                                259200: '3 days',
-                                345600: '4 days',
-                                604800: '1 week',
-                                1209600: '2 weeks',
-                                '1m': '1 month',
-                                '2m': '2 months',
-                                '3m': '3 months',
-                                '6m': '6 months',
-                                '1y': '1 year',
-                                '2y': '2 years',
-                                '-10': '-10 seconds',
-                                '-30': '-30 seconds',
-                                '-60': '-60 seconds',
-                                '-120': '-2 minutes',
-                                '-180': '-3 minutes',
-                                '-240': '-4 minutes',
-                                '-300': '-5 minutes',
-                                '-600': '-10 minutes',
-                                '-900': '-15 minutes',
-                                '-1800': '-30 minutes',
-                                '-2700': '-45 minutes',
-                                '-3600': '-1 hour',
-                                '-7200': '-2 hours',
-                                '-21600': '-6 hours',
-                                '-43200': '-12 hours',
-                                '-86400': '-1 day',
-                                '-172800': '-2 days',
-                                '-259200': '-3 days',
-                                '-345600': '-4 days',
-                                '-604800': '-1 week',
-                                '-1209600': '-2 weeks',
-                                '-1m': '-1 month',
-                                '-2m': '-2 months',
-                                '-3m': '-3 months',
-                                '-6m': '-6 months',
-                                '-1y': '-1 year',
-                                '-2y': '-2 years',
-                            }}
-                        />
-                    ) : null}
-                    {this.props.line.offset && this.props.line.chartType !== 'polar' ? (
-                        <IOCheckbox
-                            value={this.props.line.offsetOverlay}
-                            updateValue={(value: boolean): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.offsetOverlay = value;
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Overlay on the main range"
-                            tooltip={`${I18n.t(
-                                'Draw the shifted values on the time range of the not shifted lines, so that they can be compared',
-                            )} ${I18n.t(
-                                'It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month',
-                            )}`}
-                        />
-                    ) : null}
-                    {this.props.line.chartType !== 'polar' ? (
-                        <IONumberField
-                            value={this.props.line.yOffset}
-                            updateValue={(value: number): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.yOffset = value;
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Y-Offset"
-                            float
-                        />
-                    ) : null}
+                {isDonut ? null : (
+                    <Box
+                        component="div"
+                        sx={Utils.getStyle(this.props.theme, styles.shortFields, styles.chapterAxis)}
+                    >
+                        <p style={styles.title}>{I18n.t('Axis')}</p>
+                        {!this.props.index && this.props.line.chartType !== 'polar' ? (
+                            <IOSelect
+                                value={this.props.line.xaxe}
+                                updateValue={(value: string): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.xaxe = value as 'top' | '' | 'off';
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="X Axis position"
+                                options={{
+                                    '': 'bottom',
+                                    top: 'top',
+                                    off: 'off',
+                                }}
+                            />
+                        ) : null}
+                        {!this.props.index && this.props.line.chartType !== 'polar' ? (
+                            <IONumberField
+                                value={this.props.line.xticks}
+                                updateValue={(value: number): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.xticks = value;
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="X-Axis ticks"
+                                min={1}
+                            />
+                        ) : null}
+                        {this.props.line.chartType !== 'polar' ? (
+                            <IOSelect
+                                value={this.props.line.offset === undefined ? '0' : this.props.line.offset.toString()}
+                                updateValue={(value: string | number): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    if (!value) {
+                                        delete line.offset;
+                                    } else {
+                                        // seconds, or a string with a unit like "1m" for one month
+                                        line.offset = value;
+                                    }
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                tooltip={I18n.t(
+                                    'This time offset will be added to the request by reading data from DB',
+                                )}
+                                label="X-Offset"
+                                options={{
+                                    0: '0 seconds',
+                                    10: '10 seconds',
+                                    30: '30 seconds',
+                                    60: '60 seconds',
+                                    120: '2 minutes',
+                                    180: '3 minutes',
+                                    240: '4 minutes',
+                                    300: '5 minutes',
+                                    600: '10 minutes',
+                                    900: '15 minutes',
+                                    1800: '30 minutes',
+                                    2700: '45 minutes',
+                                    3600: '1 hour',
+                                    7200: '2 hours',
+                                    21600: '6 hours',
+                                    43200: '12 hours',
+                                    86400: '1 day',
+                                    172800: '2 days',
+                                    259200: '3 days',
+                                    345600: '4 days',
+                                    604800: '1 week',
+                                    1209600: '2 weeks',
+                                    '1m': '1 month',
+                                    '2m': '2 months',
+                                    '3m': '3 months',
+                                    '6m': '6 months',
+                                    '1y': '1 year',
+                                    '2y': '2 years',
+                                    '-10': '-10 seconds',
+                                    '-30': '-30 seconds',
+                                    '-60': '-60 seconds',
+                                    '-120': '-2 minutes',
+                                    '-180': '-3 minutes',
+                                    '-240': '-4 minutes',
+                                    '-300': '-5 minutes',
+                                    '-600': '-10 minutes',
+                                    '-900': '-15 minutes',
+                                    '-1800': '-30 minutes',
+                                    '-2700': '-45 minutes',
+                                    '-3600': '-1 hour',
+                                    '-7200': '-2 hours',
+                                    '-21600': '-6 hours',
+                                    '-43200': '-12 hours',
+                                    '-86400': '-1 day',
+                                    '-172800': '-2 days',
+                                    '-259200': '-3 days',
+                                    '-345600': '-4 days',
+                                    '-604800': '-1 week',
+                                    '-1209600': '-2 weeks',
+                                    '-1m': '-1 month',
+                                    '-2m': '-2 months',
+                                    '-3m': '-3 months',
+                                    '-6m': '-6 months',
+                                    '-1y': '-1 year',
+                                    '-2y': '-2 years',
+                                }}
+                            />
+                        ) : null}
+                        {this.props.line.offset && this.props.line.chartType !== 'polar' ? (
+                            <IOCheckbox
+                                value={this.props.line.offsetOverlay}
+                                updateValue={(value: boolean): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.offsetOverlay = value;
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Overlay on the main range"
+                                tooltip={`${I18n.t(
+                                    'Draw the shifted values on the time range of the not shifted lines, so that they can be compared',
+                                )} ${I18n.t(
+                                    'It also moves values that carry the time stamp of the following interval, e.g. a monthly total that is written on the 1st of the next month',
+                                )}`}
+                            />
+                        ) : null}
+                        {this.props.line.chartType !== 'polar' ? (
+                            <IONumberField
+                                value={this.props.line.yOffset}
+                                updateValue={(value: number): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.yOffset = value;
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Y-Offset"
+                                float
+                            />
+                        ) : null}
 
-                    <br />
-                    {this.props.line.chartType !== 'polar' ? (
-                        <IOSelect
-                            value={
-                                this.props.line.commonYAxis === undefined ? '' : this.props.line.commonYAxis.toString()
-                            }
-                            updateValue={(value: string): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.commonYAxis = value === '' ? undefined : parseInt(value, 10);
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Common Y Axis"
-                            noTranslate
-                            options={xAxisOptions}
-                        />
-                    ) : null}
+                        <br />
+                        {this.props.line.chartType !== 'polar' ? (
+                            <IOSelect
+                                value={
+                                    this.props.line.commonYAxis === undefined
+                                        ? ''
+                                        : this.props.line.commonYAxis.toString()
+                                }
+                                updateValue={(value: string): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.commonYAxis = value === '' ? undefined : parseInt(value, 10);
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Common Y Axis"
+                                noTranslate
+                                options={xAxisOptions}
+                            />
+                        ) : null}
 
-                    {this.props.line.chartType !== 'polar' && ownYAxis ? (
-                        <IOSelect
-                            value={this.props.line.yaxe}
-                            updateValue={(value: string): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.yaxe = value as 'off' | 'left' | 'right' | 'leftColor' | 'rightColor' | '';
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Y Axis position"
-                            options={{
-                                '': '',
-                                off: 'off',
-                                left: 'left',
-                                right: 'right',
-                                leftColor: 'left colored',
-                                rightColor: 'right colored',
-                            }}
-                        />
-                    ) : null}
-                    {this.props.line.chartType !== 'polar' && ownYAxis ? (
-                        <IOTextField
-                            value={this.props.line.min === undefined ? '' : this.props.line.min.toString()}
-                            updateValue={(value: string): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                const trimmed = (value ?? '').toString().trim();
-                                if (trimmed === '') {
-                                    line.min = undefined;
-                                } else if (Number.isFinite(parseFloat(trimmed))) {
-                                    line.min = trimmed;
-                                } else {
-                                    return; // reject non-numeric input
-                                }
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Min"
-                        />
-                    ) : null}
-                    {ownYAxis ? (
-                        <IOTextField
-                            value={this.props.line.max === undefined ? '' : this.props.line.max.toString()}
-                            updateValue={(value: string): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                const trimmed = (value ?? '').toString().trim();
-                                if (trimmed === '') {
-                                    line.max = undefined;
-                                } else if (Number.isFinite(parseFloat(trimmed))) {
-                                    line.max = trimmed;
-                                } else {
-                                    return; // reject non-numeric input
-                                }
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Max"
-                        />
-                    ) : null}
-                    {this.props.line.chartType !== 'polar' && ownYAxis ? (
-                        <IOCheckbox
-                            value={!!this.props.line.logarithmic}
-                            updateValue={(value: boolean): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.logarithmic = value;
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Logarithmic Y-axis"
-                            tooltip={I18n.t(
-                                'Scale the Y-axis in powers of ten. Values of zero or below cannot be drawn on such an axis and are left out',
-                            )}
-                        />
-                    ) : null}
-                    {this.props.line.chartType !== 'polar' && ownYAxis ? (
-                        <IONumberField
-                            value={this.props.line.yticks}
-                            updateValue={(value: number): void => {
-                                const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
-                                line.yticks = value;
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Y-Axis ticks"
-                        />
-                    ) : null}
-                    {this.props.line.chartType !== 'polar' && ownYAxis ? (
-                        <IONumberField
-                            value={(this.props.line as ChartLineConfigMore & { yAxisOffset?: number }).yAxisOffset}
-                            updateValue={(value: number): void => {
-                                const line: ChartLineConfigMore & { yAxisOffset?: number } = JSON.parse(
-                                    JSON.stringify(this.props.line),
-                                );
-                                line.yAxisOffset = value || 0;
-                                this.props.updateLine(this.props.index, line);
-                            }}
-                            label="Y-Axis offset (px)"
-                        />
-                    ) : null}
-                </Box>
+                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                            <IOSelect
+                                value={this.props.line.yaxe}
+                                updateValue={(value: string): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.yaxe = value as 'off' | 'left' | 'right' | 'leftColor' | 'rightColor' | '';
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Y Axis position"
+                                options={{
+                                    '': '',
+                                    off: 'off',
+                                    left: 'left',
+                                    right: 'right',
+                                    leftColor: 'left colored',
+                                    rightColor: 'right colored',
+                                }}
+                            />
+                        ) : null}
+                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                            <IOTextField
+                                value={this.props.line.min === undefined ? '' : this.props.line.min.toString()}
+                                updateValue={(value: string): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    const trimmed = (value ?? '').toString().trim();
+                                    if (trimmed === '') {
+                                        line.min = undefined;
+                                    } else if (Number.isFinite(parseFloat(trimmed))) {
+                                        line.min = trimmed;
+                                    } else {
+                                        return; // reject non-numeric input
+                                    }
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Min"
+                            />
+                        ) : null}
+                        {ownYAxis ? (
+                            <IOTextField
+                                value={this.props.line.max === undefined ? '' : this.props.line.max.toString()}
+                                updateValue={(value: string): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    const trimmed = (value ?? '').toString().trim();
+                                    if (trimmed === '') {
+                                        line.max = undefined;
+                                    } else if (Number.isFinite(parseFloat(trimmed))) {
+                                        line.max = trimmed;
+                                    } else {
+                                        return; // reject non-numeric input
+                                    }
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Max"
+                            />
+                        ) : null}
+                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                            <IOCheckbox
+                                value={!!this.props.line.logarithmic}
+                                updateValue={(value: boolean): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.logarithmic = value;
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Logarithmic Y-axis"
+                                tooltip={I18n.t(
+                                    'Scale the Y-axis in powers of ten. Values of zero or below cannot be drawn on such an axis and are left out',
+                                )}
+                            />
+                        ) : null}
+                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                            <IONumberField
+                                value={this.props.line.yticks}
+                                updateValue={(value: number): void => {
+                                    const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
+                                    line.yticks = value;
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Y-Axis ticks"
+                            />
+                        ) : null}
+                        {this.props.line.chartType !== 'polar' && ownYAxis ? (
+                            <IONumberField
+                                value={(this.props.line as ChartLineConfigMore & { yAxisOffset?: number }).yAxisOffset}
+                                updateValue={(value: number): void => {
+                                    const line: ChartLineConfigMore & { yAxisOffset?: number } = JSON.parse(
+                                        JSON.stringify(this.props.line),
+                                    );
+                                    line.yAxisOffset = value || 0;
+                                    this.props.updateLine(this.props.index, line);
+                                }}
+                                label="Y-Axis offset (px)"
+                            />
+                        ) : null}
+                    </Box>
+                )}
                 {/* Other settings */}
                 <Box
                     component="div"

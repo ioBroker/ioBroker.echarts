@@ -12,5 +12,7 @@
     "echarts_chartTheme_auto": "Auto (follow host)",
     "echarts_chartTheme_light": "Light",
     "echarts_chartTheme_dark": "Dark",
-    "echarts_chartTheme_blue": "Blue"
+    "echarts_chartTheme_blue": "Blue",
+    "echarts_directRender": "Without iframe (experimental)",
+    "echarts_directRender_help": "Draws the chart into the widget instead of into an iframe: it uses the connection the page already holds instead of opening one per tile, and takes the theme of the page. Loads about 1.5 MB of chart code the first time it is used."
 }

@@ -15,6 +15,17 @@ import type {
     WidgetData,
 } from '@iobroker/types-vis-2';
 import type VisRxWidget from '@iobroker/types-vis-2/visRxWidget';
+import type { ChartConfig } from '../../src/types';
+
+import { type EchartsTimeRange, getLastTimeRange, subscribeTimeRange, timeRangeToHash } from './timeRangeBus';
+
+/**
+ * The chart drawn into the widget instead of into an iframe.
+ *
+ * Loaded on demand: it pulls echarts in, which vis-2 does not share (measured at 1.7 MB), so a view
+ * without a chart must not pay for it.
+ */
+const ChartEmbed = React.lazy(() => import('@chart-renderer/ChartEmbed'));
 
 interface EchartsRxData {
     noCard?: boolean;
@@ -93,6 +104,8 @@ interface EchartsRxData {
     end_time?: string;
     ticks?: string;
     noLoader?: boolean;
+    /** Draw the chart into the widget instead of into an iframe */
+    directRender?: boolean;
 }
 
 function ChartSelector(props: {
@@ -281,6 +294,8 @@ interface PresetLines {
 
 export interface EchartsState extends VisRxWidgetState {
     presetData: PresetLines | null;
+    /** The range an "E-Charts time range" widget put over the configured one */
+    timeRange: EchartsTimeRange | null;
 }
 
 export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<EchartsRxData, EchartsState> {
@@ -289,12 +304,17 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
     private lastPresetData = '';
     private systemConfig: ioBroker.SystemConfigObject | null = null;
     private object: ioBroker.Object | null = null;
+    private unsubscribeTimeRange: (() => void) | null = null;
+    /** The `src` the iframe was rendered with. Only its hash may change later, or the chart reloads */
+    private iframeSrc = '';
+    private iframeHash = '';
 
     constructor(props: VisRxWidgetProps) {
         super(props);
         this.state = {
             ...this.state,
             presetData: null,
+            timeRange: null,
         };
     }
 
@@ -335,6 +355,13 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
                             label: 'noLoader',
                             name: 'noLoader',
                             type: 'checkbox',
+                        },
+                        {
+                            label: 'directRender',
+                            name: 'directRender',
+                            tooltip: 'directRender_tooltip',
+                            type: 'checkbox',
+                            default: false,
                         },
                         {
                             label: 'echart_oid',
@@ -612,11 +639,53 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
     async componentDidMount(): Promise<void> {
         super.componentDidMount();
         window.addEventListener('message', this.onReceiveMessage, false);
+        this.unsubscribeTimeRange = subscribeTimeRange(this.props.id, this.onTimeRange);
+        // A selector that was mounted before this chart already published its range. It has to stand
+        // in the state before the chart is built, or the first draw would show the configured range
+        const timeRange = getLastTimeRange(this.props.id);
+        if (timeRange) {
+            await new Promise<void>(resolve => this.setState({ timeRange }, resolve));
+        }
         await this.propertiesUpdate();
     }
 
     componentWillUnmount(): void {
         window.removeEventListener('message', this.onReceiveMessage, false);
+        this.unsubscribeTimeRange?.();
+        this.unsubscribeTimeRange = null;
+    }
+
+    /**
+     * A range that an "E-Charts time range" widget picked for this chart.
+     *
+     * A chart that is built out of a single object is simply built again with the new range. A preset
+     * is drawn by the iframe out of the preset object, so only the hash of the iframe is moved: the
+     * chart reads the preset again and puts the range over it, without reloading the page.
+     */
+    onTimeRange = (timeRange: EchartsTimeRange): void => {
+        this.setState({ timeRange }, (): void => {
+            if (this.state.rxData.history_oid && this.state.rxData.history_instance) {
+                void this.propertiesUpdate();
+            } else {
+                this.applyTimeRangeToIframe();
+            }
+        });
+    };
+
+    private applyTimeRangeToIframe(): void {
+        const hash = timeRangeToHash(this.state.timeRange);
+        if (hash === this.iframeHash) {
+            return;
+        }
+        this.iframeHash = hash;
+        try {
+            const frameWindow = this.refIframe.current?.contentWindow;
+            if (frameWindow) {
+                frameWindow.location.hash = hash;
+            }
+        } catch (e) {
+            console.warn(`Cannot set the time range of the chart: ${e as Error}`);
+        }
     }
 
     async onRxDataChanged(): Promise<void> {
@@ -642,6 +711,8 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
         lines[0].xticks = this.loadChartParam('xticks', '');
         lines[0].yticks = this.loadChartParam('yticks', '');
 
+        const timeRange: EchartsTimeRange = this.state.timeRange || {};
+
         return {
             marks: [],
             lines,
@@ -650,16 +721,17 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
             aggregate: this.loadChartParam('aggregate', 'minmax'),
             chartType: this.loadChartParam('chartType', 'auto'),
             live: this.loadChartParam('live', '30'),
-            timeType: this.loadChartParam('timeType', 'relative'),
+            // A time range widget wins over the attributes, but only with the parts it really brings
+            timeType: timeRange.timeType || this.loadChartParam('timeType', 'relative'),
             aggregateType: this.loadChartParam('aggregateType', 'step'),
             aggregateSpan: this.loadChartParam('aggregateSpan', '300'),
             ticks: this.loadChartParam('ticks', ''),
-            range: this.loadChartParam('range', '1440'),
-            relativeEnd: this.loadChartParam('relativeEnd', 'now'),
-            start: this.loadChartParam('start', ''),
-            end: this.loadChartParam('end', ''),
-            start_time: this.loadChartParam('start_time', ''),
-            end_time: this.loadChartParam('end_time', ''),
+            range: timeRange.range || this.loadChartParam('range', '1440'),
+            relativeEnd: timeRange.relativeEnd || this.loadChartParam('relativeEnd', 'now'),
+            start: timeRange.start || this.loadChartParam('start', ''),
+            end: timeRange.end || this.loadChartParam('end', ''),
+            start_time: timeRange.start_time || this.loadChartParam('start_time', ''),
+            end_time: timeRange.end_time || this.loadChartParam('end_time', ''),
             noBorder: 'noborder',
             noedit: false,
             animation: 0,
@@ -677,6 +749,32 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
             }
         }
     };
+
+    /**
+     * The address of the chart iframe.
+     *
+     * It is built once and kept, because writing the `src` attribute reloads the iframe - a later
+     * change of the time range only moves the hash, which the chart picks up through `hashchange`.
+     * The hash of the first load carries the range already, so the chart never draws the wrong one.
+     */
+    getIframeSrc(): string {
+        const noBG = this.state.rxData.noChartBackground || !this.state.rxData.noCard;
+        const noLoader = this.state.rxData.noLoader ? '&noLoader=true' : '';
+        if (!this.state.rxData.echart_oid) {
+            // A chart out of a single object is built here and handed over as a preset, so the range
+            // already sits in it and has nothing to look for in the address
+            return `../echarts/index.html?noBG=${noBG}&edit=true${noLoader}`;
+        }
+
+        const base = `../echarts/index.html?preset=${this.state.rxData.echart_oid}&noBG=${noBG}${noLoader}`;
+
+        if (this.iframeSrc.split('#')[0] !== base) {
+            this.iframeHash = timeRangeToHash(this.state.timeRange);
+            this.iframeSrc = this.iframeHash ? `${base}#${this.iframeHash}` : base;
+        }
+
+        return this.iframeSrc;
+    }
 
     renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element | React.JSX.Element[] | null {
         super.renderWidgetBody(props);
@@ -704,6 +802,29 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
                 </div>
             );
         } else {
+            if (this.state.rxData.directRender) {
+                // The model takes either the ID of a preset or the configuration this widget builds
+                // out of a single object - the same two cases the iframe knows
+                const directConfig = this.state.rxData.echart_oid || (this.state.presetData as unknown as ChartConfig);
+
+                content = (
+                    // The chart takes the height of this box. Without it the widget would hand the
+                    // chart no height at all in a layout whose rows follow their content
+                    <div style={{ width: '100%', height: '100%' }}>
+                        <React.Suspense fallback={<div />}>
+                            <ChartEmbed
+                                config={directConfig}
+                                socket={this.props.context.socket}
+                                themeType={this.props.context.themeType}
+                                timeRange={this.state.timeRange}
+                            />
+                        </React.Suspense>
+                    </div>
+                );
+
+                return this.state.rxData.noCard ? content : this.wrapContent(content);
+            }
+
             const presetJson = JSON.stringify(this.state.presetData);
             if (this.ready && this.lastPresetData !== presetJson) {
                 this.lastPresetData = presetJson;
@@ -719,11 +840,7 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
                         height: '100%',
                         border: 0,
                     }}
-                    src={
-                        this.state.rxData.echart_oid
-                            ? `../echarts/index.html?preset=${this.state.rxData.echart_oid}&noBG=${this.state.rxData.noChartBackground || !this.state.rxData.noCard}${this.state.rxData.noLoader ? '&noLoader=true' : ''}`
-                            : `../echarts/index.html?noBG=${this.state.rxData.noChartBackground || !this.state.rxData.noCard}&edit=true${this.state.rxData.noLoader ? '&noLoader=true' : ''}`
-                    }
+                    src={this.getIframeSrc()}
                 />
             );
         }

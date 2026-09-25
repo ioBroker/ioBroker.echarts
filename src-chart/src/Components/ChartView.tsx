@@ -60,7 +60,7 @@ import type { BarAndLineSeries, SeriesData } from './ChartModel';
 
 import ReactEchartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
-import { LineChart, ScatterChart, BarChart, RadarChart } from 'echarts/charts';
+import { LineChart, ScatterChart, BarChart, RadarChart, PieChart } from 'echarts/charts';
 import {
     GridComponent,
     ToolboxComponent,
@@ -72,6 +72,8 @@ import {
     MarkAreaComponent,
     TooltipComponent,
     VisualMapComponent,
+    // The text in the hole of a donut
+    GraphicComponent,
 } from 'echarts/components';
 
 import { SVGRenderer, CanvasRenderer } from 'echarts/renderers';
@@ -99,7 +101,7 @@ import 'echarts/theme/dark-bold';
 import type { GridOption, RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
 import type { EChartsInstance } from 'echarts-for-react/src/types';
 
-import type { ChartConfigMore, ChartLineConfigMore, ChartRangeOptions } from '../../../src/types';
+import type { ChartConfigMore, ChartLineConfigMore, ChartRangeOptions, ChartType } from '../../../src/types';
 
 /** The ranges the selector offers. Keep in sync with the "Range" list of the preset editor. */
 const rangeOptions: Record<ChartRangeOptions, string> = {
@@ -139,10 +141,13 @@ echarts.use([
     // CartesianGrid,
     GridComponent,
 
+    GraphicComponent,
+
     LineChart,
     ScatterChart,
     BarChart,
     RadarChart,
+    PieChart,
 
     SVGRenderer,
 
@@ -306,7 +311,8 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     private echartsReact: EChartsReactCore | null = null;
     private readonly divResetButton: React.RefObject<HTMLButtonElement>;
     private selected: { [name: string]: boolean } | null = null;
-    private lastIds: string[];
+    /** What the chart was built OF the last time - see `getShape` */
+    private lastShape: string;
     private chartOption: ChartOption;
     private resetZoomAndTiltTimer: ReturnType<typeof setTimeout> | null = null;
     private timerResize: ReturnType<typeof setTimeout> | null = null;
@@ -346,8 +352,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
 
         moment.locale(I18n.getLanguage());
 
-        this.lastIds = this.props.config?.l?.map((item: ChartLineConfigMore): string => item.id) || [];
-        this.lastIds.sort();
+        this.lastShape = ChartView.getShape(this.props.config);
 
         this.chartOption = new ChartOption(moment, this.props.themeType, calcTextWidth, undefined, this.props.compact);
     }
@@ -380,16 +385,34 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         window.removeEventListener('resize', this.onResize);
     }
 
+    /**
+     * Everything that decides HOW a chart is built, not only what it shows.
+     *
+     * echarts merges a new option into the one it already has. A switch from the bars to a donut
+     * would therefore leave the axes, the grid and the old series standing under the ring, because
+     * the new option simply does not mention them. Whenever this signature changes, the instance is
+     * cleared first and the option is set without merging.
+     */
+    static getShape(config: ChartConfigMore): string {
+        const ids: string[] = config?.l?.map((item: ChartLineConfigMore): string => item.id) || [];
+        ids.sort();
+
+        return JSON.stringify({
+            ids,
+            mode: config?.chartMode || 'mixed',
+            types: config?.l?.map((item: ChartLineConfigMore): ChartType => item.chartType) || [],
+        });
+    }
+
     updateProperties = (props: ChartViewProps): void => {
         this.updatePropertiesTimeout = null;
         if (this.echartsReact && typeof this.echartsReact.getEchartsInstance === 'function') {
             const chartInstance = this.echartsReact.getEchartsInstance();
-            const lastIds: string[] = props.config?.l?.map((item: ChartLineConfigMore): string => item.id) || [];
-            lastIds.sort();
-            const changed = JSON.stringify(lastIds) !== JSON.stringify(this.lastIds);
-            // If the list of IDs changed => clear all settings
+            const shape = ChartView.getShape(props.config);
+            const changed = shape !== this.lastShape;
+            // A chart of another shape must not be merged into the old one
             if (changed) {
-                this.lastIds = lastIds;
+                this.lastShape = shape;
                 chartInstance.clear();
             }
 
@@ -433,7 +456,11 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     }
 
     renderRangeSelector(): React.JSX.Element | null {
-        if (!this.props.config.rangeSelector || this.props.config.timeType === 'static') {
+        if (
+            !this.props.config.rangeSelector ||
+            this.props.config.timeType === 'static' ||
+            this.props.config.chartMode === 'donut'
+        ) {
             return null;
         }
 
@@ -855,7 +882,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             item => item.chartType === 'bar' || item.chartType === 'polar',
         );
 
-        if (this.props.compact || !this.props.config.zoom || hasAnyBarOrPolar) {
+        // A chart that shows one value per line has no time axis to zoom into
+        const oneValuePerLine = this.props.config.chartMode === 'donut' || this.props.config.chartMode === 'barCurrent';
+
+        if (this.props.compact || !this.props.config.zoom || hasAnyBarOrPolar || oneValuePerLine) {
             return;
         }
         const eChartInstance =

@@ -31,19 +31,32 @@ const config = {
         vitetsConfigPaths(),
         commonjs(),
     ],
-    resolve: isDevServe
-        ? {
-              // Use a regex with `^...$` so we don't accidentally also intercept sub-path
-              // imports like `@iobroker/dm-widgets/modulefederation.devices.config` (used in
-              // this very vite.config above).
-              alias: [
-                  {
-                      find: /^@iobroker\/dm-widgets$/,
-                      replacement: path.resolve(__dirname, 'src/dev-dm-widgets.ts'),
-                  },
-              ],
-          }
-        : undefined,
+    resolve: {
+        alias: [
+            // The chart renderer of src-chart, drawn into the widget instead of into an iframe. It is
+            // reached through an alias and not by a relative path, so this app does not type-check the
+            // chart sources: they are not strict, this one is. What the widget expects of them stands
+            // in src/chart-modules.d.ts.
+            {
+                find: /^@chart-renderer\//,
+                replacement: `${path.resolve(__dirname, '../src-chart/src/Components')}/`,
+            },
+            // Use a regex with `^...$` so we don't accidentally also intercept sub-path
+            // imports like `@iobroker/dm-widgets/modulefederation.devices.config` (used in
+            // this very vite.config above).
+            ...(isDevServe
+                ? [
+                      {
+                          find: /^@iobroker\/dm-widgets$/,
+                          replacement: path.resolve(__dirname, 'src/dev-dm-widgets.ts'),
+                      },
+                  ]
+                : []),
+        ],
+        // The chart brings its own node_modules. Without this its bare imports would resolve there,
+        // and the widget would carry a second React and a second MUI beside the ones of the host
+        dedupe: ['react', 'react-dom', '@emotion/react', '@mui/material', '@mui/system', '@mui/icons-material'],
+    },
     server: {
         port: 3000,
         proxy: {
