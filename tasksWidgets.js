@@ -22,7 +22,6 @@ npmInstall(`${__dirname}/src-widgets/`)
                 '!src-widgets/build/_socket/info.js',
                 '!src-widgets/build/index.html',
                 '!src-widgets/build/.vite/**/*',
-                '!src-widgets/build/mf-manifest.json',
             ],
             `widgets/${adapterName}/`,
         );
