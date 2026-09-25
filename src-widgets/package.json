@@ -4,7 +4,7 @@
     "version": "3.0.0",
     "type": "module",
     "dependencies": {
-        "@iobroker/gui-components": "^10.3.3",
+        "@iobroker/gui-components": "^10.3.5",
         "@iobroker/types-vis-2": "^2.20.1",
         "@module-federation/runtime": "^2.9.1",
         "@module-federation/vite": "1.22.1",
@@ -24,7 +24,7 @@
         "react-icons": "^5.7.0",
         "sass": "^1.105.0",
         "uuid": "^14.0.2",
-        "vite": "^8.3.0",
+        "vite": "^8.3.1",
         "vite-plugin-commonjs": "^0.10.4"
     },
     "scripts": {
