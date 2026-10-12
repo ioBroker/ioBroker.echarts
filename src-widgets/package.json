@@ -4,6 +4,8 @@
     "version": "3.0.0",
     "type": "module",
     "dependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
         "@iobroker/gui-components": "^10.3.5",
         "@iobroker/types-vis-2": "^2.20.1",
         "@module-federation/runtime": "^2.9.1",
