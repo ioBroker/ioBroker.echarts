@@ -6,7 +6,7 @@
  **/
 'use strict';
 
-const { existsSync, unlinkSync, rmdirSync } = require('node:fs');
+const { rmSync } = require('node:fs');
 const { deleteFoldersRecursive, npmInstall, copyFiles, buildReact } = require('@iobroker/build-tools');
 const adapterName = require('./package.json').name.split('.').pop();
 
@@ -25,10 +25,6 @@ npmInstall(`${__dirname}/src-widgets/`)
             ],
             `widgets/${adapterName}/`,
         );
-        if (existsSync(`${__dirname}/widgets${adapterName}/_socket/info.js`)) {
-            unlinkSync(`${__dirname}/widgets/${adapterName}/_socket/info.js`);
-        }
-        if (existsSync(`${__dirname}/widgets/${adapterName}/_socket`)) {
-            rmdirSync(`${__dirname}/widgets/${adapterName}/_socket`, { recursive: true, force: true });
-        }
+        // rmdirSync({ recursive }) was removed in Node.js 26
+        rmSync(`${__dirname}/widgets/${adapterName}/_socket`, { recursive: true, force: true });
     });
