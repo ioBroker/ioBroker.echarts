@@ -91,7 +91,7 @@ casually if you only need to verify one sub-app; run that sub-app's `vite build`
 ### How the pieces talk
 
 Nothing re-implements chart rendering. The editor, the vis-2 widget and the devices widget all
-embed `src-chart`'s output in an **iframe** and pass the preset in:
+embed `src-chart`'s output in an **iframe** by default and pass the preset in:
 
 - **Editor → chart**: iframe posts `'chartReady'`, parent replies with `JSON.stringify(presetData)`
   via `postMessage` (origin-checked). Live preview of unsaved edits.
@@ -101,9 +101,17 @@ embed `src-chart`'s output in an **iframe** and pass the preset in:
   the viewer's own `App.themeName` / `prefers-color-scheme`). All flags are accepted in the query
   string *or* the URL hash.
 
-`src-widgets` and `src-devices` are Module Federation remotes (`@module-federation/vite`) exposing
-`./Echarts` / `./Components` + `./translations`; the host (vis-2 / devices) supplies the shared
-React & MUI singletons.
+- **Widgets/devices, `directRender` option**: no iframe — the remote lazy-loads
+  `src-chart/src/Components/ChartEmbed` through the `@chart-renderer` Vite alias and draws the
+  chart into the host page with the host's socket and theme. That compiles `src-chart` sources into
+  the widget bundles (the `ChartEmbed-*.js` chunk, ~1.6 MB with echarts), so a change in
+  `src-chart/src/Components` also needs `build:widgets` / `build:devices`. The widgets type the
+  alias via `src/chart-modules.d.ts` instead of type-checking the chart sources.
+
+`src-widgets` and `src-devices` are Module Federation remotes (`@module-federation/vite`).
+`src-widgets` exposes `./Echarts`, `./Interval` (range selector) and `./translations`;
+`src-devices` exposes `./Components` and `./translations`. The host (vis-2 / devices) supplies the
+shared React & MUI singletons.
 
 ## Constraints that will bite you
 
@@ -112,10 +120,22 @@ predates that and enabling it surfaces ~790 errors (mostly `possibly null`). Eve
 sets it carries a comment explaining why. Don't "clean up" those lines — enabling strict is a
 separate, deliberate refactor. Only `noImplicitAny` is on.
 
-**`src-widgets` stays on React 18 / MUI 6 / `@iobroker/adapter-react-v5`** while the backend,
-`src-chart`, `src-editor`, `src-preview` and `src-devices` are on React 19 / MUI 9 /
-`@iobroker/gui-components`. The vis-2 host provides React 18 as a federation singleton, so the
-widget bundle must match it. Never bump React/MUI in `src-widgets` as part of a repo-wide upgrade.
+**All apps are on React 19 / MUI 9 / `@iobroker/gui-components`**, `src-widgets` included (it
+left React 18 / MUI 6 / `adapter-react-v5` in 2026-09). Current vis-2 skips React 18 widget sets
+entirely, so do not go back. `src-widgets` builds its federation `shared` list with
+`moduleFederationShared(pack)` from `@iobroker/types-vis-2`: React, `react/jsx-runtime`,
+`@mui/material`, `@mui/system`, `@emotion/react` and `moment` are singletons with
+`requiredVersion: '*'`, i.e. the widget always runs on vis-2's copies whatever versions it was
+built against; `pack` only decides *which* entries are shared. `@mui/icons-material`,
+`@emotion/styled`, `@iobroker/gui-components` and `echarts` are deliberately not shared and get
+bundled.
+
+**Every sub-app with its own `@mui/material` must declare `@emotion/react` and
+`@emotion/styled`.** MUI lists them only as optional peers, so npm does not install them.
+On the maintainer's machine a stray `node_modules` one level *above* the repo (`C:\pWork\node_modules`)
+supplies such undeclared packages, so builds pass locally and fail in CI with *"Rolldown failed to
+resolve import"*. The same happened with `react-color` in `src-editor`. When adding an import,
+declare the package in that sub-app.
 
 **`src-chart`, `src-editor` and `src-preview` do not declare `@mui/material`,
 `@mui/icons-material` or `@iobroker/gui-components`.** They resolve them from the **root**
