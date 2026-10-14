@@ -172,7 +172,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 6.0.0 (2026-10-14)
 - (@GermanBluefox) Added chart mode "Gauge" (rings or pointers)
 - (@GermanBluefox) Added chart mode "Donut"
 - (@GermanBluefox) Added "Chart mode" setting (Mixed, Donut, Bar, Radar, Gauge); "One bar per line" and "polar" lines are migrated
@@ -279,9 +279,6 @@ You can debug view charts locally with:
 - (@Brainbug01) Fixed server-side rendering hanging until the caller timed out (preview showed "timeout" for every preset)
 - (@GermanBluefox) Aligned the GUI of the editor, the preview and the chart with the admin 8 design
 - (@Brainbug01) Fixed creating a preset in a folder
-
-### 5.0.0 (2026-08-03)
-- (@GermanBluefox) Update to ECharts 6.1.0 and React 19
 
 ## License
 
