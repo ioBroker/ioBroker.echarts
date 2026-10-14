@@ -307,11 +307,16 @@ class App extends Component<AppProps, AppState> {
         }
     }
 
+    componentDidMount(): void {
+        window.addEventListener('hashchange', this.onHashChange, false);
+    }
+
     componentWillUnmount(): void {
         if (this.adminCorrectTimeout) {
             clearTimeout(this.adminCorrectTimeout);
             this.adminCorrectTimeout = null;
         }
+        window.removeEventListener('hashchange', this.onHashChange, false);
         this.inEdit && window.removeEventListener('message', this.onReceiveMessage, false);
         this.chartData && this.chartData.destroy();
     }
@@ -328,6 +333,25 @@ class App extends Component<AppProps, AppState> {
             } catch {
                 console.log(`Cannot parse ${message.data}`);
             }
+        }
+    };
+
+    /**
+     * The page that embeds the chart changed its theme while the chart stands.
+     *
+     * It moves `theme=` in the hash, because a new query would load the whole chart again. A theme in the
+     * query still wins, just as when the page is opened.
+     */
+    onHashChange = (): void => {
+        const query = Utils.parseQuery(window.location.search);
+        const queryHash = Utils.parseQuery((window.location.hash || '').replace(/^#/, ''));
+        const name = (query.theme as ThemeName | undefined) || (queryHash.theme as ThemeName | undefined);
+        if (!name) {
+            return;
+        }
+        const theme = App.createTheme(name === ('auto' as ThemeName) ? undefined : name);
+        if (theme.name !== this.state.theme.name) {
+            this.setState({ theme, themeType: App.getThemeType(theme) });
         }
     };
 

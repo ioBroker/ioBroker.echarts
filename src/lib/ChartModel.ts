@@ -201,6 +201,19 @@ function parseQuery(query: string): Record<string, number | boolean | string> {
     return result;
 }
 
+/**
+ * The hash of the chart page without `theme=`, which the embedding page moves when it changes its theme.
+ *
+ * @param hash the hash of the page, with or without `#`
+ */
+function hashWithoutTheme(hash: string): string {
+    return (hash || '')
+        .replace(/^#/, '')
+        .split('&')
+        .filter(part => part && !part.startsWith('theme='))
+        .join('&');
+}
+
 function getFloat(value: string | number | boolean | undefined): number {
     if (typeof value === 'number') {
         return value;
@@ -460,7 +473,7 @@ class ChartModel {
         this.serverSide = options.serverSide || false; // if rendering is serverside
 
         if (!this.serverSide) {
-            this.lastHash = window.location.hash;
+            this.lastHash = hashWithoutTheme(window.location.hash);
 
             if (!config) {
                 this.onHashInstalled = true;
@@ -662,8 +675,10 @@ class ChartModel {
     }
 
     onHashChange = (): void => {
-        if (this.lastHash !== window.location.hash) {
-            this.lastHash = window.location.hash;
+        // The theme in the hash is the page's business; a new one must not read the history again
+        const hash = hashWithoutTheme(window.location.hash);
+        if (this.lastHash !== hash) {
+            this.lastHash = hash;
             void this.analyseAndLoadConfig();
         }
     };

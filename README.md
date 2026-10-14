@@ -173,6 +173,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) A chart in vis-2 follows the theme when the page changes it while the chart stands, e.g. with the theme switcher. It kept the colors of the theme it was opened in, so after a switch to dark it stood there with black texts on a dark card. The chart in the iframe gets the theme of the page now, and the chart drawn into the widget builds its colors again
 - (@GermanBluefox) A value of a line without a unit does not end in the word "undefined" any more. The unit was hung onto the value whether the line carried one or not, which a gauge showed as "0,00undefined"
 - (@GermanBluefox) The names and the values in the middle of the rings of a gauge do not lie on each other any more. They stood at a share of the radius, while both of them are of a size given in pixels, so they ran into each other as soon as the chart was drawn big
 - (@GermanBluefox) Every axis of a radar is labelled with the name of its line again. A series of the type "polar" is built without a name, and the radar read exactly that, so every axis stood there as "undefined"

@@ -435,6 +435,12 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     };
 
     UNSAFE_componentWillReceiveProps(props: ChartViewProps): void {
+        // The colors of the texts, the axes and the series come from the theme while the option is built,
+        // so a page that turns dark while the chart stands must build the option again
+        if (props.themeType !== this.props.themeType) {
+            this.chartOption = new ChartOption(moment, props.themeType, calcTextWidth, undefined, props.compact);
+            this.option = null;
+        }
         if (props.data !== this.state.data) {
             this.updatePropertiesTimeout && clearTimeout(this.updatePropertiesTimeout);
             this.updatePropertiesTimeout = setTimeout(this.updateProperties, 100, props);

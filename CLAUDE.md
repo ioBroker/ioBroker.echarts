@@ -99,7 +99,9 @@ embed `src-chart`'s output in an **iframe** by default and pass the preset in:
   Path differs by host: `../echarts/chart/index.html` inside admin, `../echarts/index.html` from
   web/vis. Query flags: `noBG`, `noLoader`, `noedit`, `theme=<ThemeName>` (`auto` = fall back to
   the viewer's own `App.themeName` / `prefers-color-scheme`). All flags are accepted in the query
-  string *or* the URL hash.
+  string *or* the URL hash. The vis-2 widget puts the time range and `theme=` into the **hash** and
+  moves only the hash later, because a new `src` reloads the iframe: `App.tsx` follows a new `theme=`
+  on `hashchange`, and `ChartModel` ignores a hash change that only touched the theme.
 
 - **Widgets/devices, `directRender` option**: no iframe — the remote lazy-loads
   `src-chart/src/Components/ChartEmbed` through the `@chart-renderer` Vite alias and draws the

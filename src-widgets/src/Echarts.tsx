@@ -667,13 +667,34 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
             if (this.state.rxData.history_oid && this.state.rxData.history_instance) {
                 void this.propertiesUpdate();
             } else {
-                this.applyTimeRangeToIframe();
+                this.applyHashToIframe();
             }
         });
     };
 
-    private applyTimeRangeToIframe(): void {
-        const hash = timeRangeToHash(this.state.timeRange);
+    /**
+     * The page changed its theme: the chart in the iframe takes it out of the hash, the drawn one out of the props.
+     */
+    componentDidUpdate(prevProps: VisRxWidgetProps, prevState: typeof this.state): void {
+        super.componentDidUpdate(prevProps, prevState);
+        if (prevProps.context.themeName !== this.props.context.themeName && !this.state.rxData.directRender) {
+            this.applyHashToIframe();
+        }
+    }
+
+    /**
+     * The hash of the iframe: the range of a time range widget and the theme of the page.
+     *
+     * The chart reads both out of the hash and follows when it moves, so neither reloads the iframe.
+     */
+    getIframeHash(): string {
+        const range = this.state.rxData.echart_oid ? timeRangeToHash(this.state.timeRange) : '';
+        const theme = `theme=${encodeURIComponent(this.props.context.themeName)}`;
+        return range ? `${range}&${theme}` : theme;
+    }
+
+    private applyHashToIframe(): void {
+        const hash = this.getIframeHash();
         if (hash === this.iframeHash) {
             return;
         }
@@ -684,7 +705,7 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
                 frameWindow.location.hash = hash;
             }
         } catch (e) {
-            console.warn(`Cannot set the time range of the chart: ${e as Error}`);
+            console.warn(`Cannot set the time range or the theme of the chart: ${e as Error}`);
         }
     }
 
@@ -754,23 +775,24 @@ export default class Echarts extends (window.visRxWidget as typeof VisRxWidget)<
      * The address of the chart iframe.
      *
      * It is built once and kept, because writing the `src` attribute reloads the iframe - a later
-     * change of the time range only moves the hash, which the chart picks up through `hashchange`.
-     * The hash of the first load carries the range already, so the chart never draws the wrong one.
+     * change of the time range or of the theme only moves the hash, which the chart picks up through
+     * `hashchange`. The hash of the first load carries both already, so the chart never draws the wrong one.
      */
     getIframeSrc(): string {
         const noBG = this.state.rxData.noChartBackground || !this.state.rxData.noCard;
         const noLoader = this.state.rxData.noLoader ? '&noLoader=true' : '';
         if (!this.state.rxData.echart_oid) {
             // A chart out of a single object is built here and handed over as a preset, so the range
-            // already sits in it and has nothing to look for in the address
-            return `../echarts/index.html?noBG=${noBG}&edit=true${noLoader}`;
+            // already sits in it and the hash only carries the theme. A new hash in `src` does not reload
+            this.iframeHash = this.getIframeHash();
+            return `../echarts/index.html?noBG=${noBG}&edit=true${noLoader}#${this.iframeHash}`;
         }
 
         const base = `../echarts/index.html?preset=${this.state.rxData.echart_oid}&noBG=${noBG}${noLoader}`;
 
         if (this.iframeSrc.split('#')[0] !== base) {
-            this.iframeHash = timeRangeToHash(this.state.timeRange);
-            this.iframeSrc = this.iframeHash ? `${base}#${this.iframeHash}` : base;
+            this.iframeHash = this.getIframeHash();
+            this.iframeSrc = `${base}#${this.iframeHash}`;
         }
 
         return this.iframeSrc;
