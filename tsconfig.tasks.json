@@ -1,0 +1,24 @@
+// Type-checks the tasks*.mts build scripts at the repo root. Node runs them directly
+// (built-in type stripping, Node >= 22.18), so only erasable TypeScript syntax is allowed.
+{
+    "compilerOptions": {
+        "composite": true,
+        // A referenced project may not set noEmit (TS6310), so emit only declarations, out of the way.
+        "emitDeclarationOnly": true,
+        "outDir": "./node_modules/.cache/tsc-tasks",
+        "tsBuildInfoFile": "./node_modules/.cache/tsc-tasks/tsconfig.tasks.tsbuildinfo",
+        "skipLibCheck": true,
+        // TypeScript 6 turns `strict` on by default; keep it aligned with ./tsconfig.json.
+        "strict": false,
+        "noImplicitAny": true,
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "resolveJsonModule": true,
+        "erasableSyntaxOnly": true,
+        "verbatimModuleSyntax": true,
+        "types": ["node"]
+    },
+    // package.json is imported by tasksWidgets.mts; composite projects must list every file
+    "include": ["tasks*.mts", "package.json"]
+}
