@@ -308,7 +308,28 @@ class App extends Component<AppProps, AppState> {
     }
 
     componentDidMount(): void {
+        App.adoptFrameColorScheme();
         window.addEventListener('hashchange', this.onHashChange, false);
+    }
+
+    /**
+     * Gives the page the color scheme of the iframe it is shown in.
+     *
+     * A browser paints an iframe opaque - in the canvas color of the page inside - as soon as the page inside
+     * declares another `color-scheme` than the iframe element has. A host whose MUI theme writes
+     * `color-scheme: dark` on `:root` (vis-2 before 2.20.0) therefore showed the chart on a white area, with
+     * the light texts of the dark theme on it. With the same scheme the iframe stays transparent, whatever the
+     * host declares. A host of another origin cannot be read; there the page keeps its own scheme.
+     */
+    static adoptFrameColorScheme(): void {
+        try {
+            const frame = window.frameElement;
+            if (frame) {
+                document.documentElement.style.colorScheme = window.parent.getComputedStyle(frame).colorScheme;
+            }
+        } catch {
+            // the host is of another origin
+        }
     }
 
     componentWillUnmount(): void {
@@ -343,6 +364,8 @@ class App extends Component<AppProps, AppState> {
      * query still wins, just as when the page is opened.
      */
     onHashChange = (): void => {
+        // a host that switches its theme may switch its color scheme with it
+        App.adoptFrameColorScheme();
         const query = Utils.parseQuery(window.location.search);
         const queryHash = Utils.parseQuery((window.location.hash || '').replace(/^#/, ''));
         const name = (query.theme as ThemeName | undefined) || (queryHash.theme as ThemeName | undefined);
