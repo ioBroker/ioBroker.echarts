@@ -23,8 +23,13 @@ npm run test           # === test:integration — puppeteer GUI test, boots a re
 ```
 
 Individual sub-app builds: `npm run build:chart | build:edit | build:preview | build:widgets | build:devices`.
-Each runs the matching `tasks*.js` at the repo root, which does `npm install` if needed →
-`buildReact()` → copy artifacts into the shipped folders.
+Each runs the matching `tasks*.mts` at the repo root, which does `npm install` if needed →
+`buildReact()` → copy artifacts into the shipped folders. The scripts are TypeScript that Node
+runs directly with its built-in type stripping, so only erasable syntax works there (no `enum`,
+no `namespace`, no parameter properties). They are `.mts` and not `.ts` because the root
+`package.json` has no `"type"`, and the backend needs it to stay CommonJS. Type-check them with
+`npx tsc -p tsconfig.tasks.json`; the root `tsconfig.json` references that config so ESLint can
+lint them.
 
 Single test: `npx mocha ./test/testAdapter.gui.js --exit --grep "Check echarts"`.
 
@@ -60,7 +65,7 @@ on top of adapter methods so the *same* `ChartModel` code runs on the server.
 ### Two generated files — do not edit
 
 `src/lib/ChartModel.ts` and `src/lib/ChartOption.ts` are **copies** written by
-`tasksChart.js::copyReactFilesToBackEnd()` from `src-chart/src/Components/`, with import paths
+`tasksChart.mts::copyReactFilesToBackEnd()` from `src-chart/src/Components/`, with import paths
 rewritten (`../../../src/types` → `../types`, `Connection` inlined). They are committed but
 regenerated on every `npm run build:chart`.
 
@@ -77,11 +82,11 @@ not via a package. There is no monorepo tooling — the relative paths *are* the
 
 | Source | Built by | Output copied to | Role |
 |---|---|---|---|
-| `src-editor` | `tasksEdit.js` | `admin/` + `admin/tab.html` | Preset editor — the admin tab |
-| `src-chart` | `tasksChart.js` | `admin/chart/` + `www/` | The chart renderer itself |
-| `src-preview` | `tasksPreview.js` | `admin/preview/` + `www/preview/` | Standalone preview page |
-| `src-widgets` | `tasksWidgets.js` | `widgets/echarts/` | vis-2 module-federation widget |
-| `src-devices` | `tasksDevices.js` | `admin/dm-widgets/` | ioBroker.devices widget |
+| `src-editor` | `tasksEdit.mts` | `admin/` + `admin/tab.html` | Preset editor — the admin tab |
+| `src-chart` | `tasksChart.mts` | `admin/chart/` + `www/` | The chart renderer itself |
+| `src-preview` | `tasksPreview.mts` | `admin/preview/` + `www/preview/` | Standalone preview page |
+| `src-widgets` | `tasksWidgets.mts` | `widgets/echarts/` | vis-2 module-federation widget |
+| `src-devices` | `tasksDevices.mts` | `admin/dm-widgets/` | ioBroker.devices widget |
 
 `admin/`, `www/` and `widgets/` **are committed to git** (they are in `files` in package.json).
 A full build therefore produces a large diff of hashed bundle names — don't run `npm run build`

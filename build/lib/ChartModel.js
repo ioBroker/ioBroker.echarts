@@ -51,6 +51,18 @@ function parseQuery(query) {
     });
     return result;
 }
+/**
+ * The hash of the chart page without `theme=`, which the embedding page moves when it changes its theme.
+ *
+ * @param hash the hash of the page, with or without `#`
+ */
+function hashWithoutTheme(hash) {
+    return (hash || '')
+        .replace(/^#/, '')
+        .split('&')
+        .filter(part => part && !part.startsWith('theme='))
+        .join('&');
+}
 function getFloat(value) {
     if (typeof value === 'number') {
         return value;
@@ -286,7 +298,7 @@ class ChartModel {
         this.updateTimeout = options.updateTimeout || 300; // how often the new data will be requested by zoom and pan
         this.serverSide = options.serverSide || false; // if rendering is serverside
         if (!this.serverSide) {
-            this.lastHash = window.location.hash;
+            this.lastHash = hashWithoutTheme(window.location.hash);
             if (!config) {
                 this.onHashInstalled = true;
                 window.addEventListener('hashchange', this.onHashChange, false);
@@ -470,8 +482,10 @@ class ChartModel {
         }
     }
     onHashChange = () => {
-        if (this.lastHash !== window.location.hash) {
-            this.lastHash = window.location.hash;
+        // The theme in the hash is the page's business; a new one must not read the history again
+        const hash = hashWithoutTheme(window.location.hash);
+        if (this.lastHash !== hash) {
+            this.lastHash = hash;
             void this.analyseAndLoadConfig();
         }
     };

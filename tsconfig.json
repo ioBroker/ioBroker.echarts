@@ -24,5 +24,8 @@
         "types": ["node", "@iobroker/types"]
     },
     "include": ["src/**/*.ts"],
-    "exclude": ["node_modules/**", "www/**", "lib/**", "build/**", "tasks.js"]
+    "exclude": ["node_modules/**", "www/**", "lib/**", "build/**"],
+    // The tasks*.mts build scripts live outside ./src (rootDir), so they get their own project -
+    // otherwise typed ESLint cannot resolve them.
+    "references": [{ "path": "./tsconfig.tasks.json" }]
 }
