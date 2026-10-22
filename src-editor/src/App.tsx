@@ -231,6 +231,34 @@ export default class App extends GenericApp<AppProps, AppState> {
         this.config = parseHash() as { preset: string } | { id: string; instance: string; menuOpened: boolean };
     }
 
+    componentDidMount(): void {
+        super.componentDidMount();
+        window.addEventListener('beforeunload', this.onBeforeUnload);
+    }
+
+    componentWillUnmount(): void {
+        window.removeEventListener('beforeunload', this.onBeforeUnload);
+        super.componentWillUnmount();
+    }
+
+    componentDidUpdate(_prevProps: AppProps, prevState: AppState): void {
+        // Let admin know about unsaved changes, so it can ask before switching to another menu entry
+        if (prevState.selectedPresetChanged !== this.state.selectedPresetChanged && window.parent !== window) {
+            window.parent.postMessage(
+                JSON.stringify({ type: 'changed', changed: !!this.state.selectedPresetChanged }),
+                '*',
+            );
+        }
+    }
+
+    onBeforeUnload = (e: BeforeUnloadEvent): void => {
+        // Reload or closing of the tab: the browser shows its own "Leave site?" question
+        if (this.state.selectedPresetChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    };
+
     onHashChanged(): void {
         super.onHashChanged();
         const config: { preset: string } | { id: string; instance: string } = parseHash() as
