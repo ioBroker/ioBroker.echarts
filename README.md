@@ -172,6 +172,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (GermanBluefox) Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)
+
 ### 6.0.0 (2026-10-14)
 - (@GermanBluefox) Added chart mode "Gauge" (rings or pointers)
 - (@GermanBluefox) Added chart mode "Donut"
