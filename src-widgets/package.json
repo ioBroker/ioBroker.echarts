@@ -6,7 +6,7 @@
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
-        "@iobroker/gui-components": "^10.3.10",
+        "@iobroker/gui-components": "^10.3.11",
         "@iobroker/types-vis-2": "^2.20.2",
         "@module-federation/runtime": "^2.9.2",
         "@module-federation/vite": "1.23.5",
