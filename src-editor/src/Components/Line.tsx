@@ -1686,12 +1686,16 @@ export default class Line extends React.Component<LineProps, LineState> {
                     ) : null}
                     <IONumberField
                         value={this.props.line.afterComma}
-                        updateValue={(value: number): void => {
+                        allowEmpty
+                        updateValue={(value: number | undefined): void => {
                             const line: ChartLineConfigMore = JSON.parse(JSON.stringify(this.props.line));
                             line.afterComma = value;
                             this.props.updateLine(this.props.index, line);
                         }}
                         label="Digits after comma"
+                        // An empty field takes the digits of the chart, which are 2 if they are not set either
+                        placeholder={String(this.props.presetData.afterComma ?? 2)}
+                        tooltip={I18n.t('Empty: as "After comma" of the chart')}
                         min={0}
                     />
                     {this.props.line.chartType !== 'bar' ? (

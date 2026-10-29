@@ -1692,11 +1692,14 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                     <p style={styles.title}>{I18n.t('Options')}</p>
                     <IONumberField
                         value={this.props.presetData.afterComma}
-                        updateValue={(value: number): void => {
+                        allowEmpty
+                        updateValue={(value: number | undefined): void => {
                             const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
                             presetData.afterComma = value;
                             this.props.onChange(presetData);
                         }}
+                        // The chart uses 2 digits if none are set
+                        placeholder="2"
                         label="After comma"
                         tooltip={I18n.t(
                             'How many digits a value shows. A line that carries its own "Digits after comma" keeps that one, and the ticks of an axis keep the round numbers they already have',

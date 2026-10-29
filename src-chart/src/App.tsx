@@ -202,12 +202,25 @@ class App extends Component<AppProps, AppState> {
         }
         */
 
-        // some people use invalid URL to access charts
-        if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/chart/')) {
+        // Some people open the copy of the chart that belongs to admin (/adapter/echarts/chart/) through the web
+        // adapter. That copy has no `_socket/info.js`, so it looks for the socket in its own folder and never
+        // connects. This was only corrected on port 8082, but the web adapter can run on any port and behind a
+        // proxy without one (#1273, #1230). If no connection comes up, move to the copy of the web adapter - but
+        // only if it really exists there: admin answers 404 for it, so a slow admin is left alone.
+        if (window.location.pathname.includes('/adapter/echarts/chart/')) {
             this.adminCorrectTimeout = setTimeout(() => {
                 this.adminCorrectTimeout = null;
-                // The address is wrong. Navigate to /echarts/index.html
-                window.location.href = window.location.href.replace('/adapter/echarts/chart/', '/echarts/');
+                const target = window.location.href.replace('/adapter/echarts/chart/', '/echarts/');
+                fetch(target, { method: 'HEAD' })
+                    .then(res => {
+                        // `onReady` may have come in the meantime, and a redirect leads to a login page
+                        if (res.ok && !res.redirected && !this.socket.isConnected()) {
+                            window.location.href = target;
+                        }
+                    })
+                    .catch(() => {
+                        // stay on this page
+                    });
             }, 2000);
         }
 

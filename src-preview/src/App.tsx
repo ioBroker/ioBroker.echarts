@@ -204,7 +204,7 @@ interface AppState {
     }[];
     webMenu: null | {
         id: string;
-        webUrls: { url: string; port: string | number }[];
+        webUrls: { url: string; label: string }[];
         copy: boolean;
         anchorEl: HTMLButtonElement | HTMLDivElement | null;
     };
@@ -311,12 +311,25 @@ class App extends Component<object, AppState> {
             window.socketUrl = `${window.location.protocol}//${window.location.hostname}${window.socketUrl}`;
         }
 
-        // some people use invalid URL to access charts
-        if (window.location.port === '8082' && window.location.pathname.includes('/adapter/echarts/preview/')) {
+        // Some people open the copy of the preview that belongs to admin (/adapter/echarts/preview/) through the web
+        // adapter, where its socket never connects. This was only corrected on port 8082, but the web adapter can
+        // run on any port and behind a proxy without one (#1273, #1230). If no connection comes up, move to the copy
+        // of the web adapter - but only if it really exists there: admin answers 404 for it, so a slow admin is
+        // left alone.
+        if (window.location.pathname.includes('/adapter/echarts/preview/')) {
             this.adminCorrectTimeout = setTimeout(() => {
                 this.adminCorrectTimeout = null;
-                // The address is wrong. Navigate to /echarts/index.html
-                window.location.href = window.location.href.replace('/adapter/echarts/preview/', '/echarts/preview/');
+                const target = window.location.href.replace('/adapter/echarts/preview/', '/echarts/preview/');
+                fetch(target, { method: 'HEAD' })
+                    .then(res => {
+                        // `onReady` may have come in the meantime, and a redirect leads to a login page
+                        if (res.ok && !res.redirected && !this.socket.isConnected()) {
+                            window.location.href = target;
+                        }
+                    })
+                    .catch(() => {
+                        // stay on this page
+                    });
             }, 2000);
         }
 
@@ -844,15 +857,20 @@ class App extends Component<object, AppState> {
                 instances = this.state.webInstances;
             }
 
-            const webUrls: { url: string; port: string | number }[] = instances.map(inst => ({
-                url: `${inst.protocol}${inst.bind === '0.0.0.0' ? window.location.hostname : inst.bind}:${inst.port}/echarts/index.html?preset=`,
-                port: inst.port,
-            }));
+            const webUrls: { url: string; label: string }[] = instances
+                // The instance that serves this page is reached by the own link below
+                .filter(inst => !this.isWeb || String(inst.port) !== window.location.port)
+                .map(inst => ({
+                    url: `${inst.protocol}${inst.bind === '0.0.0.0' ? window.location.hostname : inst.bind}:${inst.port}/echarts/index.html?preset=`,
+                    label: `:${inst.port}`,
+                }));
 
-            if (this.state.currentInstance.startsWith('admin.')) {
+            // The chart next to this page is reached through the same host. The addresses of the instances above
+            // are the internal ones, which a reverse proxy does not forward (#1230)
+            if (this.isWeb || this.state.currentInstance.startsWith('admin.')) {
                 webUrls.unshift({
-                    url: '../chart/index.html?preset=',
-                    port: window.location.port,
+                    url: `${parts.join('/')}?preset=`,
+                    label: window.location.host,
                 });
             }
 
@@ -946,8 +964,10 @@ class App extends Component<object, AppState> {
 
     onCopyUrl(url: string): void {
         this.toastTimeout && clearTimeout(this.toastTimeout);
-        Utils.copyToClipboard(url);
-        this.setState({ toast: `${I18n.t('URL copied to clipboard')}: ${url}` });
+        // A link of the page itself is relative, and pasted somewhere else it would lead nowhere
+        const absoluteUrl = new URL(url, window.location.href).href;
+        Utils.copyToClipboard(absoluteUrl);
+        this.setState({ toast: `${I18n.t('URL copied to clipboard')}: ${absoluteUrl}` });
         this.toastTimeout = setTimeout(() => {
             this.toastTimeout = null;
             this.setState({ toast: '' });
@@ -1051,7 +1071,7 @@ class App extends Component<object, AppState> {
             >
                 {this.state.webMenu.webUrls.map(inst => (
                     <MenuItem
-                        key={`${inst.url}-${inst.port}`}
+                        key={inst.url}
                         onClick={() => {
                             if (this.state.webMenu.copy) {
                                 this.onCopyUrl(inst.url + this.state.webMenu.id);
@@ -1061,7 +1081,7 @@ class App extends Component<object, AppState> {
                             this.setState({ webMenu: null });
                         }}
                     >
-                        :{inst.port}
+                        {inst.label}
                     </MenuItem>
                 ))}
             </Menu>
