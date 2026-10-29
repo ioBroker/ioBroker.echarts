@@ -73,6 +73,11 @@ The "Options" tab of the preset editor opens with a "Chart mode", which says wha
 Donut and "Bar (current value)" read the states and never the history, so they need no time range and
 no aggregation.
 
+The chart modes in a vis-2 view, every chart is one preset shown with the widget "Echarts Chart":
+mixed (lines with a second Y-axis), gauge, radar, donut and bars per hour.
+
+![Chart modes in vis-2](img/vis2-chart-modes.png)
+
 ### Chart without an iframe (experimental)
 
 The vis-2 chart widget draws the chart in an iframe: every chart on a view brings its own React app,
