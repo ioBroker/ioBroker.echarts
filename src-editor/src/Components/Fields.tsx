@@ -272,15 +272,26 @@ export const IOTextField = (props: IOTextFieldProps): React.JSX.Element => (
     </div>
 );
 
-interface IONumberFieldProps extends IOProps {
+type IONumberFieldProps = IOProps & {
     value: number;
-    updateValue: (value: number) => void;
     min?: number;
     max?: number;
     width?: number;
     /** The field holds a real number. Without it everything behind the comma is thrown away */
     float?: boolean;
-}
+    /** Shown in the empty field, e.g. the value that is used instead */
+    placeholder?: string;
+} & (
+        | {
+              allowEmpty?: false;
+              updateValue: (value: number) => void;
+          }
+        | {
+              /** An empty field means "not set" and is reported as `undefined` instead of 0 */
+              allowEmpty: true;
+              updateValue: (value: number | undefined) => void;
+          }
+    );
 
 export const IONumberField = (props: IONumberFieldProps): React.JSX.Element => (
     <div
@@ -301,11 +312,19 @@ export const IONumberField = (props: IONumberFieldProps): React.JSX.Element => (
                 // `parseInt` throws the fraction away, so a field that holds a real number, like an
                 // offset or a threshold, could only ever be a whole one
                 const v = props.float ? parseFloat(e.target.value) : parseInt(e.target.value, 10);
-                props.updateValue(Number.isFinite(v) ? v : 0);
+                if (props.allowEmpty) {
+                    props.updateValue(Number.isFinite(v) ? v : undefined);
+                } else {
+                    props.updateValue(Number.isFinite(v) ? v : 0);
+                }
             }}
-            value={props.value || ''}
+            // Where an empty field means "not set", 0 is a value of its own and must not look empty (#1288). The
+            // other fields keep showing 0 as empty: they report an unfinished entry like "-" as 0, and showing it
+            // would overwrite the "-" while the user types a negative number
+            value={props.allowEmpty ? (props.value ?? '') : props.value || ''}
             type="number"
             title={props.tooltip || ''}
+            placeholder={props.placeholder}
             slotProps={{
                 inputLabel: {
                     shrink: true,

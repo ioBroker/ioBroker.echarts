@@ -1153,72 +1153,86 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     exportData(): void {
         const chart = this.chartOption.getHelperChartData();
         this.setState({ exporting: true }, () =>
-            this.props.exportData(chart.xMin, chart.xMax, this.state.excluded).then(data => {
-                const downloadLink = document.createElement('a');
-                document.body.appendChild(downloadLink);
-
-                const header = ['time'];
-                const table: number[][] = [];
-                Object.keys(data).forEach((id, i) => {
-                    header.push(id);
-                    data[id].forEach(value => {
-                        // The first element is always timestamp
-                        const line: number[] = [value.ts];
-                        line[i + 1] = value.val as number;
-                        table.push(line);
-                    });
-                });
-                table.sort((a, b) => a[0] - b[0]);
-
-                // try to combine same time
-                for (let i = 0; i < table.length - 1; i++) {
-                    if (table[i][0] === table[i + 1][0]) {
-                        for (let j = 1; j < table[i].length; j++) {
-                            if (table[i + 1][j] !== undefined) {
-                                table[i][j] = table[i + 1][j];
-                            }
-                        }
-                        table.splice(i + 1, 1);
-                        i--;
-                    }
-                }
-                const lines: string[] = [];
-                const timeFormat = this.state.timeFormat;
-                table.forEach(line => {
-                    let date: string;
-                    if (timeFormat === 'iso') {
-                        const time = new Date(line.shift());
-                        date = time.toISOString();
-                    } else if (timeFormat === 'locale') {
-                        const time = new Date(line.shift());
-                        date = `${time.toLocaleDateString()} ${time.toLocaleTimeString()}.${time.getMilliseconds().toString().padStart(3, '0')}`;
-                    } else {
-                        date = line.shift().toString();
-                    }
-                    lines.push(`${date};${line.join(';')}`);
-                });
-
-                downloadLink.href = `data:text/plain;charset=utf-8,${header.join(';')}\n${lines.join('\n')}`;
-                downloadLink.target = '_self';
-                let name;
-                if (this.props.config.l.length === 1) {
-                    name = this.props.config.l[0].name;
-                } else {
-                    name = 'chart';
-                }
-                const date = new Date(chart.xMin);
-                try {
-                    downloadLink.download =
-                        `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
-                        `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.csv`;
-                    downloadLink.click();
-                } catch (e) {
-                    console.error(`Cannot access download: ${e}`);
-                    window.alert(I18n.t('Unfortunately your browser does not support this feature'));
-                }
-                this.setState({ exporting: false });
-            }),
+            this.props
+                .exportData(chart.xMin, chart.xMax, this.state.excluded)
+                .then(data => this.downloadCsv(data, chart.xMin))
+                .catch(e => console.error(`Cannot export data: ${e}`))
+                .finally(() => this.setState({ exporting: false })),
         );
+    }
+
+    downloadCsv(data: { [objectId: string]: SeriesData[] }, xMin: number): void {
+        const header = ['time'];
+        const table: number[][] = [];
+        Object.keys(data).forEach((id, i) => {
+            header.push(id);
+            data[id].forEach(value => {
+                // The first element is always timestamp
+                const line: number[] = [value.ts];
+                line[i + 1] = value.val as number;
+                table.push(line);
+            });
+        });
+        table.sort((a, b) => a[0] - b[0]);
+
+        // try to combine same time
+        for (let i = 0; i < table.length - 1; i++) {
+            if (table[i][0] === table[i + 1][0]) {
+                for (let j = 1; j < table[i].length; j++) {
+                    if (table[i + 1][j] !== undefined) {
+                        table[i][j] = table[i + 1][j];
+                    }
+                }
+                table.splice(i + 1, 1);
+                i--;
+            }
+        }
+        const lines: string[] = [];
+        const timeFormat = this.state.timeFormat;
+        table.forEach(line => {
+            let date: string;
+            if (timeFormat === 'iso') {
+                const time = new Date(line.shift());
+                date = time.toISOString();
+            } else if (timeFormat === 'locale') {
+                const time = new Date(line.shift());
+                date = `${time.toLocaleDateString()} ${time.toLocaleTimeString()}.${time.getMilliseconds().toString().padStart(3, '0')}`;
+            } else {
+                date = line.shift().toString();
+            }
+            lines.push(`${date};${line.join(';')}`);
+        });
+
+        let name;
+        if (this.props.config.l.length === 1) {
+            name = this.props.config.l[0].name;
+        } else {
+            name = 'chart';
+        }
+        const date = new Date(xMin);
+
+        // The file was a `data:` URL with the raw text in it. Firefox removes the line breaks from a URL, so the
+        // whole file ended up in one line, and a `#` in an ID cut it off as the start of the fragment (#1282)
+        const url = URL.createObjectURL(
+            new Blob([`${header.join(';')}\n${lines.join('\n')}`], { type: 'text/csv;charset=utf-8' }),
+        );
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.target = '_self';
+        document.body.appendChild(downloadLink);
+        try {
+            downloadLink.download =
+                `${date.getFullYear()}_${(date.getMonth() + 1).toString().padStart(2, '0')}_${date.getDate().toString().padStart(2, '0')}` +
+                `_${date.getHours().toString().padStart(2, '0')}_${date.getMinutes().toString().padStart(2, '0')}_${name}.csv`;
+            downloadLink.click();
+        } catch (e) {
+            console.error(`Cannot access download: ${e}`);
+            window.alert(I18n.t('Unfortunately your browser does not support this feature'));
+        } finally {
+            document.body.removeChild(downloadLink);
+            // The browser reads the file asynchronously after the click
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
     }
 
     renderExportDataButton(): React.JSX.Element | null {

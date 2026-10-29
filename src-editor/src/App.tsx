@@ -443,11 +443,10 @@ export default class App extends GenericApp<AppProps, AppState> {
                 obj._id = id;
                 obj.common.name = name;
                 try {
-                    // for backwards compatibility rename l to lines
-                    if (obj.native.data.lines) {
-                        obj.native.data.lines = obj.native.data.l;
-                        delete obj.native.data.l;
-                    }
+                    // A preset of an older version keeps its lines in `lines`. The copy is stored in the current
+                    // format: the condition here was inverted and wrote a copy without any lines at all, which
+                    // made the editor crash every time it was opened (#1285)
+                    App.normalizePreset(obj.native.data);
 
                     await this.socket.setObject(obj._id, obj);
                     void this.loadChartOrPreset(id);
@@ -528,11 +527,7 @@ export default class App extends GenericApp<AppProps, AppState> {
         }
 
         try {
-            // for backwards compatibility rename l to lines
-            if (template.native.data.lines) {
-                template.native.data.lines = template.native.data.l;
-                delete template.native.data.l;
-            }
+            App.normalizePreset(template.native.data);
 
             await this.socket.setObject(template._id, template);
             void this.loadChartOrPreset(id);
@@ -565,12 +560,6 @@ export default class App extends GenericApp<AppProps, AppState> {
             }
             obj.native.data = JSON.parse(JSON.stringify(this.state.presetData));
 
-            // for backwards compatibility rename l to lines
-            if (obj.native.data.lines) {
-                obj.native.data.lines = obj.native.data.l;
-                delete obj.native.data.l;
-            }
-
             try {
                 await this.socket.setObject(obj._id, obj);
             } catch (e) {
@@ -586,6 +575,18 @@ export default class App extends GenericApp<AppProps, AppState> {
     };
 
     static normalizePreset(presetData: ChartConfigMore): void {
+        // First, as the chart mode below is detected from the lines
+        // @ts-expect-error deprecated
+        if (presetData.lines) {
+            // @ts-expect-error deprecated
+            presetData.l = presetData.lines;
+            // @ts-expect-error deprecated
+            delete presetData.lines;
+        }
+        // The whole editor reads the lines without a check. A preset that has none - e.g. a copy made by an older
+        // version (#1285) - opens as an empty preset instead of breaking the tab until it is deleted
+        presetData.l ||= [];
+
         // The whole-chart modes used to be a checkbox ("one bar per line") and a line type ("polar").
         // A preset that still carries them is read as the mode it always was, so the editor shows the
         // user what the chart really draws. `normalizeConfig` of the chart does the very same.
@@ -599,13 +600,6 @@ export default class App extends GenericApp<AppProps, AppState> {
             }
         }
 
-        // @ts-expect-error deprecated
-        if (presetData.lines) {
-            // @ts-expect-error deprecated
-            presetData.l = presetData.lines;
-            // @ts-expect-error deprecated
-            delete presetData.lines;
-        }
         if (
             typeof presetData.range === 'string' &&
             !presetData.range.includes('m') &&

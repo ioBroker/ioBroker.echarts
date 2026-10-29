@@ -431,6 +431,11 @@ class ChartOption {
             this.chart.seriesColors[i] = color;
 
             oneLine.shadowsize = parseFloat(oneLine.shadowsize as unknown as string) || 0;
+            // A preset can carry the thickness as a string, e.g. "3" of the default preset. ECharts adds the line
+            // width to the height of the clip rectangle, and with a string it concatenated "284" + "3" to "2843",
+            // so the line was not clipped at the bottom of the grid any more (#1284)
+            const thickness = parseFloat(oneLine.thickness as unknown as string);
+            oneLine.thickness = Number.isFinite(thickness) ? thickness : 1;
             if ((oneLine.dashes as unknown as string) === 'false') {
                 oneLine.dashes = false;
             } else if ((oneLine.dashes as unknown as string) === 'true') {
