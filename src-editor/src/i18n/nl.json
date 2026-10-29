@@ -611,5 +611,7 @@
   "ØS": "Os",
   "ØS - Shadow size": "ØS - Schaduwmaat",
   "ØS Shadow size": "ØS Schaduwmaat",
-  "Empty: as \"After comma\" of the chart": "Leeg: zoals \"Na een komma\" van de grafiek"
+  "Empty: as \"After comma\" of the chart": "Leeg: zoals \"Na een komma\" van de grafiek",
+  "In dark theme": "In donker thema",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Gebruikt wanneer de grafiek donker wordt weergegeven, bijv. met het thema \"auto\". Leeg: dezelfde kleur als in het lichte thema"
 }

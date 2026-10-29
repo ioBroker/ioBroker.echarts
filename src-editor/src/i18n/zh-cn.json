@@ -611,5 +611,7 @@
   "ØS": "ØS",
   "ØS - Shadow size": "ØS-阴影尺寸",
   "ØS Shadow size": "ØS阴影尺寸",
-  "Empty: as \"After comma\" of the chart": "为空：与图表的\"之后的逗号\"相同"
+  "Empty: as \"After comma\" of the chart": "为空：与图表的\"之后的逗号\"相同",
+  "In dark theme": "深色主题",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "图表以深色显示时使用，例如主题为“auto”时。为空：与浅色主题相同的颜色"
 }

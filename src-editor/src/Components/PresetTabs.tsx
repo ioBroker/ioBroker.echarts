@@ -54,6 +54,7 @@ import type {
     ChartMarkConfig,
     ChartMode,
     ChartRelativeEnd,
+    ChartThemeColor,
     ThemeChartType,
 } from '../../../src/types';
 
@@ -217,7 +218,28 @@ interface PresetTabsProps {
     windowWidth: number;
 }
 
-interface PresetTabsState {
+/** The colors for the dark theme, stored as `<name>_dark` in the preset */
+type DarkColorName = `${ChartThemeColor}_dark`;
+
+/** Colors that have an own value for the dark theme, see `ChartThemeColor` */
+const THEME_COLORS: ChartThemeColor[] = [
+    'window_bg',
+    'bg_custom',
+    'border_color',
+    'titleColor',
+    'x_labels_color',
+    'x_ticks_color',
+    'y_labels_color',
+    'y_ticks_color',
+    'grid_color',
+    'legColor',
+    'legBg',
+    'barFontColor',
+    'exportColor',
+    'exportDataColor',
+];
+
+type PresetTabsState = {
     copiedObject: { type: 'line'; line: ChartLineConfigMore } | { type: 'marking'; mark: ChartMarkConfig } | null;
     presetData: ChartConfigMore;
     selectedTab: 'data' | 'markings' | 'time' | 'options' | 'title' | 'appearance';
@@ -246,7 +268,7 @@ interface PresetTabsState {
     x_ticks_color: string;
     grid_color: string;
     hoverBackground: string;
-}
+} & { [name in DarkColorName]?: string };
 
 export default class PresetTabs extends React.Component<PresetTabsProps, PresetTabsState> {
     private colorPickerCb: null | ((color: string) => void);
@@ -2442,6 +2464,38 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         minWidth?: string | number,
         styles?: React.CSSProperties,
     ): React.JSX.Element {
+        if (!THEME_COLORS.includes(name as ChartThemeColor)) {
+            return <div style={styles}>{this.renderColorInput(value, I18n.t(label), name, minWidth)}</div>;
+        }
+        // The second field is the color for the dark theme. Empty, the first one applies to both themes
+        const darkName: DarkColorName = `${name as ChartThemeColor}_dark`;
+        return (
+            <div style={{ ...styles, display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>{this.renderColorInput(value, I18n.t(label), name, minWidth)}</div>
+                <div style={{ flex: 1 }}>
+                    {this.renderColorInput(
+                        this.props.presetData[darkName],
+                        I18n.t('In dark theme'),
+                        darkName,
+                        undefined,
+                        value,
+                        I18n.t(
+                            'Used when the chart is shown dark, e.g. with the theme "auto". Empty: the same color as in the light theme',
+                        ),
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    renderColorInput(
+        value: string,
+        label: string,
+        name: Parameters<PresetTabs['renderColorField']>[2] | DarkColorName,
+        minWidth?: string | number,
+        placeholder?: string,
+        title?: string,
+    ): React.JSX.Element {
         let textColor = Utils.isUseBright(value, null);
         if (textColor === null) {
             textColor = undefined;
@@ -2454,49 +2508,49 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         };
 
         return (
-            <div style={styles}>
-                <TextField
-                    variant="standard"
-                    style={{ minWidth, width: 'calc(100% - 8px)' }}
-                    label={I18n.t(label)}
-                    value={value || ''}
-                    onClick={() => {
-                        this.setState({ [name]: value } as unknown as PresetTabsState, () =>
-                            this.showColorPicker(this.state[name], color =>
-                                this.setState({ [name]: color } as unknown as PresetTabsState, () =>
-                                    onUpdate(getColorFromPicker(color)),
-                                ),
+            <TextField
+                variant="standard"
+                style={{ minWidth, width: 'calc(100% - 8px)' }}
+                label={label}
+                title={title}
+                placeholder={placeholder}
+                value={value || ''}
+                onClick={() => {
+                    this.setState({ [name]: value } as unknown as PresetTabsState, () =>
+                        this.showColorPicker(this.state[name], color =>
+                            this.setState({ [name]: color } as unknown as PresetTabsState, () =>
+                                onUpdate(getColorFromPicker(color)),
                             ),
-                        );
-                    }}
-                    onChange={e => {
-                        const color = e.target.value;
-                        this.setState({ [name]: color } as unknown as PresetTabsState, () => onUpdate(color));
-                    }}
-                    slotProps={{
-                        inputLabel: { shrink: true },
-                        htmlInput: {
-                            style: {
-                                backgroundColor: value,
-                                color: textColor ? '#FFF' : '#000',
-                            },
+                        ),
+                    );
+                }}
+                onChange={e => {
+                    const color = e.target.value;
+                    this.setState({ [name]: color } as unknown as PresetTabsState, () => onUpdate(color));
+                }}
+                slotProps={{
+                    inputLabel: { shrink: true },
+                    htmlInput: {
+                        style: {
+                            backgroundColor: value,
+                            color: textColor ? '#FFF' : '#000',
                         },
-                        input: {
-                            endAdornment: value ? (
-                                <IconButton
-                                    size="small"
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        this.setState({ [name]: '' } as unknown as PresetTabsState, () => onUpdate(''));
-                                    }}
-                                >
-                                    <IconClose />
-                                </IconButton>
-                            ) : undefined,
-                        },
-                    }}
-                />
-            </div>
+                    },
+                    input: {
+                        endAdornment: value ? (
+                            <IconButton
+                                size="small"
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    this.setState({ [name]: '' } as unknown as PresetTabsState, () => onUpdate(''));
+                                }}
+                            >
+                                <IconClose />
+                            </IconButton>
+                        ) : undefined,
+                    },
+                }}
+            />
         );
     }
 

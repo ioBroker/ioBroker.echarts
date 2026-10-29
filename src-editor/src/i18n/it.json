@@ -611,5 +611,7 @@
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Dimensione ombra",
   "ØS Shadow size": "ØS Dimensione ombra",
-  "Empty: as \"After comma\" of the chart": "Vuoto: come \"Dopo la virgola\" del grafico"
+  "Empty: as \"After comma\" of the chart": "Vuoto: come \"Dopo la virgola\" del grafico",
+  "In dark theme": "Nel tema scuro",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Usato quando il grafico è mostrato scuro, ad es. con il tema \"auto\". Vuoto: lo stesso colore del tema chiaro"
 }

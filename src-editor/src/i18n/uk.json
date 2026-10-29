@@ -611,5 +611,7 @@
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - розмір тіні",
   "ØS Shadow size": "ØS Розмір тіні",
-  "Empty: as \"After comma\" of the chart": "Порожньо: як «Після коми» діаграми"
+  "Empty: as \"After comma\" of the chart": "Порожньо: як «Після коми» діаграми",
+  "In dark theme": "У темній темі",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Використовується, коли діаграма відображається темною, наприклад з темою «auto». Порожньо: той самий колір, що й у світлій темі"
 }

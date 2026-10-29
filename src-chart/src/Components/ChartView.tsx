@@ -477,7 +477,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         return (
             <>
                 <IconRange
-                    color={this.props.config.exportColor || 'default'}
+                    color={this.getThemedConfig().exportColor || 'default'}
                     style={{ ...styles.rangeButton, top: this.getButtonTop('range') }}
                     title={I18n.t('Chart time range')}
                     onClick={(event: React.MouseEvent<SVGElement>) =>
@@ -1060,11 +1060,16 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         );
     }
 
+    /** The preset with the colors of the current theme, see `ChartOption.applyThemeColors` */
+    getThemedConfig(): ChartConfigMore {
+        return ChartOption.applyThemeColors(this.props.config, this.props.themeType);
+    }
+
     renderSaveImageButton(): React.JSX.Element | null {
         if (this.props.config.export) {
             return (
                 <IconSaveImage
-                    color={this.props.config.exportColor || 'default'}
+                    color={this.getThemedConfig().exportColor || 'default'}
                     style={styles.saveImageButton}
                     title={
                         this.option && this.option.useCanvas ? I18n.t('Save chart as png') : I18n.t('Save chart as svg')
@@ -1075,7 +1080,8 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                             let base64 = chartInstance.getDataURL({
                                 pixelRatio: 2, // only for png
                                 backgroundColor:
-                                    this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF'),
+                                    this.getThemedConfig().window_bg ||
+                                    (this.props.themeType === 'dark' ? '#000' : '#FFF'),
                             });
 
                             // Add background to SVG
@@ -1086,11 +1092,11 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                                     let xml = decodeURIComponent(data[1]);
                                     xml = xml.replace(
                                         'fill="none"',
-                                        `fill="${this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')}"`,
+                                        `fill="${this.getThemedConfig().window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')}"`,
                                     );
                                     xml = xml.replace(
                                         'fill="transparent"',
-                                        `fill="${this.props.config.window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')}"`,
+                                        `fill="${this.getThemedConfig().window_bg || (this.props.themeType === 'dark' ? '#000' : '#FFF')}"`,
                                     );
                                     base64 = `${data[0]},${encodeURIComponent(xml)}`;
                                 } catch (e) {
@@ -1239,7 +1245,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         if (this.props.config.exportData) {
             return (
                 <IconExportData
-                    color={this.props.config.exportDataColor || 'default'}
+                    color={this.getThemedConfig().exportDataColor || 'default'}
                     style={{
                         ...styles.exportDataButton,
                         top: this.getButtonTop('exportData'),
@@ -1595,10 +1601,12 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                             : '100%',
                     height:
                         borderWidth || borderPadding ? `calc(100% - ${(borderWidth + borderPadding) * 2}px)` : '100%',
-                    background: this.props.config.noBackground ? undefined : this.props.config.window_bg || undefined,
+                    background: this.props.config.noBackground
+                        ? undefined
+                        : this.getThemedConfig().window_bg || undefined,
                     borderColor:
                         this.props.config.noBorder !== 'noborder'
-                            ? this.props.config.border_color || undefined
+                            ? this.getThemedConfig().border_color || undefined
                             : undefined,
                     borderStyle:
                         this.props.config.noBorder !== 'noborder' && borderWidth

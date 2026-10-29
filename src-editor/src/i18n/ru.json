@@ -611,5 +611,7 @@
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Размер тени",
   "ØS Shadow size": "ØS Размер тени",
-  "Empty: as \"After comma\" of the chart": "Пусто: как «После запятой» диаграммы"
+  "Empty: as \"After comma\" of the chart": "Пусто: как «После запятой» диаграммы",
+  "In dark theme": "В тёмной теме",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Используется, когда диаграмма отображается в тёмной теме, например с темой «auto». Пусто: тот же цвет, что и в светлой теме"
 }

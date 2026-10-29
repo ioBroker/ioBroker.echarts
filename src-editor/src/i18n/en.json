@@ -611,5 +611,7 @@
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Shadow size",
   "ØS Shadow size": "ØS Shadow size",
-  "Empty: as \"After comma\" of the chart": "Empty: as \"After comma\" of the chart"
+  "Empty: as \"After comma\" of the chart": "Empty: as \"After comma\" of the chart",
+  "In dark theme": "In dark theme",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme"
 }
