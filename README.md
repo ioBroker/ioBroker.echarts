@@ -174,6 +174,7 @@ You can debug view charts locally with:
 ## Changelog
 ### **WORK IN PROGRESS**
 * (GermanBluefox) Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)
+* (GermanBluefox) Bars per day, week or month show the right values after a switch of the daylight saving time. The history adapter split the range into equally long intervals, so after the 25-hour day every value written at 23:59:59 was shown one day later and the day of the switch stayed empty. The chart now sends the borders of its bars along; this needs ioBroker.sql or ioBroker.history with `@iobroker/aggregate` 1.1 (#1311)
 
 ### 6.0.0 (2026-10-14)
 - (@GermanBluefox) Added chart mode "Gauge" (rings or pointers)

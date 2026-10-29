@@ -51,6 +51,8 @@ export function parseTimeRangeOverride(
 
 export type EchartsOneValue = { value: [number, number]; exact?: false };
 type EchartsAnyValue = { value: [number, number | string | boolean]; exact?: false };
+/** `intervalBorders` is understood by the history adapters that use `@iobroker/aggregate` 1.1 or newer */
+type HistoryOptionsWithBorders = ioBroker.GetHistoryOptions & { intervalBorders?: number[] };
 
 export type ChartLineConfigOld = {
     // @deprecated use chartType
@@ -924,6 +926,24 @@ class ChartModel {
     }
 
     /**
+     * The borders of all bars between start and end, walked in the same steps as the categories.
+     *
+     * @param startTs start of the first bar
+     * @param endTs exclusive end of the last bar
+     * @param aggregateBar interval in minutes: 15, 60, 1440 (day), 10080 (week) or 43200 (month)
+     * @returns one border more than there are bars: the start of every bar and the end of the last one
+     */
+    static getBarBorders(startTs: number, endTs: number, aggregateBar: number): number[] {
+        const borders: number[] = [startTs];
+        const walker = new Date(startTs);
+        while (walker.getTime() < endTs) {
+            ChartModel.addBarInterval(walker, aggregateBar);
+            borders.push(walker.getTime());
+        }
+        return borders;
+    }
+
+    /**
      * How many days the date lies behind its Monday. `getDay` counts the Sunday as 0, so the days are
      * rotated to let the week start on Monday, like the ISO calendar week does.
      */
@@ -1591,6 +1611,15 @@ class ChartModel {
                         option,
                     );
                 }
+
+                // `count` makes the history adapter split the range into equally long intervals. A day around the
+                // switch of the daylight saving time has 23 or 25 hours and a month 28 to 31 days, so these
+                // intervals did not end at the borders of the bars, and a value written at 23:59:59 was shown on
+                // the next day. The borders of the bars are therefore sent along. An adapter that does not know
+                // them still uses `count`, which is set to the same number of intervals.
+                const borders = ChartModel.getBarBorders(option.start, option.end, this.config.aggregateBar);
+                (option as HistoryOptionsWithBorders).intervalBorders = borders;
+                option.count = borders.length - 1;
             } else if (option.aggregate !== 'onchange') {
                 // "raw" asks for the values as they were written. A step or a count would make the
                 // history adapter build intervals around them anyway, and the editor hides both
