@@ -611,5 +611,7 @@
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Rozmiar cienia",
   "ØS Shadow size": "ØS Rozmiar cienia",
-  "Empty: as \"After comma\" of the chart": "Puste: jak \"Po przecinku\" wykresu"
+  "Empty: as \"After comma\" of the chart": "Puste: jak \"Po przecinku\" wykresu",
+  "In dark theme": "W ciemnym motywie",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Używany, gdy wykres jest wyświetlany w ciemnym motywie, np. z motywem „auto”. Puste: ten sam kolor co w jasnym motywie"
 }

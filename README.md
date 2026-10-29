@@ -185,6 +185,7 @@ You can debug view charts locally with:
 * (GermanBluefox) The CSV export keeps its line breaks in Firefox: the file was a `data:` URL, from which Firefox removes them, and a `#` in an ID cut the file off (#1282)
 * (GermanBluefox) "Digits after comma" of a line can be emptied again to use the setting of the chart, and 0 is shown as 0 instead of an empty field. The empty field shows which value is used instead (#1288)
 * (GermanBluefox) The chart and the preview opened through the web adapter under the admin address (`/adapter/echarts/...`) move to the address of the web adapter on any port, not only on 8082. The preview offers the link over the own host first, so it also works behind a reverse proxy, and a copied link is absolute (#1273, #1230)
+* (GermanBluefox) Every color of the chart (background, title, labels, ticks, grid, legend, bar labels, border and buttons) can get an own value for the dark theme. With the theme "auto", a chart in vis-2 can thus be adjusted to the light and the dark mode; empty, the color stays the same in both (#1312)
 
 ### 6.0.0 (2026-10-14)
 - (@GermanBluefox) Added chart mode "Gauge" (rings or pointers)

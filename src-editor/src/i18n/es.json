@@ -611,5 +611,7 @@
   "ØS": "ØS",
   "ØS - Shadow size": "ØS - Tamaño de sombra",
   "ØS Shadow size": "ØS tamaño de la sombra",
-  "Empty: as \"After comma\" of the chart": "Vacío: como \"Después de la coma\" del gráfico"
+  "Empty: as \"After comma\" of the chart": "Vacío: como \"Después de la coma\" del gráfico",
+  "In dark theme": "En tema oscuro",
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Se usa cuando el gráfico se muestra oscuro, p. ej. con el tema \"auto\". Vacío: el mismo color que en el tema claro"
 }

@@ -285,6 +285,23 @@ export interface ChartConfig {
 // string = presetID, {id, instance} = direct from state with history enabled
 export type SelectedChart = { id: string; instance: string } | string;
 
+/** Colors of a preset that can have an own value for the dark theme, stored as `<name>_dark` */
+export type ChartThemeColor =
+    | 'window_bg'
+    | 'bg_custom'
+    | 'border_color'
+    | 'titleColor'
+    | 'x_labels_color'
+    | 'x_ticks_color'
+    | 'y_labels_color'
+    | 'y_ticks_color'
+    | 'grid_color'
+    | 'legColor'
+    | 'legBg'
+    | 'barFontColor'
+    | 'exportColor'
+    | 'exportDataColor';
+
 export interface ChartConfigMore extends ChartConfig {
     l: ChartLineConfigMore[];
 
@@ -397,6 +414,23 @@ export interface ChartConfigMore extends ChartConfig {
     gaugeValuesBelow?: boolean;
     /** Gauge, shape `circles`: how thick a ring is. Missing means 40 */
     gaugeThickness?: number;
+
+    // Colors for the dark theme. Each one replaces the color of the same name without `_dark` while
+    // the chart is shown dark, e.g. with the theme "auto" in a dark vis-2. Empty: the color applies to both themes
+    window_bg_dark?: string;
+    bg_custom_dark?: string;
+    border_color_dark?: string;
+    titleColor_dark?: string;
+    x_labels_color_dark?: string;
+    x_ticks_color_dark?: string;
+    y_labels_color_dark?: string;
+    y_ticks_color_dark?: string;
+    grid_color_dark?: string;
+    legColor_dark?: string;
+    legBg_dark?: string;
+    barFontColor_dark?: string;
+    exportColor_dark?: string;
+    exportDataColor_dark?: string;
 }
 
 export type EchartsOptions = {
