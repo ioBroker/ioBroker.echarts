@@ -1,249 +1,259 @@
 {
-    "common": {
-        "name": "echarts",
-        "version": "6.0.0",
-        "news": {
-            "6.0.0": {
-                "en": "Added chart mode \"Gauge\" (rings or pointers)\nAdded chart mode \"Donut\"\nAdded \"Chart mode\" setting (Mixed, Donut, Bar, Radar, Gauge); \"One bar per line\" and \"polar\" lines are migrated\nAdded vis-2 widget \"E-Charts time range\"\nvis-2 and devices widgets can draw the chart without an iframe (experimental)\nThe time range can be passed in the URL hash and changed without reload\nFixed: dark chart in vis-2 was shown on a white background\nFixed: chart in vis-2 did not follow theme changes\nFixed: \"undefined\" after values without unit\nFixed: overlapping labels in the gauge\nFixed: radar axes were labelled \"undefined\"\nGauge uses Min/Max of the lines; empty scale ends follow the values\nFixed: gauge showed zero for lines with aggregation other than \"current\"\nSettings that have no effect in the current chart mode are hidden\nOnly \"standard\" and \"JSON\" sources are offered where no history is read; any state can be selected there\nJSON source works for current-value charts\nFixed: chart without iframe kept growing or crashed on early time range\nFixed: switching the chart mode left parts of the old chart\nFixed: line ID field lost focus while typing\nFixed: chart setting \"After comma\" was ignored\nFixed: dropdown tooltip covered the open list\nFixed missing translations of slider labels\nSource \"standard\" can be selected in the opened line too; history sources show the adapter icon\n\"Expand all\" / \"Collapse all\" are shown for a single entry too\nAdded widget description to the vis-2 palette tooltip\nBuild scripts migrated to TypeScript",
-                "de": "Chartmodus „Gauge“ hinzugefügt (Ringe oder Zeiger)\nChartmodus „Donut“ hinzugefügt\n„Chart-Modus“ hinzugefügt (Mixed, Donut, Bar, Radar, Gauge); „Ein Balken pro Linie“ und „Polar“ werden migriert\nVis-2 Widget „E-Charts time range“ hinzugefügt\nVis-2 und Geräte-Widgets können das Diagramm ohne Iframe zeichnen (Test)\nDer Zeitraum kann im URL-Hash übergeben und ohne Reload geändert werden\nBehoben: Dunkles Diagramm in Vis-2 auf weißem Grund\nBehoben: Grafik in Vis-2 folgte keinem Themewechsel\nFix: „undefiniert“ nach Werten ohne Einheit\nBehoben: Überlappende Labels im Messgerät\nBehoben: Radarachsen waren „undefiniert“\nSpur nutzt Min/Max der Linien; leere Skalenenden folgen\nBehoben: Gauge zeigte Null für Linien mit anderer Aggregation als „aktuell“\nUngültige Einstellungen im aktuellen Chartmodus sind ausgeblendet\nEs gibt nur „Standard“ - und „JSON“ -Quellen ohne Historie; jeder Staat ist wählbar\nJSON-Quelle gilt für Zeitwertdiagramme\nBehoben: Chart ohne Iframe wuchs oder stürzte im frühen Zeitraum ab\nBehoben: Umschalten des Chartmodus links vom alten Chart\nBehoben: Zeilen-ID-Feld beim Tippen\nFix: Chart-Wert „Nach Komma“ wurde ignoriert\nBehoben: Drop-down-Tooltip deckt offene Liste ab\nFehlende Slider-Labels behoben\nDie Quelle „Standard“ kann auch in der Zeile gewählt werden; Historie zeigt Adaptersymbol\n„Alle öffnen“/„Alle einklappen“ werden auch für einen Eintrag angezeigt\nWidget-Beschreibung zum Vis-2-Palette hinzugefügt\nBuild-Skripte zu TypeScript migriert",
-                "ru": "Добавлен режим графиков «Gauge» (кольца или указатели)\nДобавлен режим диаграмм «Donut»\nДобавлена настройка «Режим диаграммы» (смешанный режим, бублик, полоса, радар, датчик); перемещаются «Один столбец в строке» и «полярные» линии\nДобавлен виджет vis-2 «Временной диапазон E-Charts»\nВиджеты vis-2 и устройств могут рисовать диаграмму без фрейма (экспериментально)\nВременной диапазон может быть передан в хэше URL и изменен без перезагрузки\nИсправлено: темная диаграмма в vis-2 отображалась на белом фоне\nИсправлено: диаграмма в vis-2 не соответствовала изменениям темы\nИсправлено: «не определено» после значений без единиц измерения\nИсправлено: перекрывающиеся метки в датчике\nИсправлено: оси радара были помечены как «неопределенные»\nКалибр использует минимальное/максимальное количество линий; пустые концы шкалы соответствуют значениям\nИсправлено: датчик показывал ноль для линий с агрегацией, отличной от «текущей»\nНастройки, которые не действуют в текущем режиме диаграммы, скрыты\nПредлагаются только «стандартные» и «JSON-источники», где история не читается; там можно выбрать любое состояние\nИсходный код JSON работает для графиков текущих значений\nИсправлено: график без iframe продолжал расти или зависал в раннем временном диапазоне\nИсправлено: при переключении режима графика левая часть старого графика\nИсправлено: поле идентификатора строки теряло фокус при наборе текста\nИсправлено: настройка диаграммы «После запятой» игнорировалась\nИсправлено: всплывающая подсказка закрывала открытый список\nИсправлены недостающие переводы надписей слайдеров\nВ открывшейся строке также можно выбрать источник «стандартный»; источники истории показывают значок адаптера\n«Развернуть все»/«Свернуть все» также показаны для одной записи\nДобавлено описание виджета во всплывающую подсказку палитры vis-2\nСценарии сборки перенесены на TypeScript",
-                "pt": "Adição do modo gráfico “Gauge” (anéis ou ponteiros)\nAdição do modo gráfico “Donut”\nAdicionado “Modo gráfico” (misto, rosca, barra, radar, medidor); migra “Uma barra por linha” e “polares”\nAdicionado widget vis-2 “E-Charts time range”\nOs widgets vis-2 e devices desenham o gráfico sem iframe (experimental)\nO tempo pode ser passado no hash do URL e alterado sem recarga\nCorrigido: gráfico escuro em vis-2 em fundo branco\nFixo: o gráfico no vis-2 não mudou de tema\nFixo: “indefinido” após valores sem unidade\nFixo: rótulos sobrepostos no medidor\nFixo: os eixos do radar eram “indefinidos”\nO medidor usa Min/Max das linhas; a escala vazia segue os valores\nFixo: o medidor mostrou zero para linhas com agregação diferente de “atual”\nAjustes inativos no modo gráfico atual são ocultos\nSomente fontes “padrão” e “JSON” são oferecidas sem histórico; qualquer estado pode ser selecionado\nA fonte JSON funciona para gráficos atuais\nCorrigido: o gráfico sem iframe cresceu ou caiu no início\nCorrigido: mudar o modo para a esquerda do gráfico antigo\nFixo: o ID de linha perdeu o foco ao digitar\nCorrigido: o gráfico “Após vírgula” foi ignorado\nCorrigido: a dica suspensa cobria a lista aberta\nCorrigida a falta de traduções de rótulos\nA fonte “padrão” também pode ser selecionada na linha aberta; o histórico mostra o ícone\n“Expandir tudo”/“Recolher tudo” também aparece\nDescrição do widget adicionada à paleta vis-2\nCrie scripts migrados para TypeScript",
-                "nl": "Kaartmodus „Gauge” toegevoegd (ringen of wijzers)\nDiagrammodus „Donut” toegevoegd\nInstelling „Kaartmodus” toegevoegd (gemengd, Donut, Bar, Radar, Gauge); „Eén balk per lijn” en „polaire” lijnen worden gemigreerd\nVis-2-widget „E-Charts time range” toegevoegd\nvis-2 en widgets voor apparaten kunnen de grafiek tekenen zonder iframe (experimenteel)\nHet tijdbereik kan worden ingevoerd in de URL-hash en gewijzigd worden zonder opnieuw te laden\nOpgelost: de donkere kaart in vis-2 werd weergegeven op een witte achtergrond\nOpgelost: de grafiek in vis-2 volgde geen wijzigingen in het thema\nOpgelost: „ongedefinieerd” na waarden zonder eenheid\nOpgelost: overlappende labels in de meter\nOpgelost: radarassen kregen het label „ongedefinieerd”\nDe meter gebruikt Min/Max van de lijnen; lege schaaluiteinden volgen de waarden\nOpgelost: de meter gaf nul aan voor lijnen met een andere aggregatie dan „huidig”\nInstellingen die geen effect hebben in de huidige kaartmodus zijn verborgen\nEr worden alleen „standaard” en „JSON” -bronnen aangeboden waar geen geschiedenis wordt gelezen; elke staat kan daar worden geselecteerd\nDe JSON-bron werkt voor grafieken met huidige waarden\nOpgelost: de grafiek zonder iframe bleef groeien of crashte in een vroeg tijdsbestek\nOpgelost: omschakelen van de kaartmodus naar de linkerdelen van de oude kaart\nOpgelost: het lijn-ID-veld verloor de focus tijdens het typen\nOpgelost: de grafiekinstelling „Na een komma” werd genegeerd\nOpgelost: de dropdown-tooltip had betrekking op de openstaande lijst\nOntbrekende vertalingen van sliderlabels opgelost\nDe bron „standaard” kan ook worden geselecteerd in de geopende regel; bronnen uit de geschiedenis tonen het adapterpictogram\n„Alles uitvouwen” /„ Alles samenvouwen” worden ook voor één item weergegeven\nBeschrijving van de widget toegevoegd aan de tooltip van het vis-2-palet\nBuild-scripts gemigreerd naar TypeScript",
-                "fr": "Ajout du mode graphique « Gauge » (anneaux ou pointeurs)\nAjout du mode « Donut »\nAjout du réglage « Mode graphique » (Mixed, Donut, Bar, Radar, Gauge) ; « Une barre par ligne » et « Polar » sont migrées\nAjout du widget Vis-2 « E-Charts time range »\nles widgets vis-2 et devices peuvent dessiner le graphique sans iframe (expérimental)\nLa plage horaire peut être saisie dans le hash de l'URL et modifiée\nCorrigé : la carte noire en VIS-2 était affichée sur fond blanc\nCorrigé : le thème de Vis-2 ne suivait pas le thème\nCorrigé : « indéfini » après des valeurs sans unité\nCorrigé : étiquettes superposées sur la jauge\nCorrigé : les axes radar étaient « indéfinis »\nLa jauge utilise Min/Max des lignes ; les fins vides suivent les valeurs\nCorrigé : la jauge indiquait zéro pour les lignes non agrégées\nLes paramètres sans effet dans le mode graphique actuel sont masqués\nSeules les sources « standard » et « JSON » sont proposées sans historique ; n'importe quel état peut y être sélectionné\nLa source JSON fonctionne pour les graphiques actuels\nCorrigé : le graphique sans iframe ne cessait de croître ou se bloquait tôt\nCorrigé : changer de mode sur la partie gauche de l'ancienne carte\nCorrigé : le champ Line ID était flou en tapant\nCorrigé : le réglage « Après la virgule » a été ignoré\nCorrigé : une infobulle recouvrait la liste ouverte\nCorrection de la traduction des sliders\nLa source « standard » peut être sélectionnée sur la ligne ouverte ; l'historique montre l'icône\n« Tout développer » /« Tout réduire » s'affiche aussi pour une seule entrée\nAjout de la description du widget à l'infobulle de la palette Vis-2\nBuild scripts migrés vers TypeScript",
-                "it": "Aggiunta la modalità «Gauge» (anelli o lancette)\nAggiunto il grafico «Donut»\nAggiunta la modalità «Grafico» (Mixed, Donut, Bar, Radar, Gauge); «Una barra per riga» e le linee «polari»\nAggiunto il widget vis-2 «E-Charts time range»\nvis-2 e devices possono disegnare il grafico senza iframe (sperimentale)\nL'intervallo può essere inserito nell'URL senza ricaricare\nRisolto: il grafico scuro in vis-2 era su sfondo bianco\nRisolto: il grafico in vis-2 non seguiva i cambi tema\nRisolto: «indefinito» dopo valori senza unità\nRisolto: etichette sovrapposte\nRisolto: gli assi radar erano «indefiniti»\nGauge usa linee min/max; le scale vuote seguono i valori\nRisolto: zero per le righe con aggregazione diversa da «corrente»\nLe impostazioni non valide nel grafico attuale sono nascoste\nSono disponibili solo fonti «standard» e «JSON» senza cronologia; ogni stato può essere scelto\nLa fonte JSON funziona per i grafici attuali\nRisolto: il grafico senza iframe cresceva o si bloccava all'inizio\nRisolto: cambio della modalità a sinistra del vecchio\nRisolto: il campo Line ID si è perso mentre scriveva\nRisolto: il grafico «Dopo virgola» era ignorato\nRisolto: il tooltip copriva l'elenco aperto\nRisolte le traduzioni mancanti dei cursori\nLa fonte «standard» è selezionabile nella riga aperta; la cronologia mostra l'icona\nAnche «Espandi tutto» /\"Comprimi tutto» è una sola voce\nAggiunta descrizione del widget al tooltip vis-2\nCrea script migrati a TypeScript",
-                "es": "Se añadió el modo gráfico «Gauge» (anillos o punteros)\nAñadió el modo lista «Donut»\nSe ha añadido el ajuste «modo gráfico» (mixto, rosquilla, bar, radar, indicador); se migran las líneas «una barra por línea» y «polar»\nSe ha añadido el widget vis-2 «E-Charts time range»\nLos widgets vis-2 y Devices pueden dibujar el gráfico sin iframe (experimental)\nSe puede pasar el intervalo de tiempo al hash de la URL y cambiarlo sin recargar\nCorregido: la carta oscura de la vis-2 aparecía sobre fondo blanco\nCorregido: el gráfico de vis-2 no seguía los cambios de tema\nFijo: «indefinido» tras valores sin unidad\nCorregido: etiquetas superpuestas en el indicador\nCorregido: los ejes de radar decían «indefinidos»\nEl medidor usa Mín/Máx de las líneas; la escala vacía sigue los valores\nCorregido: el indicador mostraba cero para las líneas con un agregado distinto de «actual»\nLos ajustes que no afectan al modo gráfico actual están ocultos\nSolo se ofrecen fuentes «estándar» y «JSON» sin leer el historial; allí se puede seleccionar cualquier estado\nLa fuente JSON sirve para gráficos de valores\nCorregido: el gráfico sin iframe seguía creciendo o se bloqueaba al principio\nCorregido: cambiar el modo gráfico a partes izquierdas del antiguo\nCorregido: el campo ID de línea se desenfocaba al escribir\nCorregido: se ignoró el ajuste gráfico «tras la coma»\nCorregido: el menú desplegable cubría la lista abierta\nSe corrigió la falta de traducción de las etiquetas\nLa fuente «estándar» también se puede seleccionar en la línea abierta; el historial muestra el icono\nTambién se muestran «Expandir todo» y «Colapsar todo» para una entrada\nSe ha añadido la descripción del widget a la paleta vis-2\nCree guiones migrados a TypeScript",
-                "pl": "Dodano tryb wykresu „Gauge” (pierścienie lub wskaźniki)\nDodano tryb wykresu „Pączek”\nDodano ustawienie „Tryb wykresu” (Mixed, Donut, Bar, Radar, Gauge); Migrowane są linie „Jeden pasek na linię” i „polarne”\nDodano widżet vis-2 „Zakres czasu E-Charts”\nwidżety vis-2 i urządzeń mogą rysować wykres bez iframe (eksperymentalny)\nZakres czasu może zostać przekazany w skrócie URL i zmieniany bez ponownego ładowania\nNaprawiono: ciemny wykres w vis-2 był pokazany na białym tle\nNaprawiono: wykres w vis-2 nie śledził zmian motywu\nNaprawiono: „niezdefiniowane” po wartościach bez jednostki\nNaprawiono: nakładające się etykiety w mierniku\nNaprawiono: osie radarowe zostały oznaczone jako „niezdefiniowane”\nMiernik używa Min/Max linii; puste końce skali są zgodne z wartościami\nNaprawiono: wskaźnik pokazywał zero dla linii z agregacją inną niż „prąd”\nUstawienia, które nie mają wpływu w bieżącym trybie wykresu, są ukryte\nOferowane są tylko źródła „standardowe” i „JSON”, w których nie czyta się historii; można tam wybrać dowolny stan\nŹródło JSON działa dla wykresów o wartości bieżącej\nNaprawiono: wykres bez iframe nadal rósł lub rozbił się we wczesnym przedziale czasowym\nNaprawiono: przełączanie trybu wykresu w lewo części starego wykresu\nNaprawiono: pole ID linii utraciło ostrość podczas pisania\nNaprawiono: ustawienie wykresu „Po przecinku” zostało zignorowane\nNaprawiono: rozwijana podpowiedź obejmowała otwartą listę\nNaprawiono brakujące tłumaczenia etykiet suwaków\nŹródło „standard” można również wybrać w otwartym wierszu; źródła historii pokazują ikonę adaptera\n„Rozwiń wszystko”/„Zwiń wszystko” są wyświetlane również dla pojedynczego wpisu\nDodano opis widżetu do podpowiedzi palety vis-2\nSkrypty kompilacji migrowane do TypeScript",
-                "uk": "Додано режим діаграми «Gauge» (кільця або покажчики)\nДодано режим діаграми «Пончик»\nДодано налаштування «Режим діаграми» (Змішаний, Пончик, Бар, Радар, Gauge); «Один бар на рядок» та «полярні» лінії мігруються\nДодано віджет vis-2 «Часовий діапазон електронних діаграм»\nВіджети vis-2 і пристроїв можуть малювати діаграму без iframe (експериментальний)\nЧасовий діапазон можна передати в хеш URL і змінити без перезавантаження\nВиправлено: темна діаграма у vis-2 була показана на білому тлі\nВиправлено: діаграма в vis-2 не слідувала змінам теми\nВиправлено: «невизначено» після значень без одиниці\nВиправлено: перекриття етикеток у калібрі\nВиправлено: радіолокаційні осі були позначені як «невизначені»\nДатчик використовує Min/Max ліній; порожні кінці шкали слідують значенням\nВиправлено: датчик показав нуль для ліній з агрегацією, відмінною від «струму»\nПараметри, які не мають ефекту в поточному режимі діаграми, приховані\nПропонуються лише «стандартні» та «JSON» джерела, де історія не читається; там можна вибрати будь-який стан\nДжерело JSON працює для діаграм поточних значень\nВиправлено: діаграма без iframe продовжувала зростати або розбивалася на ранньому часовому діапазоні\nВиправлено: перемикання режиму діаграми лівих частин старої діаграми\nВиправлено: поле ID рядка втратило фокус під час введення\nВиправлено: налаштування діаграми «Після коми» було проігноровано\nВиправлено: підказка, що випадає, охоплює відкритий список\nВиправлені відсутні переклади міток слайдерів\nДжерело «стандартне» також можна вибрати у відкритому рядку; джерела історії показують значок адаптера\n«Розгорнути все»/«Згорнути все» також відображаються для одного запису\nДодано опис віджета до підказки палітри vis-2\nСкрипти збірки перенесені на TypeScript",
-                "zh-cn": "添加了图表模式 “仪表”（环形或指针）\n添加了图表模式 “甜甜圈”\n添加了 “图表模式” 设置（混合、甜甜圈、条形图、雷达、仪表）；迁移了 “每行一根柱线” 和 “极坐标线”\n添加了 vis-2 小工具 “电子图表时间范围”\nvis-2 和设备控件可以在没有 iframe 的情况下绘制图表（实验性）\n时间范围可以在 URL 哈希中传递，无需重新加载即可更改\n修复：vis-2中的深色图表显示在白色背景上\n修复：vis-2中的图表没有遵循主题的变化\n修复：没有单位的值后 “未定义”\n修复：仪表盘中的标签重叠\n修复：雷达轴被标记为 “未定义”\n仪表盘使用直线的最小值/最大值；空刻度以值为终点\n修复：对于除了 “当前” 以外的聚合线路，仪表显示为零\n隐藏在当前图表模式下无效的设置\n仅提供不读取历史记录的 “标准” 和 “JSON” 来源；可以在那里选择任何状态\nJSON 源代码适用于当前值图表\n修复：没有iframe的图表在早期时间范围内持续增长或崩溃\n修复：切换图表模式旧图表的左侧部分\n修复：线路ID字段在打字时失去焦点\n修复：图表设置 “逗号之后” 被忽略了\n修复：下拉工具提示覆盖了打开的列表\n修复了滑块标签缺失的翻译\n也可以在打开的行中选择来源 “标准”；历史来源显示适配器图标\n对于单个条目，也会显示 “全部展开”/“全部折叠”\n在 vis-2 调色板工具提示中添加了控件描述\n编译脚本迁移到 TypeScri"
-            },
-            "5.1.1": {
-                "en": "Many GUI fixes",
-                "de": "Viele GUI-Korrekturen",
-                "ru": "Множество исправлений графического интерфейса.",
-                "pt": "Muitas correções na interface gráfica.",
-                "nl": "Veel GUI-verbeteringen",
-                "fr": "De nombreuses corrections d'interface graphique",
-                "it": "Numerose correzioni all'interfaccia grafica",
-                "es": "Muchas correcciones de la interfaz gráfica de usuario",
-                "pl": "Wiele poprawek GUI",
-                "uk": "Багато виправлень графічного інтерфейсу",
-                "zh-cn": "修复了许多图形用户界面问题"
-            },
-            "5.0.2": {
-                "en": "Show a state under every history instance that logs it and not only under the first one\nFixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`",
-                "de": "Zeigen Sie einen Zustand unter jeder historischen Instanz, die es protokolliert und nicht nur unter dem ersten\nBehebt den Linienumbruch in den X-Achsen-Etiketten für die Zeitformate wie `HH:MM / dd.mm.yy`",
-                "ru": "Покажите государство в каждом историческом случае, которое регистрирует его, а не только в первом\nИсправлен разрыв линии в ярлыках оси X для форматов времени, таких как HH:MM / dd.mm.yy",
-                "pt": "Mostrar um estado sob cada instância de histórico que o regista e não apenas sob o primeiro\nCorrigido a quebra de linha nas etiquetas do eixo X para os formatos de tempo como `HH:MM / dd.mm.yy`",
-                "nl": "Toon een staat onder elke geschiedenis instantie die het logt en niet alleen onder de eerste\nDe regelbreuk in de X-as-labels voor de tijdformaten zoals ",
-                "fr": "Afficher un état sous chaque instance d'historique qui l'enregistre et pas seulement sous la première\nCorrection de la rupture de ligne dans les étiquettes de l'axe X pour les formats de temps comme `HH:MM / dd.mm.yy`",
-                "it": "Mostra uno stato sotto ogni istanza di storia che lo registra e non solo sotto il primo\nRisolto il break linea nelle etichette X-Axis per i formati di tempo come `H:MM / dd.mm.yy`",
-                "es": "Mostrar un estado bajo cada instancia de historia que lo registra y no sólo bajo el primero\nArreglado la rotura de línea en las etiquetas de eje X para los formatos de tiempo como `HH:MM / dd.mm.yy`",
-                "pl": "Pokaż stan pod każdą instancją historii, który loguje go i nie tylko pod pierwszą\nNaprawiono zerwanie linii w etykietach osi Xdla formatów czasowych takich jak 'HH: MM / dd.mm.rrrr'",
-                "uk": "Покажіть стан під кожним історичним екземпляром, який записує його і не тільки під першим\nВиправлено розрив лінії в мітках X для форматів часу, таких як `HH:MM / dd.mm.y`",
-                "zh-cn": "在每一个历史实例下显示一个记录它的状态,而不仅仅是第一个记录的状态\n固定 X 轴标签中的“ HH: MM / dd.mm.y” 等时间格式的换行符"
-            },
-            "5.0.1": {
-                "en": "Fixed server-side rendering hanging until the caller timed out (preview showed \"timeout\" for every preset)\nAligned the GUI of the editor, the preview and the chart with the admin 8 design\nFixed creating a preset in a folder",
-                "de": "Feste serverseitige Wiedergabe hängt, bis der Anrufer ausgezeitet ist (Vorschau zeigt \"Timeout\" für jede Voreinstellung)\nAusrichtung der GUI des Editors, der Vorschau und des Diagramms mit dem Admin 8 Design\nFestlegen einer Voreinstellung in einem Ordner",
-                "ru": "Фиксированный рендеринг на стороне сервера, висящий до истечения времени вызова (предварительный просмотр показал «тайм-аут» для каждого набора)\nВыровняли графический интерфейс редактора, предварительный просмотр и график с дизайном admin 8\nФиксированное создание предустановки в папке",
-                "pt": "A renderização fixa do lado do servidor pendurada até o tempo limite da chamada (a pré- visualização mostrou \"tempo limite\" para cada predefinição)\nAlinhada a GUI do editor, a visualização e o gráfico com o design do administrador 8\nCorrigido a criar uma predefinição numa pasta",
-                "nl": "Vaste server-kant rendering opknoping tot de beller timed out (preview toonde \"timeout\" voor elke preset)\nDe GUI van de editor, de preview en de grafiek met de admin 8 ontwerp uitlijnen\nVastmaken van een preset in een map",
-                "fr": "Correction du rendu côté serveur pendant jusqu'à ce que l'appelant s'annule (la prévisualisation a montré \"timeout\" pour chaque préréglage)\nAlignez le GUI de l'éditeur, l'aperçu et le graphique avec le design admin 8\nCorrection de la création d'un préréglage dans un dossier",
-                "it": "Risolto il rendering del lato server sospeso fino al momento in cui il chiamante non è stato aggiornato (l'anteprima ha mostrato \"timeout\" per ogni preset)\nAllineato la GUI dell'editor, l'anteprima e il grafico con il design admin 8\nRisolto creando una preimpostazione in una cartella",
-                "es": "Corregido servidor-side rendering colgando hasta que la llamada se fijó (preview mostró \"timeout\" por cada preset)\nAlinea el GUI del editor, la vista previa y el gráfico con el diseño admin 8\nArreglado creando un preset en una carpeta",
-                "pl": "Naprawiono renderowanie po stronie serwera wiszące do czasu, gdy rozmówca się wyłączył (podgląd pokazał \"timeout\" dla każdego ustawionego czasu)\nDopasowanie GUI edytora, podglądu i wykresu z wzornictwem admin 8\nNaprawiono tworzenie ustawień w folderze",
-                "uk": "Фіксований сервер-посередній рендеринг висить до часу відправника (огляд показало \"timeout\" для кожного зада)\nВирівнюється графічний інтерфейс редактора, попередній перегляд та графік з дизайном admin 8\nВиправлено створення пресету в папці",
-                "zh-cn": "固定服务器侧渲染悬挂直到呼叫者超时( 预览显示每个预设“ 超时 ” )\n将编辑器的图形界面、预览和图表与管理员 8 设计对齐\n固定在文件夹中创建预设"
-            },
-            "5.0.0": {
-                "en": "Update to ECharts 6.1.0 and React 19",
-                "de": "Aktualisierung auf ECharts 6.1.0 und React 19",
-                "ru": "Обновите ECharts до версии 6.1.0 и React 19.",
-                "pt": "Atualização para ECharts 6.1.0 e React 19",
-                "nl": "Update naar ECharts 6.1.0 en React 19",
-                "fr": "Mise à jour vers ECharts 6.1.0 et React 19",
-                "it": "Aggiornamento a ECharts 6.1.0 e React 19",
-                "es": "Actualizar a ECharts 6.1.0 y React 19",
-                "pl": "Aktualizacja do ECharts 6.1.0 i React 19",
-                "uk": "Оновлення до ECharts 6.1.0 та React 19",
-                "zh-cn": "更新至 ECharts 6.1.0 和 React 19"
-            },
-            "4.0.0": {
-                "en": "Adapter requires node.js >= 22 now\nAdapter requires js-controller >= 6.0.11 now.",
-                "de": "Adapter benötigt node.js >= 22 jetzt\nAdapter benötigt js-Controller >= 6.0.11 jetzt.",
-                "ru": "Адаптер требует node.js >= 22 сейчас\nАдаптер требует js-контроллер >= 6.0.11 сейчас.",
-                "pt": "Adaptador requer nod.js >= 22 agora\nO adaptador requer js-controlador >= 6.0.11 agora.",
-                "nl": "Voor de adapter zijn node.js < 22 nu nodig\nVoor de adapter is nu js-controller > 6.0.11 nodig.",
-                "fr": "Adaptateur nécessite node.js >= 22 maintenant\nAdaptateur nécessite js-controller >= 6.0.11 maintenant.",
-                "it": "Adattatore richiede node.js >= 22 ora\nAdattatore richiede js-controller >= 6.0.11 ora.",
-                "es": "Adaptador requiere node.js ю= 22 ahora\nAdaptador requiere js-controller >= 6.0.11 ahora.",
-                "pl": "Adapter wymaga node.js > = 22\nAdapter wymaga sterownika js- > = 6.0.11 teraz.",
-                "uk": "Адаптер вимагає node.js >= 22 тепер\nАдаптер вимагає js-controller >=6.0.11 тепер.",
-                "zh-cn": "适配器需要节点.js 现在22\n适配器需要js控制器 >= 6.0.11 现在."
-            },
-            "3.1.2": {
-                "en": "Corrected the devices widget",
-                "de": "Das Widget der Geräte korrigiert",
-                "ru": "Исправлен виджет устройств",
-                "pt": "Corrigido o widget de dispositivos",
-                "nl": "Het apparaatwidget gecorrigeerd",
-                "fr": "Correction du widget des périphériques",
-                "it": "Corretto il widget dei dispositivi",
-                "es": "Corregido el widget de dispositivos",
-                "pl": "Poprawiono widżet urządzeń",
-                "uk": "Виправлено віджет пристроїв",
-                "zh-cn": "修正了设备部件"
-            }
-        },
-        "titleLang": {
-            "en": "E-Charts",
-            "de": "E-Charts",
-            "ru": "E-Charts",
-            "pt": "E-Charts",
-            "nl": "E-Charts",
-            "fr": "E-Charts",
-            "it": "E-Charts",
-            "es": "E-Charts",
-            "pl": "E-Charts",
-            "uk": "E-Charts",
-            "zh-cn": "E-Charts"
-        },
-        "desc": {
-            "en": "Build useful charts in ioBroker",
-            "de": "Nützliche Diagramme in ioBroker erstellen",
-            "ru": "Создавайте полезные графики в ioBroker",
-            "pt": "Crie gráficos úteis no ioBroker",
-            "nl": "Bouw handige grafieken in ioBroker",
-            "fr": "Construire des graphiques utiles dans ioBroker",
-            "it": "Crea grafici utili in ioBroker",
-            "es": "Cree gráficos útiles en ioBroker",
-            "pl": "Twórz przydatne wykresy w ioBroker",
-            "uk": "Створюйте корисні діаграми в ioBroker",
-            "zh-cn": "在ioBroker中建立有用的图表"
-        },
-        "authors": ["bluefox <dogafox@gmail.com>"],
-        "keywords": ["charts", "diagram"],
-        "adminUI": {
-            "config": "none",
-            "tab": "html"
-        },
-        "adminTab": {
-            "singleton": true,
-            "name": {
-                "ru": "Графики",
-                "en": "Charts",
-                "de": "Diagramme",
-                "pt": "Gráficos",
-                "nl": "Grafieken",
-                "fr": "Graphiques",
-                "it": "Grafici",
-                "es": "Gráficos",
-                "pl": "Wykresy",
-                "uk": "Графіки",
-                "zh-cn": "图表"
-            }
-        },
-        "localLinks": {
-            "_default": {
-                "link": "/adapter/echarts/preview/index.html",
-                "name": {
-                    "en": "Echarts",
-                    "ru": "Echarts"
-                },
-                "icon": "echarts.admin/echarts.svg",
-                "color": "#AA314D",
-                "order": 6,
-                "intro": true
-            }
-        },
-        "platform": "Javascript/Node.js",
-        "deviceWidgets": {
-            "components": [
-                {
-                    "name": "EchartComponent",
-                    "label": "EchartsViewer",
-                    "description": {
-                        "en": "Shows a saved echarts preset",
-                        "de": "Zeigt ein gespeichertes Echarts-Preset",
-                        "ru": "Показывает сохраненный пресет echarts",
-                        "pt": "Mostra um preset echarts salvo",
-                        "nl": "Toont een opgeslagen echarts preset",
-                        "fr": "Affiche un preset echarts enregistré",
-                        "it": "Mostra un preset echarts salvato",
-                        "es": "Muestra un preset de echarts guardado",
-                        "pl": "Pokazuje zapisany preset echarts",
-                        "uk": "Показує збережений пресет echarts",
-                        "zh-cn": "显示保存的echarts预设"
-                    },
-                    "icon": "echarts.svg"
-                }
-            ]
-        },
-        "connectionType": "local",
-        "dataSource": "push",
-        "icon": "echarts.png",
-        "messagebox": true,
-        "eraseOnUpload": true,
-        "nogit": true,
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
-        "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
-        "loglevel": "info",
-        "singleton": true,
-        "type": "visualization",
-        "mode": "daemon",
-        "compact": true,
-        "visWidgets": {
-            "echarts": {
-                "i18n": "component",
-                "name": "echarts",
-                "url": "echarts/customWidgets.js",
-                "bundlerType": "module",
-                "components": ["Echarts", "Interval"]
-            }
-        },
-        "restartAdapters": ["vis-2"],
-        "tier": 3,
-        "licenseInformation": {
-            "license": "Apache-2.0",
-            "type": "free"
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=6.0.11"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=7.6.20"
-            }
-        ],
-        "ifInstalledDependencies": {
-            "vis-2": ">=2.20.0"
-        }
+  "common": {
+    "name": "echarts",
+    "version": "6.1.0",
+    "news": {
+      "6.1.0": {
+        "en": "Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)\nBars per day, week or month show the right values after a switch of the daylight saving time. The history adapter split the range into equally long intervals, so after the 25-hour day every value written at 23:59:59 was shown one day later and the day of the switch stayed empty. The chart now sends the borders of its bars along; this needs ioBroker.sql, ioBroker.history or ioBroker.influxdb with `@iobroker/aggregate` 1.1 (#1311)\nCopying a preset of an older version does not break the editor anymore: the copy was stored without any lines, and the \"Diagrams\" tab stayed empty every time it was opened. A preset without lines opens as an empty one now (#1285)\nA line with a thickness stored as text, e.g. \"3\", is clipped at the border of the grid again instead of being drawn over the X-axis (#1284)\nThe CSV export keeps its line breaks in Firefox: the file was a `data:` URL, from which Firefox removes them, and a `#` in an ID cut the file off (#1282)\n\"Digits after comma\" of a line can be emptied again to use the setting of the chart, and 0 is shown as 0 instead of an empty field. The empty field shows which value is used instead (#1288)\nThe chart and the preview opened through the web adapter under the admin address (`/adapter/echarts/...`) move to the address of the web adapter on any port, not only on 8082. The preview offers the link over the own host first, so it also works behind a reverse proxy, and a copied link is absolute (#1273, #1230)\nEvery color of the chart (background, title, labels, ticks, grid, legend, bar labels, border and buttons) can get an own value for the dark theme. With the theme \"auto\", a chart in vis-2 can thus be adjusted to the light and the dark mode; empty, the color stays the same in both (#1312)",
+        "de": "Fragen, bevor ungesicherte Presets im Editor verloren gehen (#1290)\nBalken pro Tag, Woche oder Monat zeigen die richtigen Werte nach der Sommerzeit. Der Historienadapter teilte den Bereich in gleich lange Intervalle auf. Nach 25 Stunden wurde jeder Wert um 23:59:59 Uhr angezeigt und der Tag des Schalters blieb leer. Das Diagramm sendet nun die Balkenränder mit; es benötigt ioBroker.sql, ioBroker.History oder ioBroker.InfluxDB mit `@iobroker /aggregate` 1.1 (#1311)\nDas Kopieren älterer Presets macht den Editor nicht mehr kaputt: Die Kopie wurde zeilenlos gespeichert und der Tab „Diagramme“ blieb bei jedem Öffnen leer. Ein Preset ohne Zeilen wird jetzt leer (#1285)\nEine als Text gespeicherte Linie, z. B. „3\", wird am Rand des Rasters wieder abgeschnitten und nicht über die X-Achse gezogen (#1284)\nDer CSV-Export behält seine Zeilenumbrüche: Die Datei war eine `data: `URL, von der Firefox sie entfernt, und ein `#` in der ID schnitt sie ab (#1282)\n„Ziffern nach Komma“ einer Zeile können je nach Einstellung des Diagramms wieder geleert werden, 0 statt leer. Das leere Feld zeigt den Wert an (#1288)\nDas Diagramm und die im Webadapter unter der Admin-Adresse (`/adapter/echarts/... `) geöffnete Vorschau gehen an jeden Port, nicht nur an 8082. Die Vorschau zeigt zuerst den Link über den Host, also auch hinter einem Reverse-Proxy, kopierter Link (#1273, #1230)\nJede Farbe des Diagramms (Hintergrund, Titel, Ticks, Raster, Legende, Rand und Buttons) kann einen eigenen Wert haben. Mit dem Thema „Auto“ kann ein Diagramm in Vis-2 also hell und dunkel sein; leer, die Farbe bleibt gleich (#1312)",
+        "ru": "Спросите, чтобы несохраненные изменения пресетов не были потеряны, перезагрузив редактор или выйдя из него (#1290)\nСтолбцы за день, неделю или месяц показывают правильные значения после перехода на летнее время. Адаптер истории разделил диапазон на равные промежутки времени, поэтому по истечении 25-часового рабочего дня каждое значение, записанное в 23:59:59, отображалось на следующий день, а день переключения оставался пустым. Теперь границы столбцов на диаграмме отображаются вдоль; для этого нужны файлы ioBroker.sql, IOBroker.history или IOBroker.influxDB с именем `@iobroker /aggregate` 1.1 (#1311)\nКопирование пресета старой версии больше не мешает работе редактора: копия хранилась без строк, а вкладка «Диаграммы» при каждом открытии оставалась пустой. Пресет без строк теперь открывается как пустой (#1285)\nЛиния с толщиной, сохраненной в виде текста, например «3», снова обрезается на границе сетки, а не по оси X (#1284)\nПри экспорте CSV в Firefox сохраняются разрывы строк: файл представлял собой URL-адрес `data: `, с которого Firefox удаляет их, а символ `#` в идентификаторе обрезает файл (#1282)\n«Цифры после запятой» строки можно снова очистить, чтобы использовать настройки диаграммы, и 0 отображается как 0 вместо пустого поля. В пустом поле показано, какое значение используется вместо этого (#1288)\nДиаграмма и окно предварительного просмотра, открытые через веб-адаптер под адресом администратора (`/adapter/echarts/... `), перемещаются на адрес веб-адаптера на любом порту, а не только на 8082. Предварительный просмотр сначала предлагает ссылку на собственный хост, поэтому она также работает на обратном прокси-сервере, а скопированная ссылка считается абсолютной (#1273, #1230)\nКаждый цвет диаграммы (фон, заголовок, метки, галочки, сетка, легенда, метки столбцов, рамки и кнопки) может иметь собственное значение для темной темы. Таким образом, выбрав тему «auto», диаграмму в режиме vis-2 можно перевести в светлый и темный режимы; если тема пуста, цвет в обоих режимах останется неизменным (#1312)",
+        "pt": "Ao recarregar ou sair do editor, pergunte antes de perder as predefinições (#1290)\nBarras por dia, semana ou mês mostram os valores corretos após a mudança do horário de verão. O adaptador de histórico dividiu a faixa em intervalos igualmente longos. Após 25 horas, cada valor escrito às 23:59:59 era exibido um dia depois e o dia do switch ficava vazio. O gráfico agora envia as bordas de suas barras; isso requer ioBroker.sql, IOBroker.history ou IOBroker.influxDB com `@iobroker /aggregate` 1.1 (#1311)\nCopiar uma predefinição de uma versão antiga não quebra mais o editor: a cópia era salva sem linhas e a aba “Diagramas” ficava vazia toda vez que era aberta. Um preset sem linhas abre agora vazio (#1285)\nUma linha com espessura de texto, por exemplo, “3\", é cortada na borda da grade em vez de ser desenhada no eixo X (#1284)\nA exportação CSV mantém quebras de linha no Firefox: o arquivo era um URL `data: `, do qual o Firefox os remove, e um `#` em um ID corta o arquivo (#1282)\nOs “dígitos após a vírgula” de uma linha podem ser esvaziados novamente para usar o gráfico, e 0 é 0 em vez de um campo vazio. O campo vazio mostra qual valor é usado (#1288)\nO gráfico e a prévia abertos pelo web adapter sob o endereço admin (`/adapter/echarts/... `) vão para o endereço do web adapter em qualquer porta, não só na 8082. A prévia oferece primeiro o link no próprio host, então funciona como proxy reverso e o link copiado é absoluto (#1273, #1230)\nCada cor do gráfico (fundo, título, rótulos, marcas, grade, legenda, barras, bordas e botões) pode ter um valor próprio para o tema escuro. Com o tema “auto”, um gráfico em vis-2 pode ser ajustado para claro e escuro; vazio, a cor permanece a mesma (#1312)",
+        "nl": "Vraag voordat niet-opgeslagen wijzigingen van de voorinstellingen verloren gaan door de editor opnieuw te laden of de editor te verlaten (#1290)\nBalken per dag, week of maand geven de juiste waarden weer na een omschakeling van de zomertijd. De geschiedenisadapter verdeelde het bereik in even lange intervallen, dus na de dag van 25 uur werd elke waarde die om 23:59:59 werd geschreven een dag later weergegeven en bleef de dag van de switch leeg. De grafiek stuurt nu de randen van de balken mee; hiervoor zijn ioBroker.sql, IOBroker.History of IOBroker.InfluxDB nodig met `@iobroker /aggregate` 1.1 (#1311)\nAls u een voorinstelling van een oudere versie kopieert, is de editor niet meer kapot: de kopie werd zonder regels opgeslagen en het tabblad „Diagrammen” bleef elke keer dat het werd geopend leeg. Een voorinstelling zonder regels wordt nu geopend als een lege voorinstelling (#1285)\nEen lijn met een dikte die als tekst wordt opgeslagen, bijvoorbeeld „3\", wordt opnieuw aan de rand van het raster geknipt in plaats van over de X-as te worden getekend (#1284)\nDe CSV-export behoudt zijn regeleinden in Firefox: het bestand bestond uit een `data: `URL, waaruit Firefox ze verwijdert, en een `#` in een ID sneed het bestand af (#1282)\n„Cijfers na komma” van een regel kunnen opnieuw worden geleegd om de instelling van het diagram te gebruiken, en 0 wordt weergegeven als 0 in plaats van als een leeg veld. Het lege veld geeft aan welke waarde in plaats daarvan wordt gebruikt (#1288)\nDe grafiek en de preview die via de webadapter worden geopend onder het admin-adres (`/adapter/echarts/... `) gaan naar het adres van de webadapter op elke poort, niet alleen op 8082. In de preview wordt eerst de link via de eigen host weergegeven, dus die werkt ook achter een omgekeerde proxy, en een gekopieerde link is absoluut (#1273, #1230)\nElke kleur van de grafiek (achtergrond, titel, labels, vinkjes, raster, legenda, balklabels, rand en knoppen) kan een eigen waarde krijgen voor het donkere thema. Met het thema „auto” kan een grafiek in vis-2 dus worden aangepast aan de lichte en de donkere modus; leeg, de kleur blijft in beide gevallen hetzelfde (#1312)",
+        "fr": "Demandez avant de perdre les réglages non enregistrés en rechargeant ou en quittant l'éditeur (#1290)\nLes barres par jour, semaine ou mois indiquent les bonnes valeurs après le passage à l'heure d'été. L'adaptateur d'historique a divisé la plage en intervalles égaux. Ainsi, après les 25 heures, chaque valeur écrite à 23 h 59 s est affichée un jour plus tard et le jour du switch est resté vide. Le graphique affiche désormais les bords de ses barres ; il faut ioBroker.sql, IOBroker.history ou IObroker.InfluxDB avec `@iobroker /aggregate` 1.1 (#1311)\nCopier un preset d'une ancienne version ne casse plus l'éditeur : la copie était stockée sans aucune ligne et l'onglet « Diagrammes » restait vide à chaque ouverture. Un preset sans lignes s'ouvre alors vide (#1285)\nUne ligne épaisse stockée sous forme de texte, par exemple « 3 », est à nouveau découpée au bord de la grille au lieu d'être tracée (#1284)\nL'export CSV conserve ses sauts de ligne dans Firefox : le fichier était une URL « data : », que Firefox supprime, et un « # » dans l'identifiant a coupé le fichier (#1282)\nLes « chiffres après une virgule » peuvent être vidés à nouveau selon les paramètres du graphique, et 0 correspond à 0. Le champ vide indique la valeur utilisée à la place (#1288)\nLe graphique et l'aperçu ouverts via l'adaptateur Web sous l'adresse admin (`/adapter/echarts/... `) sont déplacés vers l'adresse de la carte Web sur n'importe quel port, et pas seulement sur 8082. L'aperçu propose d'abord le lien vers l'hôte, donc il fonctionne également par proxy inverse, et un lien copié est absolu (#1273, #1230)\nChaque couleur du graphique (fond, titre, libellés, coches, grille, légende, barres, bordure et boutons) peut avoir sa propre valeur pour le thème sombre. Avec le thème « auto », un graphique en VIS-2 peut donc être réglé en mode clair et en mode foncé ; vide, la couleur reste la même (#1312)",
+        "it": "Chieda prima che i preset non salvati vadano persi ricaricando o uscendo (#1290)\nLe barre per giorno, settimana o mese mostrano i valori corretti dopo il cambio di ora. L'adattatore storico divideva l'intervallo in intervalli uguali, quindi dopo 25 ore ogni valore scritto alle 23:59:59 veniva mostrato il giorno dopo e vuoto. Il grafico ora invia i bordi delle barre; richiede ioBroker.sql, IObroker.history o IObroker.influxDB con `@iobroker /aggregate` 1.1 (#1311)\nCopiare un preset di una versione precedente non rompe più l'editor: la copia era senza righe e la scheda «Diagrammi» rimaneva vuota ogni volta che veniva aperta. Un preset senza righe ora si apre vuoto (#1285)\nUna riga con uno spessore memorizzato come testo, ad esempio «3\", viene ritagliata sul bordo della griglia anziché sull'asse X (#1284)\nL'esportazione CSV mantiene le interruzioni di riga in Firefox: il file era un URL «data:», da cui Firefox li rimuove (#1282)\nLe «cifre dopo la virgola» di una riga possono essere nuovamente svuotate per usare il grafico e 0 è 0. Il campo vuoto indica il valore usato (#1288)\nIl grafico e l'anteprima aperti tramite l'adattatore web all'indirizzo admin (`/adapter/echarts/... `) si spostano su qualsiasi porta, non solo su 8082. L'anteprima offre prima il link sul proprio host, quindi funziona anche con proxy inverso e un link copiato è assoluto (#1273, #1230)\nOgni colore del grafico (sfondo, titolo, etichette, segni di spunta, griglia, legenda, bordo e pulsanti) può avere un valore per il tema scuro. Con il tema «auto», un grafico in vis-2 può essere regolato in chiaro e scuro; vuoto, il colore rimane lo stesso (#1312)",
+        "es": "Pregunte antes de perder los cambios sin guardar al volver a cargar o dejar el editor (#1290)\nLas barras por día, semana o mes muestran los valores correctos al cambiar del horario de verano. El adaptador de historial dividió la gama en intervalos iguales, de modo que, tras el día de 25 horas, todos los valores escritos a las 23:59:59 aparecían un día después y el día del cambio permanecía vacío. El gráfico ahora muestra los bordes de sus barras; necesita ioBroker.sql, IOBroker.History o IOBroker.InfluxDB con `@iobroker /aggregate` 1.1 (#1311)\nCopiar un ajuste preestablecido de una versión antigua ya no estropea el editor: la copia se guardaba sin líneas y la pestaña «Diagramas» permanecía vacía cada vez que se abría. Un preset sin líneas ahora se abre vacío (#1285)\nUna línea con un grosor guardado como texto, por ejemplo, «3», se vuelve a recortar en el borde de la cuadrícula en lugar de dibujarse en el eje X (#1284)\nLa exportación a CSV mantiene sus saltos de línea en Firefox: el archivo era una URL de `datos`, de la que Firefox los elimina, y un `#` en un ID corta el archivo (#1282)\nLos dígitos tras la coma de una línea se pueden volver a vaciar según el ajuste del gráfico y 0 se muestra como 0 en lugar de un campo vacío. El campo vacío muestra qué valor se usa en su lugar (#1288)\nEl gráfico y la vista previa que se abren en el adaptador web con la dirección de administrador (`/adapter/echarts/... `) se mueven a la dirección del adaptador web de cualquier puerto, no solo del 8082. La vista previa muestra primero el enlace sobre el propio host, por lo que también funciona con un proxy inverso, y el enlace copiado es absoluto (#1273, #1230)\nCada color del gráfico (fondo, título, etiquetas, marcas, cuadrícula, leyenda, barras, borde y botones) puede tener su propio valor para el tema oscuro. Con el tema «automático», un gráfico del visor 2 se puede ajustar al modo claro y oscuro; vacío, el color permanece igual en ambos (#1312)",
+        "pl": "Zapytaj przed utratą niezapisanych ustawionych zmian przez ponowne załadowanie lub opuszczenie edytora (#1290)\nSłupki na dzień, tydzień lub miesiąc pokazują odpowiednie wartości po zmianie czasu letniego. Adapter historii podzielił zakres na równie długie odstępy, więc po 25-godzinnym dniu każda wartość zapisana o 23:59:59 była wyświetlana dzień później, a dzień przełącznika pozostał pusty. Wykres przesyła teraz granice swoich słupków; wymaga to ioBroker.sql, IOBroker.history lub ioBroker.influxDB z `@iobroker /aggreg` 1.1 (#1311)\nKopiowanie ustawień predefiniowanych starszej wersji nie powoduje już przerwania edytora: kopia była przechowywana bez żadnych linii, a zakładka „Diagramy” pozostawała pusta za każdym razem, gdy była otwierana. Predefiniowane ustawienie bez linii otwiera się teraz jako puste (#1285)\nLinia o grubości zapisanej jako tekst, np. „3”, jest ponownie przycięta na krawędzi siatki zamiast rysować ją nad osią X (#1284)\nEksport CSV zachowuje swoje podziały wierszy w Firefoksie: plik był adresem URL `data: `, z którego Firefox je usuwa, a `#` w identyfikatorze odcięto plik (#1282)\n„Cyfry po przecinku” linii można ponownie opróżnić, aby użyć ustawienia wykresu, a 0 jest wyświetlane jako 0 zamiast pustego pola. Puste pole pokazuje, która wartość jest używana zamiast tego (#1288)\nWykres i podgląd otwarte przez kartę internetową pod adresem administratora (`/adapter/echarts/... `) przenoszą się na adres karty sieciowej na dowolnym porcie, nie tylko na 8082. Podgląd oferuje najpierw link przez własny host, więc działa również za odwrotnym serwerem proxy, a skopiowany link jest bezwzględny (#1273, #1230)\nKażdy kolor wykresu (tło, tytuł, etykiety, znaczniki, siatka, legenda, etykiety słupkowe, obramowanie i przyciski) może uzyskać własną wartość ciemnego motywu. Dzięki motywowi „auto” wykres w vis-2 można dostosować do trybu jasnego i ciemnego; pusty, kolor pozostaje taki sam w obu (#1312)",
+        "uk": "Запитайте, перш ніж незбережені зміни попередньо встановлених налаштувань будуть втрачені шляхом перезавантаження або виходу з редактора (#1290)\nБари на день, тиждень або місяць показують правильні значення після перемикання літнього часу. Адаптер історії розділив діапазон на однаково довгі інтервали, тому після 25-годинного дня кожне значення, записане о 23:59:59, було показано через день, а день перемикача залишався порожнім. Тепер діаграма надсилає межі своїх смуг вздовж; для цього потрібні ioBroker.sql, IObroker.history або ioBroker.InfluxDB з `@iobroker /aggregate` 1.1 (#1311)\nКопіювання пресету старої версії більше не порушує редактор: копія зберігалася без рядків, а вкладка «Діаграми» залишалася порожньою кожного разу, коли її відкривали. Стиль без рядків тепер відкривається як порожній (#1285)\nЛінія з товщиною, що зберігається у вигляді тексту, наприклад «3\", знову обрізається на межі сітки замість того, щоб малювати над віссю X (#1284)\nЕкспорт CSV зберігає свої розриви рядків у Firefox: файл був URL-адресою `data: `, з якої Firefox видаляє їх, а `#` в ідентифікаторі вирізало файл (#1282)\n«Цифри після коми» рядка можна знову спорожнити, щоб використовувати налаштування діаграми, а 0 відображається як 0 замість порожнього поля. Порожнє поле показує, яке значення використовується замість цього (#1288)\nДіаграма і попередній перегляд, відкриті через веб-адаптер під адресою адміністратора (`/adapter/echarts/... `) переміщаються на адресу веб-адаптера на будь-якому порті, а не тільки на 8082. Попередній перегляд пропонує спочатку посилання на власний хост, тому він також працює за зворотним проксі, а скопійоване посилання є абсолютним (#1273, #1230)\nКожен колір діаграми (фон, заголовок, мітки, галочки, сітка, легенда, мітки смуг, межа та кнопки) може отримати власне значення для темної теми. За допомогою теми «auto» діаграму у vis-2 можна налаштувати на світлий і темний режим; порожній, колір залишається незмінним в обох (#1312)",
+        "zh-cn": "在重新加载或退出编辑器导致未保存的预设更改丢失之前询问 (#1290)\n切换夏令时后，每天、每周或每月的条形图显示正确的值。历史记录适配器将范围分成同样长的间隔，因此，在 25 小时之后，在 23:59:59 写入的所有值都会在一天后显示，切换当天保持空白。图表现在会沿着其条形图的边界向前移动；这需要 ioBroker.sql、iobroker.History 或带有 `@iobroker /aggregate` 1.1 的 iobroker.influxDB (#1311)\n复制旧版本的预设不会再破坏编辑器：副本存储时没有任何行，并且每次打开 “图表” 选项卡都保持空白。没有线条的预设现在打开为空白预设 (#1285)\n将厚度存储为文本的直线（例如 “3”）再次剪切在网格的边框上，而不是在 X 轴上绘制 (#1284)\nCSV 导出在 Firefox 中保留了换行符：该文件是一个 `data: `网址，Firefox 从中删除了它们，ID 中的 `#` 将文件切断 (#1282)\n使用图表的设置，可以再次清空折线的 “逗号后的数字”，0 显示为 0 而不是空字段。空字段显示改用哪个值 (#1288)\n通过网络适配器在管理地址（`/adapter/echarts/... `）下打开的图表和预览会移动到任何端口上的网络适配器的地址，而不仅仅是8082上的地址。预览版首先通过自己的主机提供链接，因此它也可以在反向代理后面运行，并且复制的链接是绝对的 (#1273, #1230)\n图表的每种颜色（背景、标题、标签、刻度、网格、图例、条形标签、边框和按钮）都可以为深色主题获得自己的价值。因此，以 “自动” 为主题，vis-2 中的图表可以调整为明暗模式；空白时，两者的颜色保持不变 (#1312)"
+      },
+      "6.0.0": {
+        "en": "Added chart mode \"Gauge\" (rings or pointers)\nAdded chart mode \"Donut\"\nAdded \"Chart mode\" setting (Mixed, Donut, Bar, Radar, Gauge); \"One bar per line\" and \"polar\" lines are migrated\nAdded vis-2 widget \"E-Charts time range\"\nvis-2 and devices widgets can draw the chart without an iframe (experimental)\nThe time range can be passed in the URL hash and changed without reload\nFixed: dark chart in vis-2 was shown on a white background\nFixed: chart in vis-2 did not follow theme changes\nFixed: \"undefined\" after values without unit\nFixed: overlapping labels in the gauge\nFixed: radar axes were labelled \"undefined\"\nGauge uses Min/Max of the lines; empty scale ends follow the values\nFixed: gauge showed zero for lines with aggregation other than \"current\"\nSettings that have no effect in the current chart mode are hidden\nOnly \"standard\" and \"JSON\" sources are offered where no history is read; any state can be selected there\nJSON source works for current-value charts\nFixed: chart without iframe kept growing or crashed on early time range\nFixed: switching the chart mode left parts of the old chart\nFixed: line ID field lost focus while typing\nFixed: chart setting \"After comma\" was ignored\nFixed: dropdown tooltip covered the open list\nFixed missing translations of slider labels\nSource \"standard\" can be selected in the opened line too; history sources show the adapter icon\n\"Expand all\" / \"Collapse all\" are shown for a single entry too\nAdded widget description to the vis-2 palette tooltip\nBuild scripts migrated to TypeScript",
+        "de": "Chartmodus „Gauge“ hinzugefügt (Ringe oder Zeiger)\nChartmodus „Donut“ hinzugefügt\n„Chart-Modus“ hinzugefügt (Mixed, Donut, Bar, Radar, Gauge); „Ein Balken pro Linie“ und „Polar“ werden migriert\nVis-2 Widget „E-Charts time range“ hinzugefügt\nVis-2 und Geräte-Widgets können das Diagramm ohne Iframe zeichnen (Test)\nDer Zeitraum kann im URL-Hash übergeben und ohne Reload geändert werden\nBehoben: Dunkles Diagramm in Vis-2 auf weißem Grund\nBehoben: Grafik in Vis-2 folgte keinem Themewechsel\nFix: „undefiniert“ nach Werten ohne Einheit\nBehoben: Überlappende Labels im Messgerät\nBehoben: Radarachsen waren „undefiniert“\nSpur nutzt Min/Max der Linien; leere Skalenenden folgen\nBehoben: Gauge zeigte Null für Linien mit anderer Aggregation als „aktuell“\nUngültige Einstellungen im aktuellen Chartmodus sind ausgeblendet\nEs gibt nur „Standard“ - und „JSON“ -Quellen ohne Historie; jeder Staat ist wählbar\nJSON-Quelle gilt für Zeitwertdiagramme\nBehoben: Chart ohne Iframe wuchs oder stürzte im frühen Zeitraum ab\nBehoben: Umschalten des Chartmodus links vom alten Chart\nBehoben: Zeilen-ID-Feld beim Tippen\nFix: Chart-Wert „Nach Komma“ wurde ignoriert\nBehoben: Drop-down-Tooltip deckt offene Liste ab\nFehlende Slider-Labels behoben\nDie Quelle „Standard“ kann auch in der Zeile gewählt werden; Historie zeigt Adaptersymbol\n„Alle öffnen“/„Alle einklappen“ werden auch für einen Eintrag angezeigt\nWidget-Beschreibung zum Vis-2-Palette hinzugefügt\nBuild-Skripte zu TypeScript migriert",
+        "ru": "Добавлен режим графиков «Gauge» (кольца или указатели)\nДобавлен режим диаграмм «Donut»\nДобавлена настройка «Режим диаграммы» (смешанный режим, бублик, полоса, радар, датчик); перемещаются «Один столбец в строке» и «полярные» линии\nДобавлен виджет vis-2 «Временной диапазон E-Charts»\nВиджеты vis-2 и устройств могут рисовать диаграмму без фрейма (экспериментально)\nВременной диапазон может быть передан в хэше URL и изменен без перезагрузки\nИсправлено: темная диаграмма в vis-2 отображалась на белом фоне\nИсправлено: диаграмма в vis-2 не соответствовала изменениям темы\nИсправлено: «не определено» после значений без единиц измерения\nИсправлено: перекрывающиеся метки в датчике\nИсправлено: оси радара были помечены как «неопределенные»\nКалибр использует минимальное/максимальное количество линий; пустые концы шкалы соответствуют значениям\nИсправлено: датчик показывал ноль для линий с агрегацией, отличной от «текущей»\nНастройки, которые не действуют в текущем режиме диаграммы, скрыты\nПредлагаются только «стандартные» и «JSON-источники», где история не читается; там можно выбрать любое состояние\nИсходный код JSON работает для графиков текущих значений\nИсправлено: график без iframe продолжал расти или зависал в раннем временном диапазоне\nИсправлено: при переключении режима графика левая часть старого графика\nИсправлено: поле идентификатора строки теряло фокус при наборе текста\nИсправлено: настройка диаграммы «После запятой» игнорировалась\nИсправлено: всплывающая подсказка закрывала открытый список\nИсправлены недостающие переводы надписей слайдеров\nВ открывшейся строке также можно выбрать источник «стандартный»; источники истории показывают значок адаптера\n«Развернуть все»/«Свернуть все» также показаны для одной записи\nДобавлено описание виджета во всплывающую подсказку палитры vis-2\nСценарии сборки перенесены на TypeScript",
+        "pt": "Adição do modo gráfico “Gauge” (anéis ou ponteiros)\nAdição do modo gráfico “Donut”\nAdicionado “Modo gráfico” (misto, rosca, barra, radar, medidor); migra “Uma barra por linha” e “polares”\nAdicionado widget vis-2 “E-Charts time range”\nOs widgets vis-2 e devices desenham o gráfico sem iframe (experimental)\nO tempo pode ser passado no hash do URL e alterado sem recarga\nCorrigido: gráfico escuro em vis-2 em fundo branco\nFixo: o gráfico no vis-2 não mudou de tema\nFixo: “indefinido” após valores sem unidade\nFixo: rótulos sobrepostos no medidor\nFixo: os eixos do radar eram “indefinidos”\nO medidor usa Min/Max das linhas; a escala vazia segue os valores\nFixo: o medidor mostrou zero para linhas com agregação diferente de “atual”\nAjustes inativos no modo gráfico atual são ocultos\nSomente fontes “padrão” e “JSON” são oferecidas sem histórico; qualquer estado pode ser selecionado\nA fonte JSON funciona para gráficos atuais\nCorrigido: o gráfico sem iframe cresceu ou caiu no início\nCorrigido: mudar o modo para a esquerda do gráfico antigo\nFixo: o ID de linha perdeu o foco ao digitar\nCorrigido: o gráfico “Após vírgula” foi ignorado\nCorrigido: a dica suspensa cobria a lista aberta\nCorrigida a falta de traduções de rótulos\nA fonte “padrão” também pode ser selecionada na linha aberta; o histórico mostra o ícone\n“Expandir tudo”/“Recolher tudo” também aparece\nDescrição do widget adicionada à paleta vis-2\nCrie scripts migrados para TypeScript",
+        "nl": "Kaartmodus „Gauge” toegevoegd (ringen of wijzers)\nDiagrammodus „Donut” toegevoegd\nInstelling „Kaartmodus” toegevoegd (gemengd, Donut, Bar, Radar, Gauge); „Eén balk per lijn” en „polaire” lijnen worden gemigreerd\nVis-2-widget „E-Charts time range” toegevoegd\nvis-2 en widgets voor apparaten kunnen de grafiek tekenen zonder iframe (experimenteel)\nHet tijdbereik kan worden ingevoerd in de URL-hash en gewijzigd worden zonder opnieuw te laden\nOpgelost: de donkere kaart in vis-2 werd weergegeven op een witte achtergrond\nOpgelost: de grafiek in vis-2 volgde geen wijzigingen in het thema\nOpgelost: „ongedefinieerd” na waarden zonder eenheid\nOpgelost: overlappende labels in de meter\nOpgelost: radarassen kregen het label „ongedefinieerd”\nDe meter gebruikt Min/Max van de lijnen; lege schaaluiteinden volgen de waarden\nOpgelost: de meter gaf nul aan voor lijnen met een andere aggregatie dan „huidig”\nInstellingen die geen effect hebben in de huidige kaartmodus zijn verborgen\nEr worden alleen „standaard” en „JSON” -bronnen aangeboden waar geen geschiedenis wordt gelezen; elke staat kan daar worden geselecteerd\nDe JSON-bron werkt voor grafieken met huidige waarden\nOpgelost: de grafiek zonder iframe bleef groeien of crashte in een vroeg tijdsbestek\nOpgelost: omschakelen van de kaartmodus naar de linkerdelen van de oude kaart\nOpgelost: het lijn-ID-veld verloor de focus tijdens het typen\nOpgelost: de grafiekinstelling „Na een komma” werd genegeerd\nOpgelost: de dropdown-tooltip had betrekking op de openstaande lijst\nOntbrekende vertalingen van sliderlabels opgelost\nDe bron „standaard” kan ook worden geselecteerd in de geopende regel; bronnen uit de geschiedenis tonen het adapterpictogram\n„Alles uitvouwen” /„ Alles samenvouwen” worden ook voor één item weergegeven\nBeschrijving van de widget toegevoegd aan de tooltip van het vis-2-palet\nBuild-scripts gemigreerd naar TypeScript",
+        "fr": "Ajout du mode graphique « Gauge » (anneaux ou pointeurs)\nAjout du mode « Donut »\nAjout du réglage « Mode graphique » (Mixed, Donut, Bar, Radar, Gauge) ; « Une barre par ligne » et « Polar » sont migrées\nAjout du widget Vis-2 « E-Charts time range »\nles widgets vis-2 et devices peuvent dessiner le graphique sans iframe (expérimental)\nLa plage horaire peut être saisie dans le hash de l'URL et modifiée\nCorrigé : la carte noire en VIS-2 était affichée sur fond blanc\nCorrigé : le thème de Vis-2 ne suivait pas le thème\nCorrigé : « indéfini » après des valeurs sans unité\nCorrigé : étiquettes superposées sur la jauge\nCorrigé : les axes radar étaient « indéfinis »\nLa jauge utilise Min/Max des lignes ; les fins vides suivent les valeurs\nCorrigé : la jauge indiquait zéro pour les lignes non agrégées\nLes paramètres sans effet dans le mode graphique actuel sont masqués\nSeules les sources « standard » et « JSON » sont proposées sans historique ; n'importe quel état peut y être sélectionné\nLa source JSON fonctionne pour les graphiques actuels\nCorrigé : le graphique sans iframe ne cessait de croître ou se bloquait tôt\nCorrigé : changer de mode sur la partie gauche de l'ancienne carte\nCorrigé : le champ Line ID était flou en tapant\nCorrigé : le réglage « Après la virgule » a été ignoré\nCorrigé : une infobulle recouvrait la liste ouverte\nCorrection de la traduction des sliders\nLa source « standard » peut être sélectionnée sur la ligne ouverte ; l'historique montre l'icône\n« Tout développer » /« Tout réduire » s'affiche aussi pour une seule entrée\nAjout de la description du widget à l'infobulle de la palette Vis-2\nBuild scripts migrés vers TypeScript",
+        "it": "Aggiunta la modalità «Gauge» (anelli o lancette)\nAggiunto il grafico «Donut»\nAggiunta la modalità «Grafico» (Mixed, Donut, Bar, Radar, Gauge); «Una barra per riga» e le linee «polari»\nAggiunto il widget vis-2 «E-Charts time range»\nvis-2 e devices possono disegnare il grafico senza iframe (sperimentale)\nL'intervallo può essere inserito nell'URL senza ricaricare\nRisolto: il grafico scuro in vis-2 era su sfondo bianco\nRisolto: il grafico in vis-2 non seguiva i cambi tema\nRisolto: «indefinito» dopo valori senza unità\nRisolto: etichette sovrapposte\nRisolto: gli assi radar erano «indefiniti»\nGauge usa linee min/max; le scale vuote seguono i valori\nRisolto: zero per le righe con aggregazione diversa da «corrente»\nLe impostazioni non valide nel grafico attuale sono nascoste\nSono disponibili solo fonti «standard» e «JSON» senza cronologia; ogni stato può essere scelto\nLa fonte JSON funziona per i grafici attuali\nRisolto: il grafico senza iframe cresceva o si bloccava all'inizio\nRisolto: cambio della modalità a sinistra del vecchio\nRisolto: il campo Line ID si è perso mentre scriveva\nRisolto: il grafico «Dopo virgola» era ignorato\nRisolto: il tooltip copriva l'elenco aperto\nRisolte le traduzioni mancanti dei cursori\nLa fonte «standard» è selezionabile nella riga aperta; la cronologia mostra l'icona\nAnche «Espandi tutto» /\"Comprimi tutto» è una sola voce\nAggiunta descrizione del widget al tooltip vis-2\nCrea script migrati a TypeScript",
+        "es": "Se añadió el modo gráfico «Gauge» (anillos o punteros)\nAñadió el modo lista «Donut»\nSe ha añadido el ajuste «modo gráfico» (mixto, rosquilla, bar, radar, indicador); se migran las líneas «una barra por línea» y «polar»\nSe ha añadido el widget vis-2 «E-Charts time range»\nLos widgets vis-2 y Devices pueden dibujar el gráfico sin iframe (experimental)\nSe puede pasar el intervalo de tiempo al hash de la URL y cambiarlo sin recargar\nCorregido: la carta oscura de la vis-2 aparecía sobre fondo blanco\nCorregido: el gráfico de vis-2 no seguía los cambios de tema\nFijo: «indefinido» tras valores sin unidad\nCorregido: etiquetas superpuestas en el indicador\nCorregido: los ejes de radar decían «indefinidos»\nEl medidor usa Mín/Máx de las líneas; la escala vacía sigue los valores\nCorregido: el indicador mostraba cero para las líneas con un agregado distinto de «actual»\nLos ajustes que no afectan al modo gráfico actual están ocultos\nSolo se ofrecen fuentes «estándar» y «JSON» sin leer el historial; allí se puede seleccionar cualquier estado\nLa fuente JSON sirve para gráficos de valores\nCorregido: el gráfico sin iframe seguía creciendo o se bloqueaba al principio\nCorregido: cambiar el modo gráfico a partes izquierdas del antiguo\nCorregido: el campo ID de línea se desenfocaba al escribir\nCorregido: se ignoró el ajuste gráfico «tras la coma»\nCorregido: el menú desplegable cubría la lista abierta\nSe corrigió la falta de traducción de las etiquetas\nLa fuente «estándar» también se puede seleccionar en la línea abierta; el historial muestra el icono\nTambién se muestran «Expandir todo» y «Colapsar todo» para una entrada\nSe ha añadido la descripción del widget a la paleta vis-2\nCree guiones migrados a TypeScript",
+        "pl": "Dodano tryb wykresu „Gauge” (pierścienie lub wskaźniki)\nDodano tryb wykresu „Pączek”\nDodano ustawienie „Tryb wykresu” (Mixed, Donut, Bar, Radar, Gauge); Migrowane są linie „Jeden pasek na linię” i „polarne”\nDodano widżet vis-2 „Zakres czasu E-Charts”\nwidżety vis-2 i urządzeń mogą rysować wykres bez iframe (eksperymentalny)\nZakres czasu może zostać przekazany w skrócie URL i zmieniany bez ponownego ładowania\nNaprawiono: ciemny wykres w vis-2 był pokazany na białym tle\nNaprawiono: wykres w vis-2 nie śledził zmian motywu\nNaprawiono: „niezdefiniowane” po wartościach bez jednostki\nNaprawiono: nakładające się etykiety w mierniku\nNaprawiono: osie radarowe zostały oznaczone jako „niezdefiniowane”\nMiernik używa Min/Max linii; puste końce skali są zgodne z wartościami\nNaprawiono: wskaźnik pokazywał zero dla linii z agregacją inną niż „prąd”\nUstawienia, które nie mają wpływu w bieżącym trybie wykresu, są ukryte\nOferowane są tylko źródła „standardowe” i „JSON”, w których nie czyta się historii; można tam wybrać dowolny stan\nŹródło JSON działa dla wykresów o wartości bieżącej\nNaprawiono: wykres bez iframe nadal rósł lub rozbił się we wczesnym przedziale czasowym\nNaprawiono: przełączanie trybu wykresu w lewo części starego wykresu\nNaprawiono: pole ID linii utraciło ostrość podczas pisania\nNaprawiono: ustawienie wykresu „Po przecinku” zostało zignorowane\nNaprawiono: rozwijana podpowiedź obejmowała otwartą listę\nNaprawiono brakujące tłumaczenia etykiet suwaków\nŹródło „standard” można również wybrać w otwartym wierszu; źródła historii pokazują ikonę adaptera\n„Rozwiń wszystko”/„Zwiń wszystko” są wyświetlane również dla pojedynczego wpisu\nDodano opis widżetu do podpowiedzi palety vis-2\nSkrypty kompilacji migrowane do TypeScript",
+        "uk": "Додано режим діаграми «Gauge» (кільця або покажчики)\nДодано режим діаграми «Пончик»\nДодано налаштування «Режим діаграми» (Змішаний, Пончик, Бар, Радар, Gauge); «Один бар на рядок» та «полярні» лінії мігруються\nДодано віджет vis-2 «Часовий діапазон електронних діаграм»\nВіджети vis-2 і пристроїв можуть малювати діаграму без iframe (експериментальний)\nЧасовий діапазон можна передати в хеш URL і змінити без перезавантаження\nВиправлено: темна діаграма у vis-2 була показана на білому тлі\nВиправлено: діаграма в vis-2 не слідувала змінам теми\nВиправлено: «невизначено» після значень без одиниці\nВиправлено: перекриття етикеток у калібрі\nВиправлено: радіолокаційні осі були позначені як «невизначені»\nДатчик використовує Min/Max ліній; порожні кінці шкали слідують значенням\nВиправлено: датчик показав нуль для ліній з агрегацією, відмінною від «струму»\nПараметри, які не мають ефекту в поточному режимі діаграми, приховані\nПропонуються лише «стандартні» та «JSON» джерела, де історія не читається; там можна вибрати будь-який стан\nДжерело JSON працює для діаграм поточних значень\nВиправлено: діаграма без iframe продовжувала зростати або розбивалася на ранньому часовому діапазоні\nВиправлено: перемикання режиму діаграми лівих частин старої діаграми\nВиправлено: поле ID рядка втратило фокус під час введення\nВиправлено: налаштування діаграми «Після коми» було проігноровано\nВиправлено: підказка, що випадає, охоплює відкритий список\nВиправлені відсутні переклади міток слайдерів\nДжерело «стандартне» також можна вибрати у відкритому рядку; джерела історії показують значок адаптера\n«Розгорнути все»/«Згорнути все» також відображаються для одного запису\nДодано опис віджета до підказки палітри vis-2\nСкрипти збірки перенесені на TypeScript",
+        "zh-cn": "添加了图表模式 “仪表”（环形或指针）\n添加了图表模式 “甜甜圈”\n添加了 “图表模式” 设置（混合、甜甜圈、条形图、雷达、仪表）；迁移了 “每行一根柱线” 和 “极坐标线”\n添加了 vis-2 小工具 “电子图表时间范围”\nvis-2 和设备控件可以在没有 iframe 的情况下绘制图表（实验性）\n时间范围可以在 URL 哈希中传递，无需重新加载即可更改\n修复：vis-2中的深色图表显示在白色背景上\n修复：vis-2中的图表没有遵循主题的变化\n修复：没有单位的值后 “未定义”\n修复：仪表盘中的标签重叠\n修复：雷达轴被标记为 “未定义”\n仪表盘使用直线的最小值/最大值；空刻度以值为终点\n修复：对于除了 “当前” 以外的聚合线路，仪表显示为零\n隐藏在当前图表模式下无效的设置\n仅提供不读取历史记录的 “标准” 和 “JSON” 来源；可以在那里选择任何状态\nJSON 源代码适用于当前值图表\n修复：没有iframe的图表在早期时间范围内持续增长或崩溃\n修复：切换图表模式旧图表的左侧部分\n修复：线路ID字段在打字时失去焦点\n修复：图表设置 “逗号之后” 被忽略了\n修复：下拉工具提示覆盖了打开的列表\n修复了滑块标签缺失的翻译\n也可以在打开的行中选择来源 “标准”；历史来源显示适配器图标\n对于单个条目，也会显示 “全部展开”/“全部折叠”\n在 vis-2 调色板工具提示中添加了控件描述\n编译脚本迁移到 TypeScri"
+      },
+      "5.1.1": {
+        "en": "Many GUI fixes",
+        "de": "Viele GUI-Korrekturen",
+        "ru": "Множество исправлений графического интерфейса.",
+        "pt": "Muitas correções na interface gráfica.",
+        "nl": "Veel GUI-verbeteringen",
+        "fr": "De nombreuses corrections d'interface graphique",
+        "it": "Numerose correzioni all'interfaccia grafica",
+        "es": "Muchas correcciones de la interfaz gráfica de usuario",
+        "pl": "Wiele poprawek GUI",
+        "uk": "Багато виправлень графічного інтерфейсу",
+        "zh-cn": "修复了许多图形用户界面问题"
+      },
+      "5.0.2": {
+        "en": "Show a state under every history instance that logs it and not only under the first one\nFixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`",
+        "de": "Zeigen Sie einen Zustand unter jeder historischen Instanz, die es protokolliert und nicht nur unter dem ersten\nBehebt den Linienumbruch in den X-Achsen-Etiketten für die Zeitformate wie `HH:MM / dd.mm.yy`",
+        "ru": "Покажите государство в каждом историческом случае, которое регистрирует его, а не только в первом\nИсправлен разрыв линии в ярлыках оси X для форматов времени, таких как HH:MM / dd.mm.yy",
+        "pt": "Mostrar um estado sob cada instância de histórico que o regista e não apenas sob o primeiro\nCorrigido a quebra de linha nas etiquetas do eixo X para os formatos de tempo como `HH:MM / dd.mm.yy`",
+        "nl": "Toon een staat onder elke geschiedenis instantie die het logt en niet alleen onder de eerste\nDe regelbreuk in de X-as-labels voor de tijdformaten zoals ",
+        "fr": "Afficher un état sous chaque instance d'historique qui l'enregistre et pas seulement sous la première\nCorrection de la rupture de ligne dans les étiquettes de l'axe X pour les formats de temps comme `HH:MM / dd.mm.yy`",
+        "it": "Mostra uno stato sotto ogni istanza di storia che lo registra e non solo sotto il primo\nRisolto il break linea nelle etichette X-Axis per i formati di tempo come `H:MM / dd.mm.yy`",
+        "es": "Mostrar un estado bajo cada instancia de historia que lo registra y no sólo bajo el primero\nArreglado la rotura de línea en las etiquetas de eje X para los formatos de tiempo como `HH:MM / dd.mm.yy`",
+        "pl": "Pokaż stan pod każdą instancją historii, który loguje go i nie tylko pod pierwszą\nNaprawiono zerwanie linii w etykietach osi Xdla formatów czasowych takich jak 'HH: MM / dd.mm.rrrr'",
+        "uk": "Покажіть стан під кожним історичним екземпляром, який записує його і не тільки під першим\nВиправлено розрив лінії в мітках X для форматів часу, таких як `HH:MM / dd.mm.y`",
+        "zh-cn": "在每一个历史实例下显示一个记录它的状态,而不仅仅是第一个记录的状态\n固定 X 轴标签中的“ HH: MM / dd.mm.y” 等时间格式的换行符"
+      },
+      "5.0.1": {
+        "en": "Fixed server-side rendering hanging until the caller timed out (preview showed \"timeout\" for every preset)\nAligned the GUI of the editor, the preview and the chart with the admin 8 design\nFixed creating a preset in a folder",
+        "de": "Feste serverseitige Wiedergabe hängt, bis der Anrufer ausgezeitet ist (Vorschau zeigt \"Timeout\" für jede Voreinstellung)\nAusrichtung der GUI des Editors, der Vorschau und des Diagramms mit dem Admin 8 Design\nFestlegen einer Voreinstellung in einem Ordner",
+        "ru": "Фиксированный рендеринг на стороне сервера, висящий до истечения времени вызова (предварительный просмотр показал «тайм-аут» для каждого набора)\nВыровняли графический интерфейс редактора, предварительный просмотр и график с дизайном admin 8\nФиксированное создание предустановки в папке",
+        "pt": "A renderização fixa do lado do servidor pendurada até o tempo limite da chamada (a pré- visualização mostrou \"tempo limite\" para cada predefinição)\nAlinhada a GUI do editor, a visualização e o gráfico com o design do administrador 8\nCorrigido a criar uma predefinição numa pasta",
+        "nl": "Vaste server-kant rendering opknoping tot de beller timed out (preview toonde \"timeout\" voor elke preset)\nDe GUI van de editor, de preview en de grafiek met de admin 8 ontwerp uitlijnen\nVastmaken van een preset in een map",
+        "fr": "Correction du rendu côté serveur pendant jusqu'à ce que l'appelant s'annule (la prévisualisation a montré \"timeout\" pour chaque préréglage)\nAlignez le GUI de l'éditeur, l'aperçu et le graphique avec le design admin 8\nCorrection de la création d'un préréglage dans un dossier",
+        "it": "Risolto il rendering del lato server sospeso fino al momento in cui il chiamante non è stato aggiornato (l'anteprima ha mostrato \"timeout\" per ogni preset)\nAllineato la GUI dell'editor, l'anteprima e il grafico con il design admin 8\nRisolto creando una preimpostazione in una cartella",
+        "es": "Corregido servidor-side rendering colgando hasta que la llamada se fijó (preview mostró \"timeout\" por cada preset)\nAlinea el GUI del editor, la vista previa y el gráfico con el diseño admin 8\nArreglado creando un preset en una carpeta",
+        "pl": "Naprawiono renderowanie po stronie serwera wiszące do czasu, gdy rozmówca się wyłączył (podgląd pokazał \"timeout\" dla każdego ustawionego czasu)\nDopasowanie GUI edytora, podglądu i wykresu z wzornictwem admin 8\nNaprawiono tworzenie ustawień w folderze",
+        "uk": "Фіксований сервер-посередній рендеринг висить до часу відправника (огляд показало \"timeout\" для кожного зада)\nВирівнюється графічний інтерфейс редактора, попередній перегляд та графік з дизайном admin 8\nВиправлено створення пресету в папці",
+        "zh-cn": "固定服务器侧渲染悬挂直到呼叫者超时( 预览显示每个预设“ 超时 ” )\n将编辑器的图形界面、预览和图表与管理员 8 设计对齐\n固定在文件夹中创建预设"
+      },
+      "5.0.0": {
+        "en": "Update to ECharts 6.1.0 and React 19",
+        "de": "Aktualisierung auf ECharts 6.1.0 und React 19",
+        "ru": "Обновите ECharts до версии 6.1.0 и React 19.",
+        "pt": "Atualização para ECharts 6.1.0 e React 19",
+        "nl": "Update naar ECharts 6.1.0 en React 19",
+        "fr": "Mise à jour vers ECharts 6.1.0 et React 19",
+        "it": "Aggiornamento a ECharts 6.1.0 e React 19",
+        "es": "Actualizar a ECharts 6.1.0 y React 19",
+        "pl": "Aktualizacja do ECharts 6.1.0 i React 19",
+        "uk": "Оновлення до ECharts 6.1.0 та React 19",
+        "zh-cn": "更新至 ECharts 6.1.0 和 React 19"
+      },
+      "4.0.0": {
+        "en": "Adapter requires node.js >= 22 now\nAdapter requires js-controller >= 6.0.11 now.",
+        "de": "Adapter benötigt node.js >= 22 jetzt\nAdapter benötigt js-Controller >= 6.0.11 jetzt.",
+        "ru": "Адаптер требует node.js >= 22 сейчас\nАдаптер требует js-контроллер >= 6.0.11 сейчас.",
+        "pt": "Adaptador requer nod.js >= 22 agora\nO adaptador requer js-controlador >= 6.0.11 agora.",
+        "nl": "Voor de adapter zijn node.js < 22 nu nodig\nVoor de adapter is nu js-controller > 6.0.11 nodig.",
+        "fr": "Adaptateur nécessite node.js >= 22 maintenant\nAdaptateur nécessite js-controller >= 6.0.11 maintenant.",
+        "it": "Adattatore richiede node.js >= 22 ora\nAdattatore richiede js-controller >= 6.0.11 ora.",
+        "es": "Adaptador requiere node.js ю= 22 ahora\nAdaptador requiere js-controller >= 6.0.11 ahora.",
+        "pl": "Adapter wymaga node.js > = 22\nAdapter wymaga sterownika js- > = 6.0.11 teraz.",
+        "uk": "Адаптер вимагає node.js >= 22 тепер\nАдаптер вимагає js-controller >=6.0.11 тепер.",
+        "zh-cn": "适配器需要节点.js 现在22\n适配器需要js控制器 >= 6.0.11 现在."
+      }
     },
-    "native": {},
-    "objects": [
-        {
-            "_id": "_design/chart",
-            "type": "design",
-            "language": "javascript",
-            "views": {
-                "chart": {
-                    "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
-                }
-            }
-        }
+    "titleLang": {
+      "en": "E-Charts",
+      "de": "E-Charts",
+      "ru": "E-Charts",
+      "pt": "E-Charts",
+      "nl": "E-Charts",
+      "fr": "E-Charts",
+      "it": "E-Charts",
+      "es": "E-Charts",
+      "pl": "E-Charts",
+      "uk": "E-Charts",
+      "zh-cn": "E-Charts"
+    },
+    "desc": {
+      "en": "Build useful charts in ioBroker",
+      "de": "Nützliche Diagramme in ioBroker erstellen",
+      "ru": "Создавайте полезные графики в ioBroker",
+      "pt": "Crie gráficos úteis no ioBroker",
+      "nl": "Bouw handige grafieken in ioBroker",
+      "fr": "Construire des graphiques utiles dans ioBroker",
+      "it": "Crea grafici utili in ioBroker",
+      "es": "Cree gráficos útiles en ioBroker",
+      "pl": "Twórz przydatne wykresy w ioBroker",
+      "uk": "Створюйте корисні діаграми в ioBroker",
+      "zh-cn": "在ioBroker中建立有用的图表"
+    },
+    "authors": [
+      "bluefox <dogafox@gmail.com>"
     ],
-    "instanceObjects": [
+    "keywords": [
+      "charts",
+      "diagram"
+    ],
+    "adminUI": {
+      "config": "none",
+      "tab": "html"
+    },
+    "adminTab": {
+      "singleton": true,
+      "name": {
+        "ru": "Графики",
+        "en": "Charts",
+        "de": "Diagramme",
+        "pt": "Gráficos",
+        "nl": "Grafieken",
+        "fr": "Graphiques",
+        "it": "Grafici",
+        "es": "Gráficos",
+        "pl": "Wykresy",
+        "uk": "Графіки",
+        "zh-cn": "图表"
+      }
+    },
+    "localLinks": {
+      "_default": {
+        "link": "/adapter/echarts/preview/index.html",
+        "name": {
+          "en": "Echarts",
+          "ru": "Echarts"
+        },
+        "icon": "echarts.admin/echarts.svg",
+        "color": "#AA314D",
+        "order": 6,
+        "intro": true
+      }
+    },
+    "platform": "Javascript/Node.js",
+    "deviceWidgets": {
+      "components": [
         {
-            "_id": "",
-            "type": "meta",
-            "common": {
-                "name": "user files and images for echarts",
-                "type": "meta.user"
-            },
-            "native": {}
+          "name": "EchartComponent",
+          "label": "EchartsViewer",
+          "description": {
+            "en": "Shows a saved echarts preset",
+            "de": "Zeigt ein gespeichertes Echarts-Preset",
+            "ru": "Показывает сохраненный пресет echarts",
+            "pt": "Mostra um preset echarts salvo",
+            "nl": "Toont een opgeslagen echarts preset",
+            "fr": "Affiche un preset echarts enregistré",
+            "it": "Mostra un preset echarts salvato",
+            "es": "Muestra un preset de echarts guardado",
+            "pl": "Pokazuje zapisany preset echarts",
+            "uk": "Показує збережений пресет echarts",
+            "zh-cn": "显示保存的echarts预设"
+          },
+          "icon": "echarts.svg"
         }
-    ]
+      ]
+    },
+    "connectionType": "local",
+    "dataSource": "push",
+    "icon": "echarts.png",
+    "messagebox": true,
+    "eraseOnUpload": true,
+    "nogit": true,
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.echarts/master/admin/echarts.png",
+    "readme": "https://github.com/ioBroker/ioBroker.echarts/blob/master/README.md",
+    "loglevel": "info",
+    "singleton": true,
+    "type": "visualization",
+    "mode": "daemon",
+    "compact": true,
+    "visWidgets": {
+      "echarts": {
+        "i18n": "component",
+        "name": "echarts",
+        "url": "echarts/customWidgets.js",
+        "bundlerType": "module",
+        "components": [
+          "Echarts",
+          "Interval"
+        ]
+      }
+    },
+    "restartAdapters": [
+      "vis-2"
+    ],
+    "tier": 3,
+    "licenseInformation": {
+      "license": "Apache-2.0",
+      "type": "free"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.20"
+      }
+    ],
+    "ifInstalledDependencies": {
+      "vis-2": ">=2.20.0"
+    }
+  },
+  "native": {},
+  "objects": [
+    {
+      "_id": "_design/chart",
+      "type": "design",
+      "language": "javascript",
+      "views": {
+        "chart": {
+          "map": "function(doc) { if (doc.type === 'chart') emit(doc._id, doc); }"
+        }
+      }
+    }
+  ],
+  "instanceObjects": [
+    {
+      "_id": "",
+      "type": "meta",
+      "common": {
+        "name": "user files and images for echarts",
+        "type": "meta.user"
+      },
+      "native": {}
+    }
+  ]
 }

@@ -1,4 +1,9 @@
 # Older changes
+## 5.0.1 (2026-08-08)
+- (@Brainbug01) Fixed server-side rendering hanging until the caller timed out (preview showed "timeout" for every preset)
+- (@GermanBluefox) Aligned the GUI of the editor, the preview and the chart with the admin 8 design
+- (@Brainbug01) Fixed creating a preset in a folder
+
 ## 5.0.0 (2026-08-03)
 - (@GermanBluefox) Update to ECharts 6.1.0 and React 19
 

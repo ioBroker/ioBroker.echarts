@@ -177,7 +177,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 6.1.0 (2026-10-30)
 * (GermanBluefox) Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)
 * (GermanBluefox) Bars per day, week or month show the right values after a switch of the daylight saving time. The history adapter split the range into equally long intervals, so after the 25-hour day every value written at 23:59:59 was shown one day later and the day of the switch stayed empty. The chart now sends the borders of its bars along; this needs ioBroker.sql, ioBroker.history or ioBroker.influxdb with `@iobroker/aggregate` 1.1 (#1311)
 * (GermanBluefox) Copying a preset of an older version does not break the editor anymore: the copy was stored without any lines, and the "Diagrams" tab stayed empty every time it was opened. A preset without lines opens as an empty one now (#1285)
@@ -289,11 +289,6 @@ You can debug view charts locally with:
 ### 5.0.2 (2026-08-10)
 - (@GermanBluefox) Show a state under every history instance that logs it and not only under the first one
 - (@GermanBluefox) Fixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`
-
-### 5.0.1 (2026-08-08)
-- (@Brainbug01) Fixed server-side rendering hanging until the caller timed out (preview showed "timeout" for every preset)
-- (@GermanBluefox) Aligned the GUI of the editor, the preview and the chart with the admin 8 design
-- (@Brainbug01) Fixed creating a preset in a folder
 
 ## License
 

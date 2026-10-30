@@ -1,5 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/** The colors that can have an own value for the dark theme */
+const THEME_COLORS = [
+    'window_bg',
+    'bg_custom',
+    'border_color',
+    'titleColor',
+    'x_labels_color',
+    'x_ticks_color',
+    'y_labels_color',
+    'y_ticks_color',
+    'grid_color',
+    'legColor',
+    'legBg',
+    'barFontColor',
+    'exportColor',
+    'exportDataColor',
+];
 // The time formats offered in the editor use `<br />` (with spaces) as a line break, custom ones may use `<br/>`
 /** The needle of the gauge, as the echarts example draws it */
 /**
@@ -257,6 +274,26 @@ class ChartOption {
         this.config = config;
     }
     */
+    /**
+     * The preset as it is drawn in the given theme: in the dark theme every color with a value in
+     * `<name>_dark` uses that one. The preset itself is not changed.
+     */
+    static applyThemeColors(config, themeType) {
+        if (!config || themeType !== 'dark') {
+            return config;
+        }
+        let result = config;
+        for (const name of THEME_COLORS) {
+            const dark = config[`${name}_dark`];
+            if (dark) {
+                if (result === config) {
+                    result = { ...config };
+                }
+                result[name] = dark;
+            }
+        }
+        return result;
+    }
     getHelperChartData() {
         return this.chart;
     }
@@ -312,6 +349,11 @@ class ChartOption {
             // `getVisualMap` needs the color that was really used, not only the configured one
             this.chart.seriesColors[i] = color;
             oneLine.shadowsize = parseFloat(oneLine.shadowsize) || 0;
+            // A preset can carry the thickness as a string, e.g. "3" of the default preset. ECharts adds the line
+            // width to the height of the clip rectangle, and with a string it concatenated "284" + "3" to "2843",
+            // so the line was not clipped at the bottom of the grid any more (#1284)
+            const thickness = parseFloat(oneLine.thickness);
+            oneLine.thickness = Number.isFinite(thickness) ? thickness : 1;
             if (oneLine.dashes === 'false') {
                 oneLine.dashes = false;
             }
@@ -1958,6 +2000,7 @@ class ChartOption {
         if (config) {
             this.config = JSON.parse(JSON.stringify(config));
         }
+        this.config = ChartOption.applyThemeColors(this.config, this.themeType);
         const useCanvas = this.isTouch && this.config.zoom;
         let theme = this.config.theme;
         if (!theme || theme === 'default') {
