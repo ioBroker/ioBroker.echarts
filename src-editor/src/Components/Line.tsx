@@ -523,9 +523,8 @@ export default class Line extends React.Component<LineProps, LineState> {
             visible.chartType = true;
         }
 
-        const hasBarOrPolar = this.props.presetData.l.find(
-            line => line.chartType === 'bar' || line.chartType === 'polar',
-        );
+        // Only the own type counts: in the "mixed" mode bars and lines can be combined
+        const hasBarOrPolar = this.props.line.chartType === 'bar' || this.props.line.chartType === 'polar';
         const aggregateTypes: Record<ChartAggregateType, string> = {
             minmax: 'minmax',
             average: 'average',
@@ -547,7 +546,7 @@ export default class Line extends React.Component<LineProps, LineState> {
         // The radar, the donut and the bars of the current values show a single value per line, so
         // they take it straight from the state instead of reading the history
         if (
-            (hasBarOrPolar && this.props.presetData.l.find(line => line.chartType === 'polar')) ||
+            this.props.presetData.chartMode === 'radar' ||
             this.props.presetData.chartMode === 'donut' ||
             this.props.presetData.chartMode === 'barCurrent'
         ) {
@@ -938,9 +937,8 @@ export default class Line extends React.Component<LineProps, LineState> {
                 }
             }
         }
-        const hasBarOrPolar = this.props.presetData.l.find(
-            line => line.chartType === 'bar' || line.chartType === 'polar',
-        );
+        // Only the own type counts: in the "mixed" mode bars and lines can be combined
+        const hasBarOrPolar = this.props.line.chartType === 'bar' || this.props.line.chartType === 'polar';
 
         const chartTypes = {
             auto: 'Auto (Line or Steps)',
@@ -972,7 +970,7 @@ export default class Line extends React.Component<LineProps, LineState> {
         // The radar, the donut and the bars of the current values show a single value per line, so
         // they take it straight from the state instead of reading the history
         if (
-            (hasBarOrPolar && this.props.presetData.l.find(line => line.chartType === 'polar')) ||
+            this.props.presetData.chartMode === 'radar' ||
             this.props.presetData.chartMode === 'donut' ||
             this.props.presetData.chartMode === 'barCurrent'
         ) {

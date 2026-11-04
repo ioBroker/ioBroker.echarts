@@ -1057,12 +1057,14 @@ export default class App extends GenericApp<AppProps, AppState> {
                             }
                         }
                     }
-                    if (presetData.l.find(item => item.chartType === 'bar')) {
-                        newLine.chartType = 'bar';
-                    } else if (presetData.l.find(item => item.chartType === 'polar')) {
-                        newLine.chartType = 'polar';
-                        newLine.aggregate = 'current';
-                    }
+                }
+                // The new line follows the chart mode, not the types of the other lines
+                if (presetData.chartMode === 'barCurrent') {
+                    newLine.chartType = 'bar';
+                    newLine.aggregate = 'current';
+                } else if (presetData.chartMode === 'radar') {
+                    newLine.chartType = 'polar';
+                    newLine.aggregate = 'current';
                 }
 
                 this.setState({
