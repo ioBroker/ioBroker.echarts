@@ -33,6 +33,8 @@ export default [
             // this the root lint also parses src-devices/build/ (multi-MB generated bundles),
             // which hangs the run and overflows the formatter (RangeError: Invalid string length).
             'src-devices/**/*',
+            // Linted by its own config: `npm run lint` descends into it
+            'src-webcomponents/**/*',
             'widgets/**/*',
             'node_modules/**/*',
             'eslint.config.mjs',
