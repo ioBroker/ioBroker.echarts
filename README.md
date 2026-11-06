@@ -93,6 +93,28 @@ setting is shown, because neither vis-2 nor the devices host shares echarts. A p
 widget loads nothing extra. The iframe stays the default and remains the only way for the stand-alone
 URL and for the preview in the editor.
 
+### Web components
+
+The adapter brings the web component `<iob-echarts-chart>` (`common.webComponents`). Aura and every other
+host of ioBroker web components shows it like a widget of its own; vis-2 and devices keep offering their
+E-Charts widget, which carries the same name.
+
+It draws a preset (`echarts.0.<name>`), or - without a preset - the history of a single state as the vis-2
+widget does: chart type, aggregation, live update, ticks, range and end are set in the component. The
+history instance is the one that records the state, the default history first. The chart is drawn
+directly with the connection of the host - no iframe, no socket of its own - in the light or dark theme
+and the font of the host.
+
+The buttons of the preset work as on the chart page: save as image, export the data as CSV, select the
+lines; the mouse and the fingers pan and zoom. The setting "Time range selector" adds the button for the
+time range also if the preset has none. It offers a relative range with its end, or a fixed range - what
+the vis-2 widget "E-Charts time range" does for the charts of a view. That widget has no component of its
+own: it steers other widgets of the same view, and a host of web components has no such link.
+
+The module bundles echarts (only the charts, components and renderers a preset can use), moment and the
+chart code of `src-chart`: about 925 kB, 300 kB gzipped, loaded only when a host shows the component.
+It is built by `npm run build:wc` from `src-webcomponents/` into `admin/webcomponents/`.
+
 ### Tooltip
 
 Lower case `i` indicates that the value was interpolated from the 2-neighbour values, and it does not exist at this time stamp.
@@ -177,6 +199,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@GermanBluefox) Added web component `<iob-echarts-chart>` for Aura and other hosts (`common.webComponents`)
+
 ### 6.2.0 (2026-11-09)
 * (GermanBluefox) Bars and lines can be combined in one chart: changing the type of one line no longer changes all the others, and the lines are drawn on their own time axis over the bars (#1319)
 * (GermanBluefox) Bars can be drawn stacked, side by side or overlapping: overlapping bars all start at zero, so a color with transparency shows the bars behind them (#1318)

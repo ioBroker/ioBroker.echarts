@@ -69,19 +69,20 @@
     "test": "npm run test:integration",
     "prepublishOnly": "npm run build",
     "tsc": "tsc -p tsconfig.build.json",
-    "build": "npm run build:widgets && npm run build:chart && npm run build:preview && npm run build:edit && npm run build:devices && npm run tsc",
-    "lint": "eslint -c eslint.config.mjs && cd src-editor && npm run lint && cd ../src-preview && npm run lint",
+    "build": "npm run build:widgets && npm run build:chart && npm run build:preview && npm run build:edit && npm run build:devices && npm run build:wc && npm run tsc",
+    "lint": "eslint -c eslint.config.mjs && cd src-editor && npm run lint && cd ../src-preview && npm run lint && cd ../src-webcomponents && npm run lint",
     "build:widgets": "node tasksWidgets.mts",
     "build:chart": "node tasksChart.mts",
     "build:preview": "node tasksPreview.mts",
     "build:edit": "node tasksEdit.mts",
     "build:devices": "node tasksDevices.mts",
+    "build:wc": "node tasksWebComponents.mts",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",
     "release-major": "release-script major --yes",
-    "update-packages": "npx -y npm-check-updates --upgrade && cd src-editor && npx -y npm-check-updates --upgrade && cd ../src-chart && npx -y npm-check-updates --upgrade && cd ../src-preview && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade && cd ../src-devices && npx -y npm-check-updates --upgrade",
-    "npm": "npm i && cd src-editor && npm i && cd ../src-chart && npm i && cd ../src-preview && npm i && cd ../src-widgets && npm i && cd ../src-devices && npm i"
+    "update-packages": "npx -y npm-check-updates --upgrade && cd src-editor && npx -y npm-check-updates --upgrade && cd ../src-chart && npx -y npm-check-updates --upgrade && cd ../src-preview && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade && cd ../src-devices && npx -y npm-check-updates --upgrade && cd ../src-webcomponents && npx -y npm-check-updates --upgrade",
+    "npm": "npm i && cd src-editor && npm i && cd ../src-chart && npm i && cd ../src-preview && npm i && cd ../src-widgets && npm i && cd ../src-devices && npm i && cd ../src-webcomponents && npm i"
   },
   "bugs": {
     "url": "https://github.com/ioBroker/ioBroker.echarts/issues"

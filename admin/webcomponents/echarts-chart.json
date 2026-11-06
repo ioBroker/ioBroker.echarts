@@ -1,0 +1,1473 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ioBroker/web-components/main/schemas/manifest.json",
+    "manifestVersion": 1,
+    "tag": "iob-echarts-chart",
+    "name": {
+        "en": "E-Charts",
+        "de": "E-Charts",
+        "ru": "E-Charts",
+        "pt": "E-Charts",
+        "nl": "E-Charts",
+        "fr": "E-Charts",
+        "it": "E-Charts",
+        "es": "E-Charts",
+        "pl": "E-Charts",
+        "uk": "E-Charts",
+        "zh-cn": "E-Charts"
+    },
+    "description": {
+        "en": "Shows an ECharts preset or the history of a single state as an interactive chart.",
+        "de": "Zeigt ein ECharts-Preset oder den Verlauf eines einzelnen Datenpunkts als interaktives Diagramm.",
+        "ru": "Показывает пресет ECharts или историю одного состояния в виде интерактивной диаграммы.",
+        "pt": "Mostra uma predefinição do ECharts ou o histórico de um único estado como gráfico interativo.",
+        "nl": "Toont een ECharts-voorinstelling of de geschiedenis van één status als interactieve grafiek.",
+        "fr": "Affiche un préréglage ECharts ou l'historique d'un seul état sous forme de graphique interactif.",
+        "it": "Mostra una preimpostazione ECharts o la cronologia di un singolo stato come grafico interattivo.",
+        "es": "Muestra un preajuste de ECharts o el historial de un único estado como gráfico interactivo.",
+        "pl": "Pokazuje preset ECharts lub historię pojedynczego stanu jako interaktywny wykres.",
+        "uk": "Показує пресет ECharts або історію одного стану у вигляді інтерактивної діаграми.",
+        "zh-cn": "以交互式图表显示 ECharts 预设或单个状态的历史数据。"
+    },
+    "icon": "../echarts.svg",
+    "module": "echarts-chart.js",
+    "size": {
+        "width": 480,
+        "height": 300
+    },
+    "settings": {
+        "type": "panel",
+        "items": {
+            "preset": {
+                "type": "objectId",
+                "label": {
+                    "en": "E-Charts preset",
+                    "de": "E-Charts-Preset",
+                    "ru": "Пресет E-Charts",
+                    "pt": "Predefinição do E-Charts",
+                    "nl": "E-Charts-voorinstelling",
+                    "fr": "Préréglage E-Charts",
+                    "it": "Preimpostazione E-Charts",
+                    "es": "Preajuste de E-Charts",
+                    "pl": "Preset E-Charts",
+                    "uk": "Пресет E-Charts",
+                    "zh-cn": "E-Charts 预设"
+                },
+                "help": {
+                    "en": "A chart saved in the E-Charts tab: echarts.0.<name>",
+                    "de": "Ein im Tab E-Charts gespeichertes Diagramm: echarts.0.<Name>",
+                    "ru": "Диаграмма, сохранённая на вкладке E-Charts: echarts.0.<имя>",
+                    "pt": "Um gráfico guardado no separador E-Charts: echarts.0.<nome>",
+                    "nl": "Een grafiek die op het tabblad E-Charts is opgeslagen: echarts.0.<naam>",
+                    "fr": "Un graphique enregistré dans l'onglet E-Charts : echarts.0.<nom>",
+                    "it": "Un grafico salvato nella scheda E-Charts: echarts.0.<nome>",
+                    "es": "Un gráfico guardado en la pestaña E-Charts: echarts.0.<nombre>",
+                    "pl": "Wykres zapisany na karcie E-Charts: echarts.0.<nazwa>",
+                    "uk": "Діаграма, збережена на вкладці E-Charts: echarts.0.<назва>",
+                    "zh-cn": "在 E-Charts 选项卡中保存的图表：echarts.0.<名称>"
+                },
+                "types": "chart",
+                "root": "echarts.0"
+            },
+            "historyOid": {
+                "type": "objectId",
+                "label": {
+                    "en": "State with history",
+                    "de": "Datenpunkt mit Verlauf",
+                    "ru": "Состояние с историей",
+                    "pt": "Estado com histórico",
+                    "nl": "Status met geschiedenis",
+                    "fr": "État avec historique",
+                    "it": "Stato con cronologia",
+                    "es": "Estado con historial",
+                    "pl": "Stan z historią",
+                    "uk": "Стан з історією",
+                    "zh-cn": "带历史记录的状态"
+                },
+                "help": {
+                    "en": "Instead of a preset: the recorded values of this state, from the history adapter that records it",
+                    "de": "Statt eines Presets: die aufgezeichneten Werte dieses Datenpunkts, aus dem History-Adapter, der ihn aufzeichnet",
+                    "ru": "Вместо пресета: записанные значения этого состояния из адаптера истории, который их записывает",
+                    "pt": "Em vez de uma predefinição: os valores registados deste estado, do adaptador de histórico que o regista",
+                    "nl": "In plaats van een voorinstelling: de opgeslagen waarden van deze status, uit de geschiedenisadapter die ze opslaat",
+                    "fr": "Au lieu d'un préréglage : les valeurs enregistrées de cet état, issues de l'adaptateur d'historique qui l'enregistre",
+                    "it": "Invece di una preimpostazione: i valori registrati di questo stato, dall'adattatore di cronologia che lo registra",
+                    "es": "En lugar de un preajuste: los valores registrados de este estado, del adaptador de historial que lo registra",
+                    "pl": "Zamiast presetu: zapisane wartości tego stanu z adaptera historii, który go rejestruje",
+                    "uk": "Замість пресету: записані значення цього стану з адаптера історії, який його записує",
+                    "zh-cn": "代替预设：显示此状态的记录值，来自记录它的历史适配器"
+                },
+                "hidden": "!!data.preset"
+            },
+            "title": {
+                "type": "text",
+                "label": {
+                    "en": "Title",
+                    "de": "Titel",
+                    "ru": "Заголовок",
+                    "pt": "Título",
+                    "nl": "Titel",
+                    "fr": "Titre",
+                    "it": "Titolo",
+                    "es": "Título",
+                    "pl": "Tytuł",
+                    "uk": "Заголовок",
+                    "zh-cn": "标题"
+                }
+            },
+            "rangeSelector": {
+                "type": "checkbox",
+                "label": {
+                    "en": "Time range selector",
+                    "de": "Zeitraumauswahl",
+                    "ru": "Выбор периода времени",
+                    "pt": "Seletor de intervalo de tempo",
+                    "nl": "Tijdsbereikkiezer",
+                    "fr": "Sélecteur de période",
+                    "it": "Selettore dell'intervallo di tempo",
+                    "es": "Selector de intervalo de tiempo",
+                    "pl": "Wybór zakresu czasu",
+                    "uk": "Вибір часового діапазону",
+                    "zh-cn": "时间范围选择器"
+                },
+                "help": {
+                    "en": "A button in the chart that changes the time range of this chart, also if the preset shows none",
+                    "de": "Eine Schaltfläche im Diagramm, die den Zeitraum dieses Diagramms ändert, auch wenn das Preset keine zeigt",
+                    "ru": "Кнопка в диаграмме, меняющая период времени этой диаграммы, даже если пресет её не показывает",
+                    "pt": "Um botão no gráfico que altera o intervalo de tempo deste gráfico, mesmo que a predefinição não mostre nenhum",
+                    "nl": "Een knop in de grafiek die het tijdsbereik van deze grafiek wijzigt, ook als de voorinstelling er geen toont",
+                    "fr": "Un bouton dans le graphique qui change la période de ce graphique, même si le préréglage n'en affiche pas",
+                    "it": "Un pulsante nel grafico che cambia l'intervallo di tempo di questo grafico, anche se la preimpostazione non lo mostra",
+                    "es": "Un botón en el gráfico que cambia el intervalo de tiempo de este gráfico, aunque el preajuste no lo muestre",
+                    "pl": "Przycisk na wykresie, który zmienia zakres czasu tego wykresu, także gdy preset go nie pokazuje",
+                    "uk": "Кнопка на діаграмі, що змінює часовий діапазон цієї діаграми, навіть якщо пресет її не показує",
+                    "zh-cn": "图表中用于更改此图表时间范围的按钮，即使预设未显示该按钮"
+                },
+                "default": false
+            },
+            "chartType": {
+                "type": "select",
+                "label": {
+                    "en": "Chart type",
+                    "de": "Diagrammtyp",
+                    "ru": "Тип диаграммы",
+                    "pt": "Tipo de gráfico",
+                    "nl": "Grafiektype",
+                    "fr": "Type de graphique",
+                    "it": "Tipo di grafico",
+                    "es": "Tipo de gráfico",
+                    "pl": "Typ wykresu",
+                    "uk": "Тип діаграми",
+                    "zh-cn": "图表类型"
+                },
+                "options": [
+                    {
+                        "value": "auto",
+                        "label": {
+                            "en": "Auto",
+                            "de": "Automatisch",
+                            "ru": "Авто",
+                            "pt": "Automático",
+                            "nl": "Automatisch",
+                            "fr": "Automatique",
+                            "it": "Automatico",
+                            "es": "Automático",
+                            "pl": "Automatyczny",
+                            "uk": "Авто",
+                            "zh-cn": "自动"
+                        }
+                    },
+                    {
+                        "value": "line",
+                        "label": {
+                            "en": "Line",
+                            "de": "Linie",
+                            "ru": "Линия",
+                            "pt": "Linha",
+                            "nl": "Lijn",
+                            "fr": "Ligne",
+                            "it": "Linea",
+                            "es": "Línea",
+                            "pl": "Linia",
+                            "uk": "Лінія",
+                            "zh-cn": "折线"
+                        }
+                    },
+                    {
+                        "value": "bar",
+                        "label": {
+                            "en": "Bar",
+                            "de": "Balken",
+                            "ru": "Столбцы",
+                            "pt": "Barras",
+                            "nl": "Staven",
+                            "fr": "Barres",
+                            "it": "Barre",
+                            "es": "Barras",
+                            "pl": "Słupki",
+                            "uk": "Стовпці",
+                            "zh-cn": "柱状"
+                        }
+                    },
+                    {
+                        "value": "scatterplot",
+                        "label": {
+                            "en": "Scatter plot",
+                            "de": "Punktdiagramm",
+                            "ru": "Точечная диаграмма",
+                            "pt": "Gráfico de dispersão",
+                            "nl": "Spreidingsdiagram",
+                            "fr": "Nuage de points",
+                            "it": "Grafico a dispersione",
+                            "es": "Gráfico de dispersión",
+                            "pl": "Wykres punktowy",
+                            "uk": "Точкова діаграма",
+                            "zh-cn": "散点图"
+                        }
+                    },
+                    {
+                        "value": "steps",
+                        "label": {
+                            "en": "Steps",
+                            "de": "Stufen",
+                            "ru": "Ступени",
+                            "pt": "Degraus",
+                            "nl": "Treden",
+                            "fr": "Escalier",
+                            "it": "Gradini",
+                            "es": "Escalones",
+                            "pl": "Schodki",
+                            "uk": "Сходинки",
+                            "zh-cn": "阶梯"
+                        }
+                    },
+                    {
+                        "value": "stepsStart",
+                        "label": {
+                            "en": "Steps on start",
+                            "de": "Stufen am Anfang",
+                            "ru": "Ступени в начале",
+                            "pt": "Degraus no início",
+                            "nl": "Treden aan het begin",
+                            "fr": "Escalier au début",
+                            "it": "Gradini all'inizio",
+                            "es": "Escalones al inicio",
+                            "pl": "Schodki na początku",
+                            "uk": "Сходинки на початку",
+                            "zh-cn": "起点阶梯"
+                        }
+                    },
+                    {
+                        "value": "spline",
+                        "label": {
+                            "en": "Spline",
+                            "de": "Spline",
+                            "ru": "Сплайн",
+                            "pt": "Spline",
+                            "nl": "Spline",
+                            "fr": "Spline",
+                            "it": "Spline",
+                            "es": "Spline",
+                            "pl": "Splajn",
+                            "uk": "Сплайн",
+                            "zh-cn": "平滑曲线"
+                        }
+                    }
+                ],
+                "default": "auto",
+                "hidden": "!!data.preset || !data.historyOid"
+            },
+            "aggregate": {
+                "type": "select",
+                "label": {
+                    "en": "Aggregation",
+                    "de": "Aggregation",
+                    "ru": "Агрегация",
+                    "pt": "Agregação",
+                    "nl": "Aggregatie",
+                    "fr": "Agrégation",
+                    "it": "Aggregazione",
+                    "es": "Agregación",
+                    "pl": "Agregacja",
+                    "uk": "Агрегація",
+                    "zh-cn": "聚合"
+                },
+                "options": [
+                    {
+                        "value": "minmax",
+                        "label": {
+                            "en": "Min and max",
+                            "de": "Min. und Max.",
+                            "ru": "Мин. и макс.",
+                            "pt": "Mín. e máx.",
+                            "nl": "Min. en max.",
+                            "fr": "Min. et max.",
+                            "it": "Min. e max.",
+                            "es": "Mín. y máx.",
+                            "pl": "Min. i maks.",
+                            "uk": "Мін. і макс.",
+                            "zh-cn": "最小值和最大值"
+                        }
+                    },
+                    {
+                        "value": "average",
+                        "label": {
+                            "en": "Average",
+                            "de": "Durchschnitt",
+                            "ru": "Среднее",
+                            "pt": "Média",
+                            "nl": "Gemiddelde",
+                            "fr": "Moyenne",
+                            "it": "Media",
+                            "es": "Promedio",
+                            "pl": "Średnia",
+                            "uk": "Середнє",
+                            "zh-cn": "平均值"
+                        }
+                    },
+                    {
+                        "value": "min",
+                        "label": {
+                            "en": "Minimum",
+                            "de": "Minimum",
+                            "ru": "Минимум",
+                            "pt": "Mínimo",
+                            "nl": "Minimum",
+                            "fr": "Minimum",
+                            "it": "Minimo",
+                            "es": "Mínimo",
+                            "pl": "Minimum",
+                            "uk": "Мінімум",
+                            "zh-cn": "最小值"
+                        }
+                    },
+                    {
+                        "value": "max",
+                        "label": {
+                            "en": "Maximum",
+                            "de": "Maximum",
+                            "ru": "Максимум",
+                            "pt": "Máximo",
+                            "nl": "Maximum",
+                            "fr": "Maximum",
+                            "it": "Massimo",
+                            "es": "Máximo",
+                            "pl": "Maksimum",
+                            "uk": "Максимум",
+                            "zh-cn": "最大值"
+                        }
+                    },
+                    {
+                        "value": "total",
+                        "label": {
+                            "en": "Total",
+                            "de": "Summe",
+                            "ru": "Сумма",
+                            "pt": "Total",
+                            "nl": "Totaal",
+                            "fr": "Total",
+                            "it": "Totale",
+                            "es": "Total",
+                            "pl": "Suma",
+                            "uk": "Сума",
+                            "zh-cn": "总和"
+                        }
+                    },
+                    {
+                        "value": "raw",
+                        "label": {
+                            "en": "Raw values",
+                            "de": "Rohwerte",
+                            "ru": "Необработанные значения",
+                            "pt": "Valores brutos",
+                            "nl": "Ruwe waarden",
+                            "fr": "Valeurs brutes",
+                            "it": "Valori grezzi",
+                            "es": "Valores sin procesar",
+                            "pl": "Surowe wartości",
+                            "uk": "Необроблені значення",
+                            "zh-cn": "原始值"
+                        }
+                    }
+                ],
+                "default": "minmax",
+                "hidden": "!!data.preset || !data.historyOid || !data.chartType || data.chartType === \"auto\""
+            },
+            "live": {
+                "type": "select",
+                "label": {
+                    "en": "Live update",
+                    "de": "Live-Aktualisierung",
+                    "ru": "Обновление в реальном времени",
+                    "pt": "Atualização ao vivo",
+                    "nl": "Live bijwerken",
+                    "fr": "Mise à jour en direct",
+                    "it": "Aggiornamento in tempo reale",
+                    "es": "Actualización en vivo",
+                    "pl": "Aktualizacja na żywo",
+                    "uk": "Оновлення в реальному часі",
+                    "zh-cn": "实时更新"
+                },
+                "options": [
+                    {
+                        "value": "0",
+                        "label": {
+                            "en": "Off",
+                            "de": "Aus",
+                            "ru": "Выкл.",
+                            "pt": "Desligado",
+                            "nl": "Uit",
+                            "fr": "Désactivé",
+                            "it": "Disattivato",
+                            "es": "Desactivado",
+                            "pl": "Wył.",
+                            "uk": "Вимк.",
+                            "zh-cn": "关闭"
+                        }
+                    },
+                    {
+                        "value": "5",
+                        "label": {
+                            "en": "5 seconds",
+                            "de": "5 Sekunden",
+                            "ru": "5 секунд",
+                            "pt": "5 segundos",
+                            "nl": "5 seconden",
+                            "fr": "5 secondes",
+                            "it": "5 secondi",
+                            "es": "5 segundos",
+                            "pl": "5 sekund",
+                            "uk": "5 секунд",
+                            "zh-cn": "5 秒"
+                        }
+                    },
+                    {
+                        "value": "10",
+                        "label": {
+                            "en": "10 seconds",
+                            "de": "10 Sekunden",
+                            "ru": "10 секунд",
+                            "pt": "10 segundos",
+                            "nl": "10 seconden",
+                            "fr": "10 secondes",
+                            "it": "10 secondi",
+                            "es": "10 segundos",
+                            "pl": "10 sekund",
+                            "uk": "10 секунд",
+                            "zh-cn": "10 秒"
+                        }
+                    },
+                    {
+                        "value": "15",
+                        "label": {
+                            "en": "15 seconds",
+                            "de": "15 Sekunden",
+                            "ru": "15 секунд",
+                            "pt": "15 segundos",
+                            "nl": "15 seconden",
+                            "fr": "15 secondes",
+                            "it": "15 secondi",
+                            "es": "15 segundos",
+                            "pl": "15 sekund",
+                            "uk": "15 секунд",
+                            "zh-cn": "15 秒"
+                        }
+                    },
+                    {
+                        "value": "20",
+                        "label": {
+                            "en": "20 seconds",
+                            "de": "20 Sekunden",
+                            "ru": "20 секунд",
+                            "pt": "20 segundos",
+                            "nl": "20 seconden",
+                            "fr": "20 secondes",
+                            "it": "20 secondi",
+                            "es": "20 segundos",
+                            "pl": "20 sekund",
+                            "uk": "20 секунд",
+                            "zh-cn": "20 秒"
+                        }
+                    },
+                    {
+                        "value": "30",
+                        "label": {
+                            "en": "30 seconds",
+                            "de": "30 Sekunden",
+                            "ru": "30 секунд",
+                            "pt": "30 segundos",
+                            "nl": "30 seconden",
+                            "fr": "30 secondes",
+                            "it": "30 secondi",
+                            "es": "30 segundos",
+                            "pl": "30 sekund",
+                            "uk": "30 секунд",
+                            "zh-cn": "30 秒"
+                        }
+                    },
+                    {
+                        "value": "60",
+                        "label": {
+                            "en": "1 minute",
+                            "de": "1 Minute",
+                            "ru": "1 минута",
+                            "pt": "1 minuto",
+                            "nl": "1 minuut",
+                            "fr": "1 minute",
+                            "it": "1 minuto",
+                            "es": "1 minuto",
+                            "pl": "1 minuta",
+                            "uk": "1 хвилина",
+                            "zh-cn": "1 分钟"
+                        }
+                    },
+                    {
+                        "value": "120",
+                        "label": {
+                            "en": "2 minutes",
+                            "de": "2 Minuten",
+                            "ru": "2 минуты",
+                            "pt": "2 minutos",
+                            "nl": "2 minuten",
+                            "fr": "2 minutes",
+                            "it": "2 minuti",
+                            "es": "2 minutos",
+                            "pl": "2 minuty",
+                            "uk": "2 хвилини",
+                            "zh-cn": "2 分钟"
+                        }
+                    },
+                    {
+                        "value": "300",
+                        "label": {
+                            "en": "5 minutes",
+                            "de": "5 Minuten",
+                            "ru": "5 минут",
+                            "pt": "5 minutos",
+                            "nl": "5 minuten",
+                            "fr": "5 minutes",
+                            "it": "5 minuti",
+                            "es": "5 minutos",
+                            "pl": "5 minut",
+                            "uk": "5 хвилин",
+                            "zh-cn": "5 分钟"
+                        }
+                    },
+                    {
+                        "value": "600",
+                        "label": {
+                            "en": "10 minutes",
+                            "de": "10 Minuten",
+                            "ru": "10 минут",
+                            "pt": "10 minutos",
+                            "nl": "10 minuten",
+                            "fr": "10 minutes",
+                            "it": "10 minuti",
+                            "es": "10 minutos",
+                            "pl": "10 minut",
+                            "uk": "10 хвилин",
+                            "zh-cn": "10 分钟"
+                        }
+                    },
+                    {
+                        "value": "900",
+                        "label": {
+                            "en": "15 minutes",
+                            "de": "15 Minuten",
+                            "ru": "15 минут",
+                            "pt": "15 minutos",
+                            "nl": "15 minuten",
+                            "fr": "15 minutes",
+                            "it": "15 minuti",
+                            "es": "15 minutos",
+                            "pl": "15 minut",
+                            "uk": "15 хвилин",
+                            "zh-cn": "15 分钟"
+                        }
+                    },
+                    {
+                        "value": "1200",
+                        "label": {
+                            "en": "20 minutes",
+                            "de": "20 Minuten",
+                            "ru": "20 минут",
+                            "pt": "20 minutos",
+                            "nl": "20 minuten",
+                            "fr": "20 minutes",
+                            "it": "20 minuti",
+                            "es": "20 minutos",
+                            "pl": "20 minut",
+                            "uk": "20 хвилин",
+                            "zh-cn": "20 分钟"
+                        }
+                    },
+                    {
+                        "value": "1800",
+                        "label": {
+                            "en": "30 minutes",
+                            "de": "30 Minuten",
+                            "ru": "30 минут",
+                            "pt": "30 minutos",
+                            "nl": "30 minuten",
+                            "fr": "30 minutes",
+                            "it": "30 minuti",
+                            "es": "30 minutos",
+                            "pl": "30 minut",
+                            "uk": "30 хвилин",
+                            "zh-cn": "30 分钟"
+                        }
+                    },
+                    {
+                        "value": "3600",
+                        "label": {
+                            "en": "1 hour",
+                            "de": "1 Stunde",
+                            "ru": "1 час",
+                            "pt": "1 hora",
+                            "nl": "1 uur",
+                            "fr": "1 heure",
+                            "it": "1 ora",
+                            "es": "1 hora",
+                            "pl": "1 godzina",
+                            "uk": "1 година",
+                            "zh-cn": "1 小时"
+                        }
+                    },
+                    {
+                        "value": "7200",
+                        "label": {
+                            "en": "2 hours",
+                            "de": "2 Stunden",
+                            "ru": "2 часа",
+                            "pt": "2 horas",
+                            "nl": "2 uur",
+                            "fr": "2 heures",
+                            "it": "2 ore",
+                            "es": "2 horas",
+                            "pl": "2 godziny",
+                            "uk": "2 години",
+                            "zh-cn": "2 小时"
+                        }
+                    },
+                    {
+                        "value": "10800",
+                        "label": {
+                            "en": "3 hours",
+                            "de": "3 Stunden",
+                            "ru": "3 часа",
+                            "pt": "3 horas",
+                            "nl": "3 uur",
+                            "fr": "3 heures",
+                            "it": "3 ore",
+                            "es": "3 horas",
+                            "pl": "3 godziny",
+                            "uk": "3 години",
+                            "zh-cn": "3 小时"
+                        }
+                    },
+                    {
+                        "value": "21600",
+                        "label": {
+                            "en": "6 hours",
+                            "de": "6 Stunden",
+                            "ru": "6 часов",
+                            "pt": "6 horas",
+                            "nl": "6 uur",
+                            "fr": "6 heures",
+                            "it": "6 ore",
+                            "es": "6 horas",
+                            "pl": "6 godzin",
+                            "uk": "6 годин",
+                            "zh-cn": "6 小时"
+                        }
+                    },
+                    {
+                        "value": "43200",
+                        "label": {
+                            "en": "12 hours",
+                            "de": "12 Stunden",
+                            "ru": "12 часов",
+                            "pt": "12 horas",
+                            "nl": "12 uur",
+                            "fr": "12 heures",
+                            "it": "12 ore",
+                            "es": "12 horas",
+                            "pl": "12 godzin",
+                            "uk": "12 годин",
+                            "zh-cn": "12 小时"
+                        }
+                    },
+                    {
+                        "value": "86400",
+                        "label": {
+                            "en": "1 day",
+                            "de": "1 Tag",
+                            "ru": "1 день",
+                            "pt": "1 dia",
+                            "nl": "1 dag",
+                            "fr": "1 jour",
+                            "it": "1 giorno",
+                            "es": "1 día",
+                            "pl": "1 dzień",
+                            "uk": "1 день",
+                            "zh-cn": "1 天"
+                        }
+                    }
+                ],
+                "default": "30",
+                "hidden": "!!data.preset || !data.historyOid"
+            },
+            "aggregateType": {
+                "type": "select",
+                "label": {
+                    "en": "Aggregation type",
+                    "de": "Aggregationsart",
+                    "ru": "Тип агрегации",
+                    "pt": "Tipo de agregação",
+                    "nl": "Aggregatietype",
+                    "fr": "Type d'agrégation",
+                    "it": "Tipo di aggregazione",
+                    "es": "Tipo de agregación",
+                    "pl": "Typ agregacji",
+                    "uk": "Тип агрегації",
+                    "zh-cn": "聚合类型"
+                },
+                "options": [
+                    {
+                        "value": "count",
+                        "label": {
+                            "en": "Counts",
+                            "de": "Anzahl",
+                            "ru": "Количество",
+                            "pt": "Contagem",
+                            "nl": "Aantal",
+                            "fr": "Nombre",
+                            "it": "Conteggio",
+                            "es": "Recuento",
+                            "pl": "Liczba",
+                            "uk": "Кількість",
+                            "zh-cn": "计数"
+                        }
+                    },
+                    {
+                        "value": "step",
+                        "label": {
+                            "en": "Seconds",
+                            "de": "Sekunden",
+                            "ru": "Секунды",
+                            "pt": "Segundos",
+                            "nl": "Seconden",
+                            "fr": "Secondes",
+                            "it": "Secondi",
+                            "es": "Segundos",
+                            "pl": "Sekundy",
+                            "uk": "Секунди",
+                            "zh-cn": "秒"
+                        }
+                    }
+                ],
+                "default": "step",
+                "hidden": "!!data.preset || !data.historyOid"
+            },
+            "aggregateSpan": {
+                "type": "number",
+                "label": {
+                    "en": "Aggregation span",
+                    "de": "Aggregationsspanne",
+                    "ru": "Интервал агрегации",
+                    "pt": "Intervalo de agregação",
+                    "nl": "Aggregatie-interval",
+                    "fr": "Intervalle d'agrégation",
+                    "it": "Intervallo di aggregazione",
+                    "es": "Intervalo de agregación",
+                    "pl": "Przedział agregacji",
+                    "uk": "Інтервал агрегації",
+                    "zh-cn": "聚合跨度"
+                },
+                "help": {
+                    "en": "Number of values, or seconds per value",
+                    "de": "Anzahl der Werte oder Sekunden je Wert",
+                    "ru": "Количество значений или секунд на значение",
+                    "pt": "Número de valores ou segundos por valor",
+                    "nl": "Aantal waarden of seconden per waarde",
+                    "fr": "Nombre de valeurs ou secondes par valeur",
+                    "it": "Numero di valori o secondi per valore",
+                    "es": "Número de valores o segundos por valor",
+                    "pl": "Liczba wartości lub sekund na wartość",
+                    "uk": "Кількість значень або секунд на значення",
+                    "zh-cn": "值的数量，或每个值的秒数"
+                },
+                "min": 0,
+                "default": 300,
+                "hidden": "!!data.preset || !data.historyOid"
+            },
+            "xticks": {
+                "type": "slider",
+                "label": {
+                    "en": "Number of X ticks",
+                    "de": "Anzahl der X-Teilstriche",
+                    "ru": "Количество делений по оси X",
+                    "pt": "Número de marcas no eixo X",
+                    "nl": "Aantal X-markeringen",
+                    "fr": "Nombre de graduations X",
+                    "it": "Numero di tacche X",
+                    "es": "Número de marcas del eje X",
+                    "pl": "Liczba podziałek osi X",
+                    "uk": "Кількість поділок осі X",
+                    "zh-cn": "X 轴刻度数"
+                },
+                "help": {
+                    "en": "0: automatic",
+                    "de": "0: automatisch",
+                    "ru": "0: автоматически",
+                    "pt": "0: automático",
+                    "nl": "0: automatisch",
+                    "fr": "0 : automatique",
+                    "it": "0: automatico",
+                    "es": "0: automático",
+                    "pl": "0: automatycznie",
+                    "uk": "0: автоматично",
+                    "zh-cn": "0：自动"
+                },
+                "min": 0,
+                "max": 50,
+                "step": 1,
+                "default": 0,
+                "hidden": "!!data.preset || !data.historyOid"
+            },
+            "yticks": {
+                "type": "slider",
+                "label": {
+                    "en": "Number of Y ticks",
+                    "de": "Anzahl der Y-Teilstriche",
+                    "ru": "Количество делений по оси Y",
+                    "pt": "Número de marcas no eixo Y",
+                    "nl": "Aantal Y-markeringen",
+                    "fr": "Nombre de graduations Y",
+                    "it": "Numero di tacche Y",
+                    "es": "Número de marcas del eje Y",
+                    "pl": "Liczba podziałek osi Y",
+                    "uk": "Кількість поділок осі Y",
+                    "zh-cn": "Y 轴刻度数"
+                },
+                "help": {
+                    "en": "0: automatic",
+                    "de": "0: automatisch",
+                    "ru": "0: автоматически",
+                    "pt": "0: automático",
+                    "nl": "0: automatisch",
+                    "fr": "0 : automatique",
+                    "it": "0: automatico",
+                    "es": "0: automático",
+                    "pl": "0: automatycznie",
+                    "uk": "0: автоматично",
+                    "zh-cn": "0：自动"
+                },
+                "min": 0,
+                "max": 50,
+                "step": 1,
+                "default": 0,
+                "hidden": "!!data.preset || !data.historyOid"
+            },
+            "range": {
+                "type": "select",
+                "label": {
+                    "en": "Range",
+                    "de": "Zeitraum",
+                    "ru": "Период",
+                    "pt": "Intervalo",
+                    "nl": "Bereik",
+                    "fr": "Période",
+                    "it": "Intervallo",
+                    "es": "Intervalo",
+                    "pl": "Zakres",
+                    "uk": "Діапазон",
+                    "zh-cn": "范围"
+                },
+                "options": [
+                    {
+                        "value": "10",
+                        "label": {
+                            "en": "10 minutes",
+                            "de": "10 Minuten",
+                            "ru": "10 минут",
+                            "pt": "10 minutos",
+                            "nl": "10 minuten",
+                            "fr": "10 minutes",
+                            "it": "10 minuti",
+                            "es": "10 minutos",
+                            "pl": "10 minut",
+                            "uk": "10 хвилин",
+                            "zh-cn": "10 分钟"
+                        }
+                    },
+                    {
+                        "value": "30",
+                        "label": {
+                            "en": "30 minutes",
+                            "de": "30 Minuten",
+                            "ru": "30 минут",
+                            "pt": "30 minutos",
+                            "nl": "30 minuten",
+                            "fr": "30 minutes",
+                            "it": "30 minuti",
+                            "es": "30 minutos",
+                            "pl": "30 minut",
+                            "uk": "30 хвилин",
+                            "zh-cn": "30 分钟"
+                        }
+                    },
+                    {
+                        "value": "60",
+                        "label": {
+                            "en": "1 hour",
+                            "de": "1 Stunde",
+                            "ru": "1 час",
+                            "pt": "1 hora",
+                            "nl": "1 uur",
+                            "fr": "1 heure",
+                            "it": "1 ora",
+                            "es": "1 hora",
+                            "pl": "1 godzina",
+                            "uk": "1 година",
+                            "zh-cn": "1 小时"
+                        }
+                    },
+                    {
+                        "value": "120",
+                        "label": {
+                            "en": "2 hours",
+                            "de": "2 Stunden",
+                            "ru": "2 часа",
+                            "pt": "2 horas",
+                            "nl": "2 uur",
+                            "fr": "2 heures",
+                            "it": "2 ore",
+                            "es": "2 horas",
+                            "pl": "2 godziny",
+                            "uk": "2 години",
+                            "zh-cn": "2 小时"
+                        }
+                    },
+                    {
+                        "value": "180",
+                        "label": {
+                            "en": "3 hours",
+                            "de": "3 Stunden",
+                            "ru": "3 часа",
+                            "pt": "3 horas",
+                            "nl": "3 uur",
+                            "fr": "3 heures",
+                            "it": "3 ore",
+                            "es": "3 horas",
+                            "pl": "3 godziny",
+                            "uk": "3 години",
+                            "zh-cn": "3 小时"
+                        }
+                    },
+                    {
+                        "value": "360",
+                        "label": {
+                            "en": "6 hours",
+                            "de": "6 Stunden",
+                            "ru": "6 часов",
+                            "pt": "6 horas",
+                            "nl": "6 uur",
+                            "fr": "6 heures",
+                            "it": "6 ore",
+                            "es": "6 horas",
+                            "pl": "6 godzin",
+                            "uk": "6 годин",
+                            "zh-cn": "6 小时"
+                        }
+                    },
+                    {
+                        "value": "720",
+                        "label": {
+                            "en": "12 hours",
+                            "de": "12 Stunden",
+                            "ru": "12 часов",
+                            "pt": "12 horas",
+                            "nl": "12 uur",
+                            "fr": "12 heures",
+                            "it": "12 ore",
+                            "es": "12 horas",
+                            "pl": "12 godzin",
+                            "uk": "12 годин",
+                            "zh-cn": "12 小时"
+                        }
+                    },
+                    {
+                        "value": "1440",
+                        "label": {
+                            "en": "1 day",
+                            "de": "1 Tag",
+                            "ru": "1 день",
+                            "pt": "1 dia",
+                            "nl": "1 dag",
+                            "fr": "1 jour",
+                            "it": "1 giorno",
+                            "es": "1 día",
+                            "pl": "1 dzień",
+                            "uk": "1 день",
+                            "zh-cn": "1 天"
+                        }
+                    },
+                    {
+                        "value": "2880",
+                        "label": {
+                            "en": "2 days",
+                            "de": "2 Tage",
+                            "ru": "2 дня",
+                            "pt": "2 dias",
+                            "nl": "2 dagen",
+                            "fr": "2 jours",
+                            "it": "2 giorni",
+                            "es": "2 días",
+                            "pl": "2 dni",
+                            "uk": "2 дні",
+                            "zh-cn": "2 天"
+                        }
+                    },
+                    {
+                        "value": "4320",
+                        "label": {
+                            "en": "3 days",
+                            "de": "3 Tage",
+                            "ru": "3 дня",
+                            "pt": "3 dias",
+                            "nl": "3 dagen",
+                            "fr": "3 jours",
+                            "it": "3 giorni",
+                            "es": "3 días",
+                            "pl": "3 dni",
+                            "uk": "3 дні",
+                            "zh-cn": "3 天"
+                        }
+                    },
+                    {
+                        "value": "10080",
+                        "label": {
+                            "en": "7 days",
+                            "de": "7 Tage",
+                            "ru": "7 дней",
+                            "pt": "7 dias",
+                            "nl": "7 dagen",
+                            "fr": "7 jours",
+                            "it": "7 giorni",
+                            "es": "7 días",
+                            "pl": "7 dni",
+                            "uk": "7 днів",
+                            "zh-cn": "7 天"
+                        }
+                    },
+                    {
+                        "value": "20160",
+                        "label": {
+                            "en": "14 days",
+                            "de": "14 Tage",
+                            "ru": "14 дней",
+                            "pt": "14 dias",
+                            "nl": "14 dagen",
+                            "fr": "14 jours",
+                            "it": "14 giorni",
+                            "es": "14 días",
+                            "pl": "14 dni",
+                            "uk": "14 днів",
+                            "zh-cn": "14 天"
+                        }
+                    },
+                    {
+                        "value": "1m",
+                        "label": {
+                            "en": "1 month",
+                            "de": "1 Monat",
+                            "ru": "1 месяц",
+                            "pt": "1 mês",
+                            "nl": "1 maand",
+                            "fr": "1 mois",
+                            "it": "1 mese",
+                            "es": "1 mes",
+                            "pl": "1 miesiąc",
+                            "uk": "1 місяць",
+                            "zh-cn": "1 个月"
+                        }
+                    },
+                    {
+                        "value": "2m",
+                        "label": {
+                            "en": "2 months",
+                            "de": "2 Monate",
+                            "ru": "2 месяца",
+                            "pt": "2 meses",
+                            "nl": "2 maanden",
+                            "fr": "2 mois",
+                            "it": "2 mesi",
+                            "es": "2 meses",
+                            "pl": "2 miesiące",
+                            "uk": "2 місяці",
+                            "zh-cn": "2 个月"
+                        }
+                    },
+                    {
+                        "value": "3m",
+                        "label": {
+                            "en": "3 months",
+                            "de": "3 Monate",
+                            "ru": "3 месяца",
+                            "pt": "3 meses",
+                            "nl": "3 maanden",
+                            "fr": "3 mois",
+                            "it": "3 mesi",
+                            "es": "3 meses",
+                            "pl": "3 miesiące",
+                            "uk": "3 місяці",
+                            "zh-cn": "3 个月"
+                        }
+                    },
+                    {
+                        "value": "6m",
+                        "label": {
+                            "en": "6 months",
+                            "de": "6 Monate",
+                            "ru": "6 месяцев",
+                            "pt": "6 meses",
+                            "nl": "6 maanden",
+                            "fr": "6 mois",
+                            "it": "6 mesi",
+                            "es": "6 meses",
+                            "pl": "6 miesięcy",
+                            "uk": "6 місяців",
+                            "zh-cn": "6 个月"
+                        }
+                    },
+                    {
+                        "value": "1y",
+                        "label": {
+                            "en": "1 year",
+                            "de": "1 Jahr",
+                            "ru": "1 год",
+                            "pt": "1 ano",
+                            "nl": "1 jaar",
+                            "fr": "1 an",
+                            "it": "1 anno",
+                            "es": "1 año",
+                            "pl": "1 rok",
+                            "uk": "1 рік",
+                            "zh-cn": "1 年"
+                        }
+                    },
+                    {
+                        "value": "2y",
+                        "label": {
+                            "en": "2 years",
+                            "de": "2 Jahre",
+                            "ru": "2 года",
+                            "pt": "2 anos",
+                            "nl": "2 jaar",
+                            "fr": "2 ans",
+                            "it": "2 anni",
+                            "es": "2 años",
+                            "pl": "2 lata",
+                            "uk": "2 роки",
+                            "zh-cn": "2 年"
+                        }
+                    }
+                ],
+                "default": "1440",
+                "hidden": "!!data.preset || !data.historyOid"
+            },
+            "relativeEnd": {
+                "type": "select",
+                "label": {
+                    "en": "End",
+                    "de": "Ende",
+                    "ru": "Конец",
+                    "pt": "Fim",
+                    "nl": "Einde",
+                    "fr": "Fin",
+                    "it": "Fine",
+                    "es": "Fin",
+                    "pl": "Koniec",
+                    "uk": "Кінець",
+                    "zh-cn": "结束"
+                },
+                "options": [
+                    {
+                        "value": "now",
+                        "label": {
+                            "en": "now",
+                            "de": "jetzt",
+                            "ru": "сейчас",
+                            "pt": "agora",
+                            "nl": "nu",
+                            "fr": "maintenant",
+                            "it": "adesso",
+                            "es": "ahora",
+                            "pl": "teraz",
+                            "uk": "зараз",
+                            "zh-cn": "现在"
+                        }
+                    },
+                    {
+                        "value": "1minute",
+                        "label": {
+                            "en": "end of the minute",
+                            "de": "Ende der Minute",
+                            "ru": "конец минуты",
+                            "pt": "fim do minuto",
+                            "nl": "einde van de minuut",
+                            "fr": "fin de la minute",
+                            "it": "fine del minuto",
+                            "es": "fin del minuto",
+                            "pl": "koniec minuty",
+                            "uk": "кінець хвилини",
+                            "zh-cn": "本分钟结束"
+                        }
+                    },
+                    {
+                        "value": "5minutes",
+                        "label": {
+                            "en": "end of 5 minutes",
+                            "de": "Ende der 5 Minuten",
+                            "ru": "конец 5 минут",
+                            "pt": "fim de 5 minutos",
+                            "nl": "einde van 5 minuten",
+                            "fr": "fin des 5 minutes",
+                            "it": "fine dei 5 minuti",
+                            "es": "fin de 5 minutos",
+                            "pl": "koniec 5 minut",
+                            "uk": "кінець 5 хвилин",
+                            "zh-cn": "5 分钟段结束"
+                        }
+                    },
+                    {
+                        "value": "10minutes",
+                        "label": {
+                            "en": "end of 10 minutes",
+                            "de": "Ende der 10 Minuten",
+                            "ru": "конец 10 минут",
+                            "pt": "fim de 10 minutos",
+                            "nl": "einde van 10 minuten",
+                            "fr": "fin des 10 minutes",
+                            "it": "fine dei 10 minuti",
+                            "es": "fin de 10 minutos",
+                            "pl": "koniec 10 minut",
+                            "uk": "кінець 10 хвилин",
+                            "zh-cn": "10 分钟段结束"
+                        }
+                    },
+                    {
+                        "value": "30minutes",
+                        "label": {
+                            "en": "end of 30 minutes",
+                            "de": "Ende der 30 Minuten",
+                            "ru": "конец 30 минут",
+                            "pt": "fim de 30 minutos",
+                            "nl": "einde van 30 minuten",
+                            "fr": "fin des 30 minutes",
+                            "it": "fine dei 30 minuti",
+                            "es": "fin de 30 minutos",
+                            "pl": "koniec 30 minut",
+                            "uk": "кінець 30 хвилин",
+                            "zh-cn": "30 分钟段结束"
+                        }
+                    },
+                    {
+                        "value": "1hour",
+                        "label": {
+                            "en": "end of the hour",
+                            "de": "Ende der Stunde",
+                            "ru": "конец часа",
+                            "pt": "fim da hora",
+                            "nl": "einde van het uur",
+                            "fr": "fin de l'heure",
+                            "it": "fine dell'ora",
+                            "es": "fin de la hora",
+                            "pl": "koniec godziny",
+                            "uk": "кінець години",
+                            "zh-cn": "本小时结束"
+                        }
+                    },
+                    {
+                        "value": "2hours",
+                        "label": {
+                            "en": "end of 2 hours",
+                            "de": "Ende der 2 Stunden",
+                            "ru": "конец 2 часов",
+                            "pt": "fim de 2 horas",
+                            "nl": "einde van 2 uur",
+                            "fr": "fin des 2 heures",
+                            "it": "fine delle 2 ore",
+                            "es": "fin de 2 horas",
+                            "pl": "koniec 2 godzin",
+                            "uk": "кінець 2 годин",
+                            "zh-cn": "2 小时段结束"
+                        }
+                    },
+                    {
+                        "value": "3hours",
+                        "label": {
+                            "en": "end of 3 hours",
+                            "de": "Ende der 3 Stunden",
+                            "ru": "конец 3 часов",
+                            "pt": "fim de 3 horas",
+                            "nl": "einde van 3 uur",
+                            "fr": "fin des 3 heures",
+                            "it": "fine delle 3 ore",
+                            "es": "fin de 3 horas",
+                            "pl": "koniec 3 godzin",
+                            "uk": "кінець 3 годин",
+                            "zh-cn": "3 小时段结束"
+                        }
+                    },
+                    {
+                        "value": "4hours",
+                        "label": {
+                            "en": "end of 4 hours",
+                            "de": "Ende der 4 Stunden",
+                            "ru": "конец 4 часов",
+                            "pt": "fim de 4 horas",
+                            "nl": "einde van 4 uur",
+                            "fr": "fin des 4 heures",
+                            "it": "fine delle 4 ore",
+                            "es": "fin de 4 horas",
+                            "pl": "koniec 4 godzin",
+                            "uk": "кінець 4 годин",
+                            "zh-cn": "4 小时段结束"
+                        }
+                    },
+                    {
+                        "value": "6hours",
+                        "label": {
+                            "en": "end of 6 hours",
+                            "de": "Ende der 6 Stunden",
+                            "ru": "конец 6 часов",
+                            "pt": "fim de 6 horas",
+                            "nl": "einde van 6 uur",
+                            "fr": "fin des 6 heures",
+                            "it": "fine delle 6 ore",
+                            "es": "fin de 6 horas",
+                            "pl": "koniec 6 godzin",
+                            "uk": "кінець 6 годин",
+                            "zh-cn": "6 小时段结束"
+                        }
+                    },
+                    {
+                        "value": "8hours",
+                        "label": {
+                            "en": "end of 8 hours",
+                            "de": "Ende der 8 Stunden",
+                            "ru": "конец 8 часов",
+                            "pt": "fim de 8 horas",
+                            "nl": "einde van 8 uur",
+                            "fr": "fin des 8 heures",
+                            "it": "fine delle 8 ore",
+                            "es": "fin de 8 horas",
+                            "pl": "koniec 8 godzin",
+                            "uk": "кінець 8 годин",
+                            "zh-cn": "8 小时段结束"
+                        }
+                    },
+                    {
+                        "value": "12hours",
+                        "label": {
+                            "en": "end of 12 hours",
+                            "de": "Ende der 12 Stunden",
+                            "ru": "конец 12 часов",
+                            "pt": "fim de 12 horas",
+                            "nl": "einde van 12 uur",
+                            "fr": "fin des 12 heures",
+                            "it": "fine delle 12 ore",
+                            "es": "fin de 12 horas",
+                            "pl": "koniec 12 godzin",
+                            "uk": "кінець 12 годин",
+                            "zh-cn": "12 小时段结束"
+                        }
+                    },
+                    {
+                        "value": "today",
+                        "label": {
+                            "en": "end of the day",
+                            "de": "Ende des Tages",
+                            "ru": "конец дня",
+                            "pt": "fim do dia",
+                            "nl": "einde van de dag",
+                            "fr": "fin de la journée",
+                            "it": "fine della giornata",
+                            "es": "fin del día",
+                            "pl": "koniec dnia",
+                            "uk": "кінець дня",
+                            "zh-cn": "本日结束"
+                        }
+                    },
+                    {
+                        "value": "weekEurope",
+                        "label": {
+                            "en": "end of Sunday",
+                            "de": "Ende des Sonntags",
+                            "ru": "конец воскресенья",
+                            "pt": "fim de domingo",
+                            "nl": "einde van zondag",
+                            "fr": "fin du dimanche",
+                            "it": "fine della domenica",
+                            "es": "fin del domingo",
+                            "pl": "koniec niedzieli",
+                            "uk": "кінець неділі",
+                            "zh-cn": "周日结束"
+                        }
+                    },
+                    {
+                        "value": "weekUsa",
+                        "label": {
+                            "en": "end of Saturday",
+                            "de": "Ende des Samstags",
+                            "ru": "конец субботы",
+                            "pt": "fim de sábado",
+                            "nl": "einde van zaterdag",
+                            "fr": "fin du samedi",
+                            "it": "fine del sabato",
+                            "es": "fin del sábado",
+                            "pl": "koniec soboty",
+                            "uk": "кінець суботи",
+                            "zh-cn": "周六结束"
+                        }
+                    },
+                    {
+                        "value": "month",
+                        "label": {
+                            "en": "this month",
+                            "de": "dieser Monat",
+                            "ru": "этот месяц",
+                            "pt": "este mês",
+                            "nl": "deze maand",
+                            "fr": "ce mois-ci",
+                            "it": "questo mese",
+                            "es": "este mes",
+                            "pl": "ten miesiąc",
+                            "uk": "цей місяць",
+                            "zh-cn": "本月"
+                        }
+                    },
+                    {
+                        "value": "year",
+                        "label": {
+                            "en": "this year",
+                            "de": "dieses Jahr",
+                            "ru": "этот год",
+                            "pt": "este ano",
+                            "nl": "dit jaar",
+                            "fr": "cette année",
+                            "it": "quest'anno",
+                            "es": "este año",
+                            "pl": "ten rok",
+                            "uk": "цей рік",
+                            "zh-cn": "今年"
+                        }
+                    }
+                ],
+                "default": "now",
+                "hidden": "!!data.preset || !data.historyOid"
+            }
+        }
+    }
+}

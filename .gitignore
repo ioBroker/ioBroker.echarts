@@ -22,6 +22,8 @@ src-chart/node_modules
 src-devices/build
 src-devices/node_modules
 src-devices/.__mf__temp
+src-webcomponents/build
+src-webcomponents/node_modules
 admin/dm-widgets
 admin/i18n/*/flat.txt
 /iob_npm.done

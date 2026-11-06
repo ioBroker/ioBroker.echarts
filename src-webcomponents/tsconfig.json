@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "useDefineForClassFields": true,
+        "lib": ["DOM", "DOM.Iterable", "ES2022"],
+        "skipLibCheck": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "types": ["@iobroker/types"],
+        // the model and the option of `src-chart` are compiled in by Vite (alias `@echarts-chart`), but their sources
+        // are not checked here: they follow the looser settings of `src-chart`. These declarations describe what the
+        // component uses of them
+        "paths": {
+            "@echarts-chart/*": ["./src/chart/*"]
+        }
+    },
+    "include": ["src"]
+}
