@@ -196,6 +196,7 @@ You can debug view charts locally with:
 ## Changelog
 ### **WORK IN PROGRESS**
 - (@GermanBluefox) Added web component `<iob-echarts-chart>` for Aura and other hosts (`common.webComponents`)
+- (@GermanBluefox) Fixed: a chart drawn without iframe kept the first fixed time range and ignored every later one
 
 ### 6.0.0 (2026-10-14)
 - (@GermanBluefox) Added chart mode "Gauge" (rings or pointers)
