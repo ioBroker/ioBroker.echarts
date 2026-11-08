@@ -145,6 +145,35 @@ export function getDefaultLine(
     return line;
 }
 
+/**
+ * Give a new line the type that fits into the chart.
+ *
+ * The modes "barCurrent" and "radar" dictate it. In the mode "mixed" bars and lines can be combined, but
+ * whoever adds a line to a chart of nothing but bars normally wants another bar, so it starts as one and
+ * can be changed afterwards.
+ *
+ * @param presetData the preset, which already contains the new line
+ * @param newLine the new line, which is modified
+ */
+export function applyChartTypeToNewLine(presetData: ChartConfigMore, newLine: ChartLineConfigMore): void {
+    if (presetData.chartMode === 'barCurrent') {
+        newLine.chartType = 'bar';
+        newLine.aggregate = 'current';
+    } else if (presetData.chartMode === 'radar') {
+        newLine.chartType = 'polar';
+        newLine.aggregate = 'current';
+    } else if (presetData.chartMode === 'mixed') {
+        const others = presetData.l.filter(line => line !== newLine);
+        if (others.length && others.every(line => line.chartType === 'bar')) {
+            newLine.chartType = 'bar';
+            // A bar cannot show min and max
+            if (newLine.aggregate === 'minmax') {
+                newLine.aggregate = 'max';
+            }
+        }
+    }
+}
+
 export function getDefaultPreset(
     systemSettings: ioBroker.SystemConfigObject,
     instance?: string,

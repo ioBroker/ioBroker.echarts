@@ -178,7 +178,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
-* (GermanBluefox) Allowed mixing of bar and line types in the mixed chart mode (#1319)
+* (GermanBluefox) Bars and lines can be combined in one chart: changing the type of one line no longer changes all the others, and the lines are drawn on their own time axis over the bars (#1319)
 
 ### 6.1.0 (2026-10-30)
 * (GermanBluefox) Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)

@@ -33,7 +33,7 @@ import '@iobroker/gui-components/build/index.css';
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
 import getUrlQuery from './utils/getUrlQuery';
-import { getDefaultPreset, getDefaultLine } from './Components/DefaultPreset';
+import { applyChartTypeToNewLine, getDefaultPreset, getDefaultLine } from './Components/DefaultPreset';
 import MenuList from './MenuList';
 import flotConverter from './utils/flotConverter';
 import type { GenericAppProps, GenericAppSettings, GenericAppState } from '@iobroker/gui-components/build/types';
@@ -1058,14 +1058,7 @@ export default class App extends GenericApp<AppProps, AppState> {
                         }
                     }
                 }
-                // The new line follows the chart mode, not the types of the other lines
-                if (presetData.chartMode === 'barCurrent') {
-                    newLine.chartType = 'bar';
-                    newLine.aggregate = 'current';
-                } else if (presetData.chartMode === 'radar') {
-                    newLine.chartType = 'polar';
-                    newLine.aggregate = 'current';
-                }
+                applyChartTypeToNewLine(presetData, newLine);
 
                 this.setState({
                     presetData,

@@ -47,7 +47,7 @@ import {
 
 import Line from './Line';
 import Mark from './Mark';
-import { getDefaultLine, getDefaultPreset } from './DefaultPreset';
+import { applyChartTypeToNewLine, getDefaultLine, getDefaultPreset } from './DefaultPreset';
 import type {
     ChartConfigMore,
     ChartLineConfigMore,
@@ -514,21 +514,14 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
     addLine(data?: ChartLineConfigMore): void {
         const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
         if (data) {
+            // A copy keeps the type of its original
             presetData.l.push(JSON.parse(JSON.stringify(data)));
         } else {
             const len = this.props.presetData.l.length;
             const line = getDefaultLine(this.props.systemConfig);
             line.xaxe = !len ? undefined : 'off';
             presetData.l.push(line);
-        }
-        // The new line follows the chart mode, not the types of the other lines
-        const newLine = presetData.l[presetData.l.length - 1];
-        if (presetData.chartMode === 'barCurrent') {
-            newLine.chartType = 'bar';
-            newLine.aggregate = 'current';
-        } else if (presetData.chartMode === 'radar') {
-            newLine.chartType = 'polar';
-            newLine.aggregate = 'current';
+            applyChartTypeToNewLine(presetData, line);
         }
 
         this.props.onChange(presetData);
