@@ -177,6 +177,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (GermanBluefox) Bars and lines can be combined in one chart: changing the type of one line no longer changes all the others, and the lines are drawn on their own time axis over the bars (#1319)
+
 ### 6.1.0 (2026-10-30)
 * (GermanBluefox) Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)
 * (GermanBluefox) Bars per day, week or month show the right values after a switch of the daylight saving time. The history adapter split the range into equally long intervals, so after the 25-hour day every value written at 23:59:59 was shown one day later and the day of the switch stayed empty. The chart now sends the borders of its bars along; this needs ioBroker.sql, ioBroker.history or ioBroker.influxdb with `@iobroker/aggregate` 1.1 (#1311)

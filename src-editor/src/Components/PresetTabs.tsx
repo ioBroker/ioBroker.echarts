@@ -47,7 +47,7 @@ import {
 
 import Line from './Line';
 import Mark from './Mark';
-import { getDefaultLine, getDefaultPreset } from './DefaultPreset';
+import { applyChartTypeToNewLine, getDefaultLine, getDefaultPreset } from './DefaultPreset';
 import type {
     ChartConfigMore,
     ChartLineConfigMore,
@@ -452,38 +452,18 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
         const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
         presetData.l[index] = lineData;
 
-        if (presetData.l[index].chartType === 'bar') {
-            // apply bar to all lines
-            presetData.l.forEach(line => {
-                line.chartType = 'bar';
-                if (line.aggregate === 'minmax') {
-                    line.aggregate = 'max';
-                }
-            });
-        } else if (presetData.l[index].chartType === 'polar') {
-            // apply bar to all lines
-            presetData.l.forEach(line => {
-                line.chartType = 'polar';
-                if (line.aggregate === 'minmax') {
-                    line.aggregate = 'current';
-                }
-            });
-        } else if (presetData.l.find(line => line.chartType === 'bar')) {
-            // remove bar from all lines
-            presetData.l.forEach(line => {
-                line.chartType = presetData.l[index].chartType;
-                if (line.aggregate === 'current') {
-                    line.aggregate = 'minmax';
-                }
-            });
-        } else if (presetData.l.find(line => line.chartType === 'polar')) {
-            // remove polar from all lines
-            presetData.l.forEach(line => {
-                line.chartType = presetData.l[index].chartType;
-                if (line.aggregate === 'current') {
-                    line.aggregate = 'minmax';
-                }
-            });
+        // The type of one line does not touch the other lines any more - in "mixed" mode bars and lines
+        // may be combined. The modes "barCurrent" and "radar" set the types of all lines in updateChartMode.
+        const oldChartType = this.props.presetData.l[index]?.chartType;
+        if (lineData.chartType === 'bar' && oldChartType !== 'bar') {
+            // a bar cannot show min and max
+            if (lineData.aggregate === 'minmax') {
+                lineData.aggregate = 'max';
+            }
+        } else if (lineData.chartType !== 'bar' && oldChartType === 'bar') {
+            if (lineData.aggregate === 'current') {
+                lineData.aggregate = 'minmax';
+            }
         }
 
         this.props.onChange(presetData);
@@ -534,27 +514,14 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
     addLine(data?: ChartLineConfigMore): void {
         const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
         if (data) {
+            // A copy keeps the type of its original
             presetData.l.push(JSON.parse(JSON.stringify(data)));
         } else {
             const len = this.props.presetData.l.length;
             const line = getDefaultLine(this.props.systemConfig);
             line.xaxe = !len ? undefined : 'off';
             presetData.l.push(line);
-        }
-        // if any bar already exists, apply bar to new line
-        if (presetData.l.find(line => line.chartType === 'bar')) {
-            const line = presetData.l[presetData.l.length - 1];
-            line.chartType = 'bar';
-            if (line.aggregate === 'minmax') {
-                line.aggregate = 'max';
-            }
-        } else if (presetData.l.find(line => line.chartType === 'polar')) {
-            // if any bar already exists, apply bar to new line
-            const line = presetData.l[presetData.l.length - 1];
-            line.chartType = 'polar';
-            if (line.aggregate === 'minmax') {
-                line.aggregate = 'current';
-            }
+            applyChartTypeToNewLine(presetData, line);
         }
 
         this.props.onChange(presetData);

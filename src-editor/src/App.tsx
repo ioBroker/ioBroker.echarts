@@ -33,7 +33,7 @@ import '@iobroker/gui-components/build/index.css';
 import SettingsEditor from './SettingsEditor';
 import MainChart from './MainChart';
 import getUrlQuery from './utils/getUrlQuery';
-import { getDefaultPreset, getDefaultLine } from './Components/DefaultPreset';
+import { applyChartTypeToNewLine, getDefaultPreset, getDefaultLine } from './Components/DefaultPreset';
 import MenuList from './MenuList';
 import flotConverter from './utils/flotConverter';
 import type { GenericAppProps, GenericAppSettings, GenericAppState } from '@iobroker/gui-components/build/types';
@@ -1057,13 +1057,8 @@ export default class App extends GenericApp<AppProps, AppState> {
                             }
                         }
                     }
-                    if (presetData.l.find(item => item.chartType === 'bar')) {
-                        newLine.chartType = 'bar';
-                    } else if (presetData.l.find(item => item.chartType === 'polar')) {
-                        newLine.chartType = 'polar';
-                        newLine.aggregate = 'current';
-                    }
                 }
+                applyChartTypeToNewLine(presetData, newLine);
 
                 this.setState({
                     presetData,
