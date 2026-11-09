@@ -240,6 +240,8 @@ function getGradient(color) {
         ],
     };
 }
+/** Lines closer together than this many pixels cannot be told apart with the mouse, so all of them are shown */
+const NEAREST_LINE_TOLERANCE = 1;
 /** Prefix of the id and the name of the series that only carries the sum of a stack */
 const SUM_SERIES_ID = 'barSum';
 class ChartOption {
@@ -252,6 +254,7 @@ class ChartOption {
     compact;
     lastFormattedTime;
     option;
+    hoverHelper = null;
     debug = false;
     constructor(moment, themeType, calcTextWidth, config, compact) {
         this.moment = moment;
@@ -264,6 +267,10 @@ class ChartOption {
         this.chart = { yAxis: [] };
         this.compact = compact;
         this.lastFormattedTime = null;
+    }
+    /** Without it the tooltip shows all lines, e.g. when rendering on the server */
+    setHoverHelper(hoverHelper) {
+        this.hoverHelper = hoverHelper;
     }
     /*
     setThemeName(themeType) {
@@ -341,6 +348,9 @@ class ChartOption {
         this.chart.seriesColors = [];
         let colorCount = 0;
         const anyNotOwnAxis = this.config.l.find((oneLine, i) => ChartOption.getCommonAxis(oneLine.commonYAxis, i) !== i);
+        const stacked = !!anyNotOwnAxis && this.isBarsStacked();
+        // Beside bars the lines have an own time axis, see `getTimeAxisOfLines`
+        const lineXAxisIndex = this.hasBarsAndLines() ? 1 : 0;
         const series = this.config.l.map((oneLine, i) => {
             const color = oneLine.color || (THEMES[theme] ? THEMES[theme][colorCount % THEMES[theme].length] : '');
             if (!oneLine.color) {
@@ -383,7 +393,10 @@ class ChartOption {
                     // Only the bars that really share a Y-axis are stacked on each other. Without the
                     // index in the name, a line with an own axis would be stacked on a line of another
                     // axis, which puts it at a height that belongs to a different scale.
-                    stack: anyNotOwnAxis ? `total${yAxisIndex}` : undefined,
+                    stack: stacked ? `total${yAxisIndex}` : undefined,
+                    // Without a stack echarts puts the bars side by side, and this gap of minus one bar
+                    // width moves all of them onto the same place
+                    barGap: this.config.barMode === 'overlap' ? '-100%' : undefined,
                     silent: true,
                     // Without this every bar hangs on the axis of the first line: a line with 0..120 °C
                     // and one with 0..5 kWh were drawn on the same scale, so the second one was pressed
@@ -435,7 +448,7 @@ class ChartOption {
                 const _cfg = {
                     name: oneLine.name,
                     clip: true,
-                    xAxisIndex: 0,
+                    xAxisIndex: lineXAxisIndex,
                     silent: true,
                     yAxisIndex,
                     type: 'scatter',
@@ -460,7 +473,7 @@ class ChartOption {
                 const _cfg = {
                     name: oneLine.name,
                     clip: true,
-                    xAxisIndex: 0,
+                    xAxisIndex: lineXAxisIndex,
                     silent: true,
                     yAxisIndex,
                     type: 'line',
@@ -519,7 +532,57 @@ class ChartOption {
             }
             return cfg;
         });
-        return series.concat(this.getSumSeries(data, !!anyNotOwnAxis));
+        if (lineXAxisIndex) {
+            this.addBarsToYAxes(data);
+        }
+        return series.concat(this.getSumSeries(data, stacked));
+    }
+    /** Are bars that share a Y-axis drawn on each other? That is the default, also for older presets. */
+    isBarsStacked() {
+        return this.config.barMode !== 'sideBySide' && this.config.barMode !== 'overlap';
+    }
+    /**
+     * Make the Y-axes that lines share with bars big enough for the bars too.
+     *
+     * Only `convertData` collects the value range of an axis, and it reads only the lines. An axis with
+     * nothing but bars has no range and echarts scales it itself, but an axis with a line would cut off
+     * every bar above the line. Stacked bars of an axis add up, separately above and below zero. Bars
+     * that are not stacked only need the room of the highest one. All bars start at zero.
+     *
+     * @param data the values of all lines
+     */
+    addBarsToYAxes(data) {
+        const stacks = {};
+        const stacked = this.isBarsStacked();
+        this.config.l.forEach((oneLine, i) => {
+            const yAxisIndex = ChartOption.getCommonAxis(oneLine.commonYAxis, i);
+            if (oneLine.chartType !== 'bar' || !this.chart.yAxis[yAxisIndex]) {
+                return;
+            }
+            stacks[yAxisIndex] ||= { above: [], below: [] };
+            const { above, below } = stacks[yAxisIndex];
+            (data[i] || []).forEach((value, category) => {
+                if (typeof value === 'number' && Number.isFinite(value)) {
+                    if (value > 0) {
+                        above[category] = stacked
+                            ? (above[category] || 0) + value
+                            : Math.max(above[category] || 0, value);
+                    }
+                    else {
+                        below[category] = stacked
+                            ? (below[category] || 0) + value
+                            : Math.min(below[category] || 0, value);
+                    }
+                }
+            });
+        });
+        Object.keys(stacks).forEach(key => {
+            const yAxisIndex = parseInt(key, 10);
+            const yAxis = this.chart.yAxis[yAxisIndex];
+            // The arrays have holes for the intervals without a value, `filter` skips them
+            yAxis.min = Math.min(yAxis.min ?? 0, 0, ...stacks[yAxisIndex].below.filter(value => value !== undefined));
+            yAxis.max = Math.max(yAxis.max ?? 0, 0, ...stacks[yAxisIndex].above.filter(value => value !== undefined));
+        });
     }
     /**
      * One empty bar per stack that carries the sum of the stack as its label.
@@ -638,6 +701,54 @@ class ChartOption {
         return this.config.chartMode === 'donut';
     }
     /**
+     * Does the chart draw bars and lines over the same time range?
+     *
+     * The modes that show one value per line build their series themselves and whatever type a line
+     * still carries means nothing there.
+     */
+    hasBarsAndLines() {
+        if (this.isBarPerLine() || this.isRadar() || this.isGauge() || this.isDonut()) {
+            return false;
+        }
+        return (this.config.l.some(oneLine => oneLine.chartType === 'bar') &&
+            this.config.l.some(oneLine => oneLine.chartType !== 'bar' && oneLine.chartType !== 'polar'));
+    }
+    /**
+     * The X-axis of the lines in a chart with bars.
+     *
+     * Bars stand on a category axis, and there echarts takes a number as the index of a category: a
+     * line with its `[time stamp, value]` would land billions of pixels beside the chart. So the lines
+     * get an own invisible time axis that spans exactly the same range as the categories. The bars
+     * are all equally wide, so a line only drifts by the small difference between intervals of unequal
+     * length: a month of 28 instead of 31 days or the day of a daylight saving switch.
+     *
+     * @param categories the start of every bar
+     */
+    getTimeAxisOfLines(categories) {
+        let min;
+        let max;
+        if (categories?.length) {
+            min = categories[0];
+            const end = new Date(categories[categories.length - 1]);
+            if (this.config.aggregateBar === 43200) {
+                end.setMonth(end.getMonth() + 1);
+            }
+            else {
+                // setMinutes works on the local time, like the walk that built the categories
+                end.setMinutes(end.getMinutes() + this.config.aggregateBar);
+            }
+            max = end.getTime();
+        }
+        return {
+            type: 'time',
+            show: false,
+            min,
+            max,
+            // The tooltip reads this axis too, but the pointer of the category axis is the visible one
+            axisPointer: { type: 'none' },
+        };
+    }
+    /**
      * The last value of a series that is really there. A chart that shows one value per line needs
      * exactly this: the newest state of the data point, whatever aggregation produced the series.
      */
@@ -746,7 +857,7 @@ class ChartOption {
                     },
                 },
             };
-            return [xAxis];
+            return this.hasBarsAndLines() ? [xAxis, this.getTimeAxisOfLines(categories)] : [xAxis];
         }
         const xAxis = {
             type: 'time',
@@ -1330,9 +1441,10 @@ class ChartOption {
         const series = this.option?.series;
         let ts;
         let date;
-        // It is line chart and not par or polar
-        if (Array.isArray(params[0].value)) {
-            ts = params[0].value[0];
+        // It is line chart and not par or polar. Beside bars a line need not be the first entry.
+        const firstWithTime = params.find(param => Array.isArray(param.value));
+        if (firstWithTime) {
+            ts = firstWithTime.value[0];
             date = new Date(ts);
             this.applyXLabelShift(date);
         }
@@ -1340,6 +1452,7 @@ class ChartOption {
         // Lines with `offsetOverlay` are drawn on the main time range, so their real time is shown per line
         const shiftFormat = this.config.timeFormat || (this.chart.withSeconds ? 'L HH:mm:ss' : this.chart.withTime ? 'L HH:mm' : 'L');
         const anyBarOrPolar = this.config.l.find(l => l.chartType === 'bar' || l.chartType === 'polar');
+        const barsAndLines = this.hasBarsAndLines();
         let barPolarName;
         const rows = series.map((line, seriesIndex) => {
             // The sum of a stack is an own series behind all lines. It has no line configuration and
@@ -1349,7 +1462,7 @@ class ChartOption {
             }
             const lineConfig = this.config.l[seriesIndex];
             const p = params.find(param => param.seriesIndex === seriesIndex);
-            if (anyBarOrPolar) {
+            if (anyBarOrPolar && (!barsAndLines || lineConfig.chartType === 'bar')) {
                 if (!p) {
                     return null;
                 }
@@ -1385,6 +1498,10 @@ class ChartOption {
                 // @ts-expect-error fix later
                 interpolated = { exact: p.data.exact !== undefined ? p.data.exact : true, val: p.value[1] };
             }
+            // Only bars are under the mouse, so there is no time to interpolate this line at
+            if (!p && ts === undefined) {
+                return null;
+            }
             interpolated = interpolated || this.getInterpolatedValue(seriesIndex, ts, lineConfig.type, hoverNoNulls);
             if (!interpolated) {
                 return null;
@@ -1407,6 +1524,10 @@ class ChartOption {
             else if (lineConfig.offsetShift) {
                 realDate = this.moment(new Date(ts - lineConfig.offsetShift)).format(shiftFormat);
             }
+            else if (barsAndLines) {
+                // The header names the whole interval of the bar, the value of a line has its own time
+                realDate = this.moment(p ? p.value[0] : ts).format(this.config.timeFormat || 'L HH:mm');
+            }
             const realTime = realDate
                 ? `<div style="display: flex; margin-right: 4px; opacity: 0.7; font-style: italic">${realDate}</div>`
                 : '';
@@ -1414,6 +1535,7 @@ class ChartOption {
                 name: line.name,
                 seriesIndex,
                 hasValue: interpolated.val !== null,
+                lineValue: interpolated.val,
                 html: `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color}">` +
                     `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
                     `<div style="display: flex; flex-grow: 1"></div>${realTime}` +
@@ -1421,8 +1543,9 @@ class ChartOption {
                     '</div>',
             };
         });
-        const values = ChartOption.mergeTooltipRowsByName(rows);
-        if (anyBarOrPolar) {
+        const values = ChartOption.mergeTooltipRowsByName(this.keepNearestLine(rows));
+        // Beside bars the mouse can stand where only lines deliver a value, then there is no interval to name
+        if (anyBarOrPolar && (!barsAndLines || barPolarName)) {
             // The category is the name of the line and not a time stamp
             if (this.isBarPerLine()) {
                 return `<b>${barPolarName || ''}</b><br/>${values.join('<br/>')}`;
@@ -1442,6 +1565,34 @@ class ChartOption {
         // of the X-axis right below the tooltip are 24 hours too. Milliseconds only if one can see them.
         const format = this.config.timeFormat || (this.chart.diff < 60000 ? 'dd, L HH:mm:ss.SSS' : 'dd, L HH:mm:ss');
         return `<b>${this.moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
+    }
+    /**
+     * With many lines the tooltip gets higher than the chart and nobody can see which line is meant, so
+     * on request only the line nearest to the mouse stays. All lines have a value at the time of the
+     * tooltip, so only their height decides. Bars have no height to compare and always stay.
+     *
+     * @param rows one entry per series, `null` if the series has nothing to show
+     */
+    keepNearestLine(rows) {
+        const pointerY = this.config.hoverNearest ? this.hoverHelper?.getPointerY() : null;
+        if (pointerY === null || pointerY === undefined) {
+            return rows;
+        }
+        const series = this.option.series;
+        const distances = rows.map((row) => {
+            if (!row || row.lineValue === undefined || row.lineValue === null) {
+                return null;
+            }
+            if (!this.hoverHelper.isSeriesVisible(row.seriesIndex)) {
+                return null;
+            }
+            const y = this.hoverHelper.valueToPixel(series[row.seriesIndex].yAxisIndex, row.lineValue);
+            return Number.isFinite(y) ? Math.abs(y - pointerY) : null;
+        });
+        const nearest = Math.min(...distances.filter(distance => distance !== null));
+        return rows.filter((row, i) => row &&
+            (row.lineValue === undefined ||
+                (distances[i] !== null && distances[i] <= nearest + NEAREST_LINE_TOLERANCE)));
     }
     /**
      * Several lines may carry the same name to appear as a single entry in the legend (e.g. charging and
@@ -2130,6 +2281,11 @@ class ChartOption {
                 let padBottom = 0;
                 let padTop = 0;
                 lineSeries.forEach((ser, i) => {
+                    // The sum of a stack is an own series behind all lines. It has no line configuration,
+                    // and the bars that it sums up already reserve the room for their Y-axis
+                    if (typeof ser.id === 'string' && ser.id.startsWith(SUM_SERIES_ID)) {
+                        return;
+                    }
                     let _yAxis = option.yAxis[ser.yAxisIndex];
                     if (!_yAxis) {
                         // it seems this axis is defined something else

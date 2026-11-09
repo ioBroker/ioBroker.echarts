@@ -177,7 +177,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 6.2.0 (2026-11-09)
 * (GermanBluefox) Bars and lines can be combined in one chart: changing the type of one line no longer changes all the others, and the lines are drawn on their own time axis over the bars (#1319)
 * (GermanBluefox) Bars can be drawn stacked, side by side or overlapping: overlapping bars all start at zero, so a color with transparency shows the bars behind them (#1318)
 * (GermanBluefox) The chart no longer fails with "Show sum over the stack" if the automatic grid padding is off, and the sum disappears when the option is switched off
@@ -291,10 +291,6 @@ You can debug view charts locally with:
 - (@GermanBluefox) Fixed the bar charts: no additional empty bar is added at the end of the range anymore
 - (@GermanBluefox) Fixed the `difference` processing of the bar charts: the first bar is not lost anymore
 - (@GermanBluefox) The configured time format is used for the X-axis labels of the bar charts too
-
-### 5.0.2 (2026-08-10)
-- (@GermanBluefox) Show a state under every history instance that logs it and not only under the first one
-- (@GermanBluefox) Fixed the line break in the X-axis labels for the time formats like `HH:MM / dd.mm.yy`
 
 ## License
 
