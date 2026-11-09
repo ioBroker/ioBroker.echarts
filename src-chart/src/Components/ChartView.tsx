@@ -454,6 +454,10 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             // A gauge is one series per line as rings and a single one as a speedometer
             gaugeShape: config?.gaugeShape || 'ring',
             types: config?.l?.map((item: ChartLineConfigMore): ChartType => item.chartType) || [],
+            // These three decide if the series with the sum of a stack exists at all
+            barSum: !!config?.barSum,
+            barMode: config?.barMode || 'stacked',
+            axes: config?.l?.map((item: ChartLineConfigMore): number | undefined => item.commonYAxis) || [],
         });
     }
 
