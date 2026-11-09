@@ -184,6 +184,9 @@
         }
       ]
     },
+    "webComponents": [
+      "webcomponents/echarts-chart.json"
+    ],
     "connectionType": "local",
     "dataSource": "push",
     "icon": "echarts.png",
