@@ -460,6 +460,7 @@ class ChartOption {
         const anyNotOwnAxis = this.config.l.find(
             (oneLine, i) => ChartOption.getCommonAxis(oneLine.commonYAxis, i) !== i,
         );
+        const stacked = !!anyNotOwnAxis && this.isBarsStacked();
         // Beside bars the lines have an own time axis, see `getTimeAxisOfLines`
         const lineXAxisIndex = this.hasBarsAndLines() ? 1 : 0;
 
@@ -507,7 +508,10 @@ class ChartOption {
                     // Only the bars that really share a Y-axis are stacked on each other. Without the
                     // index in the name, a line with an own axis would be stacked on a line of another
                     // axis, which puts it at a height that belongs to a different scale.
-                    stack: anyNotOwnAxis ? `total${yAxisIndex}` : undefined,
+                    stack: stacked ? `total${yAxisIndex}` : undefined,
+                    // Without a stack echarts puts the bars side by side, and this gap of minus one bar
+                    // width moves all of them onto the same place
+                    barGap: this.config.barMode === 'overlap' ? '-100%' : undefined,
                     silent: true,
                     // Without this every bar hangs on the axis of the first line: a line with 0..120 °C
                     // and one with 0..5 kWh were drawn on the same scale, so the second one was pressed
@@ -649,7 +653,12 @@ class ChartOption {
             this.addBarsToYAxes(data);
         }
 
-        return series.concat(this.getSumSeries(data, !!anyNotOwnAxis));
+        return series.concat(this.getSumSeries(data, stacked));
+    }
+
+    /** Are bars that share a Y-axis drawn on each other? That is the default, also for older presets. */
+    isBarsStacked(): boolean {
+        return this.config.barMode !== 'sideBySide' && this.config.barMode !== 'overlap';
     }
 
     /**
@@ -657,13 +666,14 @@ class ChartOption {
      *
      * Only `convertData` collects the value range of an axis, and it reads only the lines. An axis with
      * nothing but bars has no range and echarts scales it itself, but an axis with a line would cut off
-     * every bar above the line. Bars of an axis are stacked, separately above and below zero, and they
-     * always start at zero.
+     * every bar above the line. Stacked bars of an axis add up, separately above and below zero. Bars
+     * that are not stacked only need the room of the highest one. All bars start at zero.
      *
      * @param data the values of all lines
      */
     addBarsToYAxes(data: BarAndLineSeries[]): void {
         const stacks: Record<number, { above: number[]; below: number[] }> = {};
+        const stacked = this.isBarsStacked();
 
         this.config.l.forEach((oneLine, i) => {
             const yAxisIndex = ChartOption.getCommonAxis(oneLine.commonYAxis, i);
@@ -675,9 +685,13 @@ class ChartOption {
             ((data[i] as BarSeries) || []).forEach((value, category) => {
                 if (typeof value === 'number' && Number.isFinite(value)) {
                     if (value > 0) {
-                        above[category] = (above[category] || 0) + value;
+                        above[category] = stacked
+                            ? (above[category] || 0) + value
+                            : Math.max(above[category] || 0, value);
                     } else {
-                        below[category] = (below[category] || 0) + value;
+                        below[category] = stacked
+                            ? (below[category] || 0) + value
+                            : Math.min(below[category] || 0, value);
                     }
                 }
             });

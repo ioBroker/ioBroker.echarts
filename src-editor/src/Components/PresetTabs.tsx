@@ -2372,16 +2372,41 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                 middle: 'middle',
                             }}
                         />
-                        <IOCheckbox
-                            value={!!this.props.presetData.barSum}
-                            updateValue={(value: boolean): void => {
-                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
-                                presetData.barSum = value;
-                                this.props.onChange(presetData);
-                            }}
-                            label="Show sum over the stack"
-                            tooltip={I18n.t('Only for bars that share a Y-axis and are therefore drawn on each other')}
-                        />
+                        {this.props.presetData.chartMode !== 'barCurrent' ? (
+                            <IOSelect
+                                value={this.props.presetData.barMode || 'stacked'}
+                                updateValue={(value: string): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    presetData.barMode = value as 'stacked' | 'sideBySide' | 'overlap';
+                                    this.props.onChange(presetData);
+                                }}
+                                label="Arrangement of bars"
+                                tooltip='Stacked: only bars that share a Y-axis are stacked. For this, set "Common Y Axis" to another line in the settings of a line. Overlapping: the last line of the list is on top, give the bars a color with transparency to see the bars behind them'
+                                options={{
+                                    stacked: 'stacked',
+                                    sideBySide: 'side by side',
+                                    overlap: 'overlapping',
+                                }}
+                            />
+                        ) : null}
+                        {!this.props.presetData.barMode || this.props.presetData.barMode === 'stacked' ? (
+                            <IOCheckbox
+                                value={!!this.props.presetData.barSum}
+                                updateValue={(value: boolean): void => {
+                                    const presetData: ChartConfigMore = JSON.parse(
+                                        JSON.stringify(this.props.presetData),
+                                    );
+                                    presetData.barSum = value;
+                                    this.props.onChange(presetData);
+                                }}
+                                label="Show sum over the stack"
+                                tooltip={I18n.t(
+                                    'Only for bars that share a Y-axis and are therefore drawn on each other',
+                                )}
+                            />
+                        ) : null}
                         <IONumberField
                             value={this.props.presetData.barWidth}
                             updateValue={(value: number): void => {

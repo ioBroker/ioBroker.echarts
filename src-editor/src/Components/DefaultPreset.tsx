@@ -95,6 +95,7 @@ const DEFAULT_PRESET: ChartConfigMore = {
     border_width: 0,
     barLabels: 'topover',
     barSum: false,
+    barMode: 'stacked',
     barFontColor: '',
     title: '',
     titlePos: '',
