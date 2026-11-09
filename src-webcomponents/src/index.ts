@@ -511,6 +511,9 @@ class EchartsChart extends IobWebComponent<ChartSettings> {
             if (seriesData) {
                 this.#data = seriesData;
                 this.#categories = categories || [];
+                // the model reports the end of a read only on an error: new data is the end of it
+                this.#reading = false;
+                this.#progress.hidden = true;
             }
             if (actualValues) {
                 this.#actualValues = actualValues;
