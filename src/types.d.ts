@@ -380,6 +380,8 @@ export interface ChartConfigMore extends ChartConfig {
 
     hoverNoNulls?: boolean;
     hoverNoInterpolate?: boolean;
+    /** The tooltip shows only the line nearest to the mouse instead of all lines. Bars are always shown */
+    hoverNearest?: boolean;
 
     // Show export data button
     exportData?: boolean;

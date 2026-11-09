@@ -181,6 +181,7 @@ You can debug view charts locally with:
 * (GermanBluefox) Bars and lines can be combined in one chart: changing the type of one line no longer changes all the others, and the lines are drawn on their own time axis over the bars (#1319)
 * (GermanBluefox) Bars can be drawn stacked, side by side or overlapping: overlapping bars all start at zero, so a color with transparency shows the bars behind them (#1318)
 * (GermanBluefox) The chart no longer fails with "Show sum over the stack" if the automatic grid padding is off
+* (GermanBluefox) The tooltip can show only the line nearest to the mouse instead of all lines, for charts with many lines (#1280)
 
 ### 6.1.0 (2026-10-30)
 * (GermanBluefox) Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)

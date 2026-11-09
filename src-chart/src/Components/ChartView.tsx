@@ -78,7 +78,7 @@ import {
 
 import { SVGRenderer, CanvasRenderer } from 'echarts/renderers';
 
-import ChartOption from './ChartOption';
+import ChartOption, { type ChartHoverHelper } from './ChartOption';
 
 // Themes
 import 'echarts/theme/azul';
@@ -315,6 +315,8 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     /** What the chart was built OF the last time - see `getShape` */
     private lastShape: string;
     private chartOption: ChartOption;
+    private pointerY: number | null = null;
+    private pointerDom: HTMLElement | null = null;
     private resetZoomAndTiltTimer: ReturnType<typeof setTimeout> | null = null;
     private timerResize: ReturnType<typeof setTimeout> | null = null;
     private updatePropertiesTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -356,6 +358,53 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         this.lastShape = ChartView.getShape(this.props.config);
 
         this.chartOption = new ChartOption(moment, this.props.themeType, calcTextWidth, undefined, this.props.compact);
+        this.chartOption.setHoverHelper(this.hoverHelper);
+    }
+
+    /** Lets the tooltip find the line nearest to the mouse, see `ChartOption.keepNearestLine` */
+    private readonly hoverHelper: ChartHoverHelper = {
+        getPointerY: () => this.pointerY,
+        valueToPixel: (yAxisIndex, value) =>
+            this.echartsReact.getEchartsInstance().convertToPixel({ yAxisIndex }, value),
+        isSeriesVisible: seriesIndex => {
+            // `getModel` is not public, but `getOption` would copy all values at every move of the mouse
+            const chart = this.echartsReact.getEchartsInstance() as unknown as {
+                getModel(): {
+                    getSeriesByIndex(index: number): unknown;
+                    isSeriesFiltered(series: unknown): boolean;
+                };
+            };
+            const model = chart.getModel();
+            const series = model.getSeriesByIndex(seriesIndex);
+            return !!series && !model.isSeriesFiltered(series);
+        },
+    };
+
+    private readonly onPointerMove = (event: MouseEvent | TouchEvent): void => {
+        const clientY = 'touches' in event ? event.touches[0]?.clientY : event.clientY;
+        const rect = this.pointerDom?.getBoundingClientRect();
+        if (clientY !== undefined && rect?.height) {
+            // A page that scales the chart, e.g. a vis-2 view, makes the rectangle differ from the pixels
+            this.pointerY = ((clientY - rect.top) * this.pointerDom.offsetHeight) / rect.height;
+        }
+    };
+
+    /**
+     * echarts does not tell the tooltip where the mouse is. The listeners catch the event on its way down
+     * to the handler of echarts, so the position is already up to date when the tooltip is built.
+     */
+    trackPointer(dom: HTMLElement | null): void {
+        if (this.pointerDom) {
+            this.pointerDom.removeEventListener('mousemove', this.onPointerMove, true);
+            this.pointerDom.removeEventListener('touchstart', this.onPointerMove, true);
+            this.pointerDom.removeEventListener('touchmove', this.onPointerMove, true);
+        }
+        this.pointerDom = dom;
+        if (dom) {
+            dom.addEventListener('mousemove', this.onPointerMove, { capture: true, passive: true });
+            dom.addEventListener('touchstart', this.onPointerMove, { capture: true, passive: true });
+            dom.addEventListener('touchmove', this.onPointerMove, { capture: true, passive: true });
+        }
     }
 
     componentDidMount(): void {
@@ -384,6 +433,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         }
 
         window.removeEventListener('resize', this.onResize);
+        this.trackPointer(null);
     }
 
     /**
@@ -439,6 +489,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         // so a page that turns dark while the chart stands must build the option again
         if (props.themeType !== this.props.themeType) {
             this.chartOption = new ChartOption(moment, props.themeType, calcTextWidth, undefined, props.compact);
+            this.chartOption.setHoverHelper(this.hoverHelper);
             this.option = null;
         }
         if (props.data !== this.state.data) {
@@ -992,6 +1043,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                     }}
                     onChartReady={(instance: EChartsInstance): void => {
                         this.installEventHandlers(instance);
+                        this.trackPointer(instance.getDom());
                     }}
                     echarts={echarts}
                     option={this.option}
