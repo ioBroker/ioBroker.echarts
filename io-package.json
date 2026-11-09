@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "6.2.0",
+    "version": "6.3.0",
     "news": {
+      "6.3.0": {
+        "en": "Added web component `<iob-echarts-chart>` for Aura and other hosts (`common.webComponents`)\nFixed: a chart drawn without iframe kept the first fixed time range and ignored every later one",
+        "de": "Webkomponente <iob-echarts-chart>für Aura und andere Hosts hinzugefügt (Common.WebComponents)\nBehoben: Ein Diagramm ohne Iframe behielt den ersten festen Zeitraum und ignorierte",
+        "ru": "Добавлен веб-компонент <iob-echarts-chart>`для Aura и других хостов (`Common.webcomponents`)\nИсправлено: диаграмма, нарисованная без iframe, сохраняла первый фиксированный временной диапазон и игнорировалась каждый последующий",
+        "pt": "Adição do componente web `<iob-echarts-chart>` para Aura e outros hosts (`common.webComponents`)\nFixo: um gráfico sem iframe manteve o primeiro intervalo fixo e ignorou o posterior",
+        "nl": "Webcomponent `<iob-echarts-chart>` toegevoegd voor Aura en andere hosts (`Common.WebComponents`)\nOpgelost: bij een diagram dat zonder iframe werd getekend, bleef het eerste vaste tijdbereik behouden en werd elke latere periode genegeerd",
+        "fr": "Ajout d'un composant Web <iob-echarts-chart>pour Aura et les autres hébergeurs (common.WebComponents`)\nCorrigé : un graphique dessiné sans iframe conservait la première plage horaire et ignorait la suivante",
+        "it": "Aggiunto componente web <iob-echarts-chart>per Aura e altri host (Common.WebComponents)\nRisolto: un grafico senza iframe manteneva il primo intervallo fisso e lo ignorava",
+        "es": "Se ha añadido un componente web <iob-echarts-chart>para Aura y otros hosts (`Common.WebComponents`)\nCorregido: un gráfico dibujado sin iframe mantenía el primer rango temporal fijo y se ignoraba cada vez",
+        "pl": "Dodano komponent sieciowy `<iob-echarts-chart>` dla Aura i innych hostów (`common.webcomponents`)\nNaprawiono: wykres narysowany bez iframe zachował pierwszy stały zakres czasu i ignorował co późniejszy",
+        "uk": "Додано веб-компонент `<iob-echarts-chart>` для Aura та інших хостів (`Common.WebComponents`)\nВиправлено: діаграма, намальована без iframe, зберігала перший фіксований часовий діапазон і ігнорувала кожен пізній",
+        "zh-cn": "为 <iob-echarts-chart>Aura 和其他主机添加了 Web 组件 ``(`common.webComponents`)\n修复：在没有iframe的情况下绘制的图表保留了第一个固定时间范围，每隔一段时间就会忽略一次"
+      },
       "6.2.0": {
         "en": "Bars and lines can be combined in one chart: changing the type of one line no longer changes all the others, and the lines are drawn on their own time axis over the bars (#1319)\nBars can be drawn stacked, side by side or overlapping: overlapping bars all start at zero, so a color with transparency shows the bars behind them (#1318)\nThe chart no longer fails with \"Show sum over the stack\" if the automatic grid padding is off, and the sum disappears when the option is switched off\nThe tooltip can show only the line nearest to the mouse instead of all lines, for charts with many lines (#1280)",
         "de": "Balken und Linien können in einem Diagramm kombiniert werden. Der Typ einer Linie ändert nicht mehr alle anderen, und die Linien ziehen ihre eigene Zeitachse (#1319)\nBalken können übereinander oder überlappend gezeichnet werden: Alle Balken beginnen bei Null, eine durchsichtige Farbe zeigt die Balken dahinter (#1318)\nDas Diagramm schlägt nicht mehr mit „Summe über dem Stapel anzeigen“ fehl, wenn die Option ausgeschaltet ist.\nDer Tooltip kann bei Diagrammen mit vielen Linien nur die Mauslinie und nicht alle zeigen (#1280)",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono renderowanie po stronie serwera wiszące do czasu, gdy rozmówca się wyłączył (podgląd pokazał \"timeout\" dla każdego ustawionego czasu)\nDopasowanie GUI edytora, podglądu i wykresu z wzornictwem admin 8\nNaprawiono tworzenie ustawień w folderze",
         "uk": "Фіксований сервер-посередній рендеринг висить до часу відправника (огляд показало \"timeout\" для кожного зада)\nВирівнюється графічний інтерфейс редактора, попередній перегляд та графік з дизайном admin 8\nВиправлено створення пресету в папці",
         "zh-cn": "固定服务器侧渲染悬挂直到呼叫者超时( 预览显示每个预设“ 超时 ” )\n将编辑器的图形界面、预览和图表与管理员 8 设计对齐\n固定在文件夹中创建预设"
-      },
-      "5.0.0": {
-        "en": "Update to ECharts 6.1.0 and React 19",
-        "de": "Aktualisierung auf ECharts 6.1.0 und React 19",
-        "ru": "Обновите ECharts до версии 6.1.0 и React 19.",
-        "pt": "Atualização para ECharts 6.1.0 e React 19",
-        "nl": "Update naar ECharts 6.1.0 en React 19",
-        "fr": "Mise à jour vers ECharts 6.1.0 et React 19",
-        "it": "Aggiornamento a ECharts 6.1.0 e React 19",
-        "es": "Actualizar a ECharts 6.1.0 y React 19",
-        "pl": "Aktualizacja do ECharts 6.1.0 i React 19",
-        "uk": "Оновлення до ECharts 6.1.0 та React 19",
-        "zh-cn": "更新至 ECharts 6.1.0 和 React 19"
       }
     },
     "titleLang": {

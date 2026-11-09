@@ -270,7 +270,8 @@ class ChartModel {
      * `getStartStop` writes the range that is really drawn back into `config.start`/`config.end`, and
      * the static branch reads them again on the next run. With the default end time of 24:00 that moved
      * the chart one day further into the future with every re-read, e.g. with every tick of "live".
-     * The entry is bound to the config object, so a new preset starts with fresh borders.
+     * The entry is bound to the config object, so a new preset starts with fresh borders. `setTimeRange`
+     * changes the config in place and therefore updates the borders itself.
      */
     staticRange = null;
     barCategories;
@@ -652,6 +653,12 @@ class ChartModel {
             return;
         }
         this.applyHash(this.config);
+        // The borders of a static range are remembered per config object, and this one was changed in place:
+        // they must follow the new range, or the first static range would stay for good
+        if (this.staticRange?.config === this.config) {
+            this.staticRange.start = this.hash.start ?? this.staticRange.start;
+            this.staticRange.end = this.hash.end ?? this.staticRange.end;
+        }
         this.zoomData = null;
         this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
         this.readOnZoomTimeout = null;
