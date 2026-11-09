@@ -2600,6 +2600,11 @@ class ChartOption {
                 let padTop = 0;
 
                 lineSeries.forEach((ser, i) => {
+                    // The sum of a stack is an own series behind all lines. It has no line configuration,
+                    // and the bars that it sums up already reserve the room for their Y-axis
+                    if (typeof ser.id === 'string' && ser.id.startsWith(SUM_SERIES_ID)) {
+                        return;
+                    }
                     let _yAxis = (option.yAxis as YAXisOption[])[ser.yAxisIndex];
                     if (!_yAxis) {
                         // it seems this axis is defined something else
