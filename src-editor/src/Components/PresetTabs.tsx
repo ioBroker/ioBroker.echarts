@@ -1726,6 +1726,19 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                             label="Hide nulls in tooltip"
                         />
                     ) : null}
+                    {this.props.presetData.hoverDetail &&
+                    this.props.presetData.l.some(line => line.chartType !== 'bar' && line.chartType !== 'polar') ? (
+                        <IOCheckbox
+                            value={!!this.props.presetData.hoverNearest}
+                            updateValue={(value: boolean): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.hoverNearest = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="Only the nearest line in tooltip"
+                            tooltip="The tooltip shows only the line closest to the mouse pointer instead of all lines. Useful for charts with many lines"
+                        />
+                    ) : null}
                     {this.props.presetData.hoverDetail
                         ? this.renderColorField(
                               this.props.presetData.hoverBackground,

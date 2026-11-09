@@ -290,8 +290,23 @@ type TooltipRow = {
     seriesIndex: number;
     /** `false` if the value at this point is null, so a line with a real value can win the merge */
     hasValue: boolean;
+    /** The value of a line at this point. Bars have none, they stand for a whole interval */
+    lineValue?: number | null;
     html: string;
 } | null;
+
+/** What the tooltip has to know about the drawn chart. The option alone knows neither the mouse nor the pixels */
+export interface ChartHoverHelper {
+    /** Pixels from the top of the chart to the mouse or finger, `null` if it was not over the chart yet */
+    getPointerY(): number | null;
+    /** The pixel from the top of the chart at which this value stands on this Y-axis */
+    valueToPixel(yAxisIndex: number, value: number): number;
+    /** `false` if the line was switched off in the legend */
+    isSeriesVisible(seriesIndex: number): boolean;
+}
+
+/** Lines closer together than this many pixels cannot be told apart with the mouse, so all of them are shown */
+const NEAREST_LINE_TOLERANCE = 1;
 
 type ChartInfo = {
     xMin?: number;
@@ -341,6 +356,7 @@ class ChartOption {
     private readonly compact: boolean;
     private lastFormattedTime: string | number | Date | null;
     private option: EChartsOption | null;
+    private hoverHelper: ChartHoverHelper | null = null;
     private debug = false;
 
     constructor(
@@ -361,6 +377,11 @@ class ChartOption {
         this.chart = { yAxis: [] };
         this.compact = compact;
         this.lastFormattedTime = null;
+    }
+
+    /** Without it the tooltip shows all lines, e.g. when rendering on the server */
+    setHoverHelper(hoverHelper: ChartHoverHelper): void {
+        this.hoverHelper = hoverHelper;
     }
 
     /*
@@ -1787,6 +1808,7 @@ class ChartOption {
                 name: line.name as string,
                 seriesIndex,
                 hasValue: interpolated.val !== null,
+                lineValue: interpolated.val,
                 html:
                     `<div style="width: 100%; display: inline-flex; justify-content: space-around; color: ${line.itemStyle?.color as string}">` +
                     `<div style="display: flex;margin-right: 4px">${line.name}:</div>` +
@@ -1796,7 +1818,7 @@ class ChartOption {
             };
         });
 
-        const values = ChartOption.mergeTooltipRowsByName(rows);
+        const values = ChartOption.mergeTooltipRowsByName(this.keepNearestLine(rows));
 
         // Beside bars the mouse can stand where only lines deliver a value, then there is no interval to name
         if (anyBarOrPolar && (!barsAndLines || barPolarName)) {
@@ -1820,6 +1842,40 @@ class ChartOption {
         // of the X-axis right below the tooltip are 24 hours too. Milliseconds only if one can see them.
         const format = this.config.timeFormat || (this.chart.diff < 60000 ? 'dd, L HH:mm:ss.SSS' : 'dd, L HH:mm:ss');
         return `<b>${this.moment(date).format(format)}</b><br/>${values.join('<br/>')}`;
+    }
+
+    /**
+     * With many lines the tooltip gets higher than the chart and nobody can see which line is meant, so
+     * on request only the line nearest to the mouse stays. All lines have a value at the time of the
+     * tooltip, so only their height decides. Bars have no height to compare and always stay.
+     *
+     * @param rows one entry per series, `null` if the series has nothing to show
+     */
+    keepNearestLine(rows: TooltipRow[]): TooltipRow[] {
+        const pointerY = this.config.hoverNearest ? this.hoverHelper?.getPointerY() : null;
+        if (pointerY === null || pointerY === undefined) {
+            return rows;
+        }
+
+        const series = this.option.series as RegisteredSeriesOption['line'][];
+        const distances = rows.map((row): number | null => {
+            if (!row || row.lineValue === undefined || row.lineValue === null) {
+                return null;
+            }
+            if (!this.hoverHelper.isSeriesVisible(row.seriesIndex)) {
+                return null;
+            }
+            const y = this.hoverHelper.valueToPixel(series[row.seriesIndex].yAxisIndex, row.lineValue);
+            return Number.isFinite(y) ? Math.abs(y - pointerY) : null;
+        });
+        const nearest = Math.min(...distances.filter(distance => distance !== null));
+
+        return rows.filter(
+            (row, i) =>
+                row &&
+                (row.lineValue === undefined ||
+                    (distances[i] !== null && distances[i] <= nearest + NEAREST_LINE_TOLERANCE)),
+        );
     }
 
     /**
