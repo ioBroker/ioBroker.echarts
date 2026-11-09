@@ -332,6 +332,13 @@ export interface ChartConfigMore extends ChartConfig {
     barLabels?: 'topover' | 'topunder' | 'bottom' | 'inside' | '';
     /** Write the sum of a stack over it. Only for bars that share a Y-axis and are therefore stacked */
     barSum?: boolean;
+    /**
+     * How the bars of one time interval stand to each other:
+     * - `stacked` (default): bars that share a Y-axis are drawn on each other, all others side by side
+     * - `sideBySide`: every bar gets its own place, also on a shared Y-axis
+     * - `overlap`: all bars start at zero at the same place and the last line of the list is on top
+     */
+    barMode?: 'stacked' | 'sideBySide' | 'overlap';
     barFontSize?: number;
     barWidth?: number;
     /**
