@@ -280,6 +280,12 @@ export interface ChartConfig {
     range: ChartRangeOptions;
     /** Show a chart-local selector for changing the relative time range. */
     rangeSelector?: boolean;
+    /**
+     * Show an arrow at each side of the chart that moves the time range back or forward by its own
+     * length: a week back for a range of 7 days, the month before for "this month". The arrow keys do the
+     * same while the chart has the focus. For lines and bars, not for a donut, a gauge, a radar or one bar per line.
+     */
+    stepButtons?: boolean;
 }
 
 // string = presetID, {id, instance} = direct from state with history enabled

@@ -86,6 +86,8 @@
     "noHistory": "没有历史适配器记录此状态：",
     "timeRange": "时间范围",
     "resetZoom": "重置平移和缩放",
+    "previousPeriod": "上一时段",
+    "nextPeriod": "下一时段",
     "savePng": "将图表保存为 PNG",
     "saveSvg": "将图表保存为 SVG",
     "exportData": "将原始数据导出为 CSV",

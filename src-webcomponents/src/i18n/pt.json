@@ -86,6 +86,8 @@
     "noHistory": "Nenhum adaptador de histórico regista este estado:",
     "timeRange": "Intervalo de tempo",
     "resetZoom": "Repor deslocamento e zoom",
+    "previousPeriod": "Período anterior",
+    "nextPeriod": "Próximo período",
     "savePng": "Guardar gráfico como PNG",
     "saveSvg": "Guardar gráfico como SVG",
     "exportData": "Exportar dados brutos como CSV",

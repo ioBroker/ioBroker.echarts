@@ -160,6 +160,13 @@ class EchartsChart extends IobWebComponent<ChartSettings> {
 
     readonly #resetButton: HTMLButtonElement;
 
+    readonly #stepBackButton: HTMLButtonElement;
+
+    readonly #stepForwardButton: HTMLButtonElement;
+
+    /** The arrows are shown, so the arrow keys step too */
+    #canStep = false;
+
     readonly #resizeObserver: ResizeObserver | null;
 
     readonly #panZoom: PanZoom;
@@ -247,8 +254,15 @@ class EchartsChart extends IobWebComponent<ChartSettings> {
             this.#model?.setNewRange();
         });
 
+        this.#stepBackButton = this.#createButton('icon back', ICONS.back, () => this.#step(-1));
+        this.#stepForwardButton = this.#createButton('icon', ICONS.forward, () => this.#step(1));
+        this.#frame.addEventListener('keydown', this.#onKeyDown);
+        this.#frame.addEventListener('pointerdown', this.#onPointerDown, true);
+
         this.#frame.append(
             this.#canvas,
+            this.#stepBackButton,
+            this.#stepForwardButton,
             this.#imageButton,
             this.#rangeButton,
             this.#exportButton,
@@ -623,7 +637,56 @@ class EchartsChart extends IobWebComponent<ChartSettings> {
         if (!config) {
             this.#resetButton.hidden = true;
         }
+
+        // In the middle of the height, but not over the buttons on the right edge
+        const step = !!config && ChartOption.hasStepButtons(config);
+        const tops = [image && BUTTON_TOP, range && (image ? BUTTON_TOP + BUTTON_SLOT : BUTTON_TOP)];
+        tops.push(exportData && BUTTON_TOP + BUTTON_SLOT + (range && image ? BUTTON_SLOT : 0));
+        const lowest = Math.max(0, ...tops.filter((top): top is number => typeof top === 'number'));
+        const stepTop = `max(calc(50% - 10px), ${lowest ? lowest + BUTTON_SLOT : 0}px)`;
+        for (const [button, key] of [
+            [this.#stepBackButton, 'previousPeriod'],
+            [this.#stepForwardButton, 'nextPeriod'],
+        ] as const) {
+            button.hidden = !step;
+            button.style.top = stepTop;
+            button.style.color = config?.exportColor || '';
+            setTitle(button, `${word(lang, key)} (${key === 'previousPeriod' ? '\u2190' : '\u2192'})`);
+        }
+        this.#canStep = step;
+        if (step) {
+            this.#frame.tabIndex = 0;
+        } else {
+            this.#frame.removeAttribute('tabindex');
+        }
     }
+
+    /** One period back or forward, see `ChartModel.stepRange` */
+    #step(direction: -1 | 1): void {
+        const model = this.#model;
+        if (model) {
+            this.#panZoom.step(direction, d => model.stepRange(d));
+        }
+    }
+
+    /** The arrow keys step like the arrows while the chart has the focus; Alt + arrow stays "back" of the browser */
+    readonly #onKeyDown = (event: KeyboardEvent): void => {
+        if (!this.#canStep || this.editMode || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+            return;
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault();
+            this.#step(event.key === 'ArrowLeft' ? -1 : 1);
+        }
+    };
+
+    /** A click into the chart gives it the focus for the arrow keys, even if echarts swallows the mouse button */
+    readonly #onPointerDown = (): void => {
+        const active = this.shadowRoot?.activeElement;
+        if (this.#canStep && !this.editMode && !(active && this.#frame.contains(active))) {
+            this.#frame.focus({ preventScroll: true });
+        }
+    };
 
     #createButton(className: string, icon: string, onClick: () => void): HTMLButtonElement {
         const button = document.createElement('button');

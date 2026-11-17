@@ -620,5 +620,7 @@
   "ØS Shadow size": "ØS阴影尺寸",
   "Empty: as \"After comma\" of the chart": "为空：与图表的\"之后的逗号\"相同",
   "In dark theme": "深色主题",
-  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "图表以深色显示时使用，例如主题为“auto”时。为空：与浅色主题相同的颜色"
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "图表以深色显示时使用，例如主题为“auto”时。为空：与浅色主题相同的颜色",
+  "Show arrows for the previous and next period": "显示切换到上一时段和下一时段的箭头",
+  "An arrow at each side of the chart moves the time range by its own length, e.g. a week or a month back. After a click into the chart, the arrow keys ← and → do the same.": "图表两侧各有一个箭头，可将时间范围按其自身长度移动，例如回退一周或一个月。点击图表后，← 和 → 键也有相同作用。"
 }

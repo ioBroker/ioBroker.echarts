@@ -39,6 +39,8 @@ import {
     FaBars as IconMenu,
     FaCheck as IconCheck,
     FaCalendarAlt as IconRange,
+    FaChevronLeft as IconStepBack,
+    FaChevronRight as IconStepForward,
 } from 'react-icons/fa';
 import { Close as IconClose } from '@mui/icons-material';
 
@@ -78,7 +80,7 @@ import {
 
 import { SVGRenderer, CanvasRenderer } from 'echarts/renderers';
 
-import ChartOption, { type ChartHoverHelper } from './ChartOption';
+import ChartOption, { type ChartHoverHelper, STEP_BUTTON_WIDTH } from './ChartOption';
 
 // Themes
 import 'echarts/theme/azul';
@@ -220,6 +222,14 @@ const styles: Record<string, React.CSSProperties> = {
         opacity: 0.7,
         cursor: 'pointer',
     },
+    stepButton: {
+        position: 'absolute',
+        width: STEP_BUTTON_WIDTH,
+        height: STEP_BUTTON_WIDTH,
+        zIndex: 2,
+        opacity: 0.7,
+        cursor: 'pointer',
+    },
     copyButton: {
         position: 'absolute',
         top: 100,
@@ -291,6 +301,8 @@ interface ChartViewProps {
     actualValues: number[];
     onRangeChange: (settings?: { stopLive?: boolean; start?: number; end?: number }) => void;
     onRangeSelectorChange: (range: ChartRangeOptions) => void;
+    /** Moves the time range by its length, see `ChartModel.stepRange`. Without it, the chart has no arrows. */
+    onRangeStep?: (direction: -1 | 1) => boolean;
     categories: number[]; // for bar and pie charts
     exportData: (from: number, to: number, excludes?: string[]) => Promise<{ [objectId: string]: SeriesData[] }>;
 }
@@ -519,13 +531,17 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
         return (styles.copyButton.top as number) + shift;
     }
 
+    showsRangeSelector(): boolean {
+        return (
+            !!this.props.config.rangeSelector &&
+            this.props.config.timeType !== 'static' &&
+            this.props.config.chartMode !== 'donut' &&
+            this.props.config.chartMode !== 'gauge'
+        );
+    }
+
     renderRangeSelector(): React.JSX.Element | null {
-        if (
-            !this.props.config.rangeSelector ||
-            this.props.config.timeType === 'static' ||
-            this.props.config.chartMode === 'donut' ||
-            this.props.config.chartMode === 'gauge'
-        ) {
+        if (!this.showsRangeSelector()) {
             return null;
         }
 
@@ -681,17 +697,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 this.updateDataTimer = null;
             }
             this.props.onRangeChange && this.props.onRangeChange({ start: chart.xMin, end: chart.xMax });
-
-            if (this.props.config.resetZoom) {
-                this.resetZoomAndTiltTimer && clearTimeout(this.resetZoomAndTiltTimer);
-                this.resetZoomAndTiltTimer = setTimeout(() => {
-                    this.resetZoomAndTiltTimer = null;
-                    if (this.divResetButton.current) {
-                        this.divResetButton.current.style.display = 'none';
-                    }
-                    this.props.onRangeChange && this.props.onRangeChange();
-                }, 1000 * this.props.config.resetZoom);
-            }
+            this.startResetZoomTimer();
         } else {
             console.log(`[ChartView ] [${new Date().toISOString()}] setOption in setNewRange`);
             (this.option.xAxis as XAXisOption[])[0].min = chart.xMin;
@@ -709,6 +715,131 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
                 console.error(`Cannot apply options 1: ${JSON.stringify(this.option)}`);
             }
         }
+    }
+
+    /** "Reset zoom after idle": the time range comes back after a while without a zoom, a pan or a step */
+    startResetZoomTimer(): void {
+        if (!this.props.config.resetZoom) {
+            return;
+        }
+        this.resetZoomAndTiltTimer && clearTimeout(this.resetZoomAndTiltTimer);
+        this.resetZoomAndTiltTimer = setTimeout(() => {
+            this.resetZoomAndTiltTimer = null;
+            if (this.divResetButton.current) {
+                this.divResetButton.current.style.display = 'none';
+            }
+            this.props.onRangeChange && this.props.onRangeChange();
+        }, 1000 * this.props.config.resetZoom);
+    }
+
+    /** Moves the time range back or forward by its length, for the arrows and the arrow keys */
+    step(direction: -1 | 1): void {
+        if (!this.props.onRangeStep) {
+            return;
+        }
+        // A turn of the wheel hands its window to the model only after a second, but the step must start from it
+        if (this.updateDataTimer) {
+            this.setNewRange(true);
+        }
+        const moved = this.props.onRangeStep(direction);
+
+        // As after a pan, the reset button brings the time range back
+        if (this.divResetButton.current) {
+            this.divResetButton.current.style.display = moved ? 'block' : 'none';
+        }
+        if (moved) {
+            this.startResetZoomTimer();
+        } else if (this.resetZoomAndTiltTimer) {
+            clearTimeout(this.resetZoomAndTiltTimer);
+            this.resetZoomAndTiltTimer = null;
+        }
+    }
+
+    hasStepButtons(): boolean {
+        return !!this.props.onRangeStep && ChartOption.hasStepButtons(this.props.config, this.props.compact);
+    }
+
+    /**
+     * The arrow keys step like the arrows, while the chart has the focus. The menu of the range selector and the
+     * dialogs are portals: their keys bubble up here through React, although they stand outside of this div.
+     */
+    private readonly onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+        // Alt + arrow is "back" and "forward" of the browser
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+            return;
+        }
+        if (!(event.target instanceof Node) || !this.divRef.current?.contains(event.target)) {
+            return;
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault();
+            this.step(event.key === 'ArrowLeft' ? -1 : 1);
+        }
+    };
+
+    /** A click into the chart gives it the focus for the arrow keys, even if echarts swallows the mouse button */
+    private readonly onPointerDownCapture = (event: React.PointerEvent<HTMLDivElement>): void => {
+        const div = this.divRef.current;
+        if (
+            div &&
+            event.target instanceof Node &&
+            div.contains(event.target) &&
+            !div.contains(document.activeElement)
+        ) {
+            div.focus({ preventScroll: true });
+        }
+    };
+
+    /** The first free place under the buttons on the right edge */
+    getRightToolbarEnd(): number {
+        const tops: number[] = [];
+        if (this.props.config.export) {
+            tops.push(styles.saveImageButton.top as number);
+        }
+        if (this.showsRangeSelector()) {
+            tops.push(this.getButtonTop('range'));
+        }
+        if (this.props.config.exportData) {
+            tops.push(this.getButtonTop('exportData'));
+        }
+        if (window.location.port === '3000') {
+            tops.push(this.getButtonTop('copy'));
+        }
+        return tops.length ? Math.max(...tops) + BUTTON_SLOT : 0;
+    }
+
+    /**
+     * An arrow at each side of the chart moves the time range by its length: one week back for 7 days, the month
+     * before for "this month". `ChartOption` keeps the place beside the grid free for them.
+     */
+    renderStepButtons(): React.JSX.Element | null {
+        // Before the first measuring there is no chart to stand beside, and no middle of its height
+        if (!this.hasStepButtons() || this.state.chartHeight === null) {
+            return null;
+        }
+        // In the middle of the height, but not over the buttons on the right edge
+        const top = Math.max(
+            Math.round((this.state.chartHeight || 0) / 2 - STEP_BUTTON_WIDTH / 2),
+            this.getRightToolbarEnd(),
+        );
+        const color = this.getThemedConfig().exportColor || undefined;
+
+        return (
+            <>
+                <IconStepBack
+                    color={color}
+                    style={{ ...styles.stepButton, top, left: 5 }}
+                    title={`${I18n.t('Previous period')} (←)`}
+                    onClick={() => this.step(-1)}
+                />
+                <IconStepForward
+                    color={color}
+                    style={{ ...styles.stepButton, top, right: 5 }}
+                    title={`${I18n.t('Next period')} (→)`}
+                    onClick={() => this.step(1)}
+                />
+            </>
+        );
     }
 
     setNewYAxis(yAxis: YAXisOption[]): void {
@@ -943,15 +1074,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
     };
 
     installEventHandlers(instance?: EChartsInstance): void {
-        const hasAnyBarOrPolar = !!this.props.config.l.find(
-            item => item.chartType === 'bar' || item.chartType === 'polar',
-        );
-
-        // A chart that shows one value per line has no time axis to zoom into
-        const mode = this.props.config.chartMode;
-        const oneValuePerLine = mode === 'donut' || mode === 'barCurrent' || mode === 'gauge';
-
-        if (this.props.compact || !this.props.config.zoom || hasAnyBarOrPolar || oneValuePerLine) {
+        if (this.props.compact || !this.props.config.zoom || !ChartOption.hasTimeAxis(this.props.config)) {
             return;
         }
         const eChartInstance =
@@ -1645,9 +1768,15 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             this.zrIobInstalled = false;
         }
 
+        // Focusable only for the arrow keys. A click does not draw a focus ring, the Tab key does
+        const stepButtons = this.hasStepButtons();
+
         return (
             <div
                 ref={this.divRef}
+                tabIndex={stepButtons ? 0 : undefined}
+                onKeyDown={stepButtons ? this.onKeyDown : undefined}
+                onPointerDownCapture={stepButtons ? this.onPointerDownCapture : undefined}
                 style={{
                     ...styles.chart,
                     borderWidth,
@@ -1673,6 +1802,7 @@ class ChartView extends React.Component<ChartViewProps, ChartViewState> {
             >
                 {this.renderRangeSelector()}
                 {chart}
+                {this.renderStepButtons()}
                 {this.renderSaveImageButton()}
                 {this.renderExportDataDialog()}
                 {this.renderExportDataButton()}

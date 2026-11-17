@@ -139,6 +139,8 @@ export const ELEMENT_WORDS = [
     'noHistory',
     'timeRange',
     'resetZoom',
+    'previousPeriod',
+    'nextPeriod',
     'savePng',
     'saveSvg',
     'exportData',

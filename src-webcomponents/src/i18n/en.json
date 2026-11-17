@@ -86,6 +86,8 @@
     "noHistory": "No history adapter records this state:",
     "timeRange": "Time range",
     "resetZoom": "Reset pan and zoom",
+    "previousPeriod": "Previous period",
+    "nextPeriod": "Next period",
     "savePng": "Save chart as PNG",
     "saveSvg": "Save chart as SVG",
     "exportData": "Export raw data as CSV",

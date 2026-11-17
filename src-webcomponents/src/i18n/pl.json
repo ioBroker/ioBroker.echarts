@@ -86,6 +86,8 @@
     "noHistory": "Żaden adapter historii nie rejestruje tego stanu:",
     "timeRange": "Zakres czasu",
     "resetZoom": "Resetuj przesunięcie i powiększenie",
+    "previousPeriod": "Poprzedni okres",
+    "nextPeriod": "Następny okres",
     "savePng": "Zapisz wykres jako PNG",
     "saveSvg": "Zapisz wykres jako SVG",
     "exportData": "Eksportuj surowe dane jako CSV",

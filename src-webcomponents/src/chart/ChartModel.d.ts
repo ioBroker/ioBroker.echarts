@@ -66,6 +66,13 @@ export default class ChartModel {
 
     setTimeRange(override: ChartTimeRangeOverride): void;
 
+    /**
+     * One period back (-1) or forward (1), from the arrows and the arrow keys
+     *
+     * @returns `true` if the chart shows another window than its range now
+     */
+    stepRange(direction: -1 | 1): boolean;
+
     exportData(from: number, to: number, excludes?: string[]): Promise<Record<string, SeriesData[]>>;
 
     /** Unsubscribes everything and stops the timers */

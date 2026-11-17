@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.STEP_BUTTON_WIDTH = void 0;
 /** The colors that can have an own value for the dark theme */
 const THEME_COLORS = [
     'window_bg',
@@ -242,6 +243,8 @@ function getGradient(color) {
 }
 /** Lines closer together than this many pixels cannot be told apart with the mouse, so all of them are shown */
 const NEAREST_LINE_TOLERANCE = 1;
+/** The place the arrows that step the time range take beside the grid, see `ChartView.renderStepButtons` */
+exports.STEP_BUTTON_WIDTH = 20;
 /** Prefix of the id and the name of the series that only carries the sum of a stack */
 const SUM_SERIES_ID = 'barSum';
 class ChartOption {
@@ -1282,14 +1285,45 @@ class ChartOption {
      * bigger ones. The factors below deliver exactly those two numbers for 12 pixels.
      */
     /**
-     * The image, the range and the CSV button hang over the right edge of the chart, so the grid has to
-     * leave a place for them. A new button of that row belongs in this check too.
+     * The image, the range and the CSV button and the arrow that steps forward hang over the right edge of
+     * the chart, so the grid has to leave a place for them. A new button of that row belongs in this check too.
      */
     hasRightToolbar() {
         return (this.config.export === true ||
             this.config.export === 'true' ||
             !!this.config.exportData ||
-            !!this.config.rangeSelector);
+            !!this.config.rangeSelector ||
+            ChartOption.hasStepButtons(this.config, this.compact));
+    }
+    /** The arrow that steps back stands left of the Y-axis, so the grid moves aside for it */
+    getLeftToolbarWidth() {
+        return ChartOption.hasStepButtons(this.config, this.compact) ? exports.STEP_BUTTON_WIDTH : 0;
+    }
+    /**
+     * Does the chart show a course over a time axis, that can be zoomed, panned and stepped? Bars stand on an
+     * axis of categories, and a donut, a gauge or a radar shows one value per line.
+     */
+    static hasTimeAxis(config) {
+        const mode = config.chartMode;
+        if (mode === 'donut' || mode === 'barCurrent' || mode === 'gauge' || mode === 'radar') {
+            return false;
+        }
+        return !config.l?.find(item => item.chartType === 'bar' || item.chartType === 'polar');
+    }
+    /**
+     * Are the arrows shown that step the time range back and forward? Unlike the pan, they work for bars too:
+     * the step reads the next window, it does not move the axis. A donut, a gauge, a radar and one bar per
+     * line show one value per line and have no time range to step through.
+     */
+    static hasStepButtons(config, compact) {
+        if (!config.stepButtons || compact) {
+            return false;
+        }
+        const mode = config.chartMode;
+        if (mode === 'donut' || mode === 'barCurrent' || mode === 'gauge' || mode === 'radar') {
+            return false;
+        }
+        return !config.l?.find(item => item.chartType === 'polar');
     }
     getXLabelHeight() {
         const fontSize = parseInt(this.config.x_labels_size, 10) || 12;
@@ -2196,7 +2230,7 @@ class ChartOption {
             grid: {
                 backgroundColor: this.config.bg_custom || 'transparent',
                 show: !!this.config.bg_custom,
-                left: 10,
+                left: 10 + this.getLeftToolbarWidth(),
                 top: 8,
                 right: this.hasRightToolbar() ? 30 : 0,
                 bottom: this.compact ? 4 : this.getXLabelHeight(),
@@ -2378,7 +2412,7 @@ class ChartOption {
                     padLeft = Math.max(padLeft, halfLabel(0));
                     padRight = Math.max(padRight, halfLabel(categories.length - 1));
                 }
-                option.grid.left = padLeft + 10;
+                option.grid.left = padLeft + 10 + this.getLeftToolbarWidth();
                 option.grid.right = padRight + 10 + (this.hasRightToolbar() ? 20 : 0);
                 // if xAxis shown, let the place for last value
                 if (option.grid.right <= 10 && (padTop || padBottom)) {

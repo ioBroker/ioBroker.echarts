@@ -79,6 +79,43 @@ export class PanZoom {
         }
     }
 
+    /**
+     * Step the time range back or forward by its length, from the arrows and the arrow keys (`ChartView.step`)
+     *
+     * @param direction -1 back, 1 forward
+     * @param move `ChartModel.stepRange`: `true` if the chart shows another window than its range afterwards
+     */
+    step(direction: -1 | 1, move: (direction: -1 | 1) => boolean): void {
+        // A turn of the wheel hands its window over only after a second, but the step must start from it
+        if (this.#wheelTimer) {
+            this.#setNewRange(true);
+        }
+        const moved = move(direction);
+        this.#host.showReset(moved);
+        if (moved) {
+            this.#startResetTimer();
+        } else if (this.#resetTimer) {
+            clearTimeout(this.#resetTimer);
+            this.#resetTimer = null;
+        }
+    }
+
+    /** "Reset zoom after idle": the range comes back after a while without a zoom, a pan or a step */
+    #startResetTimer(): void {
+        const resetZoom = Number(this.#host.config()?.resetZoom) || 0;
+        if (!resetZoom) {
+            return;
+        }
+        if (this.#resetTimer) {
+            clearTimeout(this.#resetTimer);
+        }
+        this.#resetTimer = setTimeout(() => {
+            this.#resetTimer = null;
+            this.#host.showReset(false);
+            this.#host.setRange();
+        }, 1000 * resetZoom);
+    }
+
     /** Remove the handlers and stop the timers, e.g. before the chart is disposed */
     destroy(): void {
         this.#offMouse();
@@ -159,18 +196,7 @@ export class PanZoom {
                 this.#wheelTimer = null;
             }
             this.#host.setRange({ start: info.xMin, end: info.xMax });
-
-            const resetZoom = Number(this.#host.config()?.resetZoom) || 0;
-            if (resetZoom) {
-                if (this.#resetTimer) {
-                    clearTimeout(this.#resetTimer);
-                }
-                this.#resetTimer = setTimeout(() => {
-                    this.#resetTimer = null;
-                    this.#host.showReset(false);
-                    this.#host.setRange();
-                }, 1000 * resetZoom);
-            }
+            this.#startResetTimer();
             return;
         }
         const option = this.#host.option();

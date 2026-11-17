@@ -86,6 +86,8 @@
     "noHistory": "Geen geschiedenisadapter slaat deze status op:",
     "timeRange": "Tijdsbereik",
     "resetZoom": "Verschuiven en zoomen herstellen",
+    "previousPeriod": "Vorige periode",
+    "nextPeriod": "Volgende periode",
     "savePng": "Grafiek opslaan als PNG",
     "saveSvg": "Grafiek opslaan als SVG",
     "exportData": "Ruwe gegevens exporteren als CSV",

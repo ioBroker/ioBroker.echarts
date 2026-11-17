@@ -620,5 +620,7 @@
   "ØS Shadow size": "ØS tamaño de la sombra",
   "Empty: as \"After comma\" of the chart": "Vacío: como \"Después de la coma\" del gráfico",
   "In dark theme": "En tema oscuro",
-  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Se usa cuando el gráfico se muestra oscuro, p. ej. con el tema \"auto\". Vacío: el mismo color que en el tema claro"
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Se usa cuando el gráfico se muestra oscuro, p. ej. con el tema \"auto\". Vacío: el mismo color que en el tema claro",
+  "Show arrows for the previous and next period": "Mostrar flechas para el período anterior y siguiente",
+  "An arrow at each side of the chart moves the time range by its own length, e.g. a week or a month back. After a click into the chart, the arrow keys ← and → do the same.": "Una flecha a cada lado del gráfico desplaza el intervalo de tiempo según su propia longitud, p. ej., una semana o un mes hacia atrás. Tras hacer clic en el gráfico, las teclas ← y → hacen lo mismo."
 }

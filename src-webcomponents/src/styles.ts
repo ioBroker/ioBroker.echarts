@@ -138,6 +138,19 @@ button.icon:hover,
 button.icon:focus-visible {
     opacity: 1;
 }
+/* the arrows that step the time range: the one back stands on the left edge */
+button.icon.back {
+    right: auto;
+    left: 5px;
+}
+/* focusable for the arrow keys: a click draws no ring, the Tab key does */
+.frame:focus {
+    outline: none;
+}
+.frame:focus-visible {
+    outline: 2px solid var(--iob-primary);
+    outline-offset: -2px;
+}
 button.icon.busy {
     opacity: 0.4;
     cursor: progress;

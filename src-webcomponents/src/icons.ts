@@ -8,6 +8,10 @@ export const ICONS = {
     range: 'M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z',
     /** Back to the range without pan and zoom */
     reset: 'M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z',
+    /** One period back */
+    back: 'M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',
+    /** One period forward */
+    forward: 'M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z',
     /** The lines to show */
     menu: 'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z',
     /** The hint without a chart */

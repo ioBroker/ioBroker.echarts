@@ -620,5 +620,7 @@
   "ØS Shadow size": "ØS Размер тени",
   "Empty: as \"After comma\" of the chart": "Пусто: как «После запятой» диаграммы",
   "In dark theme": "В тёмной теме",
-  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Используется, когда диаграмма отображается в тёмной теме, например с темой «auto». Пусто: тот же цвет, что и в светлой теме"
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Используется, когда диаграмма отображается в тёмной теме, например с темой «auto». Пусто: тот же цвет, что и в светлой теме",
+  "Show arrows for the previous and next period": "Показывать стрелки для предыдущего и следующего периода",
+  "An arrow at each side of the chart moves the time range by its own length, e.g. a week or a month back. After a click into the chart, the arrow keys ← and → do the same.": "Стрелка с каждой стороны диаграммы сдвигает временной диапазон на его собственную длину, например на неделю или месяц назад. После щелчка по диаграмме то же делают клавиши ← и →."
 }

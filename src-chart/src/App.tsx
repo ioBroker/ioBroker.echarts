@@ -483,6 +483,7 @@ class App extends Component<AppProps, AppState> {
                                 this.chartData.setNewRange(options)
                             }
                             onRangeSelectorChange={(range: ChartRangeOptions): void => this.chartData.setRange(range)}
+                            onRangeStep={(direction: -1 | 1): boolean => this.chartData.stepRange(direction)}
                             exportData={(
                                 from: number,
                                 to: number,

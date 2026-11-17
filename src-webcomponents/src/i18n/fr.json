@@ -86,6 +86,8 @@
     "noHistory": "Aucun adaptateur d'historique n'enregistre cet état :",
     "timeRange": "Période",
     "resetZoom": "Réinitialiser le déplacement et le zoom",
+    "previousPeriod": "Période précédente",
+    "nextPeriod": "Période suivante",
     "savePng": "Enregistrer le graphique en PNG",
     "saveSvg": "Enregistrer le graphique en SVG",
     "exportData": "Exporter les données brutes en CSV",

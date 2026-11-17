@@ -1161,6 +1161,17 @@ export default class PresetTabs extends React.Component<PresetTabsProps, PresetT
                                 />
                             </>
                         )}
+                        {/* For a relative and a static range alike: both can be stepped */}
+                        <IOCheckbox
+                            value={!!this.props.presetData.stepButtons}
+                            updateValue={(value: boolean): void => {
+                                const presetData: ChartConfigMore = JSON.parse(JSON.stringify(this.props.presetData));
+                                presetData.stepButtons = value;
+                                this.props.onChange(presetData);
+                            }}
+                            label="Show arrows for the previous and next period"
+                            tooltip="An arrow at each side of the chart moves the time range by its own length, e.g. a week or a month back. After a click into the chart, the arrow keys ← and → do the same."
+                        />
                     </Box>
                 ) : null}
                 {/* <Box component="div" sx={styles.group}>

@@ -135,6 +135,7 @@ export type ChartConfigOld = {
     noLoader: string | boolean;
     noedit: string | boolean;
     rangeSelector?: string | boolean;
+    stepButtons?: string | boolean;
     animation: string | number;
     afterComma?: string | number;
     timeType: 'relative' | 'static';
@@ -358,6 +359,7 @@ function normalizeConfig(config: ChartConfigOld): ChartConfig {
     newConfig.noLoader = getBoolean(config.noLoader);
     newConfig.noedit = getBoolean(config.noedit);
     newConfig.rangeSelector = getBoolean(config.rangeSelector);
+    newConfig.stepButtons = getBoolean(config.stepButtons);
     newConfig.animation = getInt(config.animation);
     newConfig.afterComma =
         config.afterComma === undefined || config.afterComma === null ? 2 : getInt(config.afterComma);
@@ -429,6 +431,8 @@ class ChartModel {
     private objectPromises: Record<string, Promise<ioBroker.ChartObject | null | undefined>> = {};
     private debug = false;
     private zoomData: { stopLive?: boolean; start?: number; end?: number } | null = null;
+    /** The end of the time range the steps of `stepRange` started from, `null` once a zoom or a pan moved the window */
+    private stepOriginEnd: number | null = null;
     private lastHash: string | undefined;
     private onHashInstalled: boolean = false;
     private systemConfig: ioBroker.SystemConfigCommon | null = null;
@@ -447,6 +451,16 @@ class ChartModel {
     private barCategories?: number[];
     /** Exclusive end (ms) of the last entry of `barCategories` */
     private barCategoriesEnd?: number;
+    /**
+     * The window the bars showed after the last read, see `getBarWindow`. The categories are emptied at the start
+     * of every read, and a step during a read must not lose it.
+     */
+    private barWindow?: { start: number; end: number };
+    /**
+     * The end of the last bar without any step - the time range rounded up to the raster of the bars, or the
+     * newest bar of a `json` source. `stepRange` stops there, see `zoomLimitEnd` for the lines.
+     */
+    private barLimitEnd?: number;
     /**
      * For every bar line of a `json` source the first and the last time stamp of the data the
      * categories were built from. A later update of the state can bring another time range, and the
@@ -721,6 +735,11 @@ class ChartModel {
             console.log(`[ChartModel] [${new Date().toISOString()}] setNewRange: ${JSON.stringify(options)}`);
         }
 
+        // A zoom, a pan or the reset gives the window another length than the time range
+        if (!options?.stopLive) {
+            this.stepOriginEnd = null;
+        }
+
         if (!options) {
             if (this.zoomData) {
                 this.zoomData = null;
@@ -765,6 +784,130 @@ class ChartModel {
                 this.zoomData.stopLive = true;
             }
         }
+    }
+
+    /**
+     * Move the time range back or forward by its own length, for the arrows and the arrow keys of the chart.
+     *
+     * The window that was read last is moved: the one the user zoomed or panned to, or else the time range of
+     * the preset. Not the X-axis - that reaches a bit further when the history adapter delivers the values
+     * beside the borders, and the window would grow with every step.
+     *
+     * Bars are moved from the window they show, from the first bar to the end of the last one. It lies on the
+     * raster of the bars - whole days, weeks from Monday, months - and `stepWindow` keeps it there.
+     *
+     * Like the pan, the step stops the live update and does not go behind the end of the time range, unless the
+     * preset allows the future. Steps alone keep the window as long as the time range, so when they arrive at
+     * the range again, the chart shows it as its range, with the live update.
+     *
+     * @param direction -1 steps back, 1 forward
+     * @returns `true` if the chart shows another window than its time range now, `false` if it shows the range
+     */
+    stepRange(direction: -1 | 1): boolean {
+        if (!this.config) {
+            return false;
+        }
+        const bars = !!this.config.l?.some(line => line.chartType === 'bar');
+        // A click into a live chart leaves `{ stopLive: true }` without a window
+        const zoomed = this.zoomData?.start !== undefined && this.zoomData?.end !== undefined;
+        const shown = zoomed
+            ? { start: this.zoomData.start, end: this.zoomData.end }
+            : (bars && this.barWindow) || { start: Number(this.config.start), end: Number(this.config.end) };
+        const { start, end } = shown;
+        if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+            return zoomed;
+        }
+
+        let next = ChartModel.stepWindow(start, end, direction);
+
+        // Reaching or passing the end of the range the steps started from, from either side
+        const origin = this.stepOriginEnd;
+        if (zoomed && origin !== null && (end - origin) * (next.end - origin) <= 0) {
+            this.setNewRange();
+            return false;
+        }
+
+        const limit = this.config.noZoomLimit ? 0 : (bars ? this.barLimitEnd : this.config.zoomLimitEnd) || 0;
+        if (limit && next.end > limit) {
+            if (bars) {
+                // Cut to the end, the window would leave the raster and the bars would change their borders
+                return zoomed;
+            }
+            next = { start: limit - (end - start), end: limit };
+        }
+        if (next.start === start && next.end === end) {
+            // Already at the end
+            return zoomed;
+        }
+
+        if (!zoomed) {
+            this.stepOriginEnd = end;
+        }
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+        this.zoomData = { start: next.start, end: next.end, stopLive: true };
+        this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
+        this.readOnZoomTimeout = setTimeout(() => {
+            this.readOnZoomTimeout = null;
+            void this.readData();
+        }, this.updateTimeout);
+
+        return true;
+    }
+
+    /**
+     * The window the bars show: from the first bar to the end of the last one. With `diff` the first category is
+     * only the reference of the calculation and is not drawn.
+     */
+    private getBarWindow(): { start: number; end: number } | null {
+        const first = this.barCategories?.[this.hasBarDiff() ? 1 : 0];
+        if (first === undefined || this.barCategoriesEnd === undefined) {
+            return null;
+        }
+        return { start: first, end: this.barCategoriesEnd };
+    }
+
+    /**
+     * The window one step further.
+     *
+     * A window of whole months - "1 month", or "this month" - moves by months, as they are not equally long:
+     * from November it goes to October and not to the 2nd of October. A window of whole days moves by days and
+     * keeps its hours over a switch of the daylight saving time. Any other window moves by its length.
+     *
+     * @param start start of the window
+     * @param end end of the window
+     * @param direction -1 back, 1 forward
+     */
+    static stepWindow(start: number, end: number, direction: -1 | 1): { start: number; end: number } {
+        const shifted = (move: (date: Date, steps: number) => void, steps: number): { start: number; end: number } => {
+            const newStart = new Date(start);
+            const newEnd = new Date(end);
+            move(newStart, direction * steps);
+            move(newEnd, direction * steps);
+            return { start: newStart.getTime(), end: newEnd.getTime() };
+        };
+        const isLong = (move: (date: Date, steps: number) => void, steps: number): boolean => {
+            const date = new Date(start);
+            move(date, steps);
+            return date.getTime() === end;
+        };
+        const addMonths = (date: Date, months: number): void => ChartModel.addCalendarTime(date, months);
+        const addDays = (date: Date, days: number): void => {
+            date.setDate(date.getDate() + days);
+        };
+
+        const months = Math.round((end - start) / (30.44 * 86400000));
+        if (months >= 1 && isLong(addMonths, months)) {
+            return shifted(addMonths, months);
+        }
+        const days = Math.round((end - start) / 86400000);
+        if (days >= 1 && isLong(addDays, days)) {
+            return shifted(addDays, days);
+        }
+
+        return { start: start + direction * (end - start), end: end + direction * (end - start) };
     }
 
     destroy(): void {
@@ -875,6 +1018,7 @@ class ChartModel {
             this.staticRange.end = this.hash.end ?? this.staticRange.end;
         }
         this.zoomData = null;
+        this.stepOriginEnd = null;
         this.readOnZoomTimeout && clearTimeout(this.readOnZoomTimeout);
         this.readOnZoomTimeout = null;
         this.updateInterval && clearInterval(this.updateInterval);
@@ -2503,6 +2647,13 @@ class ChartModel {
 
     updateData(): void {
         this.extendZoomLimitToData();
+        const barWindow = this.getBarWindow();
+        if (barWindow) {
+            this.barWindow = barWindow;
+            if (!this.zoomData) {
+                this.barLimitEnd = barWindow.end;
+            }
+        }
 
         // combine seriesData and barData
         const updateData: BarAndLineSeries[] = [];

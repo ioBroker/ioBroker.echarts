@@ -620,5 +620,7 @@
   "ØS Shadow size": "ØS Rozmiar cienia",
   "Empty: as \"After comma\" of the chart": "Puste: jak \"Po przecinku\" wykresu",
   "In dark theme": "W ciemnym motywie",
-  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Używany, gdy wykres jest wyświetlany w ciemnym motywie, np. z motywem „auto”. Puste: ten sam kolor co w jasnym motywie"
+  "Used when the chart is shown dark, e.g. with the theme \"auto\". Empty: the same color as in the light theme": "Używany, gdy wykres jest wyświetlany w ciemnym motywie, np. z motywem „auto”. Puste: ten sam kolor co w jasnym motywie",
+  "Show arrows for the previous and next period": "Pokaż strzałki do poprzedniego i następnego okresu",
+  "An arrow at each side of the chart moves the time range by its own length, e.g. a week or a month back. After a click into the chart, the arrow keys ← and → do the same.": "Strzałka po każdej stronie wykresu przesuwa zakres czasu o jego własną długość, np. o tydzień lub miesiąc wstecz. Po kliknięciu wykresu to samo robią klawisze ← i →."
 }

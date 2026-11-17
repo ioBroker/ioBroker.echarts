@@ -73,6 +73,7 @@ const DEFAULT_PRESET: ChartConfigMore = {
     relativeEnd: '30minutes',
     range: 120,
     rangeSelector: false,
+    stepButtons: false,
     aggregateType: 'count',
     aggregateSpan: 300,
     legend: 'ne',

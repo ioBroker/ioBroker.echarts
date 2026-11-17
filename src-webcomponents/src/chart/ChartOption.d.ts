@@ -56,6 +56,9 @@ export default class ChartOption {
         compact?: boolean,
     );
 
+    /** Whether the preset shows the arrows that step the time range back and forward */
+    static hasStepButtons(config: ChartConfigMore, compact?: boolean): boolean;
+
     getHelperChartData(): ChartInfo;
 
     getOption(

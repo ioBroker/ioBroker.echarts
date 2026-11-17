@@ -86,6 +86,8 @@
     "noHistory": "Kein History-Adapter zeichnet diesen Datenpunkt auf:",
     "timeRange": "Zeitraum",
     "resetZoom": "Verschieben und Zoomen zurücksetzen",
+    "previousPeriod": "Vorheriger Zeitraum",
+    "nextPeriod": "Nächster Zeitraum",
     "savePng": "Diagramm als PNG speichern",
     "saveSvg": "Diagramm als SVG speichern",
     "exportData": "Rohdaten als CSV exportieren",
