@@ -10,7 +10,7 @@ import { deleteFoldersRecursive, npmInstall, buildReact, copyFiles } from '@iobr
 const rootDir = import.meta.dirname;
 
 function copyAllFiles(): void {
-    deleteFoldersRecursive(`${rootDir}/admin`, ['chart', 'preview']);
+    deleteFoldersRecursive(`${rootDir}/admin`, ['chart', 'preview', 'webcomponents']);
 
     copyFiles(
         [
@@ -44,7 +44,7 @@ function patchTabHtml(): void {
     }
 }
 
-deleteFoldersRecursive(`${rootDir}/admin`, ['chart', 'preview']);
+deleteFoldersRecursive(`${rootDir}/admin`, ['chart', 'preview', 'webcomponents']);
 deleteFoldersRecursive(`${rootDir}/src-editor/build`);
 
 if (!existsSync(`${rootDir}/src-editor/node_modules`)) {

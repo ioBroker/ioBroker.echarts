@@ -102,6 +102,12 @@ function getEnumsForId(
 
 const LEVEL_PADDING = 16;
 
+/** How long a history instance may take to list the states it records */
+const ENABLED_DPS_TIMEOUT = 3000;
+
+/** Objects read with one request */
+const OBJECTS_PER_REQUEST = 500;
+
 const styles: Record<string, any> = {
     noGutters: {
         paddingTop: 0,
@@ -455,9 +461,72 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         };
     }
 
+    /**
+     * The states that every running history instance records, from its answer to `getEnabledDPs`
+     * (history, sql, influxdb and recorder answer it). The recorder selects its states by itself and
+     * has no entry in `common.custom` for most of them, so the custom entries alone do not show them.
+     *
+     * `null` for an instance that is not running or does not answer in time: its custom entries
+     * count then, as before.
+     */
+    async getEnabledDps(instancesIds: string[]): Promise<Record<string, string[] | null>> {
+        const result: Record<string, string[] | null> = {};
+        instancesIds.forEach(id => (result[id] = null));
+        if (!instancesIds.length) {
+            return result;
+        }
+        let alive: Record<string, ioBroker.State | null | undefined>;
+        try {
+            alive = await this.props.socket.getForeignStates(instancesIds.map(id => `system.adapter.${id}.alive`));
+        } catch (e) {
+            console.warn(`Cannot read the alive states of the history instances: ${e as Error}`);
+            return result;
+        }
+        await Promise.all(
+            instancesIds
+                .filter(id => alive?.[`system.adapter.${id}.alive`]?.val)
+                .map(async id => {
+                    // an adapter that does not know the command never answers
+                    let timer: ReturnType<typeof setTimeout> | undefined;
+                    try {
+                        const answer = await Promise.race([
+                            this.props.socket.sendTo<Record<string, unknown> | null>(id, 'getEnabledDPs', {}),
+                            new Promise<null>(resolve => {
+                                timer = setTimeout(() => resolve(null), ENABLED_DPS_TIMEOUT);
+                            }),
+                        ]);
+                        if (answer && typeof answer === 'object' && !Array.isArray(answer) && !('error' in answer)) {
+                            result[id] = Object.keys(answer);
+                        }
+                    } catch (e) {
+                        console.warn(`${id} cannot list the recorded states: ${e as Error}`);
+                    } finally {
+                        clearTimeout(timer);
+                    }
+                }),
+        );
+        return result;
+    }
+
+    /** Objects that are not loaded yet, read in parts */
+    async readObjects(ids: string[]): Promise<Record<string, ioBroker.Object>> {
+        const result: Record<string, ioBroker.Object> = {};
+        for (let i = 0; i < ids.length; i += OBJECTS_PER_REQUEST) {
+            try {
+                const part = await this.props.socket.getObjectsById(ids.slice(i, i + OBJECTS_PER_REQUEST));
+                Object.values(part || {}).forEach(obj => obj?._id && (result[obj._id] = obj));
+            } catch (e) {
+                console.warn(`Cannot read the recorded states: ${e as Error}`);
+            }
+        }
+        return result;
+    }
+
     async getAllCharts(newState?: Partial<ChartsTreeState>): Promise<Partial<ChartsTreeState>> {
         newState ||= {} as Partial<ChartsTreeState>;
         const instancesIds = this.props.instances.map(obj => obj._id.substring('system.adapter.'.length));
+        // ask the instances while the custom entries are read, so that it costs no extra time
+        const enabledPromise = this.getEnabledDps(instancesIds);
         const objs: Record<string, ioBroker.Object> = (await this.props.socket.getObjectViewSystem(
             // @ts-expect-error custom is not implemented in AdminConnection
             'custom-full',
@@ -467,10 +536,26 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
 
         // A room or a function normally hangs on the channel or on the device over the state, so those
         // objects are needed to walk up from a state. Only their id and their type are read here
-        const [channels, devices] = await Promise.all([
+        const [channels, devices, enabled] = await Promise.all([
             this.props.socket.getObjectViewSystem('channel', '', '香'),
             this.props.socket.getObjectViewSystem('device', '', '香'),
+            enabledPromise,
         ]);
+
+        // The instances of every state: from the answer of the instance, else from the custom entries
+        const instancesOf: Record<string, string[]> = {};
+        const add = (stateId: string, instanceId: string): void => {
+            instancesOf[stateId] ||= [];
+            if (!instancesOf[stateId].includes(instanceId)) {
+                instancesOf[stateId].push(instanceId);
+            }
+        };
+        Object.values(objs).forEach(obj => {
+            instancesIds.filter(id => !enabled[id] && obj.common?.custom?.[id]).forEach(id => add(obj._id, id));
+        });
+        instancesIds.forEach(id => enabled[id]?.forEach(stateId => add(stateId, id)));
+        Object.assign(objs, await this.readObjects(Object.keys(instancesOf).filter(id => !objs[id])));
+
         const objectsForEnums: Record<string, ioBroker.Object> = {
             ...(channels as Record<string, ioBroker.Object>),
             ...(devices as Record<string, ioBroker.Object>),
@@ -481,30 +566,37 @@ class ChartsTree extends Component<ChartsTreeProps, ChartsTreeState> {
         newState.enums ||= this.state.enums;
         const iconPromises: Promise<{ groupId: string; id: string; img: string; name: string[] }>[] = [];
         const cache: { [id: string]: Promise<ioBroker.Object> } = {};
-        // find all objects with history
-        Object.values(objs).forEach((obj: ioBroker.StateObject): void => {
-            // the state could be logged by more than one instance, so show it under every one of them
-            const ids = instancesIds.filter(_id => Object.keys(obj.common.custom).includes(_id));
-            ids.forEach(id => {
-                const instanceObj = this.props.instances.find(iObj => iObj._id.endsWith(id));
-                _instances[id] ||= {
-                    _id: `system.adapter.${id}`,
-                    enabledDP: {},
-                    names: {},
-                    statesEnums: {},
-                    icon: instanceObj.common.icon,
-                    name: instanceObj.common.name || '',
-                    types: {},
-                    icons: {},
-                };
-                // copy, as the same object could be stored under several instances and every one gets its own group
-                _instances[id].enabledDP[obj._id] = { ...obj };
-                _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, { language: I18n.getLanguage() });
-                _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
-                _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, objectsForEnums, obj._id);
-                iconPromises.push(this.getChartIconAndName(id, obj, cache));
+        // find all objects with history, sorted by ID as the custom view delivers them
+        Object.keys(instancesOf)
+            .sort()
+            .forEach(stateId => {
+                const obj = objs[stateId] as ioBroker.StateObject;
+                if (obj?.type !== 'state' || !obj.common) {
+                    return;
+                }
+                // the state could be logged by more than one instance, so show it under every one of them
+                instancesOf[stateId].forEach(id => {
+                    const instanceObj = this.props.instances.find(iObj => iObj._id.endsWith(id));
+                    _instances[id] ||= {
+                        _id: `system.adapter.${id}`,
+                        enabledDP: {},
+                        names: {},
+                        statesEnums: {},
+                        icon: instanceObj.common.icon,
+                        name: instanceObj.common.name || '',
+                        types: {},
+                        icons: {},
+                    };
+                    // copy, as the same object could be stored under several instances and every one gets its own group
+                    _instances[id].enabledDP[obj._id] = { ...obj };
+                    _instances[id].names[obj._id] = Utils.getObjectNameFromObj(obj, null, {
+                        language: I18n.getLanguage(),
+                    });
+                    _instances[id].types[obj._id] = obj.common.type === 'boolean' ? 'boolean' : 'number';
+                    _instances[id].statesEnums[obj._id] = getEnumsForId(newState.enums, objectsForEnums, obj._id);
+                    iconPromises.push(this.getChartIconAndName(id, obj, cache));
+                });
             });
-        });
 
         const chartsOpened: Record<string, boolean> = JSON.parse(JSON.stringify(this.state.chartsOpened));
         const funcIds = Object.keys(newState.enums).filter(id => id.startsWith('enum.functions.'));
