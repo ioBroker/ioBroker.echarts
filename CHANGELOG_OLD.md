@@ -1,4 +1,32 @@
 # Older changes
+## 6.0.0 (2026-10-14)
+- (@GermanBluefox) Added chart mode "Gauge" (rings or pointers)
+- (@GermanBluefox) Added chart mode "Donut"
+- (@GermanBluefox) Added "Chart mode" setting (Mixed, Donut, Bar, Radar, Gauge); "One bar per line" and "polar" lines are migrated
+- (@GermanBluefox) Added vis-2 widget "E-Charts time range"
+- (@GermanBluefox) vis-2 and devices widgets can draw the chart without an iframe (experimental)
+- (@GermanBluefox) The time range can be passed in the URL hash and changed without reload
+- (@GermanBluefox) Fixed: dark chart in vis-2 was shown on a white background
+- (@GermanBluefox) Fixed: chart in vis-2 did not follow theme changes
+- (@GermanBluefox) Fixed: "undefined" after values without unit
+- (@GermanBluefox) Fixed: overlapping labels in the gauge
+- (@GermanBluefox) Fixed: radar axes were labelled "undefined"
+- (@GermanBluefox) Gauge uses Min/Max of the lines; empty scale ends follow the values
+- (@GermanBluefox) Fixed: gauge showed zero for lines with aggregation other than "current"
+- (@GermanBluefox) Settings that have no effect in the current chart mode are hidden
+- (@GermanBluefox) Only "standard" and "JSON" sources are offered where no history is read; any state can be selected there
+- (@GermanBluefox) JSON source works for current-value charts
+- (@GermanBluefox) Fixed: chart without iframe kept growing or crashed on early time range
+- (@GermanBluefox) Fixed: switching the chart mode left parts of the old chart
+- (@GermanBluefox) Fixed: line ID field lost focus while typing
+- (@GermanBluefox) Fixed: chart setting "After comma" was ignored
+- (@GermanBluefox) Fixed: dropdown tooltip covered the open list
+- (@GermanBluefox) Fixed missing translations of slider labels
+- (@GermanBluefox) Source "standard" can be selected in the opened line too; history sources show the adapter icon
+- (@GermanBluefox) "Expand all" / "Collapse all" are shown for a single entry too
+- (@GermanBluefox) Added widget description to the vis-2 palette tooltip
+- (@GermanBluefox) Build scripts migrated to TypeScript
+
 ## 5.1.1 (2026-08-31)
 - (@GermanBluefox) Many GUI fixes
 

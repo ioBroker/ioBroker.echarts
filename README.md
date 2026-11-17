@@ -199,7 +199,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 6.4.1 (2026-11-17)
 - (@GermanBluefox) Fixed the build with echarts-for-react 3.1.0: version 6.4.0 failed to build and was not published, this version contains its changes
 
 ### 6.4.0 (2026-11-17)
@@ -227,34 +227,6 @@ You can debug view charts locally with:
 * (GermanBluefox) "Digits after comma" of a line can be emptied again to use the setting of the chart, and 0 is shown as 0 instead of an empty field. The empty field shows which value is used instead (#1288)
 * (GermanBluefox) The chart and the preview opened through the web adapter under the admin address (`/adapter/echarts/...`) move to the address of the web adapter on any port, not only on 8082. The preview offers the link over the own host first, so it also works behind a reverse proxy, and a copied link is absolute (#1273, #1230)
 * (GermanBluefox) Every color of the chart (background, title, labels, ticks, grid, legend, bar labels, border and buttons) can get an own value for the dark theme. With the theme "auto", a chart in vis-2 can thus be adjusted to the light and the dark mode; empty, the color stays the same in both (#1312)
-
-### 6.0.0 (2026-10-14)
-- (@GermanBluefox) Added chart mode "Gauge" (rings or pointers)
-- (@GermanBluefox) Added chart mode "Donut"
-- (@GermanBluefox) Added "Chart mode" setting (Mixed, Donut, Bar, Radar, Gauge); "One bar per line" and "polar" lines are migrated
-- (@GermanBluefox) Added vis-2 widget "E-Charts time range"
-- (@GermanBluefox) vis-2 and devices widgets can draw the chart without an iframe (experimental)
-- (@GermanBluefox) The time range can be passed in the URL hash and changed without reload
-- (@GermanBluefox) Fixed: dark chart in vis-2 was shown on a white background
-- (@GermanBluefox) Fixed: chart in vis-2 did not follow theme changes
-- (@GermanBluefox) Fixed: "undefined" after values without unit
-- (@GermanBluefox) Fixed: overlapping labels in the gauge
-- (@GermanBluefox) Fixed: radar axes were labelled "undefined"
-- (@GermanBluefox) Gauge uses Min/Max of the lines; empty scale ends follow the values
-- (@GermanBluefox) Fixed: gauge showed zero for lines with aggregation other than "current"
-- (@GermanBluefox) Settings that have no effect in the current chart mode are hidden
-- (@GermanBluefox) Only "standard" and "JSON" sources are offered where no history is read; any state can be selected there
-- (@GermanBluefox) JSON source works for current-value charts
-- (@GermanBluefox) Fixed: chart without iframe kept growing or crashed on early time range
-- (@GermanBluefox) Fixed: switching the chart mode left parts of the old chart
-- (@GermanBluefox) Fixed: line ID field lost focus while typing
-- (@GermanBluefox) Fixed: chart setting "After comma" was ignored
-- (@GermanBluefox) Fixed: dropdown tooltip covered the open list
-- (@GermanBluefox) Fixed missing translations of slider labels
-- (@GermanBluefox) Source "standard" can be selected in the opened line too; history sources show the adapter icon
-- (@GermanBluefox) "Expand all" / "Collapse all" are shown for a single entry too
-- (@GermanBluefox) Added widget description to the vis-2 palette tooltip
-- (@GermanBluefox) Build scripts migrated to TypeScript
 
 ## License
 
