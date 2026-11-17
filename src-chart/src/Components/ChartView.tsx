@@ -101,7 +101,7 @@ import 'echarts/theme/green';
 import 'echarts/theme/gray';
 import 'echarts/theme/dark-bold';
 import type { GridOption, RegisteredSeriesOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared';
-import type { EChartsInstance } from 'echarts-for-react/src/types';
+import type { EChartsInstance } from 'echarts-for-react';
 
 import type { ChartConfigMore, ChartLineConfigMore, ChartRangeOptions, ChartType } from '../../../src/types';
 
