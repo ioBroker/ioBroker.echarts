@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "echarts",
-    "version": "6.4.1",
+    "version": "6.5.0",
     "news": {
+      "6.5.0": {
+        "en": "Added the message \"help\": a description of all messages for AI agents (e.g. pi-agent), and common.supportedMessages.help",
+        "de": "Nachricht „help“ hinzugefügt: Beschreibung aller Nachrichten für KI-Agenten (z. B. pi-agent) und common.supportedMessages.Help",
+        "ru": "Добавлено сообщение «help»: описание всех сообщений для агентов искусственного интеллекта (например, pi-agent) и common.supportedMessages.help",
+        "pt": "Adicionou a mensagem “help”: uma descrição de todas as mensagens dos agentes de IA (p. ex. pi-agent) e common.supportedMessages.help",
+        "nl": "Het bericht „help” toegevoegd: een beschrijving van alle berichten voor AI-agenten (bijv. pi-agent) en Common.SupportedMessages.help",
+        "fr": "Ajout du message « help » : description de tous les messages des agents IA (p.ex. pi-agent) et common.supportedMessages.help",
+        "it": "Aggiunto «help»: una descrizione di tutti i messaggi per gli agenti AI (ad es. pi-agent) e common.supportedmessages.help",
+        "es": "Añadió el mensaje «help»: una descripción de todos los mensajes de los agentes de IA (p. ej. pi-agent) y common.SupportedMessages.Help",
+        "pl": "Dodano komunikat „help”: opis wszystkich wiadomości dla agentów AI (np. pi-agent) oraz common.supportedMessages.help",
+        "uk": "Додано повідомлення «help»: опис всіх повідомлень для агентів AI (наприклад, pi-agent) та common.supportedMessages.help",
+        "zh-cn": "添加了 “帮助” 消息：对 AI 代理（例如 pi-agent）的所有消息的描述，以及 common.supportedMessages.Help"
+      },
       "6.4.1": {
         "en": "Fixed the build with echarts-for-react 3.1.0: version 6.4.0 failed to build and was not published, this version contains its changes",
         "de": "Build mit Echarts-for-React 3.1.0 behoben: Version 6.4.0 schlug fehl und wurde nicht veröffentlicht, sie enthält Änderungen",
@@ -80,19 +93,6 @@
         "pl": "Dodano tryb wykresu „Gauge” (pierścienie lub wskaźniki)\nDodano tryb wykresu „Pączek”\nDodano ustawienie „Tryb wykresu” (Mixed, Donut, Bar, Radar, Gauge); Migrowane są linie „Jeden pasek na linię” i „polarne”\nDodano widżet vis-2 „Zakres czasu E-Charts”\nwidżety vis-2 i urządzeń mogą rysować wykres bez iframe (eksperymentalny)\nZakres czasu może zostać przekazany w skrócie URL i zmieniany bez ponownego ładowania\nNaprawiono: ciemny wykres w vis-2 był pokazany na białym tle\nNaprawiono: wykres w vis-2 nie śledził zmian motywu\nNaprawiono: „niezdefiniowane” po wartościach bez jednostki\nNaprawiono: nakładające się etykiety w mierniku\nNaprawiono: osie radarowe zostały oznaczone jako „niezdefiniowane”\nMiernik używa Min/Max linii; puste końce skali są zgodne z wartościami\nNaprawiono: wskaźnik pokazywał zero dla linii z agregacją inną niż „prąd”\nUstawienia, które nie mają wpływu w bieżącym trybie wykresu, są ukryte\nOferowane są tylko źródła „standardowe” i „JSON”, w których nie czyta się historii; można tam wybrać dowolny stan\nŹródło JSON działa dla wykresów o wartości bieżącej\nNaprawiono: wykres bez iframe nadal rósł lub rozbił się we wczesnym przedziale czasowym\nNaprawiono: przełączanie trybu wykresu w lewo części starego wykresu\nNaprawiono: pole ID linii utraciło ostrość podczas pisania\nNaprawiono: ustawienie wykresu „Po przecinku” zostało zignorowane\nNaprawiono: rozwijana podpowiedź obejmowała otwartą listę\nNaprawiono brakujące tłumaczenia etykiet suwaków\nŹródło „standard” można również wybrać w otwartym wierszu; źródła historii pokazują ikonę adaptera\n„Rozwiń wszystko”/„Zwiń wszystko” są wyświetlane również dla pojedynczego wpisu\nDodano opis widżetu do podpowiedzi palety vis-2\nSkrypty kompilacji migrowane do TypeScript",
         "uk": "Додано режим діаграми «Gauge» (кільця або покажчики)\nДодано режим діаграми «Пончик»\nДодано налаштування «Режим діаграми» (Змішаний, Пончик, Бар, Радар, Gauge); «Один бар на рядок» та «полярні» лінії мігруються\nДодано віджет vis-2 «Часовий діапазон електронних діаграм»\nВіджети vis-2 і пристроїв можуть малювати діаграму без iframe (експериментальний)\nЧасовий діапазон можна передати в хеш URL і змінити без перезавантаження\nВиправлено: темна діаграма у vis-2 була показана на білому тлі\nВиправлено: діаграма в vis-2 не слідувала змінам теми\nВиправлено: «невизначено» після значень без одиниці\nВиправлено: перекриття етикеток у калібрі\nВиправлено: радіолокаційні осі були позначені як «невизначені»\nДатчик використовує Min/Max ліній; порожні кінці шкали слідують значенням\nВиправлено: датчик показав нуль для ліній з агрегацією, відмінною від «струму»\nПараметри, які не мають ефекту в поточному режимі діаграми, приховані\nПропонуються лише «стандартні» та «JSON» джерела, де історія не читається; там можна вибрати будь-який стан\nДжерело JSON працює для діаграм поточних значень\nВиправлено: діаграма без iframe продовжувала зростати або розбивалася на ранньому часовому діапазоні\nВиправлено: перемикання режиму діаграми лівих частин старої діаграми\nВиправлено: поле ID рядка втратило фокус під час введення\nВиправлено: налаштування діаграми «Після коми» було проігноровано\nВиправлено: підказка, що випадає, охоплює відкритий список\nВиправлені відсутні переклади міток слайдерів\nДжерело «стандартне» також можна вибрати у відкритому рядку; джерела історії показують значок адаптера\n«Розгорнути все»/«Згорнути все» також відображаються для одного запису\nДодано опис віджета до підказки палітри vis-2\nСкрипти збірки перенесені на TypeScript",
         "zh-cn": "添加了图表模式 “仪表”（环形或指针）\n添加了图表模式 “甜甜圈”\n添加了 “图表模式” 设置（混合、甜甜圈、条形图、雷达、仪表）；迁移了 “每行一根柱线” 和 “极坐标线”\n添加了 vis-2 小工具 “电子图表时间范围”\nvis-2 和设备控件可以在没有 iframe 的情况下绘制图表（实验性）\n时间范围可以在 URL 哈希中传递，无需重新加载即可更改\n修复：vis-2中的深色图表显示在白色背景上\n修复：vis-2中的图表没有遵循主题的变化\n修复：没有单位的值后 “未定义”\n修复：仪表盘中的标签重叠\n修复：雷达轴被标记为 “未定义”\n仪表盘使用直线的最小值/最大值；空刻度以值为终点\n修复：对于除了 “当前” 以外的聚合线路，仪表显示为零\n隐藏在当前图表模式下无效的设置\n仅提供不读取历史记录的 “标准” 和 “JSON” 来源；可以在那里选择任何状态\nJSON 源代码适用于当前值图表\n修复：没有iframe的图表在早期时间范围内持续增长或崩溃\n修复：切换图表模式旧图表的左侧部分\n修复：线路ID字段在打字时失去焦点\n修复：图表设置 “逗号之后” 被忽略了\n修复：下拉工具提示覆盖了打开的列表\n修复了滑块标签缺失的翻译\n也可以在打开的行中选择来源 “标准”；历史来源显示适配器图标\n对于单个条目，也会显示 “全部展开”/“全部折叠”\n在 vis-2 调色板工具提示中添加了控件描述\n编译脚本迁移到 TypeScri"
-      },
-      "5.1.1": {
-        "en": "Many GUI fixes",
-        "de": "Viele GUI-Korrekturen",
-        "ru": "Множество исправлений графического интерфейса.",
-        "pt": "Muitas correções na interface gráfica.",
-        "nl": "Veel GUI-verbeteringen",
-        "fr": "De nombreuses corrections d'interface graphique",
-        "it": "Numerose correzioni all'interfaccia grafica",
-        "es": "Muchas correcciones de la interfaz gráfica de usuario",
-        "pl": "Wiele poprawek GUI",
-        "uk": "Багато виправлень графічного інтерфейсу",
-        "zh-cn": "修复了许多图形用户界面问题"
       }
     },
     "titleLang": {
@@ -213,8 +213,8 @@
     "icon": "echarts.png",
     "messagebox": true,
     "supportedMessages": {
-        "help": true,
-        "custom": true
+      "help": true,
+      "custom": true
     },
     "eraseOnUpload": true,
     "nogit": true,

@@ -201,7 +201,7 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 6.5.0 (2026-11-19)
 - (@GermanBluefox) Added the message "help": a description of all messages for AI agents (e.g. pi-agent), and common.supportedMessages.help
 
 ### 6.4.1 (2026-11-17)
@@ -222,16 +222,6 @@ You can debug view charts locally with:
 * (GermanBluefox) Bars can be drawn stacked, side by side or overlapping: overlapping bars all start at zero, so a color with transparency shows the bars behind them (#1318)
 * (GermanBluefox) The chart no longer fails with "Show sum over the stack" if the automatic grid padding is off, and the sum disappears when the option is switched off
 * (GermanBluefox) The tooltip can show only the line nearest to the mouse instead of all lines, for charts with many lines (#1280)
-
-### 6.1.0 (2026-10-30)
-* (GermanBluefox) Ask before unsaved preset changes are lost by reloading or leaving the editor (#1290)
-* (GermanBluefox) Bars per day, week or month show the right values after a switch of the daylight saving time. The history adapter split the range into equally long intervals, so after the 25-hour day every value written at 23:59:59 was shown one day later and the day of the switch stayed empty. The chart now sends the borders of its bars along; this needs ioBroker.sql, ioBroker.history or ioBroker.influxdb with `@iobroker/aggregate` 1.1 (#1311)
-* (GermanBluefox) Copying a preset of an older version does not break the editor anymore: the copy was stored without any lines, and the "Diagrams" tab stayed empty every time it was opened. A preset without lines opens as an empty one now (#1285)
-* (GermanBluefox) A line with a thickness stored as text, e.g. "3", is clipped at the border of the grid again instead of being drawn over the X-axis (#1284)
-* (GermanBluefox) The CSV export keeps its line breaks in Firefox: the file was a `data:` URL, from which Firefox removes them, and a `#` in an ID cut the file off (#1282)
-* (GermanBluefox) "Digits after comma" of a line can be emptied again to use the setting of the chart, and 0 is shown as 0 instead of an empty field. The empty field shows which value is used instead (#1288)
-* (GermanBluefox) The chart and the preview opened through the web adapter under the admin address (`/adapter/echarts/...`) move to the address of the web adapter on any port, not only on 8082. The preview offers the link over the own host first, so it also works behind a reverse proxy, and a copied link is absolute (#1273, #1230)
-* (GermanBluefox) Every color of the chart (background, title, labels, ticks, grid, legend, bar labels, border and buttons) can get an own value for the dark theme. With the theme "auto", a chart in vis-2 can thus be adjusted to the light and the dark mode; empty, the color stays the same in both (#1312)
 
 ## License
 
