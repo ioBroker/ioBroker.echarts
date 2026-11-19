@@ -152,6 +152,16 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                     'To fix: cd /opt/iobroker/node_modules/canvas && sudo -u iobroker npm install --omit=dev --build-from-source');
             }
         }
+        // ChartModel only logs an unknown preset and never calls back, so the caller would wait for its timeout
+        if (typeof options.preset === 'string') {
+            const presetId = options.preset.startsWith('echarts.') || options.preset.startsWith('flot.')
+                ? options.preset
+                : `echarts.0.${options.preset}`;
+            const presetObj = await this.getForeignObjectAsync(presetId);
+            if (!presetObj?.native?.data || presetObj.type !== 'chart') {
+                throw new Error(`Unknown preset "${presetId}": there is no object of type chart with this ID`);
+            }
+        }
         return new Promise((resolve, reject) => {
             options.width = parseFloat(options.width) || 1024;
             options.height = parseFloat(options.height) || 300;
@@ -178,7 +188,8 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                 let canvas;
                 let root;
                 if (options.renderer && options.renderer !== 'svg') {
-                    canvas = createCanvas(options.width, options.height);
+                    // A PDF needs a PDF canvas: toBuffer('application/pdf') of an image canvas throws
+                    canvas = createCanvas(options.width, options.height, options.renderer === 'pdf' ? 'pdf' : undefined);
                     canvas.width = options.width;
                     canvas.height = options.height;
                     chart = (0, echarts_1.init)(canvas);
@@ -209,54 +220,63 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                     reject(new Error('No root'));
                     return;
                 }
-                chart.setOption(option);
-                let data;
-                switch (options.renderer || '') {
-                    case 'png': {
-                        data = `data:image/png;base64,${canvas
-                            .toBuffer('image/png', {
-                            compressionLevel: options.compressionLevel || 3,
-                            filters: options.filters || CanvasClass.PNG_FILTER_NONE,
-                        })
-                            .toString('base64')}`;
-                        break;
+                // A throw would escape the promise executor as well (e.g. a failing toBuffer or fileOnDisk)
+                try {
+                    chart.setOption(option);
+                    let data;
+                    switch (options.renderer || '') {
+                        case 'png': {
+                            data = `data:image/png;base64,${canvas
+                                .toBuffer('image/png', {
+                                compressionLevel: options.compressionLevel || 3,
+                                filters: options.filters || CanvasClass.PNG_FILTER_NONE,
+                            })
+                                .toString('base64')}`;
+                            break;
+                        }
+                        case 'jpg': {
+                            data = `data:image/jpeg;base64,${canvas
+                                .toBuffer('image/jpeg', {
+                                quality: options.quality || 0.8,
+                            })
+                                .toString('base64')}`;
+                            break;
+                        }
+                        case 'pdf': {
+                            data = `data:application/pdf;base64,${canvas
+                                .toBuffer('application/pdf', {
+                                title: options.title || 'ioBroker Chart',
+                                creationDate: new Date(),
+                            })
+                                .toString('base64')}`;
+                            break;
+                        }
+                        case '':
+                        case 'svg': {
+                            const svg = root.querySelector('svg').outerHTML;
+                            data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+                            break;
+                        }
+                        default:
+                            reject(new Error('Unsupported format'));
+                            return;
                     }
-                    case 'jpg': {
-                        data = `data:image/jpeg;base64,${canvas
-                            .toBuffer('image/jpeg', {
-                            quality: options.quality || 0.8,
-                        })
-                            .toString('base64')}`;
-                        break;
+                    chart?.dispose();
+                    if (options.fileOnDisk) {
+                        (0, node_fs_1.writeFileSync)(options.fileOnDisk, Buffer.from(data.split(',')[1], 'base64'));
                     }
-                    case 'pdf': {
-                        data = `data:application/pdf;base64,${canvas
-                            .toBuffer('application/pdf', {
-                            title: options.title || 'ioBroker Chart',
-                            creationDate: new Date(),
-                        })
-                            .toString('base64')}`;
-                        break;
+                    if (options.fileName) {
+                        this.writeFile(this.namespace, options.fileName, Buffer.from(data.split(',')[1], 'base64'), err => (err ? reject(err) : resolve(data)));
                     }
-                    case '':
-                    case 'svg': {
-                        const svg = root.querySelector('svg').outerHTML;
-                        data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
-                        break;
+                    else {
+                        resolve(data);
                     }
-                    default:
-                        reject(new Error('Unsupported format'));
-                        return;
                 }
-                chart?.dispose();
-                if (options.fileOnDisk) {
-                    (0, node_fs_1.writeFileSync)(options.fileOnDisk, Buffer.from(data.split(',')[1], 'base64'));
-                }
-                if (options.fileName) {
-                    this.writeFile(this.namespace, options.fileName, Buffer.from(data.split(',')[1], 'base64'), err => (err ? reject(err) : resolve(data)));
-                }
-                else {
-                    resolve(data);
+                catch (e) {
+                    if (!chart.isDisposed()) {
+                        chart.dispose();
+                    }
+                    reject(e);
                 }
             });
         });
@@ -378,7 +398,9 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                         this.sendTo(obj.from, 'send', { data }, obj.callback);
                     }
                 })
-                    .catch(error => {
+                    .catch(err => {
+                    // An Error object would arrive as {} at the caller
+                    const error = err instanceof Error ? err.message : String(err);
                     if (message.cache) {
                         if (!this.cachedSnapshots[message.preset]) {
                             this.cachedSnapshots[message.preset] = {

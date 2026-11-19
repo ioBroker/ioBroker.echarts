@@ -201,6 +201,11 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@GermanBluefox) Fixed: the message "send" with renderer "pdf" now answers with the PDF instead of never answering; a failure while rendering or writing `fileOnDisk` is answered as an error as well
+- (@GermanBluefox) Fixed: the message "send" now answers errors with their text instead of an empty object
+- (@GermanBluefox) Fixed: the message "send" with an unknown preset now answers with an error instead of no answer at all
+
 ### 6.5.0 (2026-11-19)
 - (@GermanBluefox) Added the message "help": a description of all messages for AI agents (e.g. pi-agent), and common.supportedMessages.help
 

@@ -14,7 +14,7 @@ exports.COMMANDS = [
 exports.HELP = `ioBroker.echarts: charts (Apache ECharts) of the history of states, configured as presets in its admin tab and
 shown in vis, Aura, admin and other dashboards. A preset is an object of type "chart" below echarts.0 (e.g.
 echarts.0.Temperatures; folders group them): it holds the states (lines), the time range and the look. An agent can
-render a preset on the server to an image (PNG, JPG, SVG) and send it, e.g. with telegram or email.
+render a preset on the server to an image (PNG, JPG, SVG) or a PDF and send it, e.g. with telegram or email.
 Presets are made and changed in the editor of the admin tab "Charts", not by messages.
 
 Commands (sendTo echarts.0):
@@ -23,11 +23,10 @@ Commands (sendTo echarts.0):
   {data: "data:image/png;base64,..."} (a data URL of the file) or {error}.
   - preset (required): the ID of the preset object; without "echarts." in front, "echarts.0." is added
     (so "Temperatures" = echarts.0.Temperatures). It may also be a chart config object as in native.data of a
-    preset (e.g. a copy with another time range); then do not use cache. An unknown preset gives no answer at
-    all (wait for the timeout): look the ID up first (objects of type chart below echarts.0).
-  - renderer: svg (default), png or jpg. png and jpg need the module canvas on the host; without it they fail
-    and only svg works (the log of echarts.0 says so at its start). pdf is accepted, but gives no answer in
-    this version: do not use it.
+    preset (e.g. a copy with another time range); then do not use cache. An unknown preset is answered with
+    {error: "Unknown preset ..."}: look the ID up first (objects of type chart below echarts.0).
+  - renderer: svg (default), png, jpg or pdf. png, jpg and pdf need the module canvas on the host; without it
+    they fail and only svg works (the log of echarts.0 says so at its start).
   - width (default 1024), height (default 300): size in pixels.
   - background: a CSS color, e.g. "#ffffff". Without it the chart is transparent: a PNG shows the background of
     the viewer, a JPG turns black. For a picture to send give a background, white for theme light.
@@ -42,8 +41,8 @@ Commands (sendTo echarts.0):
   - cache: seconds to keep the picture of this preset; a send with cache for the same preset within that time
     gets the kept one, whatever its other options (default 0 = render every time). forceRefresh true: render
     anyway.
-  The same message twice within 0.3 s is answered only once. On a failure the answer is {error}, often an empty
-  object (the reason is not passed on): try renderer svg, look at the log of echarts.0.
+  The same message twice within 0.3 s is answered only once. On a failure the answer is {error} with the reason
+  as text (e.g. the module canvas is missing: try renderer svg).
 
 How to talk to the user:
 - Ask which chart, if not clear, and name it by the name of its preset (common.name), not by its ID.
