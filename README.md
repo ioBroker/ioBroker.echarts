@@ -177,6 +177,8 @@ sendTo(
 );
 ```
 
+`sendTo('echarts.0', 'help', {})` answers with a description of the messages for AI agents (e.g. pi-agent) and script authors; the answer lists all commands with `write` (whether a command changes something).
+
 **Attention: You cannot enable/disable lines in legend on touch devices with enabled zoom**
 
 ## Developer manual
@@ -199,6 +201,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (@GermanBluefox) Added the message "help": a description of all messages for AI agents (e.g. pi-agent), and common.supportedMessages.help
+
 ### 6.4.1 (2026-11-17)
 - (@GermanBluefox) Fixed the build with echarts-for-react 3.1.0: version 6.4.0 failed to build and was not published, this version contains its changes
 

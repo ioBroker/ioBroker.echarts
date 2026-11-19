@@ -34,6 +34,7 @@ const adapter_core_1 = require("@iobroker/adapter-core");
 const ChartModel_1 = __importDefault(require("./lib/ChartModel"));
 const ChartOption_1 = __importDefault(require("./lib/ChartOption"));
 const socketSimulator_1 = require("./lib/socketSimulator");
+const help_1 = require("./lib/help");
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
 //     | undefined;
@@ -105,7 +106,17 @@ class EchartsAdapter extends adapter_core_1.Adapter {
             name: 'echarts',
         });
         this.on('ready', () => this.main());
-        this.on('message', obj => obj?.command === 'send' && this.processMessage(obj));
+        this.on('message', obj => {
+            if (obj?.command === 'help') {
+                // a description of the messages for AI agents and scripts
+                if (obj.callback) {
+                    this.sendTo(obj.from, obj.command, { help: help_1.HELP, commands: help_1.COMMANDS }, obj.callback);
+                }
+            }
+            else if (obj?.command === 'send') {
+                this.processMessage(obj);
+            }
+        });
     }
     // Todo: queue requests as  global.window is "global"
     async renderImage(options) {

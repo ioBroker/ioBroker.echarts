@@ -36,6 +36,7 @@ import type { EchartsOptions, Connection } from './types';
 import ChartModel, { type BarAndLineSeries } from './lib/ChartModel';
 import ChartOption from './lib/ChartOption';
 import { getSocket } from './lib/socketSimulator';
+import { COMMANDS, HELP } from './lib/help';
 
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
@@ -117,7 +118,16 @@ class EchartsAdapter extends Adapter {
             name: 'echarts',
         });
         this.on('ready', () => this.main());
-        this.on('message', obj => obj?.command === 'send' && this.processMessage(obj));
+        this.on('message', obj => {
+            if (obj?.command === 'help') {
+                // a description of the messages for AI agents and scripts
+                if (obj.callback) {
+                    this.sendTo(obj.from, obj.command, { help: HELP, commands: COMMANDS }, obj.callback);
+                }
+            } else if (obj?.command === 'send') {
+                this.processMessage(obj);
+            }
+        });
     }
 
     // Todo: queue requests as  global.window is "global"

@@ -212,6 +212,10 @@
     "dataSource": "push",
     "icon": "echarts.png",
     "messagebox": true,
+    "supportedMessages": {
+        "help": true,
+        "custom": true
+    },
     "eraseOnUpload": true,
     "nogit": true,
     "enabled": true,
