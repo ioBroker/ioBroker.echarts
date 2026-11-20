@@ -177,6 +177,21 @@ sendTo(
 );
 ```
 
+The preset may also be a chart of its own, without a preset object, e.g. the outside temperature of the last 24 hours:
+
+```js
+sendTo('echarts.0', 'send', {
+    preset: {
+        l: [{ id: 'alias.0.Outside.Temperature' }], // the lines: id, and optional name, unit, color, instance (history adapter)
+        range: 1440, // minutes back from now
+        title: 'Outside',
+    },
+    renderer: 'png',
+    background: '#ffffff',
+    fileName: 'agent/outside.png', // then e.g. telegram: sendTo('telegram.0', 'send', { text: 'iobfile://echarts.0/agent/outside.png' })
+});
+```
+
 `sendTo('echarts.0', 'help', {})` answers with a description of the messages for AI agents (e.g. pi-agent) and script authors; the answer lists all commands with `write` (whether a command changes something).
 
 **Attention: You cannot enable/disable lines in legend on touch devices with enabled zoom**
@@ -202,6 +217,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- (@GermanBluefox) The help for AI agents describes charts without a preset (states and time range in the message), e.g. "the outside temperature of today", and how to send a chart with a messenger
 - (@GermanBluefox) Fixed: the message "send" with renderer "pdf" now answers with the PDF instead of never answering; a failure while rendering or writing `fileOnDisk` is answered as an error as well
 - (@GermanBluefox) Fixed: the message "send" now answers errors with their text instead of an empty object
 - (@GermanBluefox) Fixed: the message "send" with an unknown preset now answers with an error instead of no answer at all

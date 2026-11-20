@@ -20,10 +20,21 @@ Commands (sendTo echarts.0):
 - send {preset, renderer?, width?, height?, background?, theme?, title?, quality?, compressionLevel?, filters?,
   fileOnDisk?, fileName?, cache?, forceRefresh?}: renders the preset with its current data:
   {data: "data:image/png;base64,..."} (a data URL of the file) or {error}.
-  - preset (required): the ID of the preset object; without "echarts." in front, "echarts.0." is added
-    (so "Temperatures" = echarts.0.Temperatures). It may also be a chart config object as in native.data of a
-    preset (e.g. a copy with another time range); then do not use cache. An unknown preset is answered with
+  - preset (required): the ID of a preset object; without "echarts." in front, "echarts.0." is added
+    (so "Temperatures" = echarts.0.Temperatures). An unknown preset is answered with
     {error: "Unknown preset ..."}: look the ID up first (objects of type chart below echarts.0).
+    Or a chart of its own, without a preset object (then do not use cache), e.g. the outside temperature of today
+    at 21:00: {l: [{id: "alias.0.Outside.Temperature"}], range: 1260, title: "Outside today"}
+    - l (required): the lines, each {id, name?, unit?, color?, instance?}. The state needs its history logged.
+      instance: the history adapter, e.g. "system.adapter.influxdb.0" (default: the default history of the
+      system settings). unit: default the unit of the state.
+    - range: minutes back from the end (1440 = 24 h; "today so far" = the minutes since midnight), relativeEnd:
+      "now" (default) ends now. relativeEnd "today" ends at midnight and draws the last value on until then: not
+      for a chart of today so far.
+    - A fixed time instead: timeType "static", start and end as "YYYY-MM-DD", start_time and end_time as
+      "HH:MM" (default 00:00 and 24:00), in the time zone of the ioBroker host; e.g. yesterday: start and end
+      the date of yesterday.
+    - title: shown in the chart. Further fields as in native.data of a preset (the editor writes them).
   - renderer: svg (default), png, jpg or pdf. png, jpg and pdf need the module canvas on the host; without it
     they fail and only svg works (the log of echarts.0 says so at its start).
   - width (default 1024), height (default 300): size in pixels.
@@ -43,8 +54,15 @@ Commands (sendTo echarts.0):
   The same message twice within 0.3 s is answered only once. On a failure the answer is {error} with the reason
   as text (e.g. the module canvas is missing: try renderer svg).
 
+To send a chart with a messenger: render it with renderer png, a background (e.g. "#ffffff") and fileName (e.g.
+"agent/chart.png"), then let the messenger send that file, e.g. sendTo telegram.0 send {text:
+"iobfile://echarts.0/agent/chart.png", caption: "...", user?}. A messenger on the same host can also take a
+fileOnDisk path. The answer data is the whole picture as text: never repeat it.
+
 How to talk to the user:
-- Ask which chart, if not clear, and name it by the name of its preset (common.name), not by its ID.
+- Ask which chart, if not clear, and name it by the name of its preset (common.name), not by its ID. When the user
+  names states and a time instead of a chart (e.g. "the outside temperature of today"), draw a chart of its own:
+  find the state first, do not guess its ID.
 - Ask where to send it (which messenger, which chat or recipient) before sending; a picture of the house's data
   goes only to the people the user names.
 - To change what a chart shows (states, time range), the user edits the preset in the admin tab "Charts".`;
