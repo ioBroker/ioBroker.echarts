@@ -107,30 +107,75 @@ interface ChartFrameProps {
     src: string;
     presetData: ChartConfigMore;
     theme: IobTheme;
+    /** If false, the changes are sent to the preview only if refreshTrigger changes */
+    autoUpdate: boolean;
+    /** Every change of this number sends the current settings to the preview */
+    refreshTrigger: number;
+    /** Called if the preview shows not the current settings (only if autoUpdate is false) */
+    onPendingChange?: (pending: boolean) => void;
 }
+
+/** Delay before the changes are sent to the preview, so fast changes (color picker, typing) cause only one reload */
+const AUTO_UPDATE_DELAY = 800;
 
 class ChartFrame extends React.Component<ChartFrameProps> {
     private ready = false;
     private refIframe: HTMLIFrameElement | null = null;
     private lastPresetData = '';
+    private updateTimeout: ReturnType<typeof setTimeout> | null = null;
+    private pending = false;
 
     componentDidMount(): void {
         window.addEventListener('message', this.onReceiveMessage, false);
     }
 
-    componentDidUpdate(): void {
+    componentDidUpdate(prevProps: ChartFrameProps): void {
         if (window.location.port === '3000' || !this.ready || !this.refIframe?.contentWindow) {
             return;
         }
         const next = JSON.stringify(this.props.presetData);
-        if (next !== this.lastPresetData) {
-            this.lastPresetData = next;
-            this.refIframe.contentWindow.postMessage(next, this.getIframeOrigin());
+        if (prevProps.refreshTrigger !== this.props.refreshTrigger) {
+            // Update was requested by the user: send always
+            this.sendPresetData(next);
+        } else if (next === this.lastPresetData) {
+            this.clearUpdateTimeout();
+            this.setPending(false);
+        } else if (!this.props.autoUpdate) {
+            this.clearUpdateTimeout();
+            this.setPending(true);
+        } else {
+            this.clearUpdateTimeout();
+            this.updateTimeout = setTimeout(() => {
+                this.updateTimeout = null;
+                this.sendPresetData(JSON.stringify(this.props.presetData));
+            }, AUTO_UPDATE_DELAY);
         }
     }
 
     componentWillUnmount(): void {
+        this.clearUpdateTimeout();
         window.removeEventListener('message', this.onReceiveMessage, false);
+    }
+
+    private clearUpdateTimeout(): void {
+        if (this.updateTimeout) {
+            clearTimeout(this.updateTimeout);
+            this.updateTimeout = null;
+        }
+    }
+
+    private setPending(pending: boolean): void {
+        if (this.pending !== pending) {
+            this.pending = pending;
+            this.props.onPendingChange?.(pending);
+        }
+    }
+
+    private sendPresetData(data: string): void {
+        this.clearUpdateTimeout();
+        this.lastPresetData = data;
+        this.setPending(false);
+        this.refIframe?.contentWindow?.postMessage(data, this.getIframeOrigin());
     }
 
     private getIframeOrigin(): string {
@@ -145,8 +190,7 @@ class ChartFrame extends React.Component<ChartFrameProps> {
         // Only accept the ready handshake from the iframe we host
         if (message?.data === 'chartReady' && message.source === this.refIframe?.contentWindow) {
             this.ready = true;
-            this.lastPresetData = JSON.stringify(this.props.presetData);
-            this.refIframe?.contentWindow?.postMessage(this.lastPresetData, this.getIframeOrigin());
+            this.sendPresetData(JSON.stringify(this.props.presetData));
         }
     };
 

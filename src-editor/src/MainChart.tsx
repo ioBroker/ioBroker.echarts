@@ -1,14 +1,20 @@
 import React from 'react';
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
-import { Timeline } from '@mui/icons-material';
+import { Badge, FormControlLabel, IconButton, Switch } from '@mui/material';
+import { Timeline, Refresh as IconRefresh } from '@mui/icons-material';
 
-import type { IobTheme } from '@iobroker/gui-components';
+import { I18n, type IobTheme } from '@iobroker/gui-components';
 
 import ChartSettings, { TOOLBAR_HEIGHT } from './Components/ChartSettings';
 import ChartFrame from './Components/ChartFrame';
 import type { ChartConfigMore, SelectedChart } from '../../src/types';
 
-const styles: Record<'container' | 'heightWithoutToolbar' | 'height100', React.CSSProperties> = {
+const PREVIEW_BAR_HEIGHT = 36;
+
+const styles: Record<
+    'container' | 'heightWithoutToolbar' | 'height100' | 'previewBar' | 'frameWithBar',
+    React.CSSProperties
+> = {
     container: {
         height: '100%',
         width: '100%',
@@ -19,6 +25,17 @@ const styles: Record<'container' | 'heightWithoutToolbar' | 'height100', React.C
     },
     height100: {
         height: '100%',
+    },
+    previewBar: {
+        height: PREVIEW_BAR_HEIGHT,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        paddingRight: 8,
+        boxSizing: 'border-box',
+    },
+    frameWithBar: {
+        height: `calc(100% - ${PREVIEW_BAR_HEIGHT}px)`,
     },
 };
 
@@ -32,7 +49,59 @@ interface MainChartProps {
     windowWidth: number;
 }
 
-class MainChart extends React.Component<MainChartProps> {
+interface MainChartState {
+    /** If false, the preview is updated only by the button "Update preview" */
+    autoUpdate: boolean;
+    /** Incremented by the button "Update preview" */
+    refreshTrigger: number;
+    /** The preview shows not the current settings */
+    pending: boolean;
+}
+
+class MainChart extends React.Component<MainChartProps, MainChartState> {
+    constructor(props: MainChartProps) {
+        super(props);
+
+        this.state = {
+            autoUpdate: window.localStorage.getItem('echarts.autoPreview') !== 'false',
+            refreshTrigger: 0,
+            pending: false,
+        };
+    }
+
+    renderPreviewBar(): React.JSX.Element {
+        return (
+            <div style={styles.previewBar}>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            size="small"
+                            checked={this.state.autoUpdate}
+                            onChange={e => {
+                                window.localStorage.setItem('echarts.autoPreview', e.target.checked ? 'true' : 'false');
+                                this.setState({ autoUpdate: e.target.checked });
+                            }}
+                        />
+                    }
+                    label={I18n.t('Auto preview')}
+                />
+                <IconButton
+                    size="small"
+                    title={I18n.t('Update preview')}
+                    onClick={() => this.setState({ refreshTrigger: this.state.refreshTrigger + 1 })}
+                >
+                    <Badge
+                        color="secondary"
+                        variant="dot"
+                        invisible={this.state.autoUpdate || !this.state.pending}
+                    >
+                        <IconRefresh />
+                    </Badge>
+                </IconButton>
+            </div>
+        );
+    }
+
     renderToolbar(): React.JSX.Element | null {
         return this.props.selectedId && typeof this.props.selectedId === 'string' ? null : (
             <ChartSettings
@@ -61,11 +130,19 @@ class MainChart extends React.Component<MainChartProps> {
         return (
             <div style={typeof this.props.selectedId !== 'string' ? styles.heightWithoutToolbar : styles.height100}>
                 {this.props.visible ? (
-                    <ChartFrame
-                        src={`${URL}index.html?edit=1`}
-                        presetData={data}
-                        theme={this.props.theme}
-                    />
+                    <>
+                        {this.renderPreviewBar()}
+                        <div style={styles.frameWithBar}>
+                            <ChartFrame
+                                src={`${URL}index.html?edit=1`}
+                                presetData={data}
+                                theme={this.props.theme}
+                                autoUpdate={this.state.autoUpdate}
+                                refreshTrigger={this.state.refreshTrigger}
+                                onPendingChange={(pending: boolean): void => this.setState({ pending })}
+                            />
+                        </div>
+                    </>
                 ) : (
                     <Timeline style={{ height: '100%', width: '100%' }} />
                 )}
