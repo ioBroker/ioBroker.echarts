@@ -37,6 +37,7 @@ import ChartModel, { type BarAndLineSeries } from './lib/ChartModel';
 import ChartOption from './lib/ChartOption';
 import { getSocket } from './lib/socketSimulator';
 import { COMMANDS, HELP } from './lib/help';
+import { pictureAnswer } from './lib/picture';
 
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
@@ -436,13 +437,14 @@ class EchartsAdapter extends Adapter {
                 this.cachedSnapshots[message.preset].ts >= Date.now()
             ) {
                 if (obj.callback) {
+                    const cached = this.cachedSnapshots[message.preset];
+                    // a kept picture was not stored again with this fileName: no file in the answer
                     this.sendTo(
                         obj.from,
                         'send',
-                        {
-                            data: this.cachedSnapshots[message.preset].data,
-                            error: this.cachedSnapshots[message.preset].error,
-                        },
+                        cached.data
+                            ? { ...pictureAnswer(cached.data, this.namespace), error: cached.error }
+                            : { data: cached.data, error: cached.error },
                         obj.callback,
                     );
                 }
@@ -463,7 +465,12 @@ class EchartsAdapter extends Adapter {
                             }
                         }
                         if (obj.callback) {
-                            this.sendTo(obj.from, 'send', { data }, obj.callback);
+                            this.sendTo(
+                                obj.from,
+                                'send',
+                                pictureAnswer(data, this.namespace, message.fileName),
+                                obj.callback,
+                            );
                         }
                     })
                     .catch(err => {

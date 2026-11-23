@@ -20,7 +20,10 @@ Presets are made and changed in the editor of the admin tab "Charts", not by mes
 Commands (sendTo echarts.0):
 - send {preset, renderer?, width?, height?, background?, theme?, title?, quality?, compressionLevel?, filters?,
   fileOnDisk?, fileName?, cache?, forceRefresh?}: renders the preset with its current data:
-  {data: "data:image/png;base64,..."} (a data URL of the file) or {error}.
+  {data: "data:image/png;base64,...", contentType: "image/png", file?: "echarts.0/<fileName>"} or {error}. data is
+  a data URL of the file (image, url and file parameters of other adapters take it as it is), contentType and file
+  are the fields of the shared catalog of ioBroker.assistant for pictures; file only with fileName, and not for a
+  picture kept by cache.
   - preset (required): the ID of a preset object; without "echarts." in front, "echarts.0." is added
     (so "Temperatures" = echarts.0.Temperatures). An unknown preset is answered with
     {error: "Unknown preset ..."}: look the ID up first (objects of type chart below echarts.0).
@@ -56,7 +59,7 @@ Commands (sendTo echarts.0):
   as text (e.g. the module canvas is missing: try renderer svg).
 
 To send a chart with a messenger: render it with renderer png, a background (e.g. "#ffffff") and fileName (e.g.
-"agent/chart.png"), then let the messenger send that file, e.g. sendTo telegram.0 send {text:
+"agent/chart.png"), then let the messenger send the file of the answer, e.g. sendTo telegram.0 send {text:
 "iobfile://echarts.0/agent/chart.png", caption: "...", user?}. A messenger on the same host can also take a
 fileOnDisk path. The answer data is the whole picture as text: never repeat it.
 

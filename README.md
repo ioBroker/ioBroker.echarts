@@ -171,11 +171,13 @@ sendTo(
         if (result.error) {
             console.error(result.error);
         } else {
-            console.log(result.data);
+            console.log(result.data); // data:image/svg+xml;base64,...
         }
     },
 );
 ```
+
+Besides `data` (a data URL), the answer carries `contentType` (e.g. `image/png`) and, with `fileName`, `file` (e.g. `echarts.0/agent/outside.png`, to send as `iobfile://echarts.0/agent/outside.png`): the fields for pictures of the shared catalog of ioBroker.assistant. A picture kept by `cache` has no `file`.
 
 The preset may also be a chart of its own, without a preset object, e.g. the outside temperature of the last 24 hours:
 
@@ -217,6 +219,7 @@ You can debug view charts locally with:
 
 ## Changelog
 ### **WORK IN PROGRESS**
+* (@GermanBluefox) The answer of `send` also carries `contentType` and, with `fileName`, `file` (the fields for pictures of the shared catalog of ioBroker.assistant); `data` stays a data URL
 * (GermanBluefox) The preset editor has a switch "Auto preview" and a button "Update preview": with the switch off, the preview is updated only by the button; with the switch on, the preview waits briefly after a change so fast changes cause only one reload (#1323)
 
 ### 6.5.1 (2026-11-20)

@@ -35,6 +35,7 @@ const ChartModel_1 = __importDefault(require("./lib/ChartModel"));
 const ChartOption_1 = __importDefault(require("./lib/ChartOption"));
 const socketSimulator_1 = require("./lib/socketSimulator");
 const help_1 = require("./lib/help");
+const picture_1 = require("./lib/picture");
 // let echartsInit:
 //     | ((canvas: HTMLElement | null, theme?: string | object | null, opts?: EChartsInitOpts) => EChartsType)
 //     | undefined;
@@ -371,10 +372,11 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                 this.cachedSnapshots[message.preset] &&
                 this.cachedSnapshots[message.preset].ts >= Date.now()) {
                 if (obj.callback) {
-                    this.sendTo(obj.from, 'send', {
-                        data: this.cachedSnapshots[message.preset].data,
-                        error: this.cachedSnapshots[message.preset].error,
-                    }, obj.callback);
+                    const cached = this.cachedSnapshots[message.preset];
+                    // a kept picture was not stored again with this fileName: no file in the answer
+                    this.sendTo(obj.from, 'send', cached.data
+                        ? { ...(0, picture_1.pictureAnswer)(cached.data, this.namespace), error: cached.error }
+                        : { data: cached.data, error: cached.error }, obj.callback);
                 }
             }
             else {
@@ -395,7 +397,7 @@ class EchartsAdapter extends adapter_core_1.Adapter {
                         }
                     }
                     if (obj.callback) {
-                        this.sendTo(obj.from, 'send', { data }, obj.callback);
+                        this.sendTo(obj.from, 'send', (0, picture_1.pictureAnswer)(data, this.namespace, message.fileName), obj.callback);
                     }
                 })
                     .catch(err => {
