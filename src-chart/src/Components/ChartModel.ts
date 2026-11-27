@@ -409,6 +409,8 @@ class ChartModel {
     private readonly actualValues: (number | null | boolean | string)[] = [];
     private ticks: EchartsAnyValue[] = null;
     private reading: boolean = false;
+    // When the last read started. The live update does not wait longer than 3 minutes for a stuck read.
+    private readStartTs = 0;
     private subscribes: string[] = [];
     private sessionId: number = 1;
     // update interval by time
@@ -633,7 +635,7 @@ class ChartModel {
                     await this.socket.subscribeObject(this.preset, this.onPresetUpdate);
                 }
                 if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
-                    this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                    this.updateInterval = setInterval(() => this.liveRead(), this.config.live * 1000);
                 }
             } catch (e) {
                 e === NOT_CONNECTED && this.onErrorFunc && this.onErrorFunc(e);
@@ -647,7 +649,7 @@ class ChartModel {
             this.config.debug = this.debug;
             await this.readData();
             if (!this.serverSide && this.config.live && !this.zoomData?.stopLive) {
-                this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                this.updateInterval = setInterval(() => this.liveRead(), this.config.live * 1000);
             }
         }
     }
@@ -722,7 +724,7 @@ class ChartModel {
                 this.updateInterval = null;
 
                 if (this.config.live && (!this.zoomData || !this.zoomData.stopLive)) {
-                    this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                    this.updateInterval = setInterval(() => this.liveRead(), this.config.live * 1000);
                 }
 
                 void this.readData();
@@ -751,7 +753,7 @@ class ChartModel {
                         if (this.updateInterval) {
                             clearInterval(this.updateInterval);
                         }
-                        this.updateInterval = setInterval(() => this.readData(), (this.config?.live || 10) * 1000);
+                        this.updateInterval = setInterval(() => this.liveRead(), (this.config?.live || 10) * 1000);
                     }
                     void this.readData();
                 }, this.updateTimeout);
@@ -1025,7 +1027,7 @@ class ChartModel {
         this.updateInterval = null;
         void this.readData().then((): void => {
             if (!this.serverSide && this.config.live) {
-                this.updateInterval = setInterval(() => this.readData(), this.config.live * 1000);
+                this.updateInterval = setInterval(() => this.liveRead(), this.config.live * 1000);
             }
         });
     }
@@ -2859,6 +2861,17 @@ class ChartModel {
         return result;
     }
 
+    /** Called by the live update. Skips the tick while the previous read is still running (#1325) */
+    private liveRead(): void {
+        if (this.reading && Date.now() - this.readStartTs < 180000) {
+            if (this.debug) {
+                console.log('[ChartModel] Live update skipped, the previous read is still running');
+            }
+            return;
+        }
+        void this.readData();
+    }
+
     async readData(): Promise<void> {
         if (this.readOnZoomTimeout) {
             clearTimeout(this.readOnZoomTimeout);
@@ -2872,9 +2885,11 @@ class ChartModel {
         if (this.sessionId > 0xffffff) {
             this.sessionId = 1;
         }
+        const sessionId = this.sessionId;
 
         if (this.config.l) {
             this.reading = true;
+            this.readStartTs = Date.now();
             this.onReadingFunc && this.onReadingFunc(true);
 
             // todo
@@ -2900,32 +2915,38 @@ class ChartModel {
             this.barCategoriesEnd = undefined;
             this.barJsonRange = [];
 
-            await this._readData();
-            // The lines that share a Y-axis show the unit of that axis. A preset that was written by
-            // hand or that survived a conversion can point at a line that does not exist. That must not
-            // stop the whole chart, so such a line falls back to an own axis.
-            for (let i = 0; i < this.config.l.length; i++) {
-                const commonYAxis = this.config.l[i].commonYAxis;
-                if (commonYAxis || commonYAxis === 0) {
-                    const axisOwner = this.config.l[commonYAxis];
-                    if (axisOwner) {
-                        this.config.l[i].unit = axisOwner.unit;
-                    } else {
-                        console.warn(
-                            `[ChartModel] Line ${i + 1} shares the Y-axis of line ${Number(commonYAxis) + 1}, which does not exist. It gets an own axis.`,
-                        );
-                        delete this.config.l[i].commonYAxis;
+            try {
+                await this._readData();
+                // The lines that share a Y-axis show the unit of that axis. A preset that was written by
+                // hand or that survived a conversion can point at a line that does not exist. That must not
+                // stop the whole chart, so such a line falls back to an own axis.
+                for (let i = 0; i < this.config.l.length; i++) {
+                    const commonYAxis = this.config.l[i].commonYAxis;
+                    if (commonYAxis || commonYAxis === 0) {
+                        const axisOwner = this.config.l[commonYAxis];
+                        if (axisOwner) {
+                            this.config.l[i].unit = axisOwner.unit;
+                        } else {
+                            console.warn(
+                                `[ChartModel] Line ${i + 1} shares the Y-axis of line ${Number(commonYAxis) + 1}, which does not exist. It gets an own axis.`,
+                            );
+                            delete this.config.l[i].commonYAxis;
+                        }
                     }
                 }
-            }
 
-            await this.readTicks();
-            await this.readMarkings();
-            /* if (!this.subscribed) {
-                this.subscribed = true;
-                await this.subscribeAll(this.subscribes));
-            } */
-            this.reading = false;
+                await this.readTicks();
+                await this.readMarkings();
+                /* if (!this.subscribed) {
+                    this.subscribed = true;
+                    await this.subscribeAll(this.subscribes));
+                } */
+            } finally {
+                // A newer read (zoom, preset change) replaced this one and is still running
+                if (this.sessionId === sessionId) {
+                    this.reading = false;
+                }
+            }
 
             this.updateData();
         } else {
