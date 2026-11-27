@@ -218,6 +218,9 @@ You can debug view charts locally with:
   -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) Live update does not start a new read while the previous one is still running (#1325)
+
 ### 6.6.0 (2026-11-23)
 * (@GermanBluefox) The answer of `send` also carries `contentType` and, with `fileName`, `file` (the fields for pictures of the shared catalog of ioBroker.assistant); `data` stays a data URL
 * (GermanBluefox) The preset editor has a switch "Auto preview" and a button "Update preview": with the switch off, the preview is updated only by the button; with the switch on, the preview waits briefly after a change so fast changes cause only one reload (#1323)
